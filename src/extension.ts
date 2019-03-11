@@ -7,7 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const _ =  require('lodash');
 
-//TODO: make sure main.c is transformed and deleted into main.cpp
+//TODO: make sure main.c is transformed into main.cpp including generated changes
 
 let targetName = '';
 
@@ -65,9 +65,9 @@ export function openLaunchFile() {
 	console.log(vscode.workspace.rootPath);
 	console.log('target name', targetName);
 }
-export function diretoryTreeToObj(dir, done) {
-	var results = [];
-    fs.readdir(dir, function(err, list) {
+export function diretoryTreeToObj(dir: string, done: Function) {
+	var results:Array<Object> = [];
+    fs.readdir(dir, function(err: Object, list: any) {
         if (err)
             return done(err);
 
@@ -76,11 +76,11 @@ export function diretoryTreeToObj(dir, done) {
         if (!pending)
             return done(null, {name: path.basename(dir), type: 'folder', children: results});
 
-        list.forEach(function(file) {
+        list.forEach(function(file: any) {
             file = path.resolve(dir, file);
-            fs.stat(file, function(err, stat) {
+            fs.stat(file, function(err: Object, stat: any) {
                 if (stat && stat.isDirectory()) {
-                    diretoryTreeToObj(file, function(err, res) {
+                    diretoryTreeToObj(file, function(err: any, res:any) {
                         results.push({
                             name: path.basename(file),
                             type: 'folder',
@@ -106,8 +106,8 @@ export function diretoryTreeToObj(dir, done) {
 };
 
 
-export function getBuildFiles(fileTree) {
-	let buildFiles = {
+export function getBuildFiles(fileTree: any) {
+	let buildFiles: any = {
 		cSources: [],
 		cppSources: [],
 		asmSources: [],
@@ -117,7 +117,7 @@ export function getBuildFiles(fileTree) {
 	};
 
 	if (fileTree.length > 0 ) {
-		fileTree.forEach((entry) => {
+		fileTree.forEach((entry: any) => {
 			const isDriverFile = entry.path.indexOf('CMSIS') >= 0;
 			if(entry.type === 'file') {
 				const extension = entry.name.split('.').pop();
@@ -163,9 +163,9 @@ export function getBuildFiles(fileTree) {
 	return buildFiles;
 }
 
-export function hasBuildFiles(fileTree) {
+export function hasBuildFiles(fileTree: any) {
 	let has = false;
-	_.map(fileTree.children, (entry) => {
+	_.map(fileTree.children, (entry: any) => {
 		if(entry.type === 'file') {
 			const extension = entry.name.split('.').pop();
 			if(extension === 's' || extension === 'c' || extension === 'cpp') {
@@ -179,11 +179,11 @@ export function hasBuildFiles(fileTree) {
 
 
 
-export function createIncludes(sources) {
+export function createIncludes(sources: any) {
 	//returns a string of includes
 	// console.log('new sources', sources);
 	let includesString = '-include sources.mk\n-include subdir.mk\n-include objects.mk\n';
-	_.map(sources.subDirectories, (dir) => {
+	_.map(sources.subDirectories, (dir: any) => {
 		if(dir.name === '.vscode' || _.toLower(dir.name) === 'release' || _.toLower(dir.name) === 'debug') return;
 		includesString += `-include ${dir.path}/subdir.mk\n`
 	});
@@ -192,18 +192,19 @@ export function createIncludes(sources) {
 }
 
 
-export function buildCPP(callback) {
+export function buildCPP(callback: any) {
 	console.log('starting build');
 	vscode.workspace.findFiles('Makefile').then((uris) => {
 		if(uris.length < 1) {
 			vscode.window.showWarningMessage('no makefile found. Please init the STM project using CubeMX');
 			return;
 		}
-		diretoryTreeToObj(vscode.workspace.rootPath, (err, list) => { 
-			const files = getBuildFiles(list);
-			returnMakeFileInfo(uris[0], (makeInfo) => {
+		const rootPath:string = vscode.workspace.rootPath || '';
+		diretoryTreeToObj(rootPath, (err: any, list: any) => { 
+			// const files = getBuildFiles(list);
+			returnMakeFileInfo(uris[0], (makeInfo: any) => {
 				console.log('makeInfo', makeInfo);
-				createMakeFile(list, makeInfo, (inf) => {
+				createMakeFile(list, makeInfo, (inf: any) => {
 					console.log('hello!!!');
 					let terminal = vscode.window.activeTerminal;
 					if(!terminal) {
@@ -228,34 +229,35 @@ export function getCortexType() {
 }
 export function getProjectName() {
 	//TODO: Check if there is a better way to do this, which does not involve using the
-	return vscode.workspace.rootPath.split('/').pop();
+	const rootPath = vscode.workspace.rootPath || '';
+	return rootPath.split('/').pop();
 }
-export function convertToSourceString(files) {
+export function convertToSourceString(files: any) {
 	if(!files || files.length <= 0) return '';
 	let filesString = '';
-	_.map(files, (file) => {
+	_.map(files, (file: any) => {
 		filesString += `${file.path} \\\r\n`;
 	});
 	return filesString;
 }
 
-export function createMakeFile(fileList, makeInfo, callback ) {
+export function createMakeFile(fileList: any, makeInfo: any, callback: any ) {
 	// console.log('filelist', fileList);
 	const files = getBuildFiles(fileList);
 	const cSources = convertToSourceString(files.cSources);
 	const cppSources = convertToSourceString(files.cppSources);
 	const asmSources = convertToSourceString(files.asmSources);
 
-	const includes = createIncludes(files);
+	// const includes = createIncludes(files);
 	// console.log('includes', includes);
 	const linkerTarget = _.first(_.get(files, 'linkerFile.name', '').split('_'));
 	if(_.isEmpty(linkerTarget)) {
 		vscode.window.showErrorMessage('Linker script is not included please regenerate the project using CubeMX');
 		return;
 	}
-	const target = getTarget() || linkerTarget;
-	const cortexType = getCortexType();
-	const projectName = getProjectName();
+	// const target = getTarget() || linkerTarget;
+	// const cortexType = getCortexType();
+	// const projectName = getProjectName();
 
 	console.log('make info', makeInfo);
 	const makeFile = 
@@ -437,7 +439,7 @@ clean:
 	// console.log('new make file is', makeFile);
 	const makeFileDirPath = `${vscode.workspace.rootPath}/Makefile`;
 	console.log('dir path is ', makeFileDirPath);
-	fs.writeFile(makeFileDirPath, makeFile, function (error) {
+	fs.writeFile(makeFileDirPath, makeFile, function (error: any) {
 		if (error) {
 			console.log('error', error);
 			return;
@@ -447,7 +449,7 @@ clean:
 	});
 }
 
-export function returnMakeFileInfo(makeFileUri, callback) {
+export function returnMakeFileInfo(makeFileUri: any, callback: any) {
 	let info = {};
 
 	// console.log('makeFileUri', makeFileUri);
@@ -467,7 +469,7 @@ export function returnMakeFileInfo(makeFileUri, callback) {
 		let cDefs = '';
 		let end = false;
 		console.log('cdefs arr', cDefsArr);
-		_.map(cDefsArr, (entry, ind) => {
+		_.map(cDefsArr, (entry: any, ind: any) => {
 			if(end) return;
 			if(entry.indexOf(' \\') < 0) {
 				cDefs += entry;
@@ -481,7 +483,7 @@ export function returnMakeFileInfo(makeFileUri, callback) {
 		let cIncludes = '';
 		const cIncludesArr = makeFileText.substr(makeFileText.indexOf('C_INCLUDES =')).split('\n');
 		console.log('c includes arr', cIncludesArr);
-		_.map(cIncludesArr, (entry) => {
+		_.map(cIncludesArr, (entry: any) => {
 			if(end) return;
 			if(entry.indexOf(' \\') < 0) {
 				cIncludes += entry;
@@ -510,7 +512,7 @@ export function returnMakeFileInfo(makeFileUri, callback) {
 /* Function for updating the makefile. It recursively searches for new c files to append in the makefile
  * This makes sure that users do not have to input the in the makefile themselves
 */
-export function createNewMakeFile(callback) {
+export function createNewMakeFile(callback: any) {
 
 	buildCPP(null);
 	return;
@@ -546,18 +548,18 @@ export function buildNew() {
 // 	// then should implement custom definitions
 // }
 
-const standardTasks = [
-	{
-		"label": "Load Firmware",
-		"type": "shell",
-		"command": "st-flash write ./build/vsarm_firmware.bin 0x08000000",
-		"options": {
-			"cwd": "${workspaceRoot}"
-		},
-		"group": {
-			"kind": "build",
-			"isDefault": true
-		},
-		"problemMatcher": []
-	}
-];
+// const standardTasks = [
+// 	{
+// 		"label": "Load Firmware",
+// 		"type": "shell",
+// 		"command": "st-flash write ./build/vsarm_firmware.bin 0x08000000",
+// 		"options": {
+// 			"cwd": "${workspaceRoot}"
+// 		},
+// 		"group": {
+// 			"kind": "build",
+// 			"isDefault": true
+// 		},
+// 		"problemMatcher": []
+// 	}
+// ];
