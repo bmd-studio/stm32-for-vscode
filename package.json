@@ -2,7 +2,7 @@
 	"name": "stm32-for-vscode",
 	"displayName": "STM32 for VSCode",
 	"description": "An extension for: setting up, compiling, uploading and debugging STM32 applications",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"engines": {
 		"vscode": "^1.30.0"
 	},
