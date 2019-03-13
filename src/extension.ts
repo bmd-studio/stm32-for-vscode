@@ -6,10 +6,12 @@ import * as vscode from 'vscode';
 const fs = require('fs');
 const path = require('path');
 const _ =  require('lodash');
+// const definedRegExSearch = /^(#define \w+)$/gm;
+
 
 //TODO: make sure main.c is transformed into main.cpp including generated changes
 
-let targetName = '';
+// let targetName = '';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -17,7 +19,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
-		console.log('Congratulations, your extension "stm32-for-vscode" is now active!');
 
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
@@ -32,15 +33,11 @@ export function activate(context: vscode.ExtensionContext) {
 	const initCommand = vscode.commands.registerCommand('extension.initSTM', () => {
 		// Should add cpp_properties json
 		// Should add build and debug in launch.json
-		openLaunchFile();
-		// vscode.workspace.findFiles('launch.json').then((uris) => {
-		// 	console.log('found files', uris);
-		// });
+		// openLaunchFile();
 
 	});
 
 	const buildCommand = vscode.commands.registerCommand('extension.buildSTM', () => {
-		// buildNew();
 		buildCPP(null);
 	});
 
@@ -52,19 +49,13 @@ export function activate(context: vscode.ExtensionContext) {
 // this method is called when your extension is deactivated
 export function deactivate() {}
 
-export function openLaunchFile() {
-	const url = `${vscode.workspace.rootPath}/.vscode/tasks.json`;
-	console.log('reading file with adres:', url);
-	vscode.workspace.openTextDocument(url).then((launchFile) => {
-		console.log('launch file: ', launchFile);
-		const theText = launchFile.getText();
-		console.log('text file', theText);
-		// const launchJSON = JSON.parse(launchFile.getText());
-		// console.log('launch json', launchJSON);
-	});
-	console.log(vscode.workspace.rootPath);
-	console.log('target name', targetName);
-}
+// export function openLaunchFile() {
+// 	const url = `${vscode.workspace.rootPath}/.vscode/tasks.json`;
+// 	vscode.workspace.openTextDocument(url).then((launchFile) => {
+// 		const theText = launchFile.getText();
+// 	});
+// }
+
 export function diretoryTreeToObj(dir: string, done: Function) {
 	var results:Array<Object> = [];
     fs.readdir(dir, function(err: Object, list: any) {
@@ -119,10 +110,9 @@ export function getBuildFiles(fileTree: any) {
 	if (fileTree.length > 0 ) {
 		fileTree.forEach((entry: any) => {
 			const isDriverFile = entry.path.indexOf('CMSIS') >= 0;
-			if(entry.type === 'file') {
+			const isDriverTemplate = entry.path.indexOf('xx_HAL_Driver') >= 0 && entry.path.indexOf('template') >= 0;
+			if(entry.type === 'file' && !isDriverTemplate) {
 				const extension = entry.name.split('.').pop();
-				// if(extension != 's' && extension != 'c' && extension != 'cpp' && != 'ld') return;
-				// console.log('extension is: ', extension);
 				switch(extension) {
 					case 's':
 						buildFiles.asmSources.push(entry);
@@ -134,7 +124,6 @@ export function getBuildFiles(fileTree: any) {
 						buildFiles.cppSources.push(entry);
 						break;
 					case 'ld':
-						// console.log('linker file', entry);
 						buildFiles.linkerFile = entry;
 						break;
 				}
@@ -145,8 +134,7 @@ export function getBuildFiles(fileTree: any) {
 				//do some recursion here
 				const result = getBuildFiles(entry.children);
 
-				// //now append these 
-				// console.log('concatted res', buildFiles.cSources.concat(result.cSources)); 
+				// now append these 
 				buildFiles.cSources = buildFiles.cSources.concat(result.cSources);
 				buildFiles.cppSources = buildFiles.cppSources.concat(result.cppSources);
 				buildFiles.asmSources = buildFiles.asmSources.concat(result.asmSources);
@@ -156,7 +144,6 @@ export function getBuildFiles(fileTree: any) {
 					buildFiles.linkerFile = result.linkerFile;
 				}
 			}
-			// console.log('files are', buildFiles);
 		});
 	}
 
@@ -181,19 +168,16 @@ export function hasBuildFiles(fileTree: any) {
 
 export function createIncludes(sources: any) {
 	//returns a string of includes
-	// console.log('new sources', sources);
 	let includesString = '-include sources.mk\n-include subdir.mk\n-include objects.mk\n';
 	_.map(sources.subDirectories, (dir: any) => {
 		if(dir.name === '.vscode' || _.toLower(dir.name) === 'release' || _.toLower(dir.name) === 'debug') return;
 		includesString += `-include ${dir.path}/subdir.mk\n`
 	});
-	// console.log('create includes returns: ', includesString);
 	return includesString;
 }
 
 
 export function buildCPP(callback: any) {
-	console.log('starting build');
 	vscode.workspace.findFiles('Makefile').then((uris) => {
 		if(uris.length < 1) {
 			vscode.window.showWarningMessage('no makefile found. Please init the STM project using CubeMX');
@@ -203,30 +187,26 @@ export function buildCPP(callback: any) {
 		diretoryTreeToObj(rootPath, (err: any, list: any) => { 
 			// const files = getBuildFiles(list);
 			returnMakeFileInfo(uris[0], (makeInfo: any) => {
-				console.log('makeInfo', makeInfo);
 				createMakeFile(list, makeInfo, (inf: any) => {
-					console.log('hello!!!');
 					let terminal = vscode.window.activeTerminal;
 					if(!terminal) {
 						terminal = vscode.window.createTerminal();
 					}
 					terminal.sendText('make');
 				});
-			});
-			// console.log('files are...', files);
-			
+			});			
 		});
 	});
 }
 
-export function getTarget() {
-	//TODO: Return the actual target
-	return null;
-}
-export function getCortexType() {
-	//TODO: return the actual type
-	return 'cortex-m4';
-}
+// export function getTarget() {
+// 	//TODO: Return the actual target
+// 	return null;
+// }
+// export function getCortexType() {
+// 	//TODO: return the actual type
+// 	return 'cortex-m4';
+// }
 export function getProjectName() {
 	//TODO: Check if there is a better way to do this, which does not involve using the
 	const rootPath = vscode.workspace.rootPath || '';
@@ -235,21 +215,43 @@ export function getProjectName() {
 export function convertToSourceString(files: any) {
 	if(!files || files.length <= 0) return '';
 	let filesString = '';
-	_.map(files, (file: any) => {
+	const sortedFiles = _.sortBy(files, ['name']);
+	_.map(sortedFiles, (file: any) => {
 		filesString += `${file.path} \\\r\n`;
 	});
 	return filesString;
 }
 
+export function getHalConfigFile(fileList: any) {
+	if(_.isEmpty(fileList)) return null;
+	let configFilePath = '';
+	_.map(fileList, (entry: any) => {
+		if (entry.type == 'folder') {
+			_.map(entry.children, (files: object) => {
+				if (_.endsWith(entry.name, '_hal_conf.h')) {
+					configFilePath = entry.path;
+				}
+			});
+		}
+	});
+
+	//now get the file
+	// const fullPath = `${vscode.workspace.rootPath}/${configFilePath}`;
+	// fs.readFile(fullPath)
+	return configFilePath;
+}
+
 export function createMakeFile(fileList: any, makeInfo: any, callback: any ) {
-	// console.log('filelist', fileList);
+	console.log('file', fileList);
 	const files = getBuildFiles(fileList);
+	console.log('buildfiles');
+	console.log(files);
 	const cSources = convertToSourceString(files.cSources);
 	const cppSources = convertToSourceString(files.cppSources);
 	const asmSources = convertToSourceString(files.asmSources);
 
+
 	// const includes = createIncludes(files);
-	// console.log('includes', includes);
 	const linkerTarget = _.first(_.get(files, 'linkerFile.name', '').split('_'));
 	if(_.isEmpty(linkerTarget)) {
 		vscode.window.showErrorMessage('Linker script is not included please regenerate the project using CubeMX');
@@ -259,7 +261,6 @@ export function createMakeFile(fileList: any, makeInfo: any, callback: any ) {
 	// const cortexType = getCortexType();
 	// const projectName = getProjectName();
 
-	console.log('make info', makeInfo);
 	const makeFile = 
 `##########################################################################################################################
 # File automatically-generated by tool: [projectgenerator] version: [3.0.0] date: [Fri Jan 25 18:00:27 CET 2019]
@@ -436,23 +437,56 @@ clean:
 -include $(wildcard $(BUILD_DIR)/*.d)
 
 # *** EOF ***`;
-	// console.log('new make file is', makeFile);
+
+// if(makeFile === )
 	const makeFileDirPath = `${vscode.workspace.rootPath}/Makefile`;
-	console.log('dir path is ', makeFileDirPath);
-	fs.writeFile(makeFileDirPath, makeFile, function (error: any) {
-		if (error) {
+	//first read makefile
+	fs.readFile(makeFileDirPath, 'utf8', (error: any, oldMakeFile: any) => {
+		if(error) {
 			console.log('error', error);
 			return;
 		}
-		// console.log('Saved!');
-		callback();
+		// console.log('old make file');
+		// console.log(oldMakeFile);
+
+		// check if the current makefile is the same as the old one if not write new one
+		if(makeFile === oldMakeFile) {
+			console.log('no changes to make file, compiling');
+			callback();
+			return;
+		}
+		console.log('changes to make file', makeFile.localeCompare(oldMakeFile));
+		console.log('index compare', makeFile.indexOf(oldMakeFile));
+		console.log('first change is', checkDifference(makeFile, oldMakeFile));
+		fs.writeFile(makeFileDirPath, makeFile, function (error: any) {
+			if (error) {
+				console.log('error', error);
+				return;
+			}
+			callback();
+		});
 	});
+}
+
+export function checkDifference(a: string, b: string) {
+	if(a === b) {return -1};
+	let i = 0;
+	while(a[i] === b[i]) {
+		i++;
+	}
+	const res = {
+		index: i,
+		chars: {string1: a[i], string2: b[i]},
+		lengths: {string1: a.length, string2: b.length},
+		snippets: {string1: a.substr(i, 100), string2: b.substr(i, 100)}
+	};
+
+	return res;
 }
 
 export function returnMakeFileInfo(makeFileUri: any, callback: any) {
 	let info = {};
 
-	// console.log('makeFileUri', makeFileUri);
 	vscode.workspace.openTextDocument(makeFileUri.path).then((result) => {
 		const makeFileText = result.getText();
 		let targetText = _.first(makeFileText.substr(makeFileText.indexOf('TARGET ='), 50).split('\n')).concat('\n');
@@ -468,7 +502,6 @@ export function returnMakeFileInfo(makeFileUri: any, callback: any) {
 		const cDefsArr = makeFileText.substr(makeFileText.indexOf('C_DEFS ='), 200).split('\n');
 		let cDefs = '';
 		let end = false;
-		console.log('cdefs arr', cDefsArr);
 		_.map(cDefsArr, (entry: any, ind: any) => {
 			if(end) return;
 			if(entry.indexOf(' \\') < 0) {
@@ -478,11 +511,9 @@ export function returnMakeFileInfo(makeFileUri: any, callback: any) {
 			}
 			cDefs += `${entry}\n`;
 		});
-		console.log('c defs', cDefs);
 		end = false;
 		let cIncludes = '';
 		const cIncludesArr = makeFileText.substr(makeFileText.indexOf('C_INCLUDES =')).split('\n');
-		console.log('c includes arr', cIncludesArr);
 		_.map(cIncludesArr, (entry: any) => {
 			if(end) return;
 			if(entry.indexOf(' \\') < 0) {
@@ -492,7 +523,6 @@ export function returnMakeFileInfo(makeFileUri: any, callback: any) {
 			}
 			cIncludes += `${entry}\n`;
 		});
-		console.log('cIncludes', cIncludes);
 		
 		info = {
 			target: targetText,
@@ -519,47 +549,5 @@ export function createNewMakeFile(callback: any) {
 }
 
 export function buildNew() {
-	// createNewMakeFile(() => {
-	// 	// should build
-	// 	// vscode.window.activeTerminal.
-	// 	// vscode.commands.registerCommand()
-	// 	let terminal = vscode.window.activeTerminal;
-	// 	if(!terminal) {
-	// 		terminal = vscode.window.createTerminal();
-	// 	}
-	// 	terminal.sendText('make');
-	// });
 	createNewMakeFile(null);
 }
-
-
-// const createTasks() {
-// 	//first should get tasks.json
-// 	// then should implement the standard tasks, with the correct project name
-// }
-
-// const createLaunch() {
-// 	// first should get launch.json
-// 	// then should implement the standard launch sequence using cortex debug
-// }
-
-// const createCPPProperties() {
-// 	// first should get c_cpp_properties.json
-// 	// then should implement custom definitions
-// }
-
-// const standardTasks = [
-// 	{
-// 		"label": "Load Firmware",
-// 		"type": "shell",
-// 		"command": "st-flash write ./build/vsarm_firmware.bin 0x08000000",
-// 		"options": {
-// 			"cwd": "${workspaceRoot}"
-// 		},
-// 		"group": {
-// 			"kind": "build",
-// 			"isDefault": true
-// 		},
-// 		"problemMatcher": []
-// 	}
-// ];
