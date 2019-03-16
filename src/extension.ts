@@ -6,40 +6,11 @@ const path = require('path');
 const _ =  require('lodash');
 const shell = require('shelljs');
 const JSON5 = require('json5');
-// const definedRegExSearch = /^(#define \w+)$/gm;
 
-
-//TODO: make sure main.c is transformed into main.cpp including generated changes (add ghost file)
-
-// let targetName = '';
-
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
+//TODO: make sure main.c is transformed into main.cpp including generated changes (add ghost file).
 export function activate(context: vscode.ExtensionContext) {
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with registerCommand
-	// The commandId parameter must match the command field in package.json
-	// let disposable = vscode.commands.registerCommand('extension.helloWorld', () => {
-	// 	// The code you place here will be executed every time your command is executed
-
-	// 	// Display a message box to the user
-	// 	vscode.window.showInformationMessage('Hello World VSCode Say something different! Dicks');
-	// });
-
-	// const initCommand = vscode.commands.registerCommand('extension.initSTM', () => {
-	// 	// Should add cpp_properties json
-	// 	// Should add build and debug in launch.json
-	// 	// openLaunchFile();
-
-	// });
-
 	const buildCommand = vscode.commands.registerCommand('extension.buildSTM', () => {
-		// openLaunchFile();
-		// buildCPP(null);
 		initAndBuild();
 	});
 
@@ -48,7 +19,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 // this method is called when your extension is deactivated
 export function deactivate() {}
-
 
 export function initAndBuild() {
 	//first check if it has commands
@@ -106,7 +76,7 @@ export function updateLaunchFile(makeInfo: any) {
 		request: "launch",
 		type: "cortex-debug",
 		servertype: "openocd",
-		preLaunchTask: "build",
+		preLaunchTask: "Build STM",
 		device: "stlink",
 		configFiles: [
 				"interface/stlink-v2-1.cfg",
@@ -194,7 +164,7 @@ export function updateTasksFile(makeInfo: any) {
 
 	fs.readFile(url, 'utf8', (error: any, taskInFile: string) => {
 		if(error) {
-			if(error === 'ENOENT') {
+			if(error.code === 'ENOENT') {
 				// no file found so should be created
 				const taskFile = {
 					tasks: [buildTask, uploadTask]
@@ -269,8 +239,6 @@ export function getBuildInfo() {
 	});
 	return buildfilesPromise;
 }
-
-
 
 export function updateMakefile(makeInfo: any) {
 	console.log('file', makeInfo);

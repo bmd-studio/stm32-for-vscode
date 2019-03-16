@@ -18,9 +18,7 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:extension.helloWorld",
 		"onCommand:extension.buildSTM",
-		"onCommand:extension.initSTM"
 	],
 	"main": "./dist/extension",
 	"contributes": {
