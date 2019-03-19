@@ -145,10 +145,15 @@ function initAndBuild() {
             }
             terminal.sendText('make');
         });
-        // check if the debug is present in the launchfile if not add it
-        updateLaunchFile(info);
-        // check if the standard tasks are present in the tasks file if not add them
-        updateTasksFile(info);
+        fs.mkdir(`${vscode.workspace.rootPath}/.vscode`, (err) => {
+            if (err) {
+                console.log('error makind dir', err);
+            }
+            // check if the debug is present in the launchfile if not add it
+            updateLaunchFile(info);
+            // check if the standard tasks are present in the tasks file if not add them
+            updateTasksFile(info);
+        });
     });
 }
 exports.initAndBuild = initAndBuild;
@@ -285,7 +290,7 @@ function updateTasksFile(makeInfo) {
                 if (task.label === buildTask.label && task.command === buildTask.command) {
                     hasBuild = true;
                 }
-                if (task.label === uploadTask.label && task.command === buildTask.command) {
+                if (task.label === uploadTask.label && task.command === uploadTask.command) {
                     hasUpload = true;
                 }
             });
