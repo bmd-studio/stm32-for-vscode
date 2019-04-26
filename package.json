@@ -1,55 +1,33 @@
 {
 	"name": "stm32-for-vscode",
-	"displayName": "STM32 for VSCode",
+	"displayName": "stm32-for-vscode",
 	"description": "An extension for: setting up, compiling, uploading and debugging STM32 applications",
-	"version": "1.0.0",
+	"version": "0.0.1",
 	"engines": {
-		"vscode": "^1.30.0"
+		"vscode": "^1.33.0"
 	},
-	"icon": "icon.png",
-	"keywords": [
-		"STM32",
-		"stm",
-		"Nucleo",
-		"CubeMX"
-	],
-	"publisher": "bmd",
 	"categories": [
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:extension.buildSTM"
+		"onCommand:extension.helloWorld"
 	],
-	"main": "./dist/extension",
+	"main": "./extension.js",
 	"contributes": {
-		"commands": [
-			{
-				"command": "extension.buildSTM",
-				"title": "Build STM"
-			}
-		]
+		"commands": [{
+            "command": "extension.helloWorld",
+			"title": "Hello World"
+		}]
 	},
 	"scripts": {
 		"postinstall": "node ./node_modules/vscode/bin/install",
-		"test": "yarn run compile && node ./node_modules/vscode/bin/test",
-		"vscode:prepublish": "webpack --mode production",
-		"compile": "webpack --mode none",
-		"watch": "webpack --mode none --watch"
+		"test": "node ./node_modules/vscode/bin/test"
 	},
 	"devDependencies": {
-		"@types/mocha": "^2.2.42",
-		"@types/node": "^8.10.25",
-		"ts-loader": "^5.3.3",
-		"tslint": "^5.8.0",
 		"typescript": "^3.1.4",
 		"vscode": "^1.1.25",
-		"webpack": "^4.29.6",
-		"webpack-cli": "^3.2.3"
-	},
-	"dependencies": {
-		"json5": "^2.1.0",
-		"lodash": "^4.17.11",
-		"node-c-parser": "^1.0.11",
-		"shelljs": "^0.8.3"
+		"eslint": "^4.11.0",
+		"@types/node": "^8.10.25",
+		"@types/mocha": "^2.2.42"
 	}
 }
