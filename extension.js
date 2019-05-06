@@ -2,7 +2,8 @@
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
 const _ = require('lodash');
-const {init} = require('./init');
+const { init, checkForRequirements } = require('./init');
+const shell = require('shelljs');
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 
@@ -10,32 +11,18 @@ const {init} = require('./init');
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
+  // Use the console to output diagnostic information (console.log) and errors (console.error)
+  // This line of code will only be executed once when your extension is activated
+  // console.log('Congratulations, your extension "stm32-for-vscode" is now active!');
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	// console.log('Congratulations, your extension "stm32-for-vscode" is now active!');
-
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with  registerCommand
-	// The commandId parameter must match the command field in package.json
-	// init().then((output) => {
-	// 	console.log('init output', output);
-	// });
-	const disposable = vscode.commands.registerCommand('extension.helloWorld', () => {
-		// The code you place here will be executed every time your command is executed
-		console.log('dicks');
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World!');
-	}),
-	 initCmd = vscode.commands.registerCommand('extension.init', () => {
-		// init();
-		console.log('dicks1');
-		init();
-
-	});
-
-	context.subscriptions.push(disposable);
-	context.subscriptions.push(initCmd);
+  // The command has been defined in the package.json file
+  // Now provide the implementation of the command with  registerCommand
+  // The commandId parameter must match the command field in package.json
+	 const initCmd = vscode.commands.registerCommand('extension.init', () => {
+    checkForRequirements(vscode.window.showWarningMessage);
+    init(vscode.workspace.rootPath);
+  });
+  context.subscriptions.push(initCmd);
 }
 exports.activate = activate;
 
@@ -44,6 +31,6 @@ function deactivate() {}
 
 
 module.exports = {
-	activate,
-	deactivate
-}
+  activate,
+  deactivate,
+};
