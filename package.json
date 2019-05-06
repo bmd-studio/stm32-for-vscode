@@ -18,7 +18,7 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:extension.helloWorld",
+		"onCommand:extension.build",
 		"onCommand:extension.init"
 	],
 	"main": "./extension.js",
@@ -26,7 +26,11 @@
 		"commands": [
 			{
 				"command": "extension.init",
-				"title": "Init the STM32 for VSCode extension"
+				"title": "Init STM32 for VSCode extension"
+			},
+			{
+				"command": "extension.build",
+				"title": "Build STM32 project"
 			}
 		]
 	},

@@ -45,7 +45,9 @@ function mergeInfo(fileList, makefileInfo, workspacePath) {
   filteredList = removeDriverFiles(filteredList);
 
   filteredList = preProcessMainFiles(filteredList);
-  const filteredMakeInfo = extractMakeFileSpecificFiles(makefileInfo);
+  let filteredMakeInfo = {};
+  filteredMakeInfo = _.assign(filteredMakeInfo, makefileInfo);
+  filteredMakeInfo = _.assign(filteredMakeInfo, extractMakeFileSpecificFiles(makefileInfo));
 
   filteredList.cIncludes = reduceToIncludeFilePaths(filteredList.cIncludes);
   filteredList.cppIncludes = reduceToIncludeFilePaths(filteredList.cppIncludes);
@@ -60,6 +62,8 @@ function mergeInfo(fileList, makefileInfo, workspacePath) {
   // filteredMakeInfo.cSources = filteredList.cSources.concat(filteredMakeInfo.cSources);
   // console.log("processed make info", filteredMakeInfo);
   // console.log('filtered list', filteredList, 'filtered make file info', filteredMakeInfo, 'includes', reduceToIncludeFilePaths(filteredList.cIncludes));
+  // console.log('make info', makefileInfo);
+  // console.log('filtered make info', filteredMakeInfo);
   return filteredMakeInfo;
 }
 

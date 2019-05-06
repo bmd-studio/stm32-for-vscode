@@ -22,7 +22,18 @@ function activate(context) {
     checkForRequirements(vscode.window.showWarningMessage);
     init(vscode.workspace.rootPath);
   });
+  const buildCmd = vscode.commands.registerCommand('extension.build', () => {
+    checkForRequirements(vscode.window.showWarningMessage);
+    init(vscode.workspace.rootPath).then(() => {
+      let terminal = vscode.window.activeTerminal;
+      if (!terminal) {
+        terminal = vscode.window.createTerminal();
+      }
+      terminal.sendText('make');
+    });
+  });
   context.subscriptions.push(initCmd);
+  context.subscriptions.push(buildCmd);
 }
 exports.activate = activate;
 
