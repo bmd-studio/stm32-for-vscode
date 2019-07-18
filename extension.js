@@ -4,6 +4,7 @@ const vscode = require('vscode');
 const _ = require('lodash');
 const { init, checkForRequirements } = require('./init');
 const shell = require('shelljs');
+const makeCmd = require('./makeCmd');
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 
@@ -18,18 +19,20 @@ function activate(context) {
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with  registerCommand
   // The commandId parameter must match the command field in package.json
-	 const initCmd = vscode.commands.registerCommand('extension.init', () => {
-    checkForRequirements(vscode.window.showWarningMessage);
-    init(vscode.workspace.rootPath);
+  const initCmd = vscode.commands.registerCommand('extension.init', () => {
+    console.log('vscode in init', vscode);
+    const armPath = checkForRequirements(vscode.window.showWarningMessage, vscode);
+    init(vscode.workspace.rootPath, armPath);
   });
   const buildCmd = vscode.commands.registerCommand('extension.build', () => {
-    checkForRequirements(vscode.window.showWarningMessage);
-    init(vscode.workspace.rootPath).then(() => {
+    const armPath = checkForRequirements(vscode.window.showWarningMessage, vscode);
+    init(vscode.workspace.rootPath, armPath).then(() => {
       let terminal = vscode.window.activeTerminal;
       if (!terminal) {
         terminal = vscode.window.createTerminal();
       }
-      terminal.sendText('make');
+      const cmd = makeCmd(armPath);
+      terminal.sendText(cmd);
     });
   });
   context.subscriptions.push(initCmd);

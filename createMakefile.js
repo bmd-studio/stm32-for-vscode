@@ -18,22 +18,36 @@ function createMakefile(fileList, makefileInfo, workspacePath) {
   const totalInfo = mergeInfo(fileList, makefileInfo, workspacePath);
   const newMakeFile = makefileTemplate(totalInfo);
   // console.log("new make file", newMakeFile);
+  console.log('makefile info path', makefileInfo.path);
   _.set(totalInfo, 'newMakeFile', newMakeFile);
-  // also update the make file
-  if (makefileInfo.makefile !== newMakeFile) {
-    // console.log('make files are different. Will update');
-    return new Promise((resolve, reject) => {
-      fs.writeFile(makefileInfo.path, newMakeFile, (err) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        resolve(totalInfo);
-      });
+
+
+  const newPath = _.replace(makefileInfo.path, '/Makefile', '/stm32make');
+  const writeMake = () => new Promise((resolve, reject) => {
+    fs.writeFile(newPath, newMakeFile, (err) => {
+      if (err) {
+        reject(err);
+        return;
+      }
+      resolve(totalInfo);
     });
-  }
+  });
+
+
   return new Promise((resolve, reject) => {
-    resolve(totalInfo);
+    fs.readFile(newPath, { encoding: 'utf8' }, (err, data) => {
+      if (err) {
+        // no new type of makefile is present. Write it.
+        resolve(writeMake());
+      } else if (data !== newMakeFile) {
+        // update the makefile if it is not the same
+        console.log('not the same stm32make file');
+        resolve(writeMake());
+      } else {
+        // do nothing
+        resolve(totalInfo);
+      }
+    });
   });
 }
 
@@ -53,12 +67,12 @@ function mergeInfo(fileList, makefileInfo, workspacePath) {
   filteredList.cppIncludes = reduceToIncludeFilePaths(filteredList.cppIncludes);
   filteredList.asmIncludes = reduceToIncludeFilePaths(filteredList.asmIncludes);
 
-  filteredMakeInfo.cSources = filteredList.cSources.concat(filteredMakeInfo.cSources);
-  filteredMakeInfo.cppSources = filteredList.cppSources.concat(filteredMakeInfo.cppSources);
-  filteredMakeInfo.asmSources = filteredList.asmSources.concat(filteredMakeInfo.asmSources);
-  filteredMakeInfo.cIncludes = convertToStandardIncludeString(filteredList.cIncludes).concat(filteredMakeInfo.cIncludes);
-  filteredMakeInfo.cppIncludes = convertToStandardIncludeString(filteredList.cppIncludes).concat(filteredMakeInfo.cppIncludes);
-  filteredMakeInfo.asmIncludes = convertToStandardIncludeString(filteredList.asmIncludes).concat(filteredMakeInfo.asmIncludes);
+  filteredMakeInfo.cSources = _.orderBy(filteredList.cSources.concat(filteredMakeInfo.cSources), null, ['asc']);
+  filteredMakeInfo.cppSources = _.orderBy(filteredList.cppSources.concat(filteredMakeInfo.cppSources), null, ['asc']);
+  filteredMakeInfo.asmSources = _.orderBy(filteredList.asmSources.concat(filteredMakeInfo.asmSources), null, ['asc']);
+  filteredMakeInfo.cIncludes = _.orderBy(convertToStandardIncludeString(filteredList.cIncludes).concat(filteredMakeInfo.cIncludes), null, ['asc']);
+  filteredMakeInfo.cppIncludes = _.orderBy(convertToStandardIncludeString(filteredList.cppIncludes).concat(filteredMakeInfo.cppIncludes), null, ['asc']);
+  filteredMakeInfo.asmIncludes = _.orderBy(convertToStandardIncludeString(filteredList.asmIncludes).concat(filteredMakeInfo.asmIncludes), null, ['asc']);
   // filteredMakeInfo.cSources = filteredList.cSources.concat(filteredMakeInfo.cSources);
   // console.log("processed make info", filteredMakeInfo);
   // console.log('filtered list', filteredList, 'filtered make file info', filteredMakeInfo, 'includes', reduceToIncludeFilePaths(filteredList.cIncludes));
@@ -86,7 +100,7 @@ function convertToRelativePath(fileList, workspacePath) {
 }
 
 function reduceToIncludeFilePaths(includes) {
-  const endPattern = /\/\w*.h$/gim;
+  const endPattern = /\/\w[^/]*.h$/gim;
   const mapArr = [];
   _.map(includes, (file) => {
     const newStr = file.replace(endPattern, '');

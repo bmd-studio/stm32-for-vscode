@@ -1,6 +1,7 @@
 const yargs = require('yargs');
 const { init, checkForRequirements } = require('./init');
 const shell = require('shelljs');
+const makeCmd = require('./makeCmd');
 
 const { argv } = yargs
   .version()
@@ -17,11 +18,8 @@ const { argv } = yargs
 
 
 function buildAndUpdate(args) {
-  // console.log('current dir', __dirname);
-  // check beforehand
-  checkForRequirements(console.error);
   init(args.location).then((val) => {
-    console.log('done with building, going to make');
-    shell.exec('make');
+    const cmd = makeCmd(args.armPath);
+    shell.exec(cmd);
   });
 }

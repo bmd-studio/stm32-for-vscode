@@ -45,12 +45,15 @@ const uploadTask = {
   dependsOn: [buildTask.label],
 };
 
-function getConfigFile(type, firmwareName, targetName, workspacePath) {
+function getConfigFile(type, firmwareName, targetName, workspacePath, armPath) {
   let file = {};
   switch (type) {
     case 'build':
       file = _.cloneDeep(buildTask);
-      file.command = `node ${__dirname}/STM32Cli build ${workspacePath}`;
+      file.command = `node ${__dirname}/STM32Cli build ${workspacePath.replace(/(\s+)/g, '\\$1')}`;
+      if (armPath) {
+        file.command += ` --armPath=${armPath}`;
+      }
       break;
     case 'upload':
       file = _.cloneDeep(uploadTask);
