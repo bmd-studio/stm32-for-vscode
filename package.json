@@ -38,7 +38,33 @@
 				"command": "extension.cleanBuild",
 				"title": "Build clean STM32 project"
 			}
-		]
+		],
+		"configuration": {
+			"type": "object",
+			"title": "STM32 for VSCode configuration",
+			"properties": {
+				"stm32-for-vscode.openOCDPath": {
+					"type": "string",
+					"default": "",
+					"description": "Path to openOCD, will use the one in PATH or the cortex-debug settings automatically"
+				},
+				"stm32-for-vscode.makePath": {
+					"type": "string",
+					"default": "",
+					"description": "Path to make, will use the one in PATH as standard."
+				},
+				"stm32-for-vscode.armToolchainPath": {
+					"type": "string",
+					"default": "",
+					"description": "Path to the GCC Arm Toolchain (prefix arm-none-eabi) to use, will use the one in PATH or the cortex-debug settings as default"
+				},
+				"stm32-for-vscode.st-flashPath": {
+					"type": "string",
+					"default": "",
+					"description": "Path to the st-flash tool, will use the one in PATH as default"
+				}
+			}
+		}
 	},
 	"scripts": {
 		"postinstall": "node ./node_modules/vscode/bin/install",
