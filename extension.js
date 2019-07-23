@@ -2,7 +2,10 @@
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
 const _ = require('lodash');
-const { init, checkForRequirements } = require('./init');
+const {
+  init,
+  checkForRequirements,
+} = require('./init');
 const shell = require('shelljs');
 const makeCmd = require('./makeCmd');
 // this method is called when your extension is activated
@@ -24,6 +27,8 @@ function activate(context) {
     const armPath = checkForRequirements(vscode.window.showWarningMessage, vscode);
     init(vscode.workspace.rootPath, armPath);
   });
+
+
   const buildCmd = vscode.commands.registerCommand('extension.build', () => {
     const armPath = checkForRequirements(vscode.window.showWarningMessage, vscode);
     init(vscode.workspace.rootPath, armPath).then(() => {
@@ -35,8 +40,26 @@ function activate(context) {
       terminal.sendText(cmd);
     });
   });
+  const buildCleanCmd = vscode.commands.registerCommand('extension.cleanBuild', () => {
+    const armPath = checkForRequirements(vscode.window.showWarningMessage, vscode);
+    let terminal = vscode.window.activeTerminal;
+    if (!terminal) {
+      terminal = vscode.window.createTerminal();
+    }
+    const cleanCmd = makeCmd(armPath);
+    terminal.sendText(`${cleanCmd} clean`);
+    init(vscode.workspace.rootPath, armPath).then(() => {
+      terminal = vscode.window.activeTerminal;
+      if (!terminal) {
+        terminal = vscode.window.createTerminal();
+      }
+      const cmd = makeCmd(armPath);
+      terminal.sendText(cmd);
+    });
+  });
   context.subscriptions.push(initCmd);
   context.subscriptions.push(buildCmd);
+  context.subscriptions.push(buildCleanCmd);
 }
 exports.activate = activate;
 
