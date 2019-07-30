@@ -224,6 +224,9 @@ function checkForRequirements(outputFunc, vscode) {
     if (!shell.which('arm-none-eabi-size')) {
       outputFunc('This extension requires: "arm-none-eabi-size" to be available in PATH, please install make for your specific environment');
     }
+    if (!shell.which('something')) {
+
+    }
   }
 
   if (!shell.which('openocd')) {
