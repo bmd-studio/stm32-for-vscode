@@ -23,7 +23,7 @@ function activate(context) {
   // Now provide the implementation of the command with  registerCommand
   // The commandId parameter must match the command field in package.json
   const initCmd = vscode.commands.registerCommand('stm32-for-vscode.init', () => {
-    console.log('vscode in init', vscode);
+    // console.log('vscode in init', vscode);
     const armPath = checkForRequirements(vscode.window.showWarningMessage, vscode);
     init(vscode.workspace.rootPath, armPath);
   });
@@ -31,6 +31,8 @@ function activate(context) {
 
   const buildCmd = vscode.commands.registerCommand('stm32-for-vscode.build', () => {
     const armPath = checkForRequirements(vscode.window.showWarningMessage, vscode);
+
+    // console.log('the root', vscode.env.appRoot);
     init(vscode.workspace.rootPath, armPath).then(() => {
       let terminal = vscode.window.activeTerminal;
       if (!terminal) {

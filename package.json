@@ -2,7 +2,7 @@
 	"name": "stm32-for-vscode",
 	"displayName": "stm32-for-vscode",
 	"description": "An extension for: setting up, compiling, uploading and debugging STM32 applications",
-	"version": "1.8.1",
+	"version": "1.8.3",
 	"engines": {
 		"vscode": "^1.33.0"
 	},
@@ -23,7 +23,7 @@
 		"onCommand:stm32-for-vscode.init",
 		"onCommand:stm32-for-vscode.cleanBuild"
 	],
-	"main": "./dist/extension",
+	"main": "./extension.js",
 	"contributes": {
 		"commands": [
 			{
@@ -69,7 +69,6 @@
 	"scripts": {
 		"postinstall": "node ./node_modules/vscode/bin/install",
 		"test": "node ./node_modules/vscode/bin/test",
-		"vscode:prepublish": "webpack --mode production",
 		"compile": "webpack --mode none",
 		"watch": "webpack --mode none --watch",
 		"test-compile": "tsc -p ./"

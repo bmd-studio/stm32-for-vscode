@@ -18,7 +18,7 @@ function createMakefile(fileList, makefileInfo, workspacePath) {
   const totalInfo = mergeInfo(fileList, makefileInfo, workspacePath);
   const newMakeFile = makefileTemplate(totalInfo);
   // console.log("new make file", newMakeFile);
-  console.log('makefile info path', makefileInfo.path);
+  // console.log('makefile info path', makefileInfo.path);
   _.set(totalInfo, 'newMakeFile', newMakeFile);
 
 
@@ -41,7 +41,7 @@ function createMakefile(fileList, makefileInfo, workspacePath) {
         resolve(writeMake());
       } else if (data !== newMakeFile) {
         // update the makefile if it is not the same
-        console.log('not the same stm32make file');
+        // console.log('not the same stm32make file');
         resolve(writeMake());
       } else {
         // do nothing

@@ -38,7 +38,7 @@ async function init(workspacePath, armPath) {
         });
         createMakefile(output, makefileInfo, workspacePath).then((info) => {
           // console.log('succesfully created and updated make file', makefileInfo);
-          console.log('created make file');
+          // console.log('created make file');
           resolve(info);
         }).catch((err) => {
           reject(err);
@@ -200,7 +200,7 @@ function checkForRequirements(outputFunc, vscode) {
   if (vscode) {
     // if it has vscode then it is spawned within the extension itself.
     const config = workspace.getConfiguration('cortex-debug');
-    console.log('config', config);
+    // console.log('config', config);
 
     if (!shell.which('openocd')) {
       // should also check if it has it in the cortex debug settings

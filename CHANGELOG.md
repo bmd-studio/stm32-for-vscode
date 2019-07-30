@@ -11,8 +11,26 @@
   - Add support for compilation without generation of the .c/.h peripheral files.
   - Add ability to introduce generated changes from the main.c file into the main.cpp file.
   - Add better support for intellisense.
+  - Add to tasks, so no support for the separate CLI is needed.
+  - Package for better performance
 
-## [1.1.0] - 2017-07-23
+## [1.8.3] - 2017-07-30
+### Added
+
+### Changed
+
+### Fixed
+ - Because of packaging things went awry. Fixed through not using the package
+
+## [1.8.1] - 2017-07-30
+### Added
+
+### Changed
+
+### Fixed
+ - Packaging needed entry point in package.json to be changed.
+
+## [1.8.0] - 2017-07-23
 ### Added
  - Added support for Cortex-Debug configuration file for debugging.
  - Added support for main.cpp file in conjunction with a main.c file, it will auto compile for the main.cpp [EXPERIMENTAL]
