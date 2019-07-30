@@ -2,7 +2,7 @@
 	"name": "stm32-for-vscode",
 	"displayName": "stm32-for-vscode",
 	"description": "An extension for: setting up, compiling, uploading and debugging STM32 applications",
-	"version": "1.8.0",
+	"version": "1.8.1",
 	"engines": {
 		"vscode": "^1.33.0"
 	},
@@ -19,23 +19,23 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:extension.build",
-		"onCommand:extension.init",
-		"onCommand:extension.cleanBuild"
+		"onCommand:stm32-for-vscode.build",
+		"onCommand:stm32-for-vscode.init",
+		"onCommand:stm32-for-vscode.cleanBuild"
 	],
-	"main": "./extension.js",
+	"main": "./dist/extension",
 	"contributes": {
 		"commands": [
 			{
-				"command": "extension.init",
+				"command": "stm32-for-vscode.init",
 				"title": "Init STM32 for VSCode extension"
 			},
 			{
-				"command": "extension.build",
+				"command": "stm32-for-vscode.build",
 				"title": "Build STM32 project"
 			},
 			{
-				"command": "extension.cleanBuild",
+				"command": "stm32-for-vscode.cleanBuild",
 				"title": "Build clean STM32 project"
 			}
 		],

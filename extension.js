@@ -22,14 +22,14 @@ function activate(context) {
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with  registerCommand
   // The commandId parameter must match the command field in package.json
-  const initCmd = vscode.commands.registerCommand('extension.init', () => {
+  const initCmd = vscode.commands.registerCommand('stm32-for-vscode.init', () => {
     console.log('vscode in init', vscode);
     const armPath = checkForRequirements(vscode.window.showWarningMessage, vscode);
     init(vscode.workspace.rootPath, armPath);
   });
 
 
-  const buildCmd = vscode.commands.registerCommand('extension.build', () => {
+  const buildCmd = vscode.commands.registerCommand('stm32-for-vscode.build', () => {
     const armPath = checkForRequirements(vscode.window.showWarningMessage, vscode);
     init(vscode.workspace.rootPath, armPath).then(() => {
       let terminal = vscode.window.activeTerminal;
@@ -40,7 +40,7 @@ function activate(context) {
       terminal.sendText(cmd);
     });
   });
-  const buildCleanCmd = vscode.commands.registerCommand('extension.cleanBuild', () => {
+  const buildCleanCmd = vscode.commands.registerCommand('stm32-for-vscode.cleanBuild', () => {
     const armPath = checkForRequirements(vscode.window.showWarningMessage, vscode);
     let terminal = vscode.window.activeTerminal;
     if (!terminal) {
@@ -64,7 +64,7 @@ function activate(context) {
 exports.activate = activate;
 
 // this method is called when your extension is deactivated
-function deactivate() {}
+function deactivate() { }
 
 
 module.exports = {
