@@ -81,41 +81,6 @@ async function extractMakeFileInfo(makefilePath) {
   });
 }
 
-function extractSingleLineInfo(name, data) {
-  const newPatt = new RegExp(`${name}\\s=\\s(.*)`, 'gmi'),
-    newRes = newPatt.exec(data);
-
-  return _.last(newRes);
-}
-
-function extractMultiLineInfo(name, data) {
-  const splitData = data.split(/\r\n|\r|\n/),
-    startPattern = new RegExp(`${name}\\s=\\s`, 'gmi'),
-    // const endPattern = new RegExp('^-?[a-z].*\\$', 'gim');
-    endPattern = /^-?[a-z].*\b$/gim,
-    emptyPattern = /^(\s*)$/gim;
-  let end = 0,
-    start = 0;
-  const cleanStrings = [];
-
-  _.map(splitData, (line, ind) => {
-    if (start && !end) {
-      if (emptyPattern.test(line)) {
-        end = parseInt(ind);
-        return;
-      }
-      cleanStrings.push(line.replace(/(\s\\$)|(\s.$)/gim, ''));
-      if (endPattern.test(line)) {
-        end = parseInt(ind);
-      }
-    }
-    if (startPattern.test(line)) {
-      start = parseInt(ind);
-    }
-  });
-
-  return cleanStrings;
-}
 
 async function extractFileTypes(workspacePath) {
   /*

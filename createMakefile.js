@@ -190,3 +190,15 @@ function preProcessMainFiles(fileList) {
 module.exports = {
   createMakefile,
 };
+
+
+/*
+  Function which searches for includes starting from the main.c or main.cpp file.
+  This will generate a list of .h files which need to be included and excluded ones which
+  are not in the include tree.
+*/
+function createIncludeTree(hFiles) {
+  // TODO: implement this functionality so no unnecessary includes are included in the built process.
+  // REGEX pattern that could be used for this (Should also allow for same line includes with spacing)
+  // This still needs to be fixed for the following regex pattern: /include\s[<|"]([0-z]+).\w["|>|\s]/gim
+}

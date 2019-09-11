@@ -13,8 +13,13 @@
   - Add better support for intellisense.
   - Add to tasks, so no support for the separate CLI is needed.
   - Package for better performance
+  - Create include branch from main.cpp or main.c file so unnecessary includes are not included.
+  - Add a separate file for config options, like compiler flags.
+  - Remove dependency for st-flash and focus on uploading through openOCD see: https://www.hackster.io/yusefkarim/upload-code-to-stm32l4-using-linux-gnu-make-and-openocd-a3d4de
+  - Stricter adherence to Src, Inc, Lib, Test directories.
+  - Add support for unit testing.
 
-## [1.8.3] - 2017-07-30
+## [1.8.6] - 2017-07-30
 ### Added
 
 ### Changed

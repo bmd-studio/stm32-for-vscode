@@ -210,19 +210,19 @@ function checkForRequirements(outputFunc, vscode) {
     }
     if (!shell.which('arm-none-eabi-gcc')) {
       if (!shell.which(`${config.armToolchainPath}/arm-none-eabi-gcc`)) {
-        outputFunc('This extension requires: "arm-none-eabi-gcc" to be available in PATH, please install make for your specific environment');
+        outputFunc('This extension requires: "arm-none-eabi-gcc" to be available in PATH, please install arm-none-eabi for your specific environment');
       } else {
         armPath = config.armToolchainPath;
       }
     }
     if (!shell.which('arm-none-eabi-g++')) {
-      outputFunc('This extension requires: "arm-none-eabi-g++" to be available in PATH, please install make for your specific environment');
+      outputFunc('This extension requires: "arm-none-eabi-g++" to be available in PATH, please install arm-none-eabi for your specific environment');
     }
     if (!shell.which('arm-none-eabi-objcopy')) {
-      outputFunc('This extension requires: "arm-none-eabi-objcopy" to be available in PATH, please install make for your specific environment');
+      outputFunc('This extension requires: "arm-none-eabi-objcopy" to be available in PATH, please install arm-none-eabi for your specific environment');
     }
     if (!shell.which('arm-none-eabi-size')) {
-      outputFunc('This extension requires: "arm-none-eabi-size" to be available in PATH, please install make for your specific environment');
+      outputFunc('This extension requires: "arm-none-eabi-size" to be available in PATH, please install arm-none-eabi for your specific environment');
     }
     if (!shell.which('something')) {
 

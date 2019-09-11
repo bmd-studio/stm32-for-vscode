@@ -32,4 +32,4 @@ for now use cmd/ctrl+shift+p to open the show all commands panel and issue the c
 - Ability to compile it as a C++ project by adding a main.cpp file. (EXPERIMENTAL)
 
 ## Disclaimer
-This is a beta version of the software, which comes forth from wanting a nice and fast way of compiling and debugging C++ STM32 projects in VSCode, for this reason some bugs will probably be present I will try to fix them and maintain this extension. Suggestions and feedback is always welcome.
+This is a beta version of the software, which comes forth from wanting a nice and fast way of compiling and debugging C++ STM32 projects in VSCode, for this reason some bugs will probably be present I will try to fix them and maintain this extension. Suggestions and feedback are always welcome.
