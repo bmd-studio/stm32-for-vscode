@@ -4,7 +4,7 @@
 /* eslint-disable one-var */
 const _ = require('lodash');
 const fs = require('fs');
-const fsRecursive = require('recursive-readdir');
+// const fsRecursive = require('recursive-readdir');
 const JSON5 = require('json5');
 const shell = require('shelljs');
 const getConfigFiles = require('./configFiles');
