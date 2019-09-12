@@ -97,8 +97,10 @@ export function extractMultiLineInfo(name, makefile) {
   return cleanStrings;
 }
 /**
- * @description loops through an object file and tries to find the relevant documents in the provided makefile
- * @param {object} infoDef - An object containing camelCased key of what should be extracted from the makefile
+ * @description loops through an object file and tries to find the relevant documents
+ * in the provided makefile
+ * @param {object} infoDef - An object containing camelCased key of what should
+ * be extracted from the makefile
  * @param {string} makefile - A string representation of the Makefile
  */
 export function extractMakefileInfo(infoDef, makefile) {

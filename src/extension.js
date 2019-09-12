@@ -1,24 +1,16 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import 'vscode';
+import vscode from 'vscode';
+import _ from 'lodash';
+import getFileList from './ListFiles';
 
-//= require('vscode');
-const _ = require('lodash');
-const shell = require('shelljs');
-// const {
-//   init,
-//   checkForRequirements,
-// } = require('./init');
-// const makeCmd = require('./makeCmd');
-// const { getFileList } = require('./src/ListFiles');
-// const { getMakefileInfo } = require('./src/MakefileInfo');
 // // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 
 /**
  * @param {vscode.ExtensionContext} context
  */
-function activate(context) {
+export function activate(context) {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
   // console.log('Congratulations, your extension "stm32-for-vscode" is now active!');
@@ -32,8 +24,9 @@ function activate(context) {
     // init(vscode.workspace.getWorkspaceFolder, armPath);
 
     // used for testing....
-    // const fileList = getFileList(vscode.workspace.workspaceFolders[0].uri.fsPath);
-    const makefileInfo = getMakefileInfo(vscode.workspace.workspaceFolders[0].uri.fsPath);
+    const fileList = getFileList(vscode.workspace.workspaceFolders[0].uri.fsPath);
+    console.log('fileList', fileList);
+    // const makefileInfo = getMakefileInfo(vscode.workspace.workspaceFolders[0].uri.fsPath);
   });
 
 
@@ -71,13 +64,6 @@ function activate(context) {
   // context.subscriptions.push(buildCmd);
   // context.subscriptions.push(buildCleanCmd);
 }
-exports.activate = activate;
 
 // this method is called when your extension is deactivated
-function deactivate() { }
-
-
-module.exports = {
-  activate,
-  deactivate,
-};
+export function deactivate() { }

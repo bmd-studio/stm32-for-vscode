@@ -1,8 +1,5 @@
 import assert from 'assert';
-import fs from 'fs';
-import process from 'process';
-import { before, test } from 'mocha';
-import _ from 'lodash';
+import { before, test, suite } from 'mocha';
 import { extractMultiLineInfo, extractSingleLineInfo, extractMakefileInfo } from '../../src/MakefileInfo';
 import testMakefile from './TestMakefile';
 
@@ -41,16 +38,60 @@ const cSources = [
   'Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_i2c_ex.c',
   'Src/system_stm32h7xx.c',
 ];
+const cDefs = ['-DUSE_HAL_DRIVER', '-DSTM32H743xx', '-DUSE_HAL_DRIVER', '-DSTM32H743xx'];
+const cIncludes = [
+  '-IInc',
+  '-IDrivers/STM32H7xx_HAL_Driver/Inc',
+  '-IDrivers/STM32H7xx_HAL_Driver/Inc/Legacy',
+  '-IDrivers/CMSIS/Device/ST/STM32H7xx/Include',
+  '-IDrivers/CMSIS/Include',
+  '-IDrivers/CMSIS/Include',
+];
+
 const asmSources = ['startup_stm32h743xx.s'];
 const floatAbi = '-mfloat-abi=hard';
 const fpu = '-mfpu=fpv5-d16';
+
+export const makefileInfoTemplate = {
+  target: '',
+  cpu: '',
+  fpu: '',
+  floatAbi: '',
+  mcu: '',
+  ldscript: '',
+  cSources: [],
+  cxxSources: [],
+  asmSources: [],
+  cDefs: [],
+  cxxDefs: [],
+  asDefs: [],
+  cIncludes: [],
+  cxxIncludes: [],
+  asIncludes: [],
+};
+
+export const makefileInfoTest = {
+  target: 'Clean_project_h7',
+  cpu: '-mcpu=cortex-m7',
+  fpu,
+  floatAbi,
+  mcu: '$(CPU) -mthumb $(FPU) $(FLOAT-ABI)',
+  ldscript: 'STM32H743ZITx_FLASH.ld',
+  cSources,
+  cxxSources: [],
+  asmSources,
+  cDefs,
+  asDefs: [],
+  cIncludes,
+  cxxIncludes: [],
+  asIncludes: [],
+};
 
 suite('MakefileInfoTest', () => {
   // before(() => {
   //   vscode.window.showInformationMessage('Start all tests.');
   // });
   before(() => {
-    console.log();
   });
   test('extractSingleLineInfo', () => {
     // assert.
@@ -69,5 +110,7 @@ suite('MakefileInfoTest', () => {
     assert.deepEqual(extractMakefileInfo({ asmSources: [] }, testMakefile), { asmSources });
     assert.deepEqual(extractMakefileInfo({ floatAbi: '' }, testMakefile), { floatAbi });
     assert.deepEqual(extractMakefileInfo({ fpu: '' }, testMakefile), { fpu });
+    assert.deepEqual(extractMakefileInfo({ nonesense: '' }, testMakefile), { nonesense: '' });
+    assert.deepEqual(extractMakefileInfo({ noneSense: '' }, testMakefile), { noneSense: '' });
   });
 });

@@ -1,16 +1,30 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getDirCaseFree = getDirCaseFree;
+exports.checkForRequiredFiles = checkForRequiredFiles;
+exports.trySearchforFiles = trySearchforFiles;
+exports.sortFiles = sortFiles;
+exports.getIncludes = getIncludes;
+exports["default"] = getFileList;
+exports.fileList = void 0;
+
+var _lodash = _interopRequireDefault(require("lodash"));
+
+var _fs = _interopRequireDefault(require("fs"));
+
+var _recursiveReaddir = _interopRequireDefault(require("recursive-readdir"));
+
+var _vscode = _interopRequireDefault(require("vscode"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
-var _ = require('lodash');
-
-var fs = require('fs');
-
-var fsRecursive = require('recursive-readdir');
-
-var vscode = require('vscode');
 /* When a standard project is initialised  this is the file structure:
  |-${projectName}.ioc
  |-Drivers
@@ -21,8 +35,6 @@ var vscode = require('vscode');
  |-startup_${target}xx
  |-${TARGETCHIP}x_FLASH.ld
  */
-
-
 var fileList = {
   includeDirectories: [],
   cFiles: [],
@@ -38,32 +50,53 @@ var fileList = {
   }
 };
 /**
+ * @description gets dir ignoring upper or lower case
+ */
+
+exports.fileList = fileList;
+
+function getDirCaseFree(dirName, directories) {
+  var lowerDirName = _lodash["default"].toLower(dirName);
+
+  var index = _lodash["default"].findIndex(directories, function (o) {
+    return _lodash["default"].toLower(o) === lowerDirName;
+  });
+
+  if (index === -1) return null;
+  return directories[index];
+}
+/**
  * @description Checks if the Makefile, Src, Inc and Drivers directories/files are present.
  * @param {string[] | ArrayLike<string>} directoryFiles
  */
+
 
 function checkForRequiredFiles(directoryFiles) {
   // required files/directories are: makefile, Src, Inc and Drivers
   var check = true;
 
-  if (_.indexOf(directoryFiles, 'Makefile') === -1) {
+  if (_lodash["default"].indexOf(directoryFiles, 'Makefile') === -1) {
     // should show warning
-    vscode.window.showWarningMessage('No Makefile is present, please initialize your project using CubeMX, with the Toolchain set to Makefile under the project manager');
+    _vscode["default"].window.showWarningMessage('No Makefile is present, please initialize your project using CubeMX, with the Toolchain set to Makefile under the project manager');
+
     check = false;
   }
 
-  if (_.indexOf(directoryFiles, 'Src') === -1) {
-    vscode.window.showWarningMessage('No Src directory is present, please initialize your project using CubeMX, with the Toolchain set to Makefile under the project manager');
+  if (!getDirCaseFree('Src', directoryFiles)) {
+    _vscode["default"].window.showWarningMessage('No Src directory is present, please initialize your project using CubeMX, with the Toolchain set to Makefile under the project manager');
+
     check = false;
   }
 
-  if (_.indexOf(directoryFiles, 'Inc') === -1) {
-    vscode.window.showWarningMessage('No Inc directory is present, please initialize your project using CubeMX, with the Toolchain set to Makefile under the project manager');
+  if (!getDirCaseFree('Inc', directoryFiles)) {
+    _vscode["default"].window.showWarningMessage('No Inc directory is present, please initialize your project using CubeMX, with the Toolchain set to Makefile under the project manager');
+
     check = false;
   }
 
-  if (_.indexOf(directoryFiles, 'Drivers') === -1) {
-    vscode.window.showWarningMessage('No Drivers directory is present, please initialize your project using CubeMX, and under Code Generator make sure that the "Copy all user libraries into the project folder" option is selected.');
+  if (!getDirCaseFree('Drivers', directoryFiles)) {
+    _vscode["default"].window.showWarningMessage('No Drivers directory is present, please initialize your project using CubeMX, and under Code Generator make sure that the "Copy all user libraries into the project folder" option is selected.');
+
     check = false;
   }
 
@@ -160,7 +193,7 @@ function _searchForFiles() {
         switch (_context3.prev = _context3.next) {
           case 0:
             return _context3.abrupt("return", new Promise(function (resolve, reject) {
-              fsRecursive(location, function (err, files) {
+              (0, _recursiveReaddir["default"])(location, function (err, files) {
                 if (err) {
                   reject(err);
                   return;
@@ -184,8 +217,14 @@ function sortFiles(fileObj, list) {
   /**
    * @param {{ split: (arg0: string) => { pop: () => string; }; }} entry
    */
-  _.map(list, function (entry) {
-    var extension = _.toLower(entry.split('.').pop());
+  // Guard assign the key when none exist.
+  if (!fileObj.cxxFiles) _lodash["default"].set(fileObj, 'cxxFiles', []);
+  if (!fileObj.cFiles) _lodash["default"].set(fileObj, 'cFiles', []);
+  if (!fileObj.headerFiles) _lodash["default"].set(fileObj, 'headerFiles', []);
+  if (!fileObj.asmFiles) _lodash["default"].set(fileObj, 'asmFiles', []);
+
+  _lodash["default"].map(list, function (entry) {
+    var extension = _lodash["default"].toLower(entry.split('.').pop());
 
     if (extension === 'cpp' || extension === 'cxx') {
       fileObj.cxxFiles.push(entry);
@@ -194,12 +233,12 @@ function sortFiles(fileObj, list) {
     } else if (extension === 'h' || extension === 'hpp') {
       fileObj.headerFiles.push(entry);
     } else if (extension === 's') {
-      fileObj.asmFiles.push(extension);
+      fileObj.asmFiles.push(entry);
     }
   });
 
-  _.forEach(fileObj, function (entry) {
-    if (_.isArray(entry)) {
+  _lodash["default"].forEach(fileObj, function (entry) {
+    if (_lodash["default"].isArray(entry)) {
       entry.sort();
     }
   });
@@ -215,13 +254,18 @@ function sortFiles(fileObj, list) {
 function getIncludes(headerList) {
   var incList = [];
 
-  _.map(headerList, function (entry) {
+  _lodash["default"].map(headerList, function (entry) {
     var fileName = entry.split('/').pop();
     var incFolder = entry.replace(fileName, '');
+
+    if (incFolder.charAt(incFolder.length - 1) === '/') {
+      incFolder = incFolder.substring(0, incFolder.length - 1);
+    }
+
     incList.push(incFolder);
   });
 
-  incList = _.uniq(incList);
+  incList = _lodash["default"].uniq(incList);
   return incList;
 }
 /**
@@ -255,25 +299,25 @@ function _getFileList() {
                       case 0:
                         loc = './';
 
-                        if (location && _.isString(location)) {
+                        if (location && _lodash["default"].isString(location)) {
                           loc = location;
                         } // clear the fileList (multiple calls to this function will populate it again)
 
 
-                        _.forEach(fileList, function (entry, key) {
-                          if (_.isArray(entry)) {
+                        _lodash["default"].forEach(fileList, function (entry, key) {
+                          if (_lodash["default"].isArray(entry)) {
                             fileList[key] = [];
                           }
                         });
 
-                        _.forEach(fileList.testFiles, function (entry, key) {
-                          if (_.isArray(entry)) {
+                        _lodash["default"].forEach(fileList.testFiles, function (entry, key) {
+                          if (_lodash["default"].isArray(entry)) {
                             fileList.testFiles[key] = [];
                           }
                         }); // first check if it has the required directories
 
 
-                        dir = fs.readdirSync(loc); // should check for the required files/Directories and display a warning when they arent there.
+                        dir = _fs["default"].readdirSync(loc); // should check for the required files/Directories and display a warning when they arent there.
 
                         if (!checkForRequiredFiles(dir)) {
                           reject(new Error('The required files and directories were not present'));
@@ -283,84 +327,72 @@ function _getFileList() {
                         initialFileList = [];
                         _context4.prev = 7;
                         _context4.next = 10;
-                        return searchForFiles("".concat(loc, "/Src"));
+                        return searchForFiles("".concat(loc, "/").concat(getDirCaseFree('Src', dir)));
 
                       case 10:
                         srcFiles = _context4.sent;
                         _context4.next = 13;
-                        return searchForFiles("".concat(loc, "/Inc"));
+                        return searchForFiles("".concat(loc, "/").concat(getDirCaseFree('Inc', dir)));
 
                       case 13:
                         incFiles = _context4.sent;
                         _context4.next = 16;
-                        return trySearchforFiles("".concat(loc, "/Lib"));
+                        return trySearchforFiles("".concat(loc, "/").concat(getDirCaseFree('Lib', dir)));
 
                       case 16:
                         libFiles = _context4.sent;
-                        _context4.t0 = libFiles;
-                        _context4.next = 20;
-                        return trySearchforFiles("".concat(loc, "/lib"));
-
-                      case 20:
-                        _context4.t1 = _context4.sent;
-
-                        _context4.t0.concat.call(_context4.t0, _context4.t1);
-
-                        _.map(srcFiles, function (entry) {
-                          initialFileList.push(entry);
-                        });
-
-                        _.map(incFiles, function (entry) {
-                          initialFileList.push(entry);
-                        });
-
-                        _context4.next = 30;
+                        initialFileList = initialFileList.concat(srcFiles);
+                        initialFileList = initialFileList.concat(incFiles);
+                        initialFileList = initialFileList.concat(libFiles);
+                        _context4.next = 26;
                         break;
 
-                      case 26:
-                        _context4.prev = 26;
-                        _context4.t2 = _context4["catch"](7);
-                        vscode.window.showWarningMessage('Something went wrong with reading the files', _context4.t2);
-                        reject(_context4.t2);
+                      case 22:
+                        _context4.prev = 22;
+                        _context4.t0 = _context4["catch"](7);
 
-                      case 30:
+                        _vscode["default"].window.showWarningMessage('Something went wrong with reading the files', _context4.t0);
+
+                        reject(_context4.t0);
+
+                      case 26:
                         testFiles = null;
-                        testIndex = _.findIndex(dir, function (o) {
+                        testIndex = _lodash["default"].findIndex(dir, function (o) {
                           return o === 'test' || o === 'Test';
                         });
 
                         if (!(testIndex >= 0)) {
-                          _context4.next = 43;
+                          _context4.next = 39;
                           break;
                         }
 
-                        _context4.prev = 33;
-                        _context4.next = 36;
+                        _context4.prev = 29;
+                        _context4.next = 32;
                         return searchForFiles("".concat(loc, "/").concat(dir[testIndex]));
 
-                      case 36:
+                      case 32:
                         testFiles = _context4.sent;
                         sortFiles(fileList.testFiles, testFiles);
-                        fileList.testFiles.includeDirectories = _.cloneDeep(getIncludes(fileList.testFiles.headerFiles));
-                        _context4.next = 43;
+                        fileList.testFiles.includeDirectories = _lodash["default"].cloneDeep(getIncludes(fileList.testFiles.headerFiles));
+                        _context4.next = 39;
                         break;
 
-                      case 41:
-                        _context4.prev = 41;
-                        _context4.t3 = _context4["catch"](33);
+                      case 37:
+                        _context4.prev = 37;
+                        _context4.t1 = _context4["catch"](29);
 
-                      case 43:
+                      case 39:
                         // should sort files and add them to fileList.
                         sortFiles(fileList, initialFileList);
-                        fileList.includeDirectories = _.cloneDeep(getIncludes(fileList.headerFiles));
+                        fileList.cIncludes = _lodash["default"].cloneDeep(getIncludes(fileList.headerFiles));
                         return _context4.abrupt("return", fileList);
 
-                      case 46:
+                      case 42:
                       case "end":
                         return _context4.stop();
                     }
                   }
-                }, _callee4, null, [[7, 26], [33, 41]]);
+                }, _callee4, null, [[7, 22], [29, 37]]);
               }));
 
               return function (_x5, _x6) {
@@ -377,13 +409,3 @@ function _getFileList() {
   }));
   return _getFileList.apply(this, arguments);
 }
-
-module.exports = {
-  getFileList: getFileList,
-  fileList: fileList,
-  getIncludes: getIncludes,
-  sortFiles: sortFiles,
-  searchForFiles: searchForFiles,
-  trySearchforFiles: trySearchforFiles,
-  checkForRequiredFiles: checkForRequiredFiles
-};

@@ -1,7 +1,7 @@
-const _ = require('lodash');
-const fs = require('fs');
-const fsRecursive = require('recursive-readdir');
-const vscode = require('vscode');
+import _ from 'lodash';
+import fs from 'fs';
+import fsRecursive from 'recursive-readdir';
+import vscode from 'vscode';
 
 /* When a standard project is initialised  this is the file structure:
  |-${projectName}.ioc
@@ -15,7 +15,7 @@ const vscode = require('vscode');
  */
 
 
-const fileList = {
+export const fileList = {
   includeDirectories: [],
   cFiles: [],
   cxxFiles: [],
@@ -29,12 +29,21 @@ const fileList = {
     includeDirectories: [],
   },
 };
+/**
+ * @description gets dir ignoring upper or lower case
+ */
+export function getDirCaseFree(dirName, directories) {
+  const lowerDirName = _.toLower(dirName);
+  const index = _.findIndex(directories, o => (_.toLower(o) === lowerDirName));
+  if (index === -1) return null;
+  return directories[index];
+}
 
 /**
  * @description Checks if the Makefile, Src, Inc and Drivers directories/files are present.
  * @param {string[] | ArrayLike<string>} directoryFiles
  */
-function checkForRequiredFiles(directoryFiles) {
+export function checkForRequiredFiles(directoryFiles) {
   // required files/directories are: makefile, Src, Inc and Drivers
   let check = true;
   if (_.indexOf(directoryFiles, 'Makefile') === -1) {
@@ -42,15 +51,15 @@ function checkForRequiredFiles(directoryFiles) {
     vscode.window.showWarningMessage('No Makefile is present, please initialize your project using CubeMX, with the Toolchain set to Makefile under the project manager');
     check = false;
   }
-  if (_.indexOf(directoryFiles, 'Src') === -1) {
+  if (!getDirCaseFree('Src', directoryFiles)) {
     vscode.window.showWarningMessage('No Src directory is present, please initialize your project using CubeMX, with the Toolchain set to Makefile under the project manager');
     check = false;
   }
-  if (_.indexOf(directoryFiles, 'Inc') === -1) {
+  if (!getDirCaseFree('Inc', directoryFiles)) {
     vscode.window.showWarningMessage('No Inc directory is present, please initialize your project using CubeMX, with the Toolchain set to Makefile under the project manager');
     check = false;
   }
-  if (_.indexOf(directoryFiles, 'Drivers') === -1) {
+  if (!getDirCaseFree('Drivers', directoryFiles)) {
     vscode.window.showWarningMessage('No Drivers directory is present, please initialize your project using CubeMX, and under Code Generator make sure that the "Copy all user libraries into the project folder" option is selected.');
     check = false;
   }
@@ -60,7 +69,7 @@ function checkForRequiredFiles(directoryFiles) {
  * @description Tries to search for file in a location. If it does not find the location it returns an empty array
  * @param {string} location
  */
-async function trySearchforFiles(location) {
+export async function trySearchforFiles(location) {
   return new Promise(async (resolve) => {
     try {
       const output = await searchForFiles(location);
@@ -92,10 +101,16 @@ async function searchForFiles(location) {
  * @param {{ includeDirectories?: string[]; cFiles: string[]; cxxFiles: string[]; headerFiles: string[]; asmFiles: string[]; testFiles?: { cFiles: any[]; cxxFiles: any[]; headerFiles: any[]; asmFiles: any[]; }; }} fileObj
  * @param {any[]} list
  */
-function sortFiles(fileObj, list) {
+export function sortFiles(fileObj, list) {
   /**
    * @param {{ split: (arg0: string) => { pop: () => string; }; }} entry
    */
+  // Guard assign the key when none exist.
+  if (!fileObj.cxxFiles) _.set(fileObj, 'cxxFiles', []);
+  if (!fileObj.cFiles) _.set(fileObj, 'cFiles', []);
+  if (!fileObj.headerFiles) _.set(fileObj, 'headerFiles', []);
+  if (!fileObj.asmFiles) _.set(fileObj, 'asmFiles', []);
+
   _.map(list, (entry) => {
     const extension = _.toLower(entry.split('.').pop());
     if (extension === 'cpp' || extension === 'cxx') {
@@ -105,7 +120,7 @@ function sortFiles(fileObj, list) {
     } else if (extension === 'h' || extension === 'hpp') {
       fileObj.headerFiles.push(entry);
     } else if (extension === 's') {
-      fileObj.asmFiles.push(extension);
+      fileObj.asmFiles.push(entry);
     }
   });
   _.forEach(fileObj, (entry) => {
@@ -120,11 +135,14 @@ function sortFiles(fileObj, list) {
  * @description creates a list of directories which include headers
  * @param {string[]} headerList - list of headerfiles
  */
-function getIncludes(headerList) {
+export function getIncludes(headerList) {
   let incList = [];
   _.map(headerList, (entry) => {
     const fileName = entry.split('/').pop();
-    const incFolder = entry.replace(fileName, '');
+    let incFolder = entry.replace(fileName, '');
+    if (incFolder.charAt(incFolder.length - 1) === '/') {
+      incFolder = incFolder.substring(0, incFolder.length - 1);
+    }
     incList.push(incFolder);
   });
   incList = _.uniq(incList);
@@ -135,7 +153,7 @@ function getIncludes(headerList) {
  * @description Locates the files in the Src, Inc and Lib folder.
  * @param {string} location - the location of the project, in which it should search for files
  */
-async function getFileList(location) {
+export default async function getFileList(location) {
   return new Promise(async (resolve, reject) => {
     let loc = './';
     if (location && _.isString(location)) {
@@ -160,19 +178,14 @@ async function getFileList(location) {
       reject(new Error('The required files and directories were not present'));
     }
     // recursively find files in the project.
-    const initialFileList = [];
+    let initialFileList = [];
     try {
-      const srcFiles = await searchForFiles(`${loc}/Src`);
-      const incFiles = await searchForFiles(`${loc}/Inc`);
-      const libFiles = await trySearchforFiles(`${loc}/Lib`);
-      libFiles.concat(await trySearchforFiles(`${loc}/lib`));
-
-      _.map(srcFiles, (entry) => {
-        initialFileList.push(entry);
-      });
-      _.map(incFiles, (entry) => {
-        initialFileList.push(entry);
-      });
+      const srcFiles = await searchForFiles(`${loc}/${getDirCaseFree('Src', dir)}`);
+      const incFiles = await searchForFiles(`${loc}/${getDirCaseFree('Inc', dir)}`);
+      const libFiles = await trySearchforFiles(`${loc}/${getDirCaseFree('Lib', dir)}`);
+      initialFileList = initialFileList.concat(srcFiles);
+      initialFileList = initialFileList.concat(incFiles);
+      initialFileList = initialFileList.concat(libFiles);
     } catch (err) {
       vscode.window.showWarningMessage('Something went wrong with reading the files', err);
       reject(err);
@@ -191,19 +204,7 @@ async function getFileList(location) {
     }
     // should sort files and add them to fileList.
     sortFiles(fileList, initialFileList);
-    fileList.includeDirectories = _.cloneDeep(getIncludes(fileList.headerFiles));
-
+    fileList.cIncludes = _.cloneDeep(getIncludes(fileList.headerFiles));
     return fileList;
   });
 }
-
-
-module.exports = {
-  getFileList,
-  fileList,
-  getIncludes,
-  sortFiles,
-  searchForFiles,
-  trySearchforFiles,
-  checkForRequiredFiles,
-};
