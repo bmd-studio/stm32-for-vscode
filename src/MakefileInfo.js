@@ -82,16 +82,16 @@ export function extractMultiLineInfo(name, makefile) {
   _.map(splitData, (line, ind) => {
     if (start && !end) {
       if (emptyPattern.test(line)) {
-        end = parseInt(ind, 10);
+        end = ind;
         return;
       }
       cleanStrings.push(line.replace(/(\s\\$)|(\s.$)/gim, ''));
       if (endPattern.test(line)) {
-        end = parseInt(ind, 10);
+        end = ind;
       }
     }
     if (startPattern.test(line)) {
-      start = parseInt(ind, 10);
+      start = ind;
     }
   });
 

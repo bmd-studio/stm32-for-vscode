@@ -1,5 +1,6 @@
 {
-  "tasks": [{
+  "tasks": [
+    {
       "label": "compile extension",
       "type": "shell",
       "command": "npm run compile",
@@ -22,6 +23,35 @@
         "kind": "build",
         "isDefault": true
       }
+    },
+    {
+      "label": "Build STM",
+      "type": "shell",
+      "command": "node /Users/jort/.vscode/extensions/bmd.stm32-for-vscode-1.8.6/STM32Cli build /Users/jort/Documents/BMD/Embedded_Stack/VSCode_STM_Extension/stm32-vscode-extension",
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Load STM Firmware",
+      "type": "shell",
+      "command": "st-flash write ./build/undefined.bin 0x08000000",
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": [],
+      "dependsOn": [
+        "Build STM"
+      ]
     }
   ]
 }

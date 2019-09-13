@@ -16,8 +16,8 @@ export default info;
 
 /**
  *
- * @param {string[]} arr1
- * @param {string[]} arr2
+ * @param {string[] | object} arr1
+ * @param {string[] | object} arr2
  * @param {string} key
  * @param {object} obj
  */
@@ -49,7 +49,7 @@ export function combineArraysIntoObject(arr1, arr2, key, obj) {
  */
 export function checkForFileNameInArray(name, array, caseMatters) {
   const reg = new RegExp(`(^|\\b)${name}$`, `${caseMatters ? '' : 'i'}`);
-  for (let i = 0; i < array.length; i++) {
+  for (let i = 0; i < array.length; i += 1) {
     if (array[i].search(reg) >= 0) {
       return i;
     }
@@ -125,11 +125,7 @@ export async function getInfo(location) {
     Promise.all([makefileInfoPromise, listFilesInfoPromise]).then((values) => {
       const [makefileInfo, fileInfo] = values;
       let combinedInfo = combineInfo(makefileInfo, fileInfo);
-      console.log('new makefile info');
-      console.log(combinedInfo);
       combinedInfo = checkAndConvertCpp(combinedInfo);
-      console.log('cpp checked info');
-      console.log(combinedInfo);
       info.makefile = combinedInfo;
       resolve(info);
     }).catch((err) => {

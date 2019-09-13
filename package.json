@@ -43,7 +43,7 @@
       "type": "object",
       "title": "STM32 for VSCode configuration",
       "properties": {
-        "stm32-for-vscode.openOCDPath": {
+        "stm32-for-vscode.openocdPath": {
           "type": "string",
           "default": "",
           "description": "Path to openOCD, will use the one in PATH or the cortex-debug settings automatically"
@@ -66,6 +66,9 @@
       }
     }
   },
+  "extensionDependencies": [
+    "marus25.cortex-debug"
+  ],
   "scripts": {
     "vscode:prepublish": "webpack --mode production",
     "webpack": "webpack --mode development",

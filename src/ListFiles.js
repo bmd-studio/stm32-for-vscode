@@ -212,18 +212,14 @@ export default async function getFileList(location) {
       try {
         testFiles = await searchForFiles(`${loc}/${dir[testIndex]}`);
         sortFiles(fileList.testFiles, testFiles);
-
-        fileList.testFiles.includeDirectories = _.cloneDeep(getIncludes(fileList.testFiles.headerFiles));
+        const includes = getIncludes(fileList.testFiles.headerFiles);
+        fileList.testFiles.includeDirectories = _.cloneDeep(includes);
       } catch (err) {
         // do nothing for now.
       }
     }
-    console.log('initial file list');
-    console.log(initialFileList);
     // should sort files and add them to fileList.
     sortFiles(fileList, initialFileList);
-    console.log('sorted files');
-    console.log(fileList);
     fileList.cIncludes = _.cloneDeep(getIncludes(fileList.headerFiles));
     resolve(fileList);
   });
