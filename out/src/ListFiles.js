@@ -103,96 +103,30 @@ function checkForRequiredFiles(directoryFiles) {
   return check;
 }
 /**
- * @description Tries to search for file in a location. If it does not find the location it returns an empty array
- * @param {string} location
- */
-
-
-function trySearchforFiles(_x) {
-  return _trySearchforFiles.apply(this, arguments);
-}
-/**
  * @description Recursively searches through a whole directory.
  * @param {string} location - Directory to search e.g. ~/src
  */
 
 
-function _trySearchforFiles() {
-  _trySearchforFiles = _asyncToGenerator(
-  /*#__PURE__*/
-  regeneratorRuntime.mark(function _callee2(location) {
-    return regeneratorRuntime.wrap(function _callee2$(_context2) {
-      while (1) {
-        switch (_context2.prev = _context2.next) {
-          case 0:
-            return _context2.abrupt("return", new Promise(
-            /*#__PURE__*/
-            function () {
-              var _ref = _asyncToGenerator(
-              /*#__PURE__*/
-              regeneratorRuntime.mark(function _callee(resolve) {
-                var output;
-                return regeneratorRuntime.wrap(function _callee$(_context) {
-                  while (1) {
-                    switch (_context.prev = _context.next) {
-                      case 0:
-                        _context.prev = 0;
-                        _context.next = 3;
-                        return searchForFiles(location);
-
-                      case 3:
-                        output = _context.sent;
-                        resolve(output);
-                        _context.next = 10;
-                        break;
-
-                      case 7:
-                        _context.prev = 7;
-                        _context.t0 = _context["catch"](0);
-                        resolve([]);
-
-                      case 10:
-                      case "end":
-                        return _context.stop();
-                    }
-                  }
-                }, _callee, null, [[0, 7]]);
-              }));
-
-              return function (_x4) {
-                return _ref.apply(this, arguments);
-              };
-            }()));
-
-          case 1:
-          case "end":
-            return _context2.stop();
-        }
-      }
-    }, _callee2);
-  }));
-  return _trySearchforFiles.apply(this, arguments);
-}
-
-function searchForFiles(_x2) {
+function searchForFiles(_x) {
   return _searchForFiles.apply(this, arguments);
 }
 /**
- * @description Sorts files according to their extension.
- * @param {{ includeDirectories?: string[]; cFiles: string[]; cxxFiles: string[]; headerFiles: string[]; asmFiles: string[]; testFiles?: { cFiles: any[]; cxxFiles: any[]; headerFiles: any[]; asmFiles: any[]; }; }} fileObj
- * @param {any[]} list
+ * @description Tries to search for file in a location.
+ * If it does not find the location it returns an empty array
+ * @param {string} location
  */
 
 
 function _searchForFiles() {
   _searchForFiles = _asyncToGenerator(
   /*#__PURE__*/
-  regeneratorRuntime.mark(function _callee3(location) {
-    return regeneratorRuntime.wrap(function _callee3$(_context3) {
+  regeneratorRuntime.mark(function _callee(location) {
+    return regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
-        switch (_context3.prev = _context3.next) {
+        switch (_context.prev = _context.next) {
           case 0:
-            return _context3.abrupt("return", new Promise(function (resolve, reject) {
+            return _context.abrupt("return", new Promise(function (resolve, reject) {
               (0, _recursiveReaddir["default"])(location, function (err, files) {
                 if (err) {
                   reject(err);
@@ -205,12 +139,91 @@ function _searchForFiles() {
 
           case 1:
           case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee);
+  }));
+  return _searchForFiles.apply(this, arguments);
+}
+
+function trySearchforFiles(_x2) {
+  return _trySearchforFiles.apply(this, arguments);
+}
+/**
+ * @description Sorts files according to their extension.
+ * @param {{
+ * includeDirectories?: string[];
+ * cFiles: string[];
+ * cxxFiles: string[];
+ * headerFiles: string[];
+ * asmFiles: string[];
+ * testFiles?: {
+  * cFiles: any[];
+  * cxxFiles: any[];
+  * headerFiles: any[];
+  * asmFiles: any[];
+ *  };
+ * }} fileObj
+ * @param {any[]} list
+ */
+
+
+function _trySearchforFiles() {
+  _trySearchforFiles = _asyncToGenerator(
+  /*#__PURE__*/
+  regeneratorRuntime.mark(function _callee3(location) {
+    return regeneratorRuntime.wrap(function _callee3$(_context3) {
+      while (1) {
+        switch (_context3.prev = _context3.next) {
+          case 0:
+            return _context3.abrupt("return", new Promise(
+            /*#__PURE__*/
+            function () {
+              var _ref = _asyncToGenerator(
+              /*#__PURE__*/
+              regeneratorRuntime.mark(function _callee2(resolve) {
+                var output;
+                return regeneratorRuntime.wrap(function _callee2$(_context2) {
+                  while (1) {
+                    switch (_context2.prev = _context2.next) {
+                      case 0:
+                        _context2.prev = 0;
+                        _context2.next = 3;
+                        return searchForFiles(location);
+
+                      case 3:
+                        output = _context2.sent;
+                        resolve(output);
+                        _context2.next = 10;
+                        break;
+
+                      case 7:
+                        _context2.prev = 7;
+                        _context2.t0 = _context2["catch"](0);
+                        resolve([]);
+
+                      case 10:
+                      case "end":
+                        return _context2.stop();
+                    }
+                  }
+                }, _callee2, null, [[0, 7]]);
+              }));
+
+              return function (_x4) {
+                return _ref.apply(this, arguments);
+              };
+            }()));
+
+          case 1:
+          case "end":
             return _context3.stop();
         }
       }
     }, _callee3);
   }));
-  return _searchForFiles.apply(this, arguments);
+  return _trySearchforFiles.apply(this, arguments);
 }
 
 function sortFiles(fileObj, list) {

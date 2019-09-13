@@ -14,10 +14,6 @@ var _lodash = _interopRequireDefault(require("lodash"));
 
 var _vscode = _interopRequireDefault(require("vscode"));
 
-var _fs = _interopRequireDefault(require("fs"));
-
-var _path = _interopRequireDefault(require("path"));
-
 var _MakefileInfo = _interopRequireDefault(require("./MakefileInfo"));
 
 var _ListFiles = _interopRequireDefault(require("./ListFiles"));
@@ -82,7 +78,7 @@ function combineArraysIntoObject(arr1, arr2, key, obj) {
  * @description returns the location of a specific file in an array
  * @param {string} name name of file to search in path.
  * @param {string[]} array
- * @param {boolean} caseMatters
+ * @param {boolean} [caseMatters]
  */
 
 
@@ -99,25 +95,15 @@ function checkForFileNameInArray(name, array, caseMatters) {
 }
 /**
  * @description Check if the programm is a c++ or c program and automatically converts.
- * @param {object} info combined info of the makefile and filelist
+ * @param {object} totalInfo combined info of the makefile and filelist
  */
 
 
 function checkAndConvertCpp(totalInfo) {
-  var newInfo = _lodash["default"].cloneDeep(totalInfo); // TODO: first split everything and then check or use a regex pattern....
+  var newInfo = _lodash["default"].cloneDeep(totalInfo);
 
-
-  if (checkForFileNameInArray('main.cpp', newInfo.cxxSources) >= 0) {}
-
-  if (!(_lodash["default"].indexOf(newInfo.cxxSources, 'main.cpp') === -1) || !(_lodash["default"].indexOf(newInfo.cxxSources, 'Main.cpp') === -1)) {
-    console.log('has main.cpp file'); // then it has a main.cpp file
-    // check for a main.c file
-
-    var indMain = _lodash["default"].indexOf(newInfo.cSources, 'main.c');
-
-    if (indMain === -1) {
-      indMain = _lodash["default"].indexOf(newInfo.cSources, 'Main.c');
-    }
+  if (checkForFileNameInArray('main.cpp', newInfo.cxxSources) >= 0) {
+    var indMain = checkForFileNameInArray('main.c', newInfo.cSources);
 
     if (indMain >= 0) {
       // remove the main.c file.
@@ -127,9 +113,8 @@ function checkAndConvertCpp(totalInfo) {
     return newInfo;
   }
 
-  if (!_lodash["default"].isEmpty(info.cxxSources)) {
-    _vscode["default"].window.showWarningMessage('You have several cxx/cpp files, however no main.cpp file. Will ignore these files for now'); // should clear the current files
-
+  if (!_lodash["default"].isEmpty(info.cxxSoruces)) {
+    _vscode["default"].window.showWarningMessage('You have several cxx/cpp files, however no main.cpp file. Will ignore these files for now');
   } // else it is a C only file, so remove all the C++ files and definitions.
 
 

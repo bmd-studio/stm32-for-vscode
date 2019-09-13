@@ -37,7 +37,7 @@ export const makefileInfo = {
   cIncludes: [],
   cxxIncludes: [],
   asIncludes: [],
-};
+}; // TODO: move this to getMakefileInfo() or extractMakefileInfo().
 /**
  * @description
  * @param {string} location - location of the makefile e.g. /filepath/Makefile
@@ -153,6 +153,7 @@ export function extractMakefileInfo(infoDef, makefile) {
  * @param {string} location - location of the makefile
  */
 export default async function getMakefileInfo(location) {
+  // TODO: no test to catch paramters of location
   return new Promise(async (resolve, reject) => {
     let loc = './Makefile';
     if (location && _.isString(location)) {

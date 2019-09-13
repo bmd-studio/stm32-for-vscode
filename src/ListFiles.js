@@ -28,7 +28,7 @@ export const fileList = {
     asmFiles: [],
     includeDirectories: [],
   },
-};
+}; // TODO: is fileList used anywhere else then in getFilelist(), else you can move it into the function and strip out the checks to clear your array as it will be reinitialized every time.
 /**
  * @description gets dir ignoring upper or lower case
  */
@@ -87,7 +87,7 @@ async function searchForFiles(location) {
  * If it does not find the location it returns an empty array
  * @param {string} location
  */
-export async function trySearchforFiles(location) {
+export async function trySearchforFiles(location) { // TODO: create test for this function
   return new Promise(async (resolve) => {
     try {
       const output = await searchForFiles(location);
@@ -194,10 +194,10 @@ export default async function getFileList(location) {
     }
     // recursively find files in the project.
     let initialFileList = [];
-    try {
+    try { // TODO: maybe refactor as it feels double since you also already used the checkForRequiredFiles() function
       const srcFiles = await searchForFiles(`${loc}/${getDirCaseFree('Src', dir)}`);
       const incFiles = await searchForFiles(`${loc}/${getDirCaseFree('Inc', dir)}`);
-      const libFiles = await trySearchforFiles(`${loc}/${getDirCaseFree('Lib', dir)}`);
+      const libFiles = await trySearchforFiles(`${loc}/${getDirCaseFree('Lib', dir)}`); // TODO: is it necessary to create another try as it is already in a try?
       initialFileList = initialFileList.concat(srcFiles);
       initialFileList = initialFileList.concat(incFiles);
       initialFileList = initialFileList.concat(libFiles);
