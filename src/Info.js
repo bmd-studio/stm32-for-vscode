@@ -1,11 +1,10 @@
 /*
- * Set of functions for creating a makefile based on STM32 makefile info and the Src, Inc and Lib folders
+ * Set of functions for creating a makefile based on
+ * STM32 makefile info and the Src, Inc and Lib folders
  * Created by Jort Band - Bureau Moeilijke Dingen
 */
 import _ from 'lodash';
 import vscode from 'vscode';
-import fs from 'fs';
-import path from 'path';
 import getMakefileInfo from './MakefileInfo';
 import getFileList from './ListFiles';
 
@@ -42,27 +41,43 @@ export function combineArraysIntoObject(arr1, arr2, key, obj) {
   return obj;
 }
 
+/**
+ * @description returns the location of a specific file in an array
+ * @param {string} name name of file to search in path.
+ * @param {string[]} array
+ * @param {boolean} [caseMatters]
+ */
+export function checkForFileNameInArray(name, array, caseMatters) {
+  const reg = new RegExp(`(^|\\b)${name}$`, `${caseMatters ? '' : 'i'}`);
+  for (let i = 0; i < array.length; i++) {
+    if (array[i].search(reg) >= 0) {
+      return i;
+    }
+  }
+  return -1;
+}
 
 /**
  * @description Check if the programm is a c++ or c program and automatically converts.
- * @param {object} info combined info of the makefile and filelist
+ * @param {object} totalInfo combined info of the makefile and filelist
  */
 export function checkAndConvertCpp(totalInfo) {
   const newInfo = _.cloneDeep(totalInfo);
-  if (!(_.indexOf(newInfo.cxxSources, 'main.cpp') === -1) || !(_.indexOf(newInfo.cxxSources, 'Main.cpp') === -1)) {
-    // then it has a main.cpp file
-    // check for a main.c file
-    let indMain = _.indexOf(newInfo.cSources, 'main.c');
-    if (indMain === -1) { indMain = _.indexOf(newInfo.cSources, 'Main.c'); }
+  if (checkForFileNameInArray('main.cpp', newInfo.cxxSources) >= 0) {
+    const indMain = checkForFileNameInArray('main.c', newInfo.cSources);
     if (indMain >= 0) {
-      // remove the main. file.
+      // remove the main.c file.
       newInfo.cSources.splice(indMain, 1);
     }
-  } else if (!_.isEmpty(info.cxxSources)) {
-    vscode.window.showWarningMessage('You have several cxx/cpp files, however no main.cpp file. Will ignore these files for now');
-    // should clear the current files
-    newInfo.cxxSources = [];
+    return newInfo;
   }
+  if (!_.isEmpty(info.cxxSoruces)) {
+    vscode.window.showWarningMessage('You have several cxx/cpp files, however no main.cpp file. Will ignore these files for now');
+  }
+  // else it is a C only file, so remove all the C++ files and definitions.
+  newInfo.cxxSources = [];
+  newInfo.cxxDefs = [];
+  newInfo.cxxIncludes = [];
   return newInfo;
 }
 
@@ -109,9 +124,13 @@ export async function getInfo(location) {
     // TODO: also add a get config in here
     Promise.all([makefileInfoPromise, listFilesInfoPromise]).then((values) => {
       const [makefileInfo, fileInfo] = values;
-      let newMakefile = combineInfo(makefileInfo, fileInfo);
-      newMakefile = checkAndConvertCpp(newMakefile);
-      info.makefile = newMakefile;
+      let combinedInfo = combineInfo(makefileInfo, fileInfo);
+      console.log('new makefile info');
+      console.log(combinedInfo);
+      combinedInfo = checkAndConvertCpp(combinedInfo);
+      console.log('cpp checked info');
+      console.log(combinedInfo);
+      info.makefile = combinedInfo;
       resolve(info);
     }).catch((err) => {
       vscode.window.showErrorMessage('Something went wrong with scanning directories and reading files', err);

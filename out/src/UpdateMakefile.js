@@ -63,7 +63,7 @@ function writeMakefile(_x2, _x3) {
  * @description creates a new makefile based on the current info and checks if it
  * should update the old makefile.
  * @param {string} workspaceLocation location of the current workspace
- * @param {object} info object containing the information neccessary for compilation
+ * @param {{makefile: {}, config: {}}} info object containing the information neccessary for compilation
  */
 
 
@@ -139,39 +139,48 @@ function _updateMakefile() {
                         oldMakefile = null;
 
                       case 10:
-                        newMakefile = (0, _CreateMakefile["default"])(info);
+                        console.log('creating new makefile with info', info);
+                        newMakefile = (0, _CreateMakefile["default"])(info.makefile);
 
                         if (!(newMakefile !== oldMakefile)) {
-                          _context3.next = 23;
+                          _context3.next = 26;
                           break;
                         }
 
-                        _context3.prev = 12;
-                        _context3.next = 15;
+                        console.log('difference in makefile updating');
+                        _context3.prev = 14;
+                        _context3.next = 17;
                         return writeMakefile(makefilePath, newMakefile);
 
-                      case 15:
-                        _context3.next = 22;
+                      case 17:
+                        _context3.next = 24;
                         break;
 
-                      case 17:
-                        _context3.prev = 17;
-                        _context3.t1 = _context3["catch"](12);
+                      case 19:
+                        _context3.prev = 19;
+                        _context3.t1 = _context3["catch"](14);
 
                         _vscode["default"].window.showErrorMessage('Something went wrong with creating the new makefile', _context3.t1);
 
                         reject(_context3.t1);
                         return _context3.abrupt("return");
 
-                      case 22:
+                      case 24:
+                        _context3.next = 27;
+                        break;
+
+                      case 26:
+                        console.log('makefile is same same');
+
+                      case 27:
                         resolve(newMakefile);
 
-                      case 23:
+                      case 28:
                       case "end":
                         return _context3.stop();
                     }
                   }
-                }, _callee3, null, [[1, 7], [12, 17]]);
+                }, _callee3, null, [[1, 7], [14, 19]]);
               }));
 
               return function (_x6, _x7) {

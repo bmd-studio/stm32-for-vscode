@@ -28,6 +28,7 @@ var fpu = '-mfpu=fpv5-d16';
 var makefileInfoTemplate = {
   target: '',
   cpu: '',
+  targetMCU: '',
   fpu: '',
   floatAbi: '',
   mcu: '',
@@ -46,6 +47,7 @@ exports.makefileInfoTemplate = makefileInfoTemplate;
 var makefileInfoTest = {
   target: 'Clean_project_h7',
   cpu: '-mcpu=cortex-m7',
+  targetMCU: 'stm32h7x',
   fpu: fpu,
   floatAbi: floatAbi,
   mcu: '$(CPU) -mthumb $(FPU) $(FLOAT-ABI)',
@@ -54,6 +56,7 @@ var makefileInfoTest = {
   cxxSources: [],
   asmSources: asmSources,
   cDefs: cDefs,
+  cxxDefs: [],
   asDefs: [],
   cIncludes: cIncludes,
   cxxIncludes: [],
@@ -118,5 +121,8 @@ exports.makefileInfoTest = makefileInfoTest;
     }, _TestMakefile["default"]), {
       noneSense: ''
     });
+  });
+  (0, _mocha.test)('getTargetSTM', function () {
+    _assert["default"].deepEqual((0, _MakefileInfo.getTargetSTM)(cSources), 'stm32h7x');
   });
 });

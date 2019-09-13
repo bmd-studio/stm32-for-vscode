@@ -4,7 +4,7 @@
  * Created by Jort Band - Bureau Moeilijke Dingen
 */
 import _ from 'lodash';
-
+// TODO: include the openocd path to the makeInfo.
 
 /**
  * @description creates a makefile readable list.
@@ -85,13 +85,13 @@ PREFIX = arm-none-eabi-
 # The gcc compiler bin path can be either defined in make command via GCC_PATH variable (> make GCC_PATH=xxx)
 # either it can be added to the PATH environment variable.
 ifdef GCC_PATH
-CPP = $(GCC_PATH)/$(PREFIX)g++
+CXX = $(GCC_PATH)/$(PREFIX)g++
 CC = $(GCC_PATH)/$(PREFIX)gcc
 AS = $(GCC_PATH)/$(PREFIX)gcc -x assembler-with-cpp
 CP = $(GCC_PATH)/$(PREFIX)objcopy
 SZ = $(GCC_PATH)/$(PREFIX)size
 else
-CPP = $(PREFIX)g++
+CXX = $(PREFIX)g++
 CC = $(PREFIX)gcc
 AS = $(PREFIX)gcc -x assembler-with-cpp
 CP = $(PREFIX)objcopy
@@ -146,6 +146,8 @@ endif
 # Generate dependency information
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 
+CXXFLAGS?=
+CXXFLAGS += -feliminate-unused-debug-types
 
 #######################################
 # LDFLAGS
@@ -176,7 +178,7 @@ OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
 vpath %.s $(sort $(dir $(ASM_SOURCES)))
 
 $(BUILD_DIR)/%.o: %.cpp Makefile | $(BUILD_DIR) 
-	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.cpp=.lst)) $< -o $@
+	$(CXX) -c $(CXXFLAGS) $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.cpp=.lst)) $< -o $@
 
 $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR) 
 	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
@@ -198,6 +200,18 @@ $(BUILD_DIR):
 	mkdir $@		
 
 #######################################
+# flash
+#######################################
+flash: $(BUILD_DIR)/$(PROJ_NAME).elf
+        ${makeInfo.openocdPath ? makeInfo.openocdPath : 'openocd'} -f target/${makeInfo.targetMCU} -c "program $^ reset exit -0x08000000"
+
+#######################################
+# erase
+#######################################
+erase: $(BUILD_DIR)/$(PROJ_NAME).elf
+        ${makeInfo.openocdPath ? makeInfo.openocdPath : 'openocd'} -f target/${makeInfo.targetMCU}.cfg -c "init; reset halt; ${makeInfo.targetMCU} mass_erase 0; exit"
+
+#######################################
 # clean up
 #######################################
 clean:
@@ -212,20 +226,6 @@ clean:
 
   return makeFile;
 }
-/**
- *
- * @param {object} makefileInfo
- * @param {object} fileList
- */
-export async function getMakefile(makefileInfo, fileList) {
-  let totalInfo = bundleInfo(makefileInfo, fileList);
-  totalInfo = checkAndConvertCpp(totalInfo);
-  console.log('totalInfo is', totalInfo);
-  const makeFile = convertTemplate(totalInfo);
-  console.log(makeFile);
-  return makeFile;
-}
-
 
 export default function createMakefile(info) {
   return convertTemplate(info);

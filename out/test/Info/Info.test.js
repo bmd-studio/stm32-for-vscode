@@ -52,11 +52,47 @@ var totalMakeFileInfo = {
   cxxDefs: testMakeFile.cxxDefs,
   asDefs: testMakeFile.asDefs
 };
-(0, _mocha.suite)('CombineInfo test', function () {
+(0, _mocha.suite)('Info test', function () {
   // before(() => {
   //   vscode.window.showInformationMessage('Start all tests.');
   // });
   (0, _mocha.before)(function () {});
+  (0, _mocha.test)('checkForFileNameInArray', function () {
+    var mainArr = ['src/main.cpp', 'src/something.h', 'src/somethingelse.cpp'];
+
+    _assert["default"].equal((0, _Info.checkForFileNameInArray)('main.cpp', mainArr), 0);
+
+    var noMain = ['src/blah.cpp', 'adfad/jklfgjhf.cpp', 'fkjhfsdkjhsdf.fdhf/fguhsfg.gfs'];
+
+    _assert["default"].equal((0, _Info.checkForFileNameInArray)('main.cpp', noMain), -1);
+  });
+  (0, _mocha.test)('checkForFileNameInArray case sensitivity', function () {
+    var capsMain = ['src/something.h', 'src/Main.cpp', 'src/somethingelse.cpp'];
+
+    _assert["default"].equal((0, _Info.checkForFileNameInArray)('main.cpp', capsMain, true), -1);
+
+    _assert["default"].equal((0, _Info.checkForFileNameInArray)('Main.cpp', capsMain, true), 1);
+
+    _assert["default"].equal((0, _Info.checkForFileNameInArray)('main.cpp', capsMain), 1);
+
+    _assert["default"].equal((0, _Info.checkForFileNameInArray)('Main.cpp', capsMain, false), 1);
+  });
+  (0, _mocha.test)('checkForFileNameInArray .c is not .cpp', function () {
+    var capsMain = ['src/something.h', 'src/Main.cpp', 'src/somethingelse.cpp']; // check if it only gets the whole filename.
+
+    _assert["default"].equal((0, _Info.checkForFileNameInArray)('main.c', capsMain), -1);
+
+    _assert["default"].equal((0, _Info.checkForFileNameInArray)('Main.c', capsMain), -1);
+  });
+  (0, _mocha.test)('checkForFileNameInArray match whole filename, not only a part', function () {
+    var otherMain = ['othermain.cpp', 'someotherfile.cpp'];
+
+    _assert["default"].equal((0, _Info.checkForFileNameInArray)('main.cpp', otherMain), -1);
+
+    var otherMainPrefix = ['/srcs/sd/othermain.cpp', 'prefix/something.h'];
+
+    _assert["default"].equal((0, _Info.checkForFileNameInArray)('main.cpp', otherMainPrefix), -1);
+  });
   (0, _mocha.test)('combineArraysIntoObject', function () {
     var array1 = ['somestring', 'someotherstring'];
     var array2 = ['otherstring', 'other other string']; // test if it combines as expected

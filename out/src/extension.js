@@ -51,10 +51,9 @@ function activate(context) {
             // const armPath = checkForRequirements(vscode.window.showWarningMessage, vscode);
             // init(vscode.workspace.getWorkspaceFolder, armPath);
             // used for testing....
-            fileList = getFileList(_vscode["default"].workspace.workspaceFolders[0].uri.fsPath);
-            console.log('fileList', fileList); // const makefileInfo = getMakefileInfo(vscode.workspace.workspaceFolders[0].uri.fsPath);
+            fileList = getFileList(_vscode["default"].workspace.workspaceFolders[0].uri.fsPath); // const makefileInfo = getMakefileInfo(vscode.workspace.workspaceFolders[0].uri.fsPath);
 
-          case 2:
+          case 1:
           case "end":
             return _context.stop();
         }

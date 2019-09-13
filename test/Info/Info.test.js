@@ -3,6 +3,7 @@ import { before, test, suite } from 'mocha';
 import _ from 'lodash';
 import {
   combineInfo, checkAndConvertCpp, combineArraysIntoObject,
+  checkForFileNameInArray,
 } from '../../src/Info';
 import { makefileInfoTest } from '../MakefileInfo/MakefileInfo.test';
 
@@ -48,12 +49,39 @@ const totalMakeFileInfo = {
 };
 
 
-suite('CreateMakefile test', () => {
+suite('Info test', () => {
   // before(() => {
   //   vscode.window.showInformationMessage('Start all tests.');
   // });
   before(() => {
   });
+  test('checkForFileNameInArray', () => {
+    const mainArr = ['src/main.cpp', 'src/something.h', 'src/somethingelse.cpp'];
+    assert.equal(checkForFileNameInArray('main.cpp', mainArr), 0);
+    const noMain = ['src/blah.cpp', 'adfad/jklfgjhf.cpp', 'fkjhfsdkjhsdf.fdhf/fguhsfg.gfs'];
+    assert.equal(checkForFileNameInArray('main.cpp', noMain), -1);
+  });
+  test('checkForFileNameInArray case sensitivity', () => {
+    const capsMain = ['src/something.h', 'src/Main.cpp', 'src/somethingelse.cpp'];
+    assert.equal(checkForFileNameInArray('main.cpp', capsMain, true), -1);
+    assert.equal(checkForFileNameInArray('Main.cpp', capsMain, true), 1);
+    assert.equal(checkForFileNameInArray('main.cpp', capsMain), 1);
+    assert.equal(checkForFileNameInArray('Main.cpp', capsMain, false), 1);
+  });
+
+  test('checkForFileNameInArray .c is not .cpp', () => {
+    const capsMain = ['src/something.h', 'src/Main.cpp', 'src/somethingelse.cpp'];
+    // check if it only gets the whole filename.
+    assert.equal(checkForFileNameInArray('main.c', capsMain), -1);
+    assert.equal(checkForFileNameInArray('Main.c', capsMain), -1);
+  });
+  test('checkForFileNameInArray match whole filename, not only a part', () => {
+    const otherMain = ['othermain.cpp', 'someotherfile.cpp'];
+    assert.equal(checkForFileNameInArray('main.cpp', otherMain), -1);
+    const otherMainPrefix = ['/srcs/sd/othermain.cpp', 'prefix/something.h'];
+    assert.equal(checkForFileNameInArray('main.cpp', otherMainPrefix), -1);
+  });
+
   test('combineArraysIntoObject', () => {
     const array1 = ['somestring', 'someotherstring'];
     const array2 = ['otherstring', 'other other string'];

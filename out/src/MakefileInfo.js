@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.getMakefile = getMakefile;
 exports.extractSingleLineInfo = extractSingleLineInfo;
 exports.extractMultiLineInfo = extractMultiLineInfo;
+exports.getTargetSTM = getTargetSTM;
 exports.extractMakefileInfo = extractMakefileInfo;
 exports["default"] = getMakefileInfo;
 exports.makefileInfo = void 0;
@@ -43,6 +44,7 @@ var _require = require('vscode'),
 var makefileInfo = {
   target: '',
   cpu: '',
+  targetMCU: '',
   fpu: '',
   floatAbi: '',
   mcu: '',
@@ -149,6 +151,26 @@ function extractMultiLineInfo(name, makefile) {
   return cleanStrings;
 }
 /**
+ * @description Function for getting the target from the hal_msp.c file
+ * e.g getting the target stm32l4x from: Src/stm32l4xx_hal_msp.c
+ * @param {string[]} cFiles
+ */
+
+
+function getTargetSTM(cFiles) {
+  var regPattern = /(.*\/)?(.*)x_hal_msp.c/i;
+  var output = '';
+
+  _.map(cFiles, function (fileName) {
+    if (regPattern.test(fileName)) {
+      var regOut = regPattern.exec(fileName);
+      output = _.last(regOut);
+    }
+  });
+
+  return output;
+}
+/**
  * @description loops through an object file and tries to find the relevant documents
  * in the provided makefile
  * @param {object} infoDef - An object containing camelCased key of what should
@@ -176,6 +198,11 @@ function extractMakefileInfo(infoDef, makefile) {
       infoDef[key] = info;
     }
   });
+
+  if (_.isString(infoDef.targetMCU)) {
+    // seperately get the tartgetMCU
+    infoDef.targetMCU = getTargetSTM(infoDef.cSources);
+  }
 
   return infoDef;
 }
@@ -247,10 +274,9 @@ function _getMakefileInfo() {
 
                       case 15:
                         // when the makefile is found, extract the information according to the makefileInfo fields
-                        extractMakefileInfo(makefileInfo, makefile);
-                        resolve(makefileInfo);
+                        resolve(extractMakefileInfo(makefileInfo, makefile));
 
-                      case 17:
+                      case 16:
                       case "end":
                         return _context2.stop();
                     }

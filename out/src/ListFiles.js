@@ -382,12 +382,16 @@ function _getFileList() {
                         _context4.t1 = _context4["catch"](29);
 
                       case 39:
-                        // should sort files and add them to fileList.
-                        sortFiles(fileList, initialFileList);
-                        fileList.cIncludes = _lodash["default"].cloneDeep(getIncludes(fileList.headerFiles));
-                        return _context4.abrupt("return", fileList);
+                        console.log('initial file list');
+                        console.log(initialFileList); // should sort files and add them to fileList.
 
-                      case 42:
+                        sortFiles(fileList, initialFileList);
+                        console.log('sorted files');
+                        console.log(fileList);
+                        fileList.cIncludes = _lodash["default"].cloneDeep(getIncludes(fileList.headerFiles));
+                        resolve(fileList);
+
+                      case 46:
                       case "end":
                         return _context4.stop();
                     }

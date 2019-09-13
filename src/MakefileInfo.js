@@ -23,6 +23,7 @@ const { window } = require('vscode');
 export const makefileInfo = {
   target: '',
   cpu: '',
+  targetMCU: '',
   fpu: '',
   floatAbi: '',
   mcu: '',
@@ -96,6 +97,24 @@ export function extractMultiLineInfo(name, makefile) {
 
   return cleanStrings;
 }
+
+/**
+ * @description Function for getting the target from the hal_msp.c file
+ * e.g getting the target stm32l4x from: Src/stm32l4xx_hal_msp.c
+ * @param {string[]} cFiles
+ */
+export function getTargetSTM(cFiles) {
+  const regPattern = /(.*\/)?(.*)x_hal_msp.c/i;
+  let output = '';
+  _.map(cFiles, (fileName) => {
+    if (regPattern.test(fileName)) {
+      const regOut = regPattern.exec(fileName);
+      output = _.last(regOut);
+    }
+  });
+  return output;
+}
+
 /**
  * @description loops through an object file and tries to find the relevant documents
  * in the provided makefile
@@ -120,6 +139,12 @@ export function extractMakefileInfo(infoDef, makefile) {
       infoDef[key] = info;
     }
   });
+  if (_.isString(infoDef.targetMCU)) {
+    // seperately get the tartgetMCU
+    infoDef.targetMCU = getTargetSTM(infoDef.cSources);
+  }
+
+
   return infoDef;
 }
 

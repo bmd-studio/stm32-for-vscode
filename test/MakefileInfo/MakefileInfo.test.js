@@ -1,6 +1,8 @@
 import assert from 'assert';
 import { before, test, suite } from 'mocha';
-import { extractMultiLineInfo, extractSingleLineInfo, extractMakefileInfo } from '../../src/MakefileInfo';
+import {
+  extractMultiLineInfo, extractSingleLineInfo, extractMakefileInfo, getTargetSTM,
+} from '../../src/MakefileInfo';
 import testMakefile from './TestMakefile';
 
 
@@ -55,6 +57,7 @@ const fpu = '-mfpu=fpv5-d16';
 export const makefileInfoTemplate = {
   target: '',
   cpu: '',
+  targetMCU: '',
   fpu: '',
   floatAbi: '',
   mcu: '',
@@ -73,6 +76,7 @@ export const makefileInfoTemplate = {
 export const makefileInfoTest = {
   target: 'Clean_project_h7',
   cpu: '-mcpu=cortex-m7',
+  targetMCU: 'stm32h7x',
   fpu,
   floatAbi,
   mcu: '$(CPU) -mthumb $(FPU) $(FLOAT-ABI)',
@@ -81,6 +85,7 @@ export const makefileInfoTest = {
   cxxSources: [],
   asmSources,
   cDefs,
+  cxxDefs: [],
   asDefs: [],
   cIncludes,
   cxxIncludes: [],
@@ -112,5 +117,8 @@ suite('MakefileInfoTest', () => {
     assert.deepEqual(extractMakefileInfo({ fpu: '' }, testMakefile), { fpu });
     assert.deepEqual(extractMakefileInfo({ nonesense: '' }, testMakefile), { nonesense: '' });
     assert.deepEqual(extractMakefileInfo({ noneSense: '' }, testMakefile), { noneSense: '' });
+  });
+  test('getTargetSTM', () => {
+    assert.deepEqual(getTargetSTM(cSources), 'stm32h7x');
   });
 });

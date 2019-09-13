@@ -65,20 +65,6 @@ export function checkForRequiredFiles(directoryFiles) {
   }
   return check;
 }
-/**
- * @description Tries to search for file in a location. If it does not find the location it returns an empty array
- * @param {string} location
- */
-export async function trySearchforFiles(location) {
-  return new Promise(async (resolve) => {
-    try {
-      const output = await searchForFiles(location);
-      resolve(output);
-    } catch (err) {
-      resolve([]);
-    }
-  });
-}
 
 /**
  * @description Recursively searches through a whole directory.
@@ -97,8 +83,37 @@ async function searchForFiles(location) {
 }
 
 /**
+ * @description Tries to search for file in a location.
+ * If it does not find the location it returns an empty array
+ * @param {string} location
+ */
+export async function trySearchforFiles(location) {
+  return new Promise(async (resolve) => {
+    try {
+      const output = await searchForFiles(location);
+      resolve(output);
+    } catch (err) {
+      resolve([]);
+    }
+  });
+}
+
+
+/**
  * @description Sorts files according to their extension.
- * @param {{ includeDirectories?: string[]; cFiles: string[]; cxxFiles: string[]; headerFiles: string[]; asmFiles: string[]; testFiles?: { cFiles: any[]; cxxFiles: any[]; headerFiles: any[]; asmFiles: any[]; }; }} fileObj
+ * @param {{
+ * includeDirectories?: string[];
+ * cFiles: string[];
+ * cxxFiles: string[];
+ * headerFiles: string[];
+ * asmFiles: string[];
+ * testFiles?: {
+  * cFiles: any[];
+  * cxxFiles: any[];
+  * headerFiles: any[];
+  * asmFiles: any[];
+ *  };
+ * }} fileObj
  * @param {any[]} list
  */
 export function sortFiles(fileObj, list) {
@@ -197,13 +212,18 @@ export default async function getFileList(location) {
       try {
         testFiles = await searchForFiles(`${loc}/${dir[testIndex]}`);
         sortFiles(fileList.testFiles, testFiles);
+
         fileList.testFiles.includeDirectories = _.cloneDeep(getIncludes(fileList.testFiles.headerFiles));
       } catch (err) {
         // do nothing for now.
       }
     }
+    console.log('initial file list');
+    console.log(initialFileList);
     // should sort files and add them to fileList.
     sortFiles(fileList, initialFileList);
+    console.log('sorted files');
+    console.log(fileList);
     fileList.cIncludes = _.cloneDeep(getIncludes(fileList.headerFiles));
     resolve(fileList);
   });

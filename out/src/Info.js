@@ -4,6 +4,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.combineArraysIntoObject = combineArraysIntoObject;
+exports.checkForFileNameInArray = checkForFileNameInArray;
 exports.checkAndConvertCpp = checkAndConvertCpp;
 exports.combineInfo = combineInfo;
 exports.getInfo = getInfo;
@@ -78,34 +79,63 @@ function combineArraysIntoObject(arr1, arr2, key, obj) {
   return obj;
 }
 /**
+ * @description returns the location of a specific file in an array
+ * @param {string} name name of file to search in path.
+ * @param {string[]} array
+ * @param {boolean} caseMatters
+ */
+
+
+function checkForFileNameInArray(name, array, caseMatters) {
+  var reg = new RegExp("(^|\\b)".concat(name, "$"), "".concat(caseMatters ? '' : 'i'));
+
+  for (var i = 0; i < array.length; i++) {
+    if (array[i].search(reg) >= 0) {
+      return i;
+    }
+  }
+
+  return -1;
+}
+/**
  * @description Check if the programm is a c++ or c program and automatically converts.
  * @param {object} info combined info of the makefile and filelist
  */
 
 
-function checkAndConvertCpp(info) {
-  var newInfo = _lodash["default"].cloneDeep(info);
+function checkAndConvertCpp(totalInfo) {
+  var newInfo = _lodash["default"].cloneDeep(totalInfo); // TODO: first split everything and then check or use a regex pattern....
 
-  if (!(_lodash["default"].indexOf(info.cxxSources, 'main.cpp') === -1) || !(_lodash["default"].indexOf(info.cxxSources, 'Main.cpp') === -1)) {
-    // then it has a main.cpp file
+
+  if (checkForFileNameInArray('main.cpp', newInfo.cxxSources) >= 0) {}
+
+  if (!(_lodash["default"].indexOf(newInfo.cxxSources, 'main.cpp') === -1) || !(_lodash["default"].indexOf(newInfo.cxxSources, 'Main.cpp') === -1)) {
+    console.log('has main.cpp file'); // then it has a main.cpp file
     // check for a main.c file
-    var indMain = _lodash["default"].indexOf(info.cSources, 'main.c');
+
+    var indMain = _lodash["default"].indexOf(newInfo.cSources, 'main.c');
 
     if (indMain === -1) {
-      indMain = _lodash["default"].indexOf(info.cSources, 'Main.c');
+      indMain = _lodash["default"].indexOf(newInfo.cSources, 'Main.c');
     }
 
     if (indMain >= 0) {
-      // remove the main. file.
+      // remove the main.c file.
       newInfo.cSources.splice(indMain, 1);
     }
-  } else if (!_lodash["default"].isEmpty(info.cxxSources)) {
-    _vscode["default"].window.showWarningMessage('You have several cxx/cpp files, however no main.cpp file. Will ignore these files for now'); // should clear the current files
 
-
-    newInfo.cxxSources = [];
+    return newInfo;
   }
 
+  if (!_lodash["default"].isEmpty(info.cxxSources)) {
+    _vscode["default"].window.showWarningMessage('You have several cxx/cpp files, however no main.cpp file. Will ignore these files for now'); // should clear the current files
+
+  } // else it is a C only file, so remove all the C++ files and definitions.
+
+
+  newInfo.cxxSources = [];
+  newInfo.cxxDefs = [];
+  newInfo.cxxIncludes = [];
   return newInfo;
 }
 /**
@@ -175,12 +205,18 @@ function _getInfo() {
                     makefileInfo = _values[0],
                     fileInfo = _values[1];
 
-                var newMakefile = combineInfo(makefileInfo, fileInfo);
-                newMakefile = checkAndConvertCpp(newMakefile);
-                info.makefile = newMakefile;
+                var combinedInfo = combineInfo(makefileInfo, fileInfo);
+                console.log('new makefile info');
+                console.log(combinedInfo);
+                combinedInfo = checkAndConvertCpp(combinedInfo);
+                console.log('cpp checked info');
+                console.log(combinedInfo);
+                info.makefile = combinedInfo;
                 resolve(info);
               })["catch"](function (err) {
                 _vscode["default"].window.showErrorMessage('Something went wrong with scanning directories and reading files', err);
+
+                reject(err);
               });
             }));
 
