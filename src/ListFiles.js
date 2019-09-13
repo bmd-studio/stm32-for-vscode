@@ -205,6 +205,6 @@ export default async function getFileList(location) {
     // should sort files and add them to fileList.
     sortFiles(fileList, initialFileList);
     fileList.cIncludes = _.cloneDeep(getIncludes(fileList.headerFiles));
-    return fileList;
+    resolve(fileList);
   });
 }

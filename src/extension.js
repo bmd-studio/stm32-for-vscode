@@ -2,7 +2,8 @@
 // Import the module and reference it with the alias vscode in your code below
 import vscode from 'vscode';
 import _ from 'lodash';
-import getFileList from './ListFiles';
+import Info, { getInfo } from './Info';
+import updateMakefile from './UpdateMakefile';
 
 // // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -25,9 +26,20 @@ export function activate(context) {
 
     // used for testing....
     const fileList = getFileList(vscode.workspace.workspaceFolders[0].uri.fsPath);
-    console.log('fileList', fileList);
     // const makefileInfo = getMakefileInfo(vscode.workspace.workspaceFolders[0].uri.fsPath);
   });
+
+  const buildCmd = vscode.commands.registerCommand('stm32-for-vscode.build', async () => new Promise(async (resolve, reject) => {
+    try {
+      const currentWorkspaceFolder = vscode.workspace.workspaceFolders[0].uri.fsPath;
+      const info = await getInfo(currentWorkspaceFolder);
+      await updateMakefile(currentWorkspaceFolder, info);
+    } catch (err) {
+      vscode.window.showErrorMessage('Something went wrong during the build process', err);
+      reject(err);
+    }
+    resolve();
+  }));
 
 
   //   const buildCmd = vscode.commands.registerCommand('stm32-for-vscode.build', () => {
@@ -61,6 +73,7 @@ export function activate(context) {
   //     });
   //   });
   context.subscriptions.push(initCmd);
+  context.subscriptions.push(buildCmd);
   // context.subscriptions.push(buildCmd);
   // context.subscriptions.push(buildCleanCmd);
 }

@@ -149,10 +149,8 @@ export default async function getMakefileInfo(location) {
       reject(err);
       return;
     }
-
     // when the makefile is found, extract the information according to the makefileInfo fields
-    extractMakefileInfo(makefileInfo, makefile);
-    resolve(makefileInfo);
+    resolve(extractMakefileInfo(makefileInfo, makefile));
   });
 }
 

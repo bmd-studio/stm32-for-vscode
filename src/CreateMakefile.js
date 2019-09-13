@@ -4,88 +4,7 @@
  * Created by Jort Band - Bureau Moeilijke Dingen
 */
 import _ from 'lodash';
-import vscode from 'vscode';
-import fs from 'fs';
-import path from 'path';
-import getMakefileInfo from './MakefileInfo';
-import getFileList from './ListFiles';
-import { makefileName } from './Definitions';
-/**
- * @description Combines the information from the Makefile and the FileList
- * @param {object} makefileInfo
- * @param {object} fileList
- */
-export function bundleInfo(makefileInfo, fileList) {
-  const bundledInfo = {};
 
-  // Bundling info which both the makeFile and the Filelist have
-  combineArraysIntoObject(makefileInfo.cSources, fileList.cFiles, 'cSources', bundledInfo);
-  combineArraysIntoObject(makefileInfo.cxxSources, fileList.cxxFiles, 'cxxSources', bundledInfo);
-  combineArraysIntoObject(makefileInfo.asmSources, fileList.asmFiles, 'asmSources', bundledInfo);
-  combineArraysIntoObject(makefileInfo.cIncludes, fileList.cIncludes, 'cIncludes', bundledInfo);
-  combineArraysIntoObject(makefileInfo.cxxIncludes, null, 'cxxIncludes', bundledInfo);
-  combineArraysIntoObject(makefileInfo.asIncludes, null, 'asIncludes', bundledInfo);
-
-  // now assign makelist values
-  _.set(bundledInfo, 'target', makefileInfo.target);
-  _.set(bundledInfo, 'cpu', makefileInfo.cpu);
-  _.set(bundledInfo, 'fpu', makefileInfo.fpu);
-  _.set(bundledInfo, 'floatAbi', makefileInfo.floatAbi);
-  _.set(bundledInfo, 'mcu', makefileInfo.mcu);
-  _.set(bundledInfo, 'ldscript', makefileInfo.ldscript);
-  _.set(bundledInfo, 'cDefs', makefileInfo.cDefs);
-  _.set(bundledInfo, 'cxxDefs', makefileInfo.cxxDefs);
-  _.set(bundledInfo, 'asDefs', makefileInfo.asDefs);
-  return bundledInfo;
-}
-/**
- * @description Check if the programm is a c++ or c program and automatically converts.
- * @param {object} info combined info of the makefile and filelist
- */
-export function checkAndConvertCpp(info) {
-  const newInfo = _.cloneDeep(info);
-  if (!(_.indexOf(info.cxxSources, 'main.cpp') === -1) || !(_.indexOf(info.cxxSources, 'Main.cpp') === -1)) {
-    // then it has a main.cpp file
-    // check for a main.c file
-    let indMain = _.indexOf(info.cSources, 'main.c');
-    if (indMain === -1) { indMain = _.indexOf(info.cSources, 'Main.c'); }
-    if (indMain >= 0) {
-      // remove the main. file.
-      newInfo.cSources.splice(indMain, 1);
-    }
-  } else if (!_.isEmpty(info.cxxSources)) {
-    vscode.window.showWarningMessage('You have several cxx/cpp files, however no main.cpp file. Will ignore these files for now');
-    // should clear the current files
-    newInfo.cxxSources = [];
-  }
-  return newInfo;
-}
-/**
- *
- * @param {string[]} arr1
- * @param {string[]} arr2
- * @param {string} key
- * @param {object} obj
- */
-export function combineArraysIntoObject(arr1, arr2, key, obj) {
-  // GUARD: against empty or null arrays.
-  if (!arr2 || !_.isArray(arr2)) {
-    if (arr1 && _.isArray(arr1)) {
-      _.set(obj, key, arr1.sort());
-      return obj;
-    }
-    _.set(obj, key, []);
-    return obj;
-  }
-  if (!arr1 || !_.isArray(arr1)) {
-    _.set(obj, key, arr2);
-    return obj;
-  }
-  let totalArray = arr1.concat(arr2);
-  totalArray = _.uniq(totalArray).sort();
-  _.set(obj, key, totalArray);
-  return obj;
-}
 
 /**
  * @description creates a makefile readable list.
@@ -103,7 +22,7 @@ export function createStringList(arr) {
     if (ind < arr.length - 1) {
       output += ' \\';
     }
-    output += '\r\n';
+    output += '\n';
   });
 
   return output;
@@ -152,7 +71,7 @@ C_SOURCES =  ${'\\'}
 ${createStringList(makeInfo.cSources)}
 
 CPP_SOURCES = ${'\\'}
-${createStringList(makeInfo.cppSources)}
+${createStringList(makeInfo.cxxSources)}
 
 # ASM sources
 ASM_SOURCES =  ${'\\'}
@@ -301,63 +220,13 @@ clean:
 export async function getMakefile(makefileInfo, fileList) {
   let totalInfo = bundleInfo(makefileInfo, fileList);
   totalInfo = checkAndConvertCpp(totalInfo);
+  console.log('totalInfo is', totalInfo);
   const makeFile = convertTemplate(totalInfo);
+  console.log(makeFile);
   return makeFile;
 }
 
-async function getCurrentMakefile(makeFilePath) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(makeFilePath, { encoding: 'utf8' }, (err, currentMakefile) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-      resolve(currentMakefile);
-    });
-  });
-}
 
-async function writeMakefile(makeFilePath, makefile) {
-  return new Promise((resolve, reject) => {
-    fs.writeFile(makeFilePath, makefile, { encoding: 'utf8' }, (err) => {
-      if (err) {
-        vscode.window.showErrorMessage('Something went wrong with writing to the new makefile', err);
-        reject(err);
-        return;
-      }
-      resolve();
-    });
-  });
-}
-
-export default async function createMakefile(location) {
-  return new Promise((resolve, reject) => {
-    let makefileInfo = null;
-    let fileInfo = null;
-    const makefileInfoPromise = getMakefileInfo(location);
-    const fileInfoPromise = getFileList(location);
-    Promise.all([makefileInfoPromise, fileInfoPromise]).then(async (values) => {
-      [makefileInfo, fileInfo] = values;
-      // after this the new makefile should be created if it has changed
-      const newMakefile = getMakefile(makefileInfo, fileInfo);
-      let currentMakeFile = null;
-      const makeFilePath = path.resolve(location, makefileName);
-      try {
-        currentMakeFile = await getCurrentMakefile(makeFilePath);
-      } catch (err) {
-        // do nothing.
-      }
-      // check if there is a current makefile and if they are the same if not write new one.
-      if (currentMakeFile !== newMakefile || !currentMakeFile) {
-        try {
-          await writeMakefile(makeFilePath, newMakefile);
-        } catch (err) {
-          reject(err);
-        }
-      }
-    }).catch((err) => {
-      vscode.window.showErrorMessage('Something went wrong with scanning the directory and opening the makefile', err);
-      reject(err);
-    });
-  });
+export default function createMakefile(info) {
+  return convertTemplate(info);
 }
