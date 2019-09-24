@@ -3,21 +3,32 @@
 ## [Unreleased]
 ### Added
   - Added support for CMake.
-  - Download link to openOCD in check pop-up
-  - Download link to STM utilities in check pop-up.
-  - Add extension settings in VSCode settings.
-  - Add ability to add Path to tools (openocd, gdb, etc.) within check for tools pop-up.
   - Add support to use different project types (EWARM, STM32CubeIDE, etc.).
   - Add support for compilation without generation of the .c/.h peripheral files.
   - Add ability to introduce generated changes from the main.c file into the main.cpp file.
-  - Add better support for intellisense.
-  - Add to tasks, so no support for the separate CLI is needed.
-  - Package for better performance
-  - Create include branch from main.cpp or main.c file so unnecessary includes are not included.
   - Add a separate file for config options, like compiler flags.
-  - Remove dependency for st-flash and focus on uploading through openOCD see: https://www.hackster.io/yusefkarim/upload-code-to-stm32l4-using-linux-gnu-make-and-openocd-a3d4de
-  - Stricter adherence to Src, Inc, Lib, Test directories.
   - Add support for unit testing.
+
+## [2.0.0 beta] - 2019-09-24
+### Added
+ - Added support for task compilation using the build in extension commands.
+ - Added support for problem matching while compiling for STM.
+ - Added download link in the tool missing pop-up.
+ - Added brew install on OSX for the tool missing pop-up.
+ - Added apt-get for linux for the tool missing pop-up.
+ - Added add path for the tool missing pop-up.
+ - Added full support to add the tool path in the extension settings.
+ - Added support to auto configure cortex-debug settings.
+ - Added internal tests for the extension.
+
+### Changed
+- Stricter adherence to Src, Inc and Lib folders.
+- Libraries are added through the definition in the makefile for faster compilation and to not include superfluous .c files
+- Packaged the app.
+
+### Removed
+ - Removed dependency on the external STM32 for VSCode CLI.
+ - Removed dependency on the external ST-Flash tool.
 
 ## [1.8.6] - 2017-07-30
 ### Added

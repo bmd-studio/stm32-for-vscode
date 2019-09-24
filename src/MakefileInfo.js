@@ -144,7 +144,6 @@ export function extractMakefileInfo(infoDef, makefile) {
     infoDef.targetMCU = getTargetSTM(infoDef.cSources);
   }
 
-
   return infoDef;
 }
 

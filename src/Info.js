@@ -7,12 +7,15 @@ import _ from 'lodash';
 import vscode from 'vscode';
 import getMakefileInfo from './MakefileInfo';
 import getFileList from './ListFiles';
+import getRequirements from './Requirements';
 
 const info = {
-  makefile: {},
-  config: {},
 };
 export default info;
+
+export function prependInfo() {
+
+}
 
 /**
  *
@@ -86,7 +89,7 @@ export function checkAndConvertCpp(totalInfo) {
  * @param {object} makefileInfo
  * @param {object} fileList
  */
-export function combineInfo(makefileInfo, fileList) {
+export function combineInfo(makefileInfo, fileList, requirementInfo) {
   const bundledInfo = {};
 
   // Bundling info which both the makeFile and the Filelist have
@@ -107,6 +110,11 @@ export function combineInfo(makefileInfo, fileList) {
   _.set(bundledInfo, 'cDefs', makefileInfo.cDefs);
   _.set(bundledInfo, 'cxxDefs', makefileInfo.cxxDefs);
   _.set(bundledInfo, 'asDefs', makefileInfo.asDefs);
+  _.set(bundledInfo, 'targetMCU', makefileInfo.targetMCU);
+  if (requirementInfo) {
+    _.set(bundledInfo, 'tools', requirementInfo); // extra check to not break tests, if this is not provided.
+  }
+
   return bundledInfo;
 }
 
@@ -121,12 +129,13 @@ export async function getInfo(location) {
   return new Promise((resolve, reject) => {
     const makefileInfoPromise = getMakefileInfo(location);
     const listFilesInfoPromise = getFileList(location);
+    const requirementsInfoPromise = getRequirements();
     // TODO: also add a get config in here
-    Promise.all([makefileInfoPromise, listFilesInfoPromise]).then((values) => {
-      const [makefileInfo, fileInfo] = values;
-      let combinedInfo = combineInfo(makefileInfo, fileInfo);
+    Promise.all([makefileInfoPromise, listFilesInfoPromise, requirementsInfoPromise]).then((values) => {
+      const [makefileInfo, fileInfo, requirementInfo] = values;
+      let combinedInfo = combineInfo(makefileInfo, fileInfo, requirementInfo);
       combinedInfo = checkAndConvertCpp(combinedInfo);
-      info.makefile = combinedInfo;
+      _.assignIn(info, combinedInfo);
       resolve(info);
     }).catch((err) => {
       vscode.window.showErrorMessage('Something went wrong with scanning directories and reading files', err);

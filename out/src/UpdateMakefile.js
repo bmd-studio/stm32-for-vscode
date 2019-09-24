@@ -140,7 +140,7 @@ function _updateMakefile() {
 
                       case 10:
                         console.log('creating new makefile with info', info);
-                        newMakefile = (0, _CreateMakefile["default"])(info.makefile);
+                        newMakefile = (0, _CreateMakefile["default"])(info);
 
                         if (!(newMakefile !== oldMakefile)) {
                           _context3.next = 26;

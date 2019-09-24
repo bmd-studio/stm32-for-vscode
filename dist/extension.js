@@ -35886,6 +35886,440 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
+/***/ "./src/BuildTask.js":
+/*!**************************!*\
+  !*** ./src/BuildTask.js ***!
+  \**************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return buildSTM; });
+/* harmony import */ var vscode__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vscode */ "vscode");
+/* harmony import */ var vscode__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(vscode__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _Definitions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Definitions */ "./src/Definitions.js");
+/* harmony import */ var _Info__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Info */ "./src/Info.js");
+/* harmony import */ var _UpdateMakefile__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./UpdateMakefile */ "./src/UpdateMakefile.js");
+/* harmony import */ var _Configuration__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Configuration */ "./src/Configuration.js");
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+
+
+
+
+
+/*
+ * A task provider is handy when manually configuring a build task.
+ * However this is outside of the scope now. Instead the task.json ${command:stm32-for-vscode.build will be used}
+*/
+
+var extensionTerminal;
+function buildSTM(_x) {
+  return _buildSTM.apply(this, arguments);
+}
+
+function _buildSTM() {
+  _buildSTM = _asyncToGenerator(
+  /*#__PURE__*/
+  regeneratorRuntime.mark(function _callee2(options) {
+    var _ref, flash, cleanBuild;
+
+    return regeneratorRuntime.wrap(function _callee2$(_context2) {
+      while (1) {
+        switch (_context2.prev = _context2.next) {
+          case 0:
+            _ref = options || {}, flash = _ref.flash, cleanBuild = _ref.cleanBuild;
+            return _context2.abrupt("return", new Promise(
+            /*#__PURE__*/
+            function () {
+              var _ref2 = _asyncToGenerator(
+              /*#__PURE__*/
+              regeneratorRuntime.mark(function _callee(resolve, reject) {
+                var currentWorkspaceFolder, info;
+                return regeneratorRuntime.wrap(function _callee$(_context) {
+                  while (1) {
+                    switch (_context.prev = _context.next) {
+                      case 0:
+                        _context.prev = 0;
+                        currentWorkspaceFolder = vscode__WEBPACK_IMPORTED_MODULE_0___default.a.workspace.workspaceFolders[0].uri.fsPath;
+                        _context.next = 4;
+                        return Object(_Info__WEBPACK_IMPORTED_MODULE_2__["getInfo"])(currentWorkspaceFolder);
+
+                      case 4:
+                        info = _context.sent;
+                        _context.next = 7;
+                        return Object(_UpdateMakefile__WEBPACK_IMPORTED_MODULE_3__["default"])(currentWorkspaceFolder, info);
+
+                      case 7:
+                        Object(_Configuration__WEBPACK_IMPORTED_MODULE_4__["default"])(currentWorkspaceFolder, info);
+
+                        if (!extensionTerminal) {
+                          extensionTerminal = vscode__WEBPACK_IMPORTED_MODULE_0___default.a.window.createTerminal({
+                            name: 'STM32 for VSCode'
+                          });
+                        }
+
+                        extensionTerminal.show();
+
+                        if (cleanBuild) {
+                          extensionTerminal.sendText("make -f ".concat(_Definitions__WEBPACK_IMPORTED_MODULE_1__["makefileName"], " clean"));
+                        }
+
+                        extensionTerminal.sendText("make -f ".concat(_Definitions__WEBPACK_IMPORTED_MODULE_1__["makefileName"]).concat(flash ? ' flash' : ''));
+                        _context.next = 19;
+                        break;
+
+                      case 14:
+                        _context.prev = 14;
+                        _context.t0 = _context["catch"](0);
+                        vscode__WEBPACK_IMPORTED_MODULE_0___default.a.window.showErrorMessage('Something went wrong during the build process', _context.t0);
+                        console.error(_context.t0);
+                        reject(_context.t0);
+
+                      case 19:
+                        resolve();
+
+                      case 20:
+                      case "end":
+                        return _context.stop();
+                    }
+                  }
+                }, _callee, null, [[0, 14]]);
+              }));
+
+              return function (_x2, _x3) {
+                return _ref2.apply(this, arguments);
+              };
+            }()));
+
+          case 2:
+          case "end":
+            return _context2.stop();
+        }
+      }
+    }, _callee2);
+  }));
+  return _buildSTM.apply(this, arguments);
+}
+
+/***/ }),
+
+/***/ "./src/Configuration.js":
+/*!******************************!*\
+  !*** ./src/Configuration.js ***!
+  \******************************/
+/*! exports provided: getLaunch, updateCProperties, default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getLaunch", function() { return getLaunch; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateCProperties", function() { return updateCProperties; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return updateConfiguration; });
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! fs */ "fs");
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var vscode__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vscode */ "vscode");
+/* harmony import */ var vscode__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(vscode__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! path */ "path");
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var shelljs__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! shelljs */ "./node_modules/shelljs/shell.js");
+/* harmony import */ var shelljs__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(shelljs__WEBPACK_IMPORTED_MODULE_4__);
+function _readOnlyError(name) { throw new Error("\"" + name + "\" is read-only"); }
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+/*
+ * Check the current configuration file and adds the option for debug and build tasks.
+*/
+
+
+
+
+
+
+function getLaunchTask(info) {
+  var config = {
+    showDevDebugOutput: true,
+    cwd: '${workspaceRoot}',
+    executable: "./build/".concat(info.target, ".elf"),
+    name: 'Debug STM32',
+    request: 'launch',
+    type: 'cortex-debug',
+    servertype: 'openocd',
+    preLaunchTask: 'Build STM',
+    device: 'stlink',
+    configFiles: ['interface/stlink-v2-1.cfg', "target/".concat(info.targetMCU, ".cfg")]
+  };
+  return config;
+}
+
+function getBuildTask(info) {
+  var buildTask = {
+    label: 'Build STM',
+    type: 'process',
+    command: '${command:stm32-for-vscode.build}',
+    options: {
+      cwd: '${workspaceRoot}'
+    },
+    group: {
+      kind: 'build',
+      isDefault: true
+    },
+    problemMatcher: ['$gcc']
+  };
+  return buildTask;
+}
+
+function getFlashTask(info) {
+  var flashTask = {
+    label: 'Flash STM',
+    type: 'process',
+    command: '${command:stm32-for-vscode.flash}',
+    options: {
+      cwd: '${workspaceRoot}'
+    },
+    group: {
+      kind: 'build',
+      isDefault: true
+    },
+    problemMatcher: ['$gcc']
+  };
+  return flashTask;
+}
+
+function updateLaunch(launchPath, err, data, info) {
+  var launchJSON = {};
+
+  if (data) {
+    try {
+      launchJSON = JSON.parse(data);
+    } catch (error) {// do nothing, usually this means that the JSON file is corrupted
+    }
+  }
+
+  var config = getLaunchTask(info);
+  var hasConfig = false;
+
+  if (launchJSON && !lodash__WEBPACK_IMPORTED_MODULE_3___default.a.isEmpty(launchJSON)) {
+    lodash__WEBPACK_IMPORTED_MODULE_3___default.a.map(launchJSON.configurations, function (entry) {
+      if (lodash__WEBPACK_IMPORTED_MODULE_3___default.a.isEqual(config, entry)) {
+        hasConfig = true;
+      }
+    });
+  } else {
+    // it is still false and should be added
+    launchJSON.configurations = [];
+  }
+
+  if (!hasConfig) {
+    launchJSON.configurations.push(config); // if not update the launchJSON
+
+    var jsonString = JSON.stringify(launchJSON, null, 2);
+    fs__WEBPACK_IMPORTED_MODULE_0___default.a.writeFile(launchPath, jsonString, {
+      encoding: 'utf8'
+    }, function (err) {
+      if (err) {
+        vscode__WEBPACK_IMPORTED_MODULE_1___default.a.window.showErrorMessage('Something went wrong with writing the launch config', err);
+      }
+    });
+  }
+}
+
+function updateTasks(tasksPath, err, data, info) {
+  var tasksConfig = {};
+
+  if (!err && data) {
+    try {
+      tasksConfig = JSON.parse(data);
+    } catch (error) {// do nothing
+    }
+  }
+
+  var buildConfig = getBuildTask(info);
+  var hasBuildConfig = false;
+
+  if (tasksConfig && !lodash__WEBPACK_IMPORTED_MODULE_3___default.a.isEmpty(tasksConfig)) {
+    lodash__WEBPACK_IMPORTED_MODULE_3___default.a.map(tasksConfig.tasks, function (entry) {
+      if (lodash__WEBPACK_IMPORTED_MODULE_3___default.a.isEqual(buildConfig, entry)) {
+        hasBuildConfig = true;
+      }
+    });
+  } else {
+    // it is still false and should be added
+    tasksConfig.tasks = [];
+  }
+
+  if (!hasBuildConfig) {
+    tasksConfig.tasks.push(buildConfig);
+  }
+
+  var flashConfig = getFlashTask(info);
+  var hasFlashConfig = false;
+
+  lodash__WEBPACK_IMPORTED_MODULE_3___default.a.map(tasksConfig.tasks, function (entry) {
+    if (lodash__WEBPACK_IMPORTED_MODULE_3___default.a.isEqual(flashConfig, entry)) {
+      hasFlashConfig = true;
+    }
+  });
+
+  if (!hasFlashConfig) {
+    tasksConfig.tasks.push(flashConfig);
+  }
+
+  if (!hasBuildConfig || !hasFlashConfig) {
+    var jsonString = JSON.stringify(tasksConfig, null, 2);
+    fs__WEBPACK_IMPORTED_MODULE_0___default.a.writeFile(tasksPath, jsonString, {
+      encoding: 'utf8'
+    }, function (error) {
+      if (error) {
+        vscode__WEBPACK_IMPORTED_MODULE_1___default.a.window.showErrorMessage('Something went wrong with writing to the tasks.json file', error);
+      }
+    });
+  }
+}
+
+function getLaunch(_x, _x2) {
+  return _getLaunch.apply(this, arguments);
+}
+
+function _getLaunch() {
+  _getLaunch = _asyncToGenerator(
+  /*#__PURE__*/
+  regeneratorRuntime.mark(function _callee(workspaceRoot, info) {
+    var launchPath, tasksPath;
+    return regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            launchPath = path__WEBPACK_IMPORTED_MODULE_2___default.a.resolve(workspaceRoot, './.vscode/launch.json');
+            tasksPath = path__WEBPACK_IMPORTED_MODULE_2___default.a.resolve(workspaceRoot, './.vscode/tasks.json');
+            fs__WEBPACK_IMPORTED_MODULE_0___default.a.readFile(launchPath, 'utf8', function (err, data) {
+              updateLaunch(launchPath, err, data, info);
+            });
+            fs__WEBPACK_IMPORTED_MODULE_0___default.a.readFile(tasksPath, 'utf8', function (err, data) {
+              updateTasks(tasksPath, err, data, info);
+            });
+
+          case 4:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee);
+  }));
+  return _getLaunch.apply(this, arguments);
+}
+
+function getIncludePaths(info) {
+  var cIncludes = lodash__WEBPACK_IMPORTED_MODULE_3___default.a.map(info.cIncludes, function (entry) {
+    return lodash__WEBPACK_IMPORTED_MODULE_3___default.a.replace(entry, '-I', '');
+  });
+
+  var cxxIncludes = lodash__WEBPACK_IMPORTED_MODULE_3___default.a.map(info.cxxIncludes, function (entry) {
+    return lodash__WEBPACK_IMPORTED_MODULE_3___default.a.replace(entry, '-I', '');
+  });
+
+  var asmIncludes = lodash__WEBPACK_IMPORTED_MODULE_3___default.a.map(info.asIncludes, function (entry) {
+    return lodash__WEBPACK_IMPORTED_MODULE_3___default.a.replace(entry, '-I', '');
+  });
+
+  var includes = lodash__WEBPACK_IMPORTED_MODULE_3___default.a.concat(cIncludes, cxxIncludes, asmIncludes);
+
+  includes = lodash__WEBPACK_IMPORTED_MODULE_3___default.a.uniq(includes);
+  includes = includes.sort();
+  return includes;
+}
+
+function getDefinitions(info) {
+  var cDefs = lodash__WEBPACK_IMPORTED_MODULE_3___default.a.map(info.cDefs, function (entry) {
+    return lodash__WEBPACK_IMPORTED_MODULE_3___default.a.replace(entry, '-D', '');
+  });
+
+  var cxxDefs = lodash__WEBPACK_IMPORTED_MODULE_3___default.a.map(info.cxxDefs, function (entry) {
+    return lodash__WEBPACK_IMPORTED_MODULE_3___default.a.replace(entry, '-D', '');
+  });
+
+  var asDefs = lodash__WEBPACK_IMPORTED_MODULE_3___default.a.map(info.asDefs, function (entry) {
+    return lodash__WEBPACK_IMPORTED_MODULE_3___default.a.replace(entry, '-D', '');
+  });
+
+  var defs = lodash__WEBPACK_IMPORTED_MODULE_3___default.a.concat(cDefs, cxxDefs, asDefs);
+
+  defs = lodash__WEBPACK_IMPORTED_MODULE_3___default.a.uniq(defs);
+  defs = defs.sort();
+  return defs;
+}
+
+function getCPropertiesConfig(info) {
+  var includePaths = getIncludePaths(info);
+  var config = {
+    name: 'STM32',
+    includePath: includePaths,
+    defines: getDefinitions(info),
+    compilerPath: shelljs__WEBPACK_IMPORTED_MODULE_4___default.a.which('gcc')
+  };
+  return config;
+}
+
+function updateCProperties(cPropsPath, err, data, info) {
+  var cPropsConfig = {};
+
+  if (!err && data) {
+    try {
+      cPropsConfig = (_readOnlyError("cPropsConfig"), JSON.parse(data));
+    } catch (error) {// do nothing
+    }
+  }
+
+  var hasCConfig = false;
+  var config = getCPropertiesConfig(info);
+
+  if (cPropsConfig && !lodash__WEBPACK_IMPORTED_MODULE_3___default.a.isEmpty(cPropsConfig)) {
+    lodash__WEBPACK_IMPORTED_MODULE_3___default.a.map(cPropsConfig.configurations, function (entry) {
+      if (lodash__WEBPACK_IMPORTED_MODULE_3___default.a.isEqual(config, entry)) {
+        hasCConfig = true;
+      }
+    });
+  } else {
+    cPropsConfig.configurations = [];
+  }
+
+  if (!hasCConfig) {
+    cPropsConfig.configurations.push(config);
+    var jsonString = JSON.stringify(cPropsConfig, null, 2);
+    fs__WEBPACK_IMPORTED_MODULE_0___default.a.writeFile(cPropsPath, jsonString, {
+      encoding: 'utf8'
+    }, function (err) {
+      if (err) {
+        vscode__WEBPACK_IMPORTED_MODULE_1___default.a.window.showErrorMessage('Something went wrong with setting the c/c++ properties');
+      }
+    });
+  }
+}
+function updateConfiguration(workspaceRoot, info) {
+  var launchPath = path__WEBPACK_IMPORTED_MODULE_2___default.a.resolve(workspaceRoot, './.vscode/launch.json');
+  var tasksPath = path__WEBPACK_IMPORTED_MODULE_2___default.a.resolve(workspaceRoot, './.vscode/tasks.json');
+  var cPropsPath = path__WEBPACK_IMPORTED_MODULE_2___default.a.resolve(workspaceRoot, './.vscode/c_cpp_properties.json');
+  fs__WEBPACK_IMPORTED_MODULE_0___default.a.readFile(launchPath, 'utf8', function (err, data) {
+    updateLaunch(launchPath, err, data, info);
+  });
+  fs__WEBPACK_IMPORTED_MODULE_0___default.a.readFile(tasksPath, 'utf8', function (err, data) {
+    updateTasks(tasksPath, err, data, info);
+  });
+  fs__WEBPACK_IMPORTED_MODULE_0___default.a.readFile(cPropsPath, 'utf8', function (err, data) {
+    updateCProperties(cPropsPath, err, data, info);
+  });
+}
+
+/***/ }),
+
 /***/ "./src/CreateMakefile.js":
 /*!*******************************!*\
   !*** ./src/CreateMakefile.js ***!
@@ -35934,7 +36368,7 @@ function createStringList(arr) {
 }
 function convertTemplate(makeInfo) {
   // NOTE: check for the correct info needs to be given beforehand
-  var makeFile = "##########################################################################################################################\n# File automatically-generated by STM32forVSCode: [projectgenerator] version: [3.0.0] date: [Fri Jan 25 18:00:27 CET 2019]\n##########################################################################################################################\n\n# ------------------------------------------------\n# Generic Makefile (based on gcc)\n#\n# ChangeLog :\n#\t2017-02-10 - Several enhancements + project update mode\n#   2015-07-22 - first version\n# ------------------------------------------------\n\n######################################\n# target\n######################################\nTARGET = ".concat(makeInfo.target, "\n\n\n######################################\n# building variables\n######################################\n# debug build?\nDEBUG = 1\n# optimization\nOPT = -Og\n\n\n#######################################\n# paths\n#######################################\n# Build path\nBUILD_DIR = build\n\n######################################\n# source\n######################################\n# C sources\nC_SOURCES =  ", '\\', "\n").concat(createStringList(makeInfo.cSources), "\n\nCPP_SOURCES = ", '\\', "\n").concat(createStringList(makeInfo.cxxSources), "\n\n# ASM sources\nASM_SOURCES =  ", '\\', "\n").concat(createStringList(makeInfo.asmSources), "\n\n\n#######################################\n# binaries\n#######################################\nPREFIX = arm-none-eabi-\n# The gcc compiler bin path can be either defined in make command via GCC_PATH variable (> make GCC_PATH=xxx)\n# either it can be added to the PATH environment variable.\nifdef GCC_PATH\nCXX = $(GCC_PATH)/$(PREFIX)g++\nCC = $(GCC_PATH)/$(PREFIX)gcc\nAS = $(GCC_PATH)/$(PREFIX)gcc -x assembler-with-cpp\nCP = $(GCC_PATH)/$(PREFIX)objcopy\nSZ = $(GCC_PATH)/$(PREFIX)size\nelse\nCXX = $(PREFIX)g++\nCC = $(PREFIX)gcc\nAS = $(PREFIX)gcc -x assembler-with-cpp\nCP = $(PREFIX)objcopy\nSZ = $(PREFIX)size\nendif\nHEX = $(CP) -O ihex\nBIN = $(CP) -O binary -S\n\t\n#######################################\n# CFLAGS\n#######################################\n# cpu\nCPU = ").concat(makeInfo.cpu, "\n\n# fpu\nFPU = ").concat(makeInfo.fpu, "\n\n# float-abi\nFLOAT-ABI = ").concat(makeInfo.floatAbi, "\n\n# mcu\nMCU = ").concat(makeInfo.mcu, "\n\n# macros for gcc\n# AS defines\nAS_DEFS = \n\n# C defines\nC_DEFS =  ", '\\', "\n").concat(createStringList(makeInfo.cDefs), "\n\n\n# AS includes\nAS_INCLUDES = ", '\\', "\n").concat(createStringList(makeInfo.asmIncludes), "\n\n# C includes\nC_INCLUDES =  ", '\\', "\n").concat(createStringList(makeInfo.cIncludes), "\n\n\n# compile gcc flags\nASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections\n\nCFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections\n\nifeq ($(DEBUG), 1)\nCFLAGS += -g -gdwarf-2\nendif\n\n\n# Generate dependency information\nCFLAGS += -MMD -MP -MF\"$(@:%.o=%.d)\"\n\nCXXFLAGS?=\nCXXFLAGS += -feliminate-unused-debug-types\n\n#######################################\n# LDFLAGS\n#######################################\n# link script\nLDSCRIPT = ").concat(makeInfo.ldscript, "\n\n# libraries\nLIBS = -lc -lm -lnosys \nLIBDIR = \nLDFLAGS = $(MCU) -specs=nosys.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections\n\n# default action: build all\nall: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin\n\n\n#######################################\n# build the application\n#######################################\n# list of cpp program objects\nOBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(CPP_SOURCES:.cpp=.o)))\nvpath %.cpp $(sort $(dir $(CPP_SOURCES)))\n# list of C objects\nOBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))\nvpath %.c $(sort $(dir $(C_SOURCES)))\n# list of ASM program objects\nOBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))\nvpath %.s $(sort $(dir $(ASM_SOURCES)))\n\n$(BUILD_DIR)/%.o: %.cpp Makefile | $(BUILD_DIR) \n\t$(CXX) -c $(CXXFLAGS) $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.cpp=.lst)) $< -o $@\n\n$(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR) \n\t$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@\n\n$(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)\n\t$(AS) -c $(CFLAGS) $< -o $@\n\n$(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile\n\t$(CC) $(OBJECTS) $(LDFLAGS) -o $@\n\t$(SZ) $@\n\n$(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf | $(BUILD_DIR)\n\t$(HEX) $< $@\n\t\n$(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)\n\t$(BIN) $< $@\t\n\t\n$(BUILD_DIR):\n\tmkdir $@\t\t\n\n#######################################\n# flash\n#######################################\nflash: $(BUILD_DIR)/$(PROJ_NAME).elf\n        ").concat(makeInfo.openocdPath ? makeInfo.openocdPath : 'openocd', " -f target/").concat(makeInfo.targetMCU, " -c \"program $^ reset exit -0x08000000\"\n\n#######################################\n# erase\n#######################################\nerase: $(BUILD_DIR)/$(PROJ_NAME).elf\n        ").concat(makeInfo.openocdPath ? makeInfo.openocdPath : 'openocd', " -f target/").concat(makeInfo.targetMCU, ".cfg -c \"init; reset halt; ").concat(makeInfo.targetMCU, " mass_erase 0; exit\"\n\n#######################################\n# clean up\n#######################################\nclean:\n\t-rm -fR $(BUILD_DIR)\n\t\n#######################################\n# dependencies\n#######################################\n-include $(wildcard $(BUILD_DIR)/*.d)\n\n# *** EOF ***");
+  var makeFile = "##########################################################################################################################\n# File automatically-generated by STM32forVSCode: [projectgenerator] version: [3.0.0] date: [Fri Jan 25 18:00:27 CET 2019]\n##########################################################################################################################\n\n# ------------------------------------------------\n# Generic Makefile (based on gcc)\n#\n# ChangeLog :\n#\t2017-02-10 - Several enhancements + project update mode\n#   2015-07-22 - first version\n# ------------------------------------------------\n\n######################################\n# target\n######################################\nTARGET = ".concat(makeInfo.target, "\n\n\n######################################\n# building variables\n######################################\n# debug build?\nDEBUG = 1\n# optimization\nOPT = -Og\n\n\n#######################################\n# paths\n#######################################\n# Build path\nBUILD_DIR = build\n\n######################################\n# source\n######################################\n# C sources\nC_SOURCES =  ", '\\', "\n").concat(createStringList(makeInfo.cSources), "\n\nCPP_SOURCES = ", '\\', "\n").concat(createStringList(makeInfo.cxxSources), "\n\n# ASM sources\nASM_SOURCES =  ", '\\', "\n").concat(createStringList(makeInfo.asmSources), "\n\n\n#######################################\n# binaries\n#######################################\nPREFIX = arm-none-eabi-\n# The gcc compiler bin path can be either defined in make command via GCC_PATH variable (> make GCC_PATH=xxx)\n# either it can be added to the PATH environment variable.\n").concat(makeInfo.tools.armToolchain ? "GCC_PATH=".concat(makeInfo.tools.armToolchain) : '', "\nifdef GCC_PATH\nCXX = $(GCC_PATH)/$(PREFIX)g++\nCC = $(GCC_PATH)/$(PREFIX)gcc\nAS = $(GCC_PATH)/$(PREFIX)gcc -x assembler-with-cpp\nCP = $(GCC_PATH)/$(PREFIX)objcopy\nSZ = $(GCC_PATH)/$(PREFIX)size\nelse\nCXX = $(PREFIX)g++\nCC = $(PREFIX)gcc\nAS = $(PREFIX)gcc -x assembler-with-cpp\nCP = $(PREFIX)objcopy\nSZ = $(PREFIX)size\nendif\nHEX = $(CP) -O ihex\nBIN = $(CP) -O binary -S\n\t\n#######################################\n# CFLAGS\n#######################################\n# cpu\nCPU = ").concat(makeInfo.cpu, "\n\n# fpu\nFPU = ").concat(makeInfo.fpu, "\n\n# float-abi\nFLOAT-ABI = ").concat(makeInfo.floatAbi, "\n\n# mcu\nMCU = ").concat(makeInfo.mcu, "\n\n# macros for gcc\n# AS defines\nAS_DEFS = \n\n# C defines\nC_DEFS =  ", '\\', "\n").concat(createStringList(makeInfo.cDefs), "\n\n\n# AS includes\nAS_INCLUDES = ", '\\', "\n").concat(createStringList(makeInfo.asmIncludes), "\n\n# C includes\nC_INCLUDES =  ", '\\', "\n").concat(createStringList(makeInfo.cIncludes), "\n\n\n# compile gcc flags\nASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections\n\nCFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections\n\nifeq ($(DEBUG), 1)\nCFLAGS += -g -gdwarf-2\nendif\n\n\n# Generate dependency information\nCFLAGS += -MMD -MP -MF\"$(@:%.o=%.d)\"\n\nCXXFLAGS?=\nCXXFLAGS += -feliminate-unused-debug-types\n\n#######################################\n# LDFLAGS\n#######################################\n# link script\nLDSCRIPT = ").concat(makeInfo.ldscript, "\n\n# libraries\nLIBS = -lc -lm -lnosys \nLIBDIR = \nLDFLAGS = $(MCU) -specs=nosys.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections\n\n# default action: build all\nall: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin\n\n\n#######################################\n# build the application\n#######################################\n# list of cpp program objects\nOBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(CPP_SOURCES:.cpp=.o)))\nvpath %.cpp $(sort $(dir $(CPP_SOURCES)))\n# list of C objects\nOBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))\nvpath %.c $(sort $(dir $(C_SOURCES)))\n# list of ASM program objects\nOBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))\nvpath %.s $(sort $(dir $(ASM_SOURCES)))\n\n$(BUILD_DIR)/%.o: %.cpp Makefile | $(BUILD_DIR) \n\t$(CXX) -c $(CXXFLAGS) $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.cpp=.lst)) $< -o $@\n\n$(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR) \n\t$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@\n\n$(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)\n\t$(AS) -c $(CFLAGS) $< -o $@\n\n$(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile\n\t$(CC) $(OBJECTS) $(LDFLAGS) -o $@\n\t$(SZ) $@\n\n$(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf | $(BUILD_DIR)\n\t$(HEX) $< $@\n\t\n$(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)\n\t$(BIN) $< $@\t\n\t\n$(BUILD_DIR):\n\tmkdir $@\t\t\n\n#######################################\n# flash\n#######################################\nflash: $(BUILD_DIR)/$(TARGET).elf\n\t").concat(makeInfo.tools.openOCD ? makeInfo.tools.openOCD : 'openocd', " -f interface/stlink-v2-1.cfg  -f target/").concat(makeInfo.targetMCU, ".cfg -c \"program $(BUILD_DIR)/$(TARGET).elf verify reset exit\"\n\n#######################################\n# erase\n#######################################\nerase: $(BUILD_DIR)/$(TARGET).elf\n\t").concat(makeInfo.tools.openOCD ? makeInfo.tools.openOCD : 'openocd', " -f interface/stlink-v2-1.cfg -f target/").concat(makeInfo.targetMCU, ".cfg -c \"init; reset halt; ").concat(makeInfo.targetMCU, " mass_erase 0; exit\"\n\n#######################################\n# clean up\n#######################################\nclean:\n\t-rm -fR $(BUILD_DIR)\n\t\n#######################################\n# dependencies\n#######################################\n-include $(wildcard $(BUILD_DIR)/*.d)\n\n# *** EOF ***");
   return makeFile;
 }
 function createMakefile(info) {
@@ -35961,11 +36395,12 @@ var makefileName = 'STM32Make.make';
 /*!*********************!*\
   !*** ./src/Info.js ***!
   \*********************/
-/*! exports provided: default, combineArraysIntoObject, checkForFileNameInArray, checkAndConvertCpp, combineInfo, getInfo */
+/*! exports provided: default, prependInfo, combineArraysIntoObject, checkForFileNameInArray, checkAndConvertCpp, combineInfo, getInfo */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "prependInfo", function() { return prependInfo; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "combineArraysIntoObject", function() { return combineArraysIntoObject; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "checkForFileNameInArray", function() { return checkForFileNameInArray; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "checkAndConvertCpp", function() { return checkAndConvertCpp; });
@@ -35977,6 +36412,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vscode__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(vscode__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _MakefileInfo__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MakefileInfo */ "./src/MakefileInfo.js");
 /* harmony import */ var _ListFiles__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ListFiles */ "./src/ListFiles.js");
+/* harmony import */ var _Requirements__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Requirements */ "./src/Requirements.js");
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
@@ -35998,11 +36434,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
 
-var info = {
-  makefile: {},
-  config: {}
-};
+
+var info = {};
 /* harmony default export */ __webpack_exports__["default"] = (info);
+function prependInfo() {}
 /**
  *
  * @param {string[] | object} arr1
@@ -36091,7 +36526,7 @@ function checkAndConvertCpp(totalInfo) {
  * @param {object} fileList
  */
 
-function combineInfo(makefileInfo, fileList) {
+function combineInfo(makefileInfo, fileList, requirementInfo) {
   var bundledInfo = {}; // Bundling info which both the makeFile and the Filelist have
 
   combineArraysIntoObject(makefileInfo.cSources, fileList.cFiles, 'cSources', bundledInfo);
@@ -36119,6 +36554,13 @@ function combineInfo(makefileInfo, fileList) {
 
   lodash__WEBPACK_IMPORTED_MODULE_0___default.a.set(bundledInfo, 'asDefs', makefileInfo.asDefs);
 
+  lodash__WEBPACK_IMPORTED_MODULE_0___default.a.set(bundledInfo, 'targetMCU', makefileInfo.targetMCU);
+
+  if (requirementInfo) {
+    lodash__WEBPACK_IMPORTED_MODULE_0___default.a.set(bundledInfo, 'tools', requirementInfo); // extra check to not break tests, if this is not provided.
+
+  }
+
   return bundledInfo;
 }
 /**
@@ -36143,16 +36585,20 @@ function _getInfo() {
           case 0:
             return _context.abrupt("return", new Promise(function (resolve, reject) {
               var makefileInfoPromise = Object(_MakefileInfo__WEBPACK_IMPORTED_MODULE_2__["default"])(location);
-              var listFilesInfoPromise = Object(_ListFiles__WEBPACK_IMPORTED_MODULE_3__["default"])(location); // TODO: also add a get config in here
+              var listFilesInfoPromise = Object(_ListFiles__WEBPACK_IMPORTED_MODULE_3__["default"])(location);
+              var requirementsInfoPromise = Object(_Requirements__WEBPACK_IMPORTED_MODULE_4__["default"])(); // TODO: also add a get config in here
 
-              Promise.all([makefileInfoPromise, listFilesInfoPromise]).then(function (values) {
-                var _values = _slicedToArray(values, 2),
+              Promise.all([makefileInfoPromise, listFilesInfoPromise, requirementsInfoPromise]).then(function (values) {
+                var _values = _slicedToArray(values, 3),
                     makefileInfo = _values[0],
-                    fileInfo = _values[1];
+                    fileInfo = _values[1],
+                    requirementInfo = _values[2];
 
-                var combinedInfo = combineInfo(makefileInfo, fileInfo);
+                var combinedInfo = combineInfo(makefileInfo, fileInfo, requirementInfo);
                 combinedInfo = checkAndConvertCpp(combinedInfo);
-                info.makefile = combinedInfo;
+
+                lodash__WEBPACK_IMPORTED_MODULE_0___default.a.assignIn(info, combinedInfo);
+
                 resolve(info);
               })["catch"](function (err) {
                 vscode__WEBPACK_IMPORTED_MODULE_1___default.a.window.showErrorMessage('Something went wrong with scanning directories and reading files', err);
@@ -36196,9 +36642,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var recursive_readdir__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(recursive_readdir__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var vscode__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! vscode */ "vscode");
 /* harmony import */ var vscode__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(vscode__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! path */ "path");
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_4__);
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 
 
 
@@ -36448,13 +36897,26 @@ function getIncludes(headerList) {
     incList.push(incFolder);
   });
 
-  incList = lodash__WEBPACK_IMPORTED_MODULE_0___default.a.uniq(incList);
+  incList = lodash__WEBPACK_IMPORTED_MODULE_0___default.a.uniq(incList); // should prepend the -I
+
+  incList = lodash__WEBPACK_IMPORTED_MODULE_0___default.a.map(incList, function (entry) {
+    return "-I".concat(entry);
+  });
   return incList;
+}
+
+function convertToRelative(files, loc) {
+  var relativeFiles = lodash__WEBPACK_IMPORTED_MODULE_0___default.a.map(files, function (file) {
+    return path__WEBPACK_IMPORTED_MODULE_4___default.a.relative(loc, file);
+  });
+
+  return relativeFiles;
 }
 /**
  * @description Locates the files in the Src, Inc and Lib folder.
  * @param {string} location - the location of the project, in which it should search for files
  */
+
 
 function getFileList(_x3) {
   return _getFileList.apply(this, arguments);
@@ -36563,12 +37025,14 @@ function _getFileList() {
                         _context4.t1 = _context4["catch"](29);
 
                       case 40:
-                        // should sort files and add them to fileList.
+                        // convert to relative paths.
+                        initialFileList = convertToRelative(initialFileList, loc); // should sort files and add them to fileList.
+
                         sortFiles(fileList, initialFileList);
                         fileList.cIncludes = lodash__WEBPACK_IMPORTED_MODULE_0___default.a.cloneDeep(getIncludes(fileList.headerFiles));
                         resolve(fileList);
 
-                      case 43:
+                      case 44:
                       case "end":
                         return _context4.stop();
                     }
@@ -36895,11 +37359,14 @@ function _getMakefileInfo() {
 /*!*****************************!*\
   !*** ./src/Requirements.js ***!
   \*****************************/
-/*! exports provided: default, getTools */
+/*! exports provided: openocdDefinition, armNoneEabiDefinition, checkToolPath, default, getTools */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "openocdDefinition", function() { return openocdDefinition; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "armNoneEabiDefinition", function() { return armNoneEabiDefinition; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "checkToolPath", function() { return checkToolPath; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return checkRequirements; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getTools", function() { return getTools; });
 /* harmony import */ var vscode__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vscode */ "vscode");
@@ -36908,8 +37375,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var shelljs__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(shelljs__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var process__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! process */ "process");
 /* harmony import */ var process__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(process__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
-/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! path */ "path");
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(path__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lodash */ "./node_modules/lodash/lodash.js");
+/* harmony import */ var lodash__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(lodash__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var inspector__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! inspector */ "inspector");
+/* harmony import */ var inspector__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(inspector__WEBPACK_IMPORTED_MODULE_5__);
 /**
  *
  * Functions to check and get the required tools.
@@ -36919,9 +37390,76 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
+
 var platform = process__WEBPACK_IMPORTED_MODULE_2___default.a.platform;
 var cortexDebugConfig = vscode__WEBPACK_IMPORTED_MODULE_0__["workspace"].getConfiguration('cortex-debug');
 var stm32Config = vscode__WEBPACK_IMPORTED_MODULE_0__["workspace"].getConfiguration('stm32-for-vscode');
+var tools = {};
+var openocdDefinition = {
+  name: 'openOCD',
+  standardCmd: 'openocd',
+  otherCmds: ['open-ocd'],
+  folder: false,
+  missingMessage: 'OpenOCD is missing, please include the path to the openocd executable e.g. usr/bin/openocd, install it, or add it to your PATH variable',
+  download: {
+    standard: 'http://openocd.org/getting-openocd/',
+    darwin: null,
+    linux: null,
+    windows: null
+  },
+  brewCmd: 'brew install openocd',
+  aptGetCmd: 'apt-get install openocd',
+  winCmd: null,
+  requiredByCortexDebug: true,
+  configName: 'openocdPath'
+};
+var makeDefinition = {
+  name: 'make',
+  standardCmd: 'make',
+  otherCmds: ['gmake'],
+  folder: false,
+  missingMessage: 'Make is missing, please include the path to the make executable e.g. usr/bin/make, install it, or add it to your PATH variable',
+  download: {
+    standard: null,
+    darwin: 'https://stackoverflow.com/questions/10265742/how-to-install-make-and-gcc-on-a-mac',
+    linux: null,
+    windows: 'https://sourceforge.net/projects/gnuwin32/files/make/3.81/make-3.81.exe/download?use_mirror=datapacket&download='
+  },
+  brewCmd: 'brew install make',
+  aptGetCmd: null,
+  requiredByCortexDebug: false,
+  configName: 'makePath'
+};
+var cmakeDefinition = {
+  name: 'cmake',
+  standardCmd: 'cmake',
+  otherCmds: [],
+  folder: false,
+  missingMessage: 'cMake is missing, please include the path to the make executable e.g. usr/bin/cMake, install it, or add it to your PATH variable',
+  download: {
+    standard: 'https://cmake.org/download/'
+  },
+  brewCmd: 'brew install cmake',
+  aptGetCmd: 'sudo apt-get install cmake',
+  requiredByCortexDebug: false,
+  configName: 'cmakePath'
+};
+var armNoneEabiDefinition = {
+  name: 'Arm toolchain',
+  standardCmd: 'arm-none-eabi-g++',
+  otherCmds: ['arm-none-eabi-g++', 'arm-none-eabi-gcc', 'arm-none-eabi-objcopy', 'arm-none-eabi-size'],
+  folder: true,
+  missingMessage: 'The GNU Arm Embedded toolchain is missing, please include the path to the arm-none-eabi-g++ executable e.g. usr/bin/local/arm-none-eabi/bin, install it, or add the arm-none-eabi tooling to your path variable',
+  download: {
+    standard: 'https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads'
+  },
+  requiredByCortexDebug: true,
+  configName: 'armToolchainPath'
+};
+/**
+ * @description Checks if brew install or apt-get are available and returns a string representation of this.
+ */
 
 function checkInstallMethods() {
   if (platform === 'darwin' && shelljs__WEBPACK_IMPORTED_MODULE_1___default.a.which('brew')) {
@@ -36934,144 +37472,302 @@ function checkInstallMethods() {
 
   return null;
 }
-
-function browseAndAddToConfig(standardPath, stm32ref, cortexDebugRef) {
-  vscode__WEBPACK_IMPORTED_MODULE_0__["window"].showOpenDialog({
-    canSelectFolders: standardPath === 'arm-none-eabi',
-    filters: {}
-  }).then(function (uri) {
-    if (!uri || !uri[0]) return; // check if it is a valid path
-
-    if (lodash__WEBPACK_IMPORTED_MODULE_3___default.a.lowerCase(uri[0].path).indexOf(standardPath) === -1 || !shelljs__WEBPACK_IMPORTED_MODULE_1___default.a.which(uri[0].path)) {
-      vscode__WEBPACK_IMPORTED_MODULE_0__["window"].showErrorMessage('It seems that you did not select the required tool', 'Open again').then(function (selection) {
-        if (selection === 'Open again') {
-          browseAndAddToConfig(standardPath, stm32ref, cortexDebugRef);
-        }
-      });
-      return;
-    } // if this checks out add it to the configuration.
+/**
+ * @description Checks for tooling at the specific toolpath and returns the path to the command if available
+ * @param {object} definition
+ * @param {string?} cmdPath
+ * @returns {string | boolean}
+ */
 
 
-    if (stm32ref) {
-      stm32Config.update(stm32ref, uri[0].path, true);
-    }
-
-    if (cortexDebugRef) {
-      cortexDebugConfig.update(cortexDebugRef, uri[0].path, true);
-    }
-
-    vscode__WEBPACK_IMPORTED_MODULE_0__["window"].showInformationMessage("Set ".concat(stm32ref ? 'STM32 for VSCode' : '').concat(stm32ref && cortexDebugRef ? ' and ' : '').concat(cortexDebugRef ? 'Cortex Debug' : '', " configuration for: ").concat(standardPath, ", to: ").concat(uri[0].path));
-  });
-}
-
-function validateToolPath(path) {
-  var p = lodash__WEBPACK_IMPORTED_MODULE_3___default.a.toLower(path);
-
-  if (p.indexOf('openocd') === -1 && p.indexOf('arm-none-eabi') === -1 && p.indexOf('make') === -1 && p.indexOf('cMake') === -1) {
-    return 'The path does not have the required tool in the name';
-  }
-
-  return null;
-}
-
-function toolInstall() {} // TODO: check DebugConfigurationProvider (registerDebugConfigurationProvider)
+function checkToolPath(definition, cmdPath) {
+  if (definition.folder) {
+    return checkToolFolder(definition, cmdPath);
+  } // first check the path
 
 
-function checkRequirements() {
-  /*
-   * The required tools are:
-   * - openocd
-   * - make
-   * - arm toolchain
-   * - cmake
-   * - cortex-debug (already fixed in extensionDependencies in package.json)
-   */
-  var workspace = vscode__WEBPACK_IMPORTED_MODULE_0___default.a.workspace;
-  var makePath = 'make';
-  var cmakePath = 'cmake';
-  var brewInstall = platform === 'darwin' && shelljs__WEBPACK_IMPORTED_MODULE_1___default.a.which('brew');
-  var aptGet = platform === 'linux' && shelljs__WEBPACK_IMPORTED_MODULE_1___default.a.which('apt-get');
-  var installMethod = checkInstallMethods();
-  console.log('stm config', stm32Config); // For this extension the priority of tools is stm32-for-vscode > cortex-debug > PATH
+  if (cmdPath && cmdPath !== '' && shelljs__WEBPACK_IMPORTED_MODULE_1___default.a.which(cmdPath)) {
+    return cmdPath;
+  } // after this check the path with the standard command
 
-  var openOCDPath = checkToolPath('openocd', stm32Config.openocdPath, cortexDebugConfig.openocdPath);
 
-  if (!openOCDPath || openOCDPath) {
-    vscode__WEBPACK_IMPORTED_MODULE_0___default.a.window.showWarningMessage('This extension requires: "openocd"', 'Download', 'Browse', 'Input path', installMethod).then(function (value) {
-      switch (value) {
-        case 'Download':
-          vscode__WEBPACK_IMPORTED_MODULE_0___default.a.env.openExternal('http://openocd.org/getting-openocd/');
-          break;
+  if (lodash__WEBPACK_IMPORTED_MODULE_4___default.a.isString(cmdPath)) {
+    var standardPath = path__WEBPACK_IMPORTED_MODULE_3___default.a.resolve(cmdPath, definition.standardCmd);
 
-        case 'Brew Install':
-          {
-            var terminal = vscode__WEBPACK_IMPORTED_MODULE_0___default.a.window.createTerminal();
-            terminal.sendText('brew install openocd');
-            terminal.show();
-          }
-          break;
+    if (shelljs__WEBPACK_IMPORTED_MODULE_1___default.a.which(standardPath)) {
+      return standardPath;
+    } // after this check the path with the non standard commands
 
-        case 'Apt Get':
-          {
-            // FIXME: not tested
-            var _terminal = vscode__WEBPACK_IMPORTED_MODULE_0___default.a.window.createTerminal();
 
-            _terminal.sendText('apt-get install openocd');
+    var cPath = null;
 
-            _terminal.show();
-          }
-          break;
+    lodash__WEBPACK_IMPORTED_MODULE_4___default.a.forEach(definition.otherCmds, function (entry) {
+      var tryPath = path__WEBPACK_IMPORTED_MODULE_3___default.a.resolve(cmdPath, entry);
 
-        case 'Browse':
-          browseAndAddToConfig('openocd', 'openocdPath', 'openocdPath');
-          break;
-
-        case 'Input path':
-          {
-            vscode__WEBPACK_IMPORTED_MODULE_0__["window"].showInputBox({
-              placeHolder: 'Path to: openocd',
-              validateInput: validateToolPath
-            }).then(function (pathstring) {
-              console.log('the value is', pathstring);
-            });
-          }
-          break;
-
-        default:
+      if (shelljs__WEBPACK_IMPORTED_MODULE_1___default.a.which(tryPath)) {
+        cPath = tryPath;
       }
     });
-  }
+
+    if (cPath) {
+      return cPath;
+    }
+  } // after this check just the standard command
+
+
+  if (shelljs__WEBPACK_IMPORTED_MODULE_1___default.a.which(definition.standardCmd)) {
+    return definition.standardCmd;
+  } // after this check the non standard commands
+
+
+  var otherCmd = null;
+
+  lodash__WEBPACK_IMPORTED_MODULE_4___default.a.forEach(definition.otherCmds, function (entry) {
+    if (shelljs__WEBPACK_IMPORTED_MODULE_1___default.a.which(entry)) {
+      otherCmd = entry;
+    }
+  });
+
+  if (otherCmd) {
+    return otherCmd;
+  } // if none of the commands work return false
+
+
+  return false;
 }
+/**
+ * @description Checks if the commands are available in a folder and returns that folder.
+ * @param {object} definition
+ * @param {string} folderPath
+ * @returns {string | boolean}
+ */
 
-function checkToolPath(standardPath, stm32path, cortexDebugPath) {
-  if (stm32path) {
-    if (shelljs__WEBPACK_IMPORTED_MODULE_1___default.a.which(stm32path)) {
-      return stm32path;
-    }
-
-    if (shelljs__WEBPACK_IMPORTED_MODULE_1___default.a.which("".concat(stm32path, "/").concat(standardPath))) {
-      return "".concat(stm32path, "/").concat(standardPath);
-    }
+function checkToolFolder(definition, folderPath) {
+  if (!definition.folder) {
+    return checkToolPath(definition, folderPath);
   }
 
-  if (cortexDebugPath) {
-    if (shelljs__WEBPACK_IMPORTED_MODULE_1___default.a.which(cortexDebugPath)) {
-      return cortexDebugPath;
-    }
+  var trimmedFolderPath = lodash__WEBPACK_IMPORTED_MODULE_4___default.a.trimEnd(folderPath, '/');
 
-    if (shelljs__WEBPACK_IMPORTED_MODULE_1___default.a.which("".concat(cortexDebugPath, "/").concat(standardPath))) {
-      return "".concat(cortexDebugPath, "/").concat(standardPath);
+  if (!folderPath || folderPath === '' || folderPath === './' || trimmedFolderPath === '.') {
+    var hasAll = true;
+
+    lodash__WEBPACK_IMPORTED_MODULE_4___default.a.forEach(definition.otherCmds, function (entry) {
+      if (!shelljs__WEBPACK_IMPORTED_MODULE_1___default.a.which(entry)) {
+        hasAll = false;
+      }
+    });
+
+    if (hasAll) {
+      return trimmedFolderPath;
     }
+  } // checks if all the commands are present in a specific folder.
+
+
+  var standardGPPPath = path__WEBPACK_IMPORTED_MODULE_3___default.a.resolve(folderPath, definition.standardCmd);
+
+  if (shelljs__WEBPACK_IMPORTED_MODULE_1___default.a.which(standardGPPPath)) {
+    return trimmedFolderPath;
+  } // else if not try to go a directory higher
+
+
+  var dirUpPath = path__WEBPACK_IMPORTED_MODULE_3___default.a.dirname(trimmedFolderPath);
+  var dirUpCmd = path__WEBPACK_IMPORTED_MODULE_3___default.a.resolve(dirUpPath, definition.standardCmd);
+
+  if (shelljs__WEBPACK_IMPORTED_MODULE_1___default.a.which(dirUpCmd)) {
+    return dirUpPath;
   }
 
-  if (shelljs__WEBPACK_IMPORTED_MODULE_1___default.a.which(standardPath)) {
-    return standardPath;
+  if (shelljs__WEBPACK_IMPORTED_MODULE_1___default.a.which(definition.standardCmd)) {
+    return path__WEBPACK_IMPORTED_MODULE_3___default.a.dirname(definition.standardCmd);
   }
 
   return false;
 }
 
-function getTools() {}
+function checkSingleRequirement(definition) {
+  var STMToolPath = lodash__WEBPACK_IMPORTED_MODULE_4___default.a.get(stm32Config, definition.configName);
+
+  var cortexDebugToolPath = lodash__WEBPACK_IMPORTED_MODULE_4___default.a.get(cortexDebugConfig, definition.configName);
+
+  var STMCheck = checkToolPath(definition, STMToolPath);
+  var cortexDebugCheck;
+
+  if (definition.requiredByCortexDebug) {
+    cortexDebugCheck = checkToolPath(definition, cortexDebugToolPath);
+  }
+
+  if (lodash__WEBPACK_IMPORTED_MODULE_4___default.a.isString(STMCheck) && STMCheck !== '') {
+    // then it is valid
+    if (STMToolPath !== STMCheck) {
+      stm32Config.update(definition.configName, STMCheck);
+    }
+  } else if (lodash__WEBPACK_IMPORTED_MODULE_4___default.a.isString(cortexDebugCheck)) {
+    stm32Config.update(definition.configName, cortexDebugCheck);
+  }
+
+  if (lodash__WEBPACK_IMPORTED_MODULE_4___default.a.isString(cortexDebugCheck)) {
+    if (cortexDebugToolPath !== cortexDebugCheck) {
+      cortexDebugConfig.update(definition.configName, cortexDebugCheck);
+    }
+  } else if (lodash__WEBPACK_IMPORTED_MODULE_4___default.a.isString(STMCheck)) {
+    cortexDebugConfig.update(definition.configName, STMCheck);
+  }
+
+  '';
+
+  if (lodash__WEBPACK_IMPORTED_MODULE_4___default.a.isString(STMCheck)) {
+    return STMCheck;
+  }
+
+  if (lodash__WEBPACK_IMPORTED_MODULE_4___default.a.isString(cortexDebugCheck)) {
+    return cortexDebugCheck;
+  }
+
+  return false;
+}
+
+function browseAndAddToConfig(definition) {
+  // TODO: adapt this to the new type of definition driven thing.
+  vscode__WEBPACK_IMPORTED_MODULE_0__["window"].showOpenDialog({
+    canSelectFolders: definition.folder,
+    filters: {}
+  }).then(function (uri) {
+    if (!uri || !uri[0]) return;
+    var toolPathRes = checkToolPath(definition, uri[0].fsPath);
+
+    if (lodash__WEBPACK_IMPORTED_MODULE_4___default.a.isString(toolPathRes)) {
+      stm32Config.update(definition.configName, toolPathRes);
+      checkSingleRequirement(definition);
+    } else {
+      vscode__WEBPACK_IMPORTED_MODULE_0__["window"].showErrorMessage('It seems that you did not select the required tool', 'Open again').then(function (selection) {
+        if (selection === 'Open again') {
+          browseAndAddToConfig(definition);
+        }
+      });
+    }
+  });
+}
+/**
+ * @description Shows a VSCode input box, in which the path to a tool can be entered.
+ * If this path is correct,
+ * it will be added to the configuration of STM32 for VScode and Cortex Debug.
+ * @param {object} definition
+ */
+
+
+function inputToolPath(definition) {
+  // TODO: add validateInput option, to check for appropriate paths
+  var validation = function validation(toolPath) {
+    var checkedPath = checkToolPath(definition, toolPath);
+
+    if (!checkedPath) {
+      return 'The current path does not point to the appropriate tool';
+    }
+
+    return null;
+  };
+
+  vscode__WEBPACK_IMPORTED_MODULE_0__["window"].showInputBox({
+    placeHolder: "Path to: ".concat(definition.name),
+    validateInput: validation
+  }).then(function (pathString) {
+    if (lodash__WEBPACK_IMPORTED_MODULE_4___default.a.isString(checkToolPath(definition, pathString))) {
+      stm32Config.update(definition.configName, pathString);
+      checkSingleRequirement(definition);
+    }
+  });
+}
+
+function giveWarning(definition) {
+  var installMethod = checkInstallMethods();
+  var installable = false;
+
+  if (lodash__WEBPACK_IMPORTED_MODULE_4___default.a.isString(installMethod)) {
+    if (platform === 'linux' && definition.aptGetCmd) {
+      installable = true;
+    }
+
+    if (platform === 'darwin' && definition.brewCmd) {
+      installable = true;
+    }
+  }
+
+  vscode__WEBPACK_IMPORTED_MODULE_0___default.a.window.showWarningMessage(definition.warningMessage, 'Get', 'Browse', 'Input Path', installable ? installMethod : null).then(function (selection) {
+    switch (selection) {
+      case 'Get':
+        if (lodash__WEBPACK_IMPORTED_MODULE_4___default.a.get(definition.download, platform)) {
+          vscode__WEBPACK_IMPORTED_MODULE_0___default.a.env.openExternal(lodash__WEBPACK_IMPORTED_MODULE_4___default.a.get(definition.download, platform));
+        } else if (definition.download.standard) {
+          vscode__WEBPACK_IMPORTED_MODULE_0___default.a.env.openExternal(definition.download.standard);
+        }
+
+        break;
+
+      case 'Browse':
+        browseAndAddToConfig(definition);
+        break;
+
+      case 'Input Path':
+        inputToolPath(definition);
+        break;
+
+      case 'Brew Install':
+        {
+          var terminal = vscode__WEBPACK_IMPORTED_MODULE_0___default.a.window.createTerminal();
+          terminal.sendText(definition.brewCmd);
+          terminal.show();
+        }
+        break;
+
+      case 'Apt Get':
+        {
+          var _terminal = vscode__WEBPACK_IMPORTED_MODULE_0___default.a.window.createTerminal();
+
+          _terminal.sendText(definition.aptGetCmd);
+
+          _terminal.show();
+        }
+        break;
+
+      default:
+    }
+  });
+}
+
+function checkRequirements() {
+  // checks each requirement in order
+  var hasOpenOCD = checkSingleRequirement(openocdDefinition);
+  var hasMake = checkSingleRequirement(makeDefinition);
+  var hasCmake = checkSingleRequirement(cmakeDefinition);
+  var hasArmToolchain = checkSingleRequirement(armNoneEabiDefinition); // if no path is present. We should give a warning.
+
+  if (!lodash__WEBPACK_IMPORTED_MODULE_4___default.a.isString(hasOpenOCD)) {
+    giveWarning(openocdDefinition);
+  }
+
+  if (!lodash__WEBPACK_IMPORTED_MODULE_4___default.a.isString(hasMake)) {
+    giveWarning(makeDefinition);
+  }
+
+  if (!lodash__WEBPACK_IMPORTED_MODULE_4___default.a.isString(hasCmake) && stm32Config.enableTesting) {
+    giveWarning(cmakeDefinition);
+  }
+
+  if (!lodash__WEBPACK_IMPORTED_MODULE_4___default.a.isString(hasArmToolchain)) {
+    giveWarning(hasArmToolchain);
+  }
+
+  return {
+    openOCD: hasOpenOCD,
+    make: hasMake,
+    cMake: hasCmake,
+    armToolchain: hasArmToolchain
+  };
+}
+function getTools() {
+  return tools;
+}
 
 /***/ }),
 
@@ -37221,7 +37917,7 @@ function _updateMakefile() {
 
                       case 10:
                         console.log('creating new makefile with info', info);
-                        newMakefile = Object(_CreateMakefile__WEBPACK_IMPORTED_MODULE_3__["default"])(info.makefile);
+                        newMakefile = Object(_CreateMakefile__WEBPACK_IMPORTED_MODULE_3__["default"])(info);
 
                         if (!(newMakefile !== oldMakefile)) {
                           _context3.next = 26;
@@ -37292,9 +37988,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deactivate", function() { return deactivate; });
 /* harmony import */ var vscode__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vscode */ "vscode");
 /* harmony import */ var vscode__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(vscode__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _Info__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Info */ "./src/Info.js");
-/* harmony import */ var _UpdateMakefile__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./UpdateMakefile */ "./src/UpdateMakefile.js");
-/* harmony import */ var _Requirements__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Requirements */ "./src/Requirements.js");
+/* harmony import */ var util__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! util */ "util");
+/* harmony import */ var util__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(util__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _Info__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Info */ "./src/Info.js");
+/* harmony import */ var _UpdateMakefile__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./UpdateMakefile */ "./src/UpdateMakefile.js");
+/* harmony import */ var _Requirements__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Requirements */ "./src/Requirements.js");
+/* harmony import */ var _BuildTask__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./BuildTask */ "./src/BuildTask.js");
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
@@ -37304,7 +38003,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
 
- // // this method is called when your extension is activated
+
+
+
+var extensionTerminal; // // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 
 /**
@@ -37318,120 +38020,172 @@ function activate(context) {
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with  registerCommand
   // The commandId parameter must match the command field in package.json
-  var initCmd = vscode__WEBPACK_IMPORTED_MODULE_0___default.a.commands.registerCommand('stm32-for-vscode.init',
-  /*#__PURE__*/
-  _asyncToGenerator(
-  /*#__PURE__*/
-  regeneratorRuntime.mark(function _callee() {
-    return regeneratorRuntime.wrap(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            // // console.log('vscode in init', vscode);
-            Object(_Requirements__WEBPACK_IMPORTED_MODULE_3__["default"])();
-
-          case 1:
-          case "end":
-            return _context.stop();
-        }
-      }
-    }, _callee);
-  })));
   var buildCmd = vscode__WEBPACK_IMPORTED_MODULE_0___default.a.commands.registerCommand('stm32-for-vscode.build',
   /*#__PURE__*/
   _asyncToGenerator(
   /*#__PURE__*/
-  regeneratorRuntime.mark(function _callee3() {
-    return regeneratorRuntime.wrap(function _callee3$(_context3) {
+  regeneratorRuntime.mark(function _callee2() {
+    return regeneratorRuntime.wrap(function _callee2$(_context2) {
       while (1) {
-        switch (_context3.prev = _context3.next) {
+        switch (_context2.prev = _context2.next) {
           case 0:
-            return _context3.abrupt("return", new Promise(
+            return _context2.abrupt("return", new Promise(
             /*#__PURE__*/
             function () {
-              var _ref3 = _asyncToGenerator(
+              var _ref2 = _asyncToGenerator(
               /*#__PURE__*/
-              regeneratorRuntime.mark(function _callee2(resolve, reject) {
-                var currentWorkspaceFolder, info;
-                return regeneratorRuntime.wrap(function _callee2$(_context2) {
+              regeneratorRuntime.mark(function _callee(resolve, reject) {
+                return regeneratorRuntime.wrap(function _callee$(_context) {
                   while (1) {
-                    switch (_context2.prev = _context2.next) {
+                    switch (_context.prev = _context.next) {
                       case 0:
-                        _context2.prev = 0;
-                        currentWorkspaceFolder = vscode__WEBPACK_IMPORTED_MODULE_0___default.a.workspace.workspaceFolders[0].uri.fsPath;
-                        _context2.next = 4;
-                        return Object(_Info__WEBPACK_IMPORTED_MODULE_1__["getInfo"])(currentWorkspaceFolder);
+                        _context.prev = 0;
+                        _context.next = 3;
+                        return Object(_BuildTask__WEBPACK_IMPORTED_MODULE_5__["default"])();
 
-                      case 4:
-                        info = _context2.sent;
-                        _context2.next = 7;
-                        return Object(_UpdateMakefile__WEBPACK_IMPORTED_MODULE_2__["default"])(currentWorkspaceFolder, info);
-
-                      case 7:
-                        _context2.next = 13;
+                      case 3:
+                        resolve();
+                        _context.next = 9;
                         break;
 
+                      case 6:
+                        _context.prev = 6;
+                        _context.t0 = _context["catch"](0);
+                        reject(_context.t0);
+
                       case 9:
-                        _context2.prev = 9;
-                        _context2.t0 = _context2["catch"](0);
-                        vscode__WEBPACK_IMPORTED_MODULE_0___default.a.window.showErrorMessage('Something went wrong during the build process', _context2.t0);
-                        reject(_context2.t0);
-
-                      case 13:
-                        resolve();
-
-                      case 14:
                       case "end":
-                        return _context2.stop();
+                        return _context.stop();
                     }
                   }
-                }, _callee2, null, [[0, 9]]);
+                }, _callee, null, [[0, 6]]);
               }));
 
               return function (_x, _x2) {
-                return _ref3.apply(this, arguments);
+                return _ref2.apply(this, arguments);
               };
             }()));
 
           case 1:
           case "end":
-            return _context3.stop();
+            return _context2.stop();
         }
       }
-    }, _callee3);
-  }))); //   const buildCmd = vscode.commands.registerCommand('stm32-for-vscode.build', () => {
-  //     const armPath = checkForRequirements(vscode.window.showWarningMessage, vscode);
-  //     // console.log('the root', vscode.env.appRoot);
-  //     init(vscode.workspace.getWorkspaceFolder, armPath).then(() => {
-  //       let terminal = vscode.window.activeTerminal;
-  //       if (!terminal) {
-  //         terminal = vscode.window.createTerminal();
-  //       }
-  //       const cmd = makeCmd(armPath);
-  //       terminal.sendText(cmd);
-  //     });
-  //   });
-  //   const buildCleanCmd = vscode.commands.registerCommand('stm32-for-vscode.cleanBuild', () => {
-  //     const armPath = checkForRequirements(vscode.window.showWarningMessage, vscode);
-  //     let terminal = vscode.window.activeTerminal;
-  //     if (!terminal) {
-  //       terminal = vscode.window.createTerminal();
-  //     }
-  //     const cleanCmd = makeCmd(armPath);
-  //     terminal.sendText(`${cleanCmd} clean`);
-  //     init(vscode.workspace.getWorkspaceFolder, armPath).then(() => {
-  //       terminal = vscode.window.activeTerminal;
-  //       if (!terminal) {
-  //         terminal = vscode.window.createTerminal();
-  //       }
-  //       const cmd = makeCmd(armPath);
-  //       terminal.sendText(cmd);
-  //     });
-  //   });
+    }, _callee2);
+  })));
+  var flashCmd = vscode__WEBPACK_IMPORTED_MODULE_0___default.a.commands.registerCommand('stm32-for-vscode.flash',
+  /*#__PURE__*/
+  _asyncToGenerator(
+  /*#__PURE__*/
+  regeneratorRuntime.mark(function _callee4() {
+    return regeneratorRuntime.wrap(function _callee4$(_context4) {
+      while (1) {
+        switch (_context4.prev = _context4.next) {
+          case 0:
+            return _context4.abrupt("return", new Promise(
+            /*#__PURE__*/
+            function () {
+              var _ref4 = _asyncToGenerator(
+              /*#__PURE__*/
+              regeneratorRuntime.mark(function _callee3(resolve, reject) {
+                return regeneratorRuntime.wrap(function _callee3$(_context3) {
+                  while (1) {
+                    switch (_context3.prev = _context3.next) {
+                      case 0:
+                        _context3.prev = 0;
+                        _context3.next = 3;
+                        return Object(_BuildTask__WEBPACK_IMPORTED_MODULE_5__["default"])({
+                          flash: true
+                        });
 
-  context.subscriptions.push(initCmd);
-  context.subscriptions.push(buildCmd); // context.subscriptions.push(buildCmd);
-  // context.subscriptions.push(buildCleanCmd);
+                      case 3:
+                        resolve();
+                        _context3.next = 9;
+                        break;
+
+                      case 6:
+                        _context3.prev = 6;
+                        _context3.t0 = _context3["catch"](0);
+                        reject(_context3.t0);
+
+                      case 9:
+                      case "end":
+                        return _context3.stop();
+                    }
+                  }
+                }, _callee3, null, [[0, 6]]);
+              }));
+
+              return function (_x3, _x4) {
+                return _ref4.apply(this, arguments);
+              };
+            }()));
+
+          case 1:
+          case "end":
+            return _context4.stop();
+        }
+      }
+    }, _callee4);
+  })));
+  var cleanBuildCmd = vscode__WEBPACK_IMPORTED_MODULE_0___default.a.commands.registerCommand('stm32-for-vscode.cleanBuild',
+  /*#__PURE__*/
+  _asyncToGenerator(
+  /*#__PURE__*/
+  regeneratorRuntime.mark(function _callee6() {
+    return regeneratorRuntime.wrap(function _callee6$(_context6) {
+      while (1) {
+        switch (_context6.prev = _context6.next) {
+          case 0:
+            return _context6.abrupt("return", new Promise(
+            /*#__PURE__*/
+            function () {
+              var _ref6 = _asyncToGenerator(
+              /*#__PURE__*/
+              regeneratorRuntime.mark(function _callee5(resolve, reject) {
+                return regeneratorRuntime.wrap(function _callee5$(_context5) {
+                  while (1) {
+                    switch (_context5.prev = _context5.next) {
+                      case 0:
+                        _context5.prev = 0;
+                        _context5.next = 3;
+                        return Object(_BuildTask__WEBPACK_IMPORTED_MODULE_5__["default"])({
+                          cleanBuild: true
+                        });
+
+                      case 3:
+                        resolve();
+                        _context5.next = 9;
+                        break;
+
+                      case 6:
+                        _context5.prev = 6;
+                        _context5.t0 = _context5["catch"](0);
+                        reject(_context5.t0);
+
+                      case 9:
+                      case "end":
+                        return _context5.stop();
+                    }
+                  }
+                }, _callee5, null, [[0, 6]]);
+              }));
+
+              return function (_x5, _x6) {
+                return _ref6.apply(this, arguments);
+              };
+            }()));
+
+          case 1:
+          case "end":
+            return _context6.stop();
+        }
+      }
+    }, _callee6);
+  })));
+  context.subscriptions.push(buildCmd);
+  context.subscriptions.push(flashCmd);
+  context.subscriptions.push(cleanBuildCmd);
 } // this method is called when your extension is deactivated
 
 function deactivate() {}
@@ -37492,6 +38246,17 @@ module.exports = require("events");
 /***/ (function(module, exports) {
 
 module.exports = require("fs");
+
+/***/ }),
+
+/***/ "inspector":
+/*!****************************!*\
+  !*** external "inspector" ***!
+  \****************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = require("inspector");
 
 /***/ }),
 

@@ -1,6 +1,7 @@
 
 /*
- * Set of functions for creating a makefile based on STM32 makefile info and the Src, Inc and Lib folders
+ * Set of functions for creating a makefile based on STM32
+ * makefile info and the Src, Inc and Lib folders
  * Created by Jort Band - Bureau Moeilijke Dingen
 */
 import _ from 'lodash';
@@ -38,7 +39,7 @@ export function convertTemplate(makeInfo) {
 # Generic Makefile (based on gcc)
 #
 # ChangeLog :
-#	2017-02-10 - Several enhancements + project update mode
+#\t2017-02-10 - Several enhancements + project update mode
 #   2015-07-22 - first version
 # ------------------------------------------------
 
@@ -84,6 +85,7 @@ ${createStringList(makeInfo.asmSources)}
 PREFIX = arm-none-eabi-
 # The gcc compiler bin path can be either defined in make command via GCC_PATH variable (> make GCC_PATH=xxx)
 # either it can be added to the PATH environment variable.
+${makeInfo.tools.armToolchain ? `GCC_PATH=${makeInfo.tools.armToolchain}` : ''}
 ifdef GCC_PATH
 CXX = $(GCC_PATH)/$(PREFIX)g++
 CC = $(GCC_PATH)/$(PREFIX)gcc
@@ -99,7 +101,7 @@ SZ = $(PREFIX)size
 endif
 HEX = $(CP) -O ihex
 BIN = $(CP) -O binary -S
-	
+
 #######################################
 # CFLAGS
 #######################################
@@ -178,44 +180,44 @@ OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
 vpath %.s $(sort $(dir $(ASM_SOURCES)))
 
 $(BUILD_DIR)/%.o: %.cpp Makefile | $(BUILD_DIR) 
-	$(CXX) -c $(CXXFLAGS) $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.cpp=.lst)) $< -o $@
+\t$(CXX) -c $(CXXFLAGS) $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.cpp=.lst)) $< -o $@
 
 $(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR) 
-	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
+\t$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
 
 $(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
-	$(AS) -c $(CFLAGS) $< -o $@
+\t$(AS) -c $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
-	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
-	$(SZ) $@
+\t$(CC) $(OBJECTS) $(LDFLAGS) -o $@
+\t$(SZ) $@
 
 $(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
-	$(HEX) $< $@
-	
+\t$(HEX) $< $@
+
 $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
-	$(BIN) $< $@	
-	
+\t$(BIN) $< $@
+
 $(BUILD_DIR):
-	mkdir $@		
+\tmkdir $@
 
 #######################################
 # flash
 #######################################
-flash: $(BUILD_DIR)/$(PROJ_NAME).elf
-        ${makeInfo.openocdPath ? makeInfo.openocdPath : 'openocd'} -f target/${makeInfo.targetMCU} -c "program $^ reset exit -0x08000000"
+flash: $(BUILD_DIR)/$(TARGET).elf
+\t${makeInfo.tools.openOCD ? makeInfo.tools.openOCD : 'openocd'} -f interface/stlink-v2-1.cfg  -f target/${makeInfo.targetMCU}.cfg -c "program $(BUILD_DIR)/$(TARGET).elf verify reset exit"
 
 #######################################
 # erase
 #######################################
-erase: $(BUILD_DIR)/$(PROJ_NAME).elf
-        ${makeInfo.openocdPath ? makeInfo.openocdPath : 'openocd'} -f target/${makeInfo.targetMCU}.cfg -c "init; reset halt; ${makeInfo.targetMCU} mass_erase 0; exit"
+erase: $(BUILD_DIR)/$(TARGET).elf
+\t${makeInfo.tools.openOCD ? makeInfo.tools.openOCD : 'openocd'} -f interface/stlink-v2-1.cfg -f target/${makeInfo.targetMCU}.cfg -c "init; reset halt; ${makeInfo.targetMCU} mass_erase 0; exit"
 
 #######################################
 # clean up
 #######################################
 clean:
-	-rm -fR $(BUILD_DIR)
+\t-rm -fR $(BUILD_DIR)
 	
 #######################################
 # dependencies

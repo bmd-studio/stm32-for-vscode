@@ -2,6 +2,8 @@ import _ from 'lodash';
 import fs from 'fs';
 import fsRecursive from 'recursive-readdir';
 import vscode from 'vscode';
+import path from 'path';
+
 
 /* When a standard project is initialised  this is the file structure:
  |-${projectName}.ioc
@@ -161,7 +163,15 @@ export function getIncludes(headerList) {
     incList.push(incFolder);
   });
   incList = _.uniq(incList);
+
+  // should prepend the -I
+  incList = _.map(incList, entry => `-I${entry}`);
+
   return incList;
+}
+function convertToRelative(files, loc) {
+  const relativeFiles = _.map(files, file => path.relative(loc, file));
+  return relativeFiles;
 }
 
 /**
@@ -218,6 +228,9 @@ export default async function getFileList(location) {
         // do nothing for now.
       }
     }
+
+    // convert to relative paths.
+    initialFileList = convertToRelative(initialFileList, loc);
     // should sort files and add them to fileList.
     sortFiles(fileList, initialFileList);
     fileList.cIncludes = _.cloneDeep(getIncludes(fileList.headerFiles));

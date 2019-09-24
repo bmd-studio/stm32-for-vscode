@@ -21,7 +21,7 @@ async function writeMakefile(makefilePath, makefile) {
   return new Promise((resolve, reject) => {
     fs.writeFile(makefilePath, makefile, { encoding: 'utf8' }, (err) => {
       if (err) {
-        vscode.window.showErrorMessage('Something went wrong with writing to the new makefile', err);
+        vscode.window.showErrorMessage('Something went wrong with writing to the new makefile', `${err}`);
         reject(err);
         return;
       }
@@ -35,7 +35,8 @@ async function writeMakefile(makefilePath, makefile) {
  * @description creates a new makefile based on the current info and checks if it
  * should update the old makefile.
  * @param {string} workspaceLocation location of the current workspace
- * @param {{makefile: {}, config: {}}} info object containing the information neccessary for compilation
+ * @param {{makefile: {}, config: {}}} info object containing the information
+ * neccessary for compilation
  */
 export default async function updateMakefile(workspaceLocation, info) {
   return new Promise(async (resolve, reject) => {
@@ -46,10 +47,10 @@ export default async function updateMakefile(workspaceLocation, info) {
     } catch (err) {
       oldMakefile = null;
     }
-    console.log('creating new makefile with info', info);
-    const newMakefile = createMakefile(info.makefile);
+    // console.log('creating new makefile with info', info);
+    const newMakefile = createMakefile(info);
     if (newMakefile !== oldMakefile) {
-      console.log('difference in makefile updating');
+      // console.log('difference in makefile updating');
       try {
         await writeMakefile(makefilePath, newMakefile);
       } catch (err) {
@@ -58,7 +59,7 @@ export default async function updateMakefile(workspaceLocation, info) {
         return;
       }
     } else {
-      console.log('makefile is same same');
+      // console.log('makefile is same same');
     }
     resolve(newMakefile);
   });

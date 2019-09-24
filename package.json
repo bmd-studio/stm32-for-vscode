@@ -25,14 +25,21 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
-    "commands": [
+    "taskDefinitions": [
       {
-        "command": "stm32-for-vscode.init",
-        "title": "Init STM32 for VSCode extension"
-      },
+        "type": "STM32",
+        "required": [],
+        "properties": {}
+      }
+    ],
+    "commands": [
       {
         "command": "stm32-for-vscode.build",
         "title": "Build STM32 project"
+      },
+      {
+        "command": "stm32-for-vscode.flash",
+        "title": "Build and flash to an STM32 platform"
       },
       {
         "command": "stm32-for-vscode.cleanBuild",
@@ -57,11 +64,6 @@
           "type": "string",
           "default": "",
           "description": "Path to the GCC Arm Toolchain (prefix arm-none-eabi) to use, will use the one in PATH or the cortex-debug settings as default"
-        },
-        "stm32-for-vscode.st-flashPath": {
-          "type": "string",
-          "default": "",
-          "description": "Path to the st-flash tool, will use the one in PATH as default"
         }
       }
     }
@@ -96,6 +98,7 @@
     "eslint-plugin-import": "^2.17.2",
     "glob": "^7.1.4",
     "mocha": "^6.1.4",
+    "sinon": "^7.4.2",
     "typescript": "^3.3.1",
     "vscode-test": "^1.2.0",
     "webpack": "^4.39.3",
@@ -107,5 +110,6 @@
     "recursive-readdir": "^2.2.2",
     "shelljs": "^0.8.3",
     "yargs": "^13.2.2"
-  }
+  },
+  "taskDefinitions": {}
 }

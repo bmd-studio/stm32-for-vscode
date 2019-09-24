@@ -19,6 +19,8 @@ var _recursiveReaddir = _interopRequireDefault(require("recursive-readdir"));
 
 var _vscode = _interopRequireDefault(require("vscode"));
 
+var _path = _interopRequireDefault(require("path"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -278,8 +280,20 @@ function getIncludes(headerList) {
     incList.push(incFolder);
   });
 
-  incList = _lodash["default"].uniq(incList);
+  incList = _lodash["default"].uniq(incList); // should prepend the -I
+
+  incList = _lodash["default"].map(incList, function (entry) {
+    return "-I".concat(entry);
+  });
   return incList;
+}
+
+function convertToRelative(files, loc) {
+  var relativeFiles = _lodash["default"].map(files, function (file) {
+    return _path["default"].relative(loc, file);
+  });
+
+  return relativeFiles;
 }
 /**
  * @description Locates the files in the Src, Inc and Lib folder.
@@ -305,7 +319,7 @@ function _getFileList() {
               var _ref2 = _asyncToGenerator(
               /*#__PURE__*/
               regeneratorRuntime.mark(function _callee4(resolve, reject) {
-                var loc, dir, initialFileList, srcFiles, incFiles, libFiles, testFiles, testIndex;
+                var loc, dir, initialFileList, srcFiles, incFiles, libFiles, testFiles, testIndex, includes;
                 return regeneratorRuntime.wrap(function _callee4$(_context4) {
                   while (1) {
                     switch (_context4.prev = _context4.next) {
@@ -375,7 +389,7 @@ function _getFileList() {
                         });
 
                         if (!(testIndex >= 0)) {
-                          _context4.next = 39;
+                          _context4.next = 40;
                           break;
                         }
 
@@ -386,26 +400,29 @@ function _getFileList() {
                       case 32:
                         testFiles = _context4.sent;
                         sortFiles(fileList.testFiles, testFiles);
-                        fileList.testFiles.includeDirectories = _lodash["default"].cloneDeep(getIncludes(fileList.testFiles.headerFiles));
-                        _context4.next = 39;
+                        includes = getIncludes(fileList.testFiles.headerFiles);
+                        fileList.testFiles.includeDirectories = _lodash["default"].cloneDeep(includes);
+                        _context4.next = 40;
                         break;
 
-                      case 37:
-                        _context4.prev = 37;
+                      case 38:
+                        _context4.prev = 38;
                         _context4.t1 = _context4["catch"](29);
 
-                      case 39:
-                        // should sort files and add them to fileList.
+                      case 40:
+                        // convert to relative paths.
+                        initialFileList = convertToRelative(initialFileList, loc); // should sort files and add them to fileList.
+
                         sortFiles(fileList, initialFileList);
                         fileList.cIncludes = _lodash["default"].cloneDeep(getIncludes(fileList.headerFiles));
                         resolve(fileList);
 
-                      case 42:
+                      case 44:
                       case "end":
                         return _context4.stop();
                     }
                   }
-                }, _callee4, null, [[7, 22], [29, 37]]);
+                }, _callee4, null, [[7, 22], [29, 38]]);
               }));
 
               return function (_x5, _x6) {
