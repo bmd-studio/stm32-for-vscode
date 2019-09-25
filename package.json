@@ -108,8 +108,7 @@
     "json5": "^2.1.0",
     "lodash": "^4.17.15",
     "recursive-readdir": "^2.2.2",
-    "shelljs": "^0.8.3",
-    "yargs": "^13.2.2"
+    "shelljs": "^0.8.3"
   },
   "taskDefinitions": {}
 }

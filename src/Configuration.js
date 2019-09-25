@@ -190,6 +190,8 @@ function getCPropertiesConfig(info) {
     includePath: includePaths,
     defines: getDefinitions(info),
     compilerPath: shelljs.which('gcc'),
+    cStandard: 'c11',
+    cppStandard: 'c++11',
   };
   return config;
 }
@@ -207,11 +209,19 @@ export function updateCProperties(cPropsPath, err, data, info) {
   let hasCConfig = false;
   const config = getCPropertiesConfig(info);
   if (cPropsConfig && !_.isEmpty(cPropsConfig)) {
-    _.map(cPropsConfig.configurations, (entry) => {
+    let index = -1;
+    _.map(cPropsConfig.configurations, (entry, ind) => {
       if (_.isEqual(config, entry)) {
         hasCConfig = true;
+      } else if (config.name === entry.name) {
+        // same but different. Then remove current
+        index = ind;
       }
     });
+    if (index >= 0) {
+      // remove it
+      cPropsConfig.configurations.splice(index, 1);
+    }
   } else {
     cPropsConfig.configurations = [];
   }

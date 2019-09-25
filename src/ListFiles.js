@@ -17,20 +17,6 @@ import path from 'path';
  */
 
 
-export const fileList = {
-  includeDirectories: [],
-  cFiles: [],
-  cxxFiles: [],
-  headerFiles: [],
-  asmFiles: [],
-  testFiles: {
-    cFiles: [],
-    cxxFiles: [],
-    headerFiles: [],
-    asmFiles: [],
-    includeDirectories: [],
-  },
-};
 /**
  * @description gets dir ignoring upper or lower case
  */
@@ -184,17 +170,20 @@ export default async function getFileList(location) {
     if (location && _.isString(location)) {
       loc = location;
     }
-    // clear the fileList (multiple calls to this function will populate it again)
-    _.forEach(fileList, (entry, key) => {
-      if (_.isArray(entry)) {
-        fileList[key] = [];
-      }
-    });
-    _.forEach(fileList.testFiles, (entry, key) => {
-      if (_.isArray(entry)) {
-        fileList.testFiles[key] = [];
-      }
-    });
+    const fileList = {
+      includeDirectories: [],
+      cFiles: [],
+      cxxFiles: [],
+      headerFiles: [],
+      asmFiles: [],
+      testFiles: {
+        cFiles: [],
+        cxxFiles: [],
+        headerFiles: [],
+        asmFiles: [],
+        includeDirectories: [],
+      },
+    };
 
     // first check if it has the required directories
     const dir = fs.readdirSync(loc);
