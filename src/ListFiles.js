@@ -2,6 +2,8 @@ import _ from 'lodash';
 import fs from 'fs';
 import fsRecursive from 'recursive-readdir';
 import vscode from 'vscode';
+import path from 'path';
+
 
 /* When a standard project is initialised  this is the file structure:
  |-${projectName}.ioc
@@ -15,20 +17,6 @@ import vscode from 'vscode';
  */
 
 
-export const fileList = {
-  includeDirectories: [],
-  cFiles: [],
-  cxxFiles: [],
-  headerFiles: [],
-  asmFiles: [],
-  testFiles: {
-    cFiles: [],
-    cxxFiles: [],
-    headerFiles: [],
-    asmFiles: [],
-    includeDirectories: [],
-  },
-}; // TODO: is fileList used anywhere else then in getFilelist(), else you can move it into the function and strip out the checks to clear your array as it will be reinitialized every time.
 /**
  * @description gets dir ignoring upper or lower case
  */
@@ -161,7 +149,15 @@ export function getIncludes(headerList) {
     incList.push(incFolder);
   });
   incList = _.uniq(incList);
+
+  // should prepend the -I
+  incList = _.map(incList, entry => `-I${entry}`);
+
   return incList;
+}
+function convertToRelative(files, loc) {
+  const relativeFiles = _.map(files, file => path.relative(loc, file));
+  return relativeFiles;
 }
 
 /**
@@ -174,17 +170,20 @@ export default async function getFileList(location) {
     if (location && _.isString(location)) {
       loc = location;
     }
-    // clear the fileList (multiple calls to this function will populate it again)
-    _.forEach(fileList, (entry, key) => {
-      if (_.isArray(entry)) {
-        fileList[key] = [];
-      }
-    });
-    _.forEach(fileList.testFiles, (entry, key) => {
-      if (_.isArray(entry)) {
-        fileList.testFiles[key] = [];
-      }
-    });
+    const fileList = {
+      includeDirectories: [],
+      cFiles: [],
+      cxxFiles: [],
+      headerFiles: [],
+      asmFiles: [],
+      testFiles: {
+        cFiles: [],
+        cxxFiles: [],
+        headerFiles: [],
+        asmFiles: [],
+        includeDirectories: [],
+      },
+    };
 
     // first check if it has the required directories
     const dir = fs.readdirSync(loc);
@@ -212,18 +211,17 @@ export default async function getFileList(location) {
       try {
         testFiles = await searchForFiles(`${loc}/${dir[testIndex]}`);
         sortFiles(fileList.testFiles, testFiles);
-
-        fileList.testFiles.includeDirectories = _.cloneDeep(getIncludes(fileList.testFiles.headerFiles));
+        const includes = getIncludes(fileList.testFiles.headerFiles);
+        fileList.testFiles.includeDirectories = _.cloneDeep(includes);
       } catch (err) {
         // do nothing for now.
       }
     }
-    console.log('initial file list');
-    console.log(initialFileList);
+
+    // convert to relative paths.
+    initialFileList = convertToRelative(initialFileList, loc);
     // should sort files and add them to fileList.
     sortFiles(fileList, initialFileList);
-    console.log('sorted files');
-    console.log(fileList);
     fileList.cIncludes = _.cloneDeep(getIncludes(fileList.headerFiles));
     resolve(fileList);
   });

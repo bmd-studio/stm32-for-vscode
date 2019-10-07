@@ -3,6 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.prependInfo = prependInfo;
 exports.combineArraysIntoObject = combineArraysIntoObject;
 exports.checkForFileNameInArray = checkForFileNameInArray;
 exports.checkAndConvertCpp = checkAndConvertCpp;
@@ -18,6 +19,8 @@ var _MakefileInfo = _interopRequireDefault(require("./MakefileInfo"));
 
 var _ListFiles = _interopRequireDefault(require("./ListFiles"));
 
+var _Requirements = _interopRequireDefault(require("./Requirements"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
@@ -32,20 +35,19 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
-var info = {
-  makefile: {},
-  config: {}
-};
+var info = {};
 var _default = info;
+exports["default"] = _default;
+
+function prependInfo() {}
 /**
  *
- * @param {string[]} arr1
- * @param {string[]} arr2
+ * @param {string[] | object} arr1
+ * @param {string[] | object} arr2
  * @param {string} key
  * @param {object} obj
  */
 
-exports["default"] = _default;
 
 function combineArraysIntoObject(arr1, arr2, key, obj) {
   // GUARD: against empty or null arrays.
@@ -85,7 +87,7 @@ function combineArraysIntoObject(arr1, arr2, key, obj) {
 function checkForFileNameInArray(name, array, caseMatters) {
   var reg = new RegExp("(^|\\b)".concat(name, "$"), "".concat(caseMatters ? '' : 'i'));
 
-  for (var i = 0; i < array.length; i++) {
+  for (var i = 0; i < array.length; i += 1) {
     if (array[i].search(reg) >= 0) {
       return i;
     }
@@ -130,7 +132,7 @@ function checkAndConvertCpp(totalInfo) {
  */
 
 
-function combineInfo(makefileInfo, fileList) {
+function combineInfo(makefileInfo, fileList, requirementInfo) {
   var bundledInfo = {}; // Bundling info which both the makeFile and the Filelist have
 
   combineArraysIntoObject(makefileInfo.cSources, fileList.cFiles, 'cSources', bundledInfo);
@@ -158,6 +160,13 @@ function combineInfo(makefileInfo, fileList) {
 
   _lodash["default"].set(bundledInfo, 'asDefs', makefileInfo.asDefs);
 
+  _lodash["default"].set(bundledInfo, 'targetMCU', makefileInfo.targetMCU);
+
+  if (requirementInfo) {
+    _lodash["default"].set(bundledInfo, 'tools', requirementInfo); // extra check to not break tests, if this is not provided.
+
+  }
+
   return bundledInfo;
 }
 /**
@@ -183,20 +192,20 @@ function _getInfo() {
           case 0:
             return _context.abrupt("return", new Promise(function (resolve, reject) {
               var makefileInfoPromise = (0, _MakefileInfo["default"])(location);
-              var listFilesInfoPromise = (0, _ListFiles["default"])(location); // TODO: also add a get config in here
+              var listFilesInfoPromise = (0, _ListFiles["default"])(location);
+              var requirementsInfoPromise = (0, _Requirements["default"])(); // TODO: also add a get config in here
 
-              Promise.all([makefileInfoPromise, listFilesInfoPromise]).then(function (values) {
-                var _values = _slicedToArray(values, 2),
+              Promise.all([makefileInfoPromise, listFilesInfoPromise, requirementsInfoPromise]).then(function (values) {
+                var _values = _slicedToArray(values, 3),
                     makefileInfo = _values[0],
-                    fileInfo = _values[1];
+                    fileInfo = _values[1],
+                    requirementInfo = _values[2];
 
-                var combinedInfo = combineInfo(makefileInfo, fileInfo);
-                console.log('new makefile info');
-                console.log(combinedInfo);
+                var combinedInfo = combineInfo(makefileInfo, fileInfo, requirementInfo);
                 combinedInfo = checkAndConvertCpp(combinedInfo);
-                console.log('cpp checked info');
-                console.log(combinedInfo);
-                info.makefile = combinedInfo;
+
+                _lodash["default"].assignIn(info, combinedInfo);
+
                 resolve(info);
               })["catch"](function (err) {
                 _vscode["default"].window.showErrorMessage('Something went wrong with scanning directories and reading files', err);

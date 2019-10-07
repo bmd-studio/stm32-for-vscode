@@ -109,8 +109,7 @@ suite('MakefileInfoTest', () => {
   test('extractMultiLineInfo', () => {
     assert.deepEqual(extractMultiLineInfo('C_DEFS', testMakefile), ['-DUSE_HAL_DRIVER', '-DSTM32H743xx', '-DUSE_HAL_DRIVER', '-DSTM32H743xx']);
     assert.deepEqual(extractMultiLineInfo('c_sources', testMakefile), cSources);
-    // TODO: check if input is actually multiline
-    // TODO: check if input is giberish or not
+    assert.deepEqual(extractMultiLineInfo('target', testMakefile), []);
   });
   test('extractMakefileInfo', () => {
     assert.deepEqual(extractMakefileInfo({ cSources: [] }, testMakefile), { cSources });

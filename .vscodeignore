@@ -1,0 +1,15 @@
+.vscode
+node_modules
+out/
+src/
+tsconfig.json
+webpack.config.js
+jsconfig.json
+.babelrc
+.eslinstrc.js
+.gitignore
+releases
+coverage
+.vscode-test
+test
+vsc-extension-quickstart.md

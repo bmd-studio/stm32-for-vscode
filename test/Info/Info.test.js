@@ -29,6 +29,7 @@ const testMakeFile = {
   cDefs: makefileInfoTest.cDefs,
   cxxDefs: makefileInfoTest.cxxDefs,
   asDefs: makefileInfoTest.asDefs,
+  targetMCU: makefileInfoTest.targetMCU,
 };
 const totalMakeFileInfo = {
   cSources: _.uniq(testMakeFile.cSources.concat(testList.cFiles)).sort(),
@@ -46,6 +47,7 @@ const totalMakeFileInfo = {
   cDefs: testMakeFile.cDefs,
   cxxDefs: testMakeFile.cxxDefs,
   asDefs: testMakeFile.asDefs,
+  targetMCU: testMakeFile.targetMCU,
 };
 
 

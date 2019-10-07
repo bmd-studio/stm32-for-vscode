@@ -20,11 +20,25 @@
         "--disable-extensions",
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--extensionTestsPath=${workspaceFolder}/out/test/suite/index",
-        "--extensionTestCwd=${workspaceFolder}/out/test",
+        "--extensionTestCwd=${workspaceFolder}/out/test"
       ],
       "internalConsoleOptions": "openOnSessionStart",
-      // "outFiles": ["${workspaceFolder}/out/test/**/*.js"],
-      "preLaunchTask": "compile test",
+      "preLaunchTask": "compile test"
+    },
+    {
+      "showDevDebugOutput": true,
+      "cwd": "${workspaceRoot}",
+      "executable": "./build/undefined.elf",
+      "name": "Debug STM32",
+      "request": "launch",
+      "type": "cortex-debug",
+      "servertype": "openocd",
+      "preLaunchTask": "Build STM",
+      "device": "stlink",
+      "configFiles": [
+        "interface/stlink-v2-1.cfg",
+        "target/.cfg"
+      ]
     }
   ]
 }
