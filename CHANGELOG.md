@@ -2,24 +2,24 @@
 
 ## [Unreleased]
 ### Added
-  - Added support for CMake.
   - Add support to use different project types (EWARM, STM32CubeIDE, etc.).
   - Add support for compilation without generation of the .c/.h peripheral files.
   - Add ability to introduce generated changes from the main.c file into the main.cpp file.
   - Add a separate file for config options, like compiler flags.
-  - Add support for unit testing.
+  - Add support for unit testing using Google Test and Google Mock.
 
-## [2.0.0 beta] - 2019-09-24
+## [2.0.0] - 2019-10-07
 ### Added
  - Added support for task compilation using the build in extension commands.
  - Added support for problem matching while compiling for STM.
  - Added download link in the tool missing pop-up.
- - Added brew install on OSX for the tool missing pop-up.
+ - Added brew install on OSX for the tool missing pop-up. 
  - Added apt-get for linux for the tool missing pop-up.
  - Added add path for the tool missing pop-up.
  - Added full support to add the tool path in the extension settings.
  - Added support to auto configure cortex-debug settings.
  - Added internal tests for the extension.
+ - Added auto intellisense management for STM32 projects.
 
 ### Changed
 - Stricter adherence to Src, Inc and Lib folders.

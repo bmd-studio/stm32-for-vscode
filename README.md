@@ -1,10 +1,10 @@
 # STM32 for VSCode
 
-This is a supporting extension to setup STM32 projects generated from STM CubeMX. It automatically generates a makefile and starts the build process, it also adds debugging, building (limited) and uploading configurations to the workspace.
+This is a supporting extension to setup STM32 projects generated from STM CubeMX. It automatically generates a makefile and starts the build process, it also adds debugging, build and flash configurations to the workspace.
 
 It also supports using cpp files, however for this main.c has to ben manualy renamed to main.cpp for it to work.
 
-To use the extension use the cmd/ctrl+shift+p shortcut to open the commands panel and run the Build STM command. This will setup the project and start the building process.
+To use the extension use the cmd/ctrl+shift+p shortcut to open the commands panel and run the Build STM project command. This will setup the project and start the building process.
 
 This project depends on a few dependencies so make sure they are installed before using this extension.
 
@@ -24,12 +24,14 @@ This extension assumes the project initialised with CubeMX and the option to cre
 Also please leave the default on Copy all used libraries into the project folder and generate seperate .c and .h files for the peripherals.
 
 ## How to use
-for now use cmd/ctrl+shift+p to open the show all commands panel and issue the command build stm
+Use cmd/ctrl+shift+p to open the show all commands panel and issue the command: Build STM32 project. Please note that external libraries should be placed in the lib folder and source code should be place in the src and inc folders.
 
 ## Features
 - Creating a makefile and building and STM32 project.
-- Adding configurations for debugging and building in the workspace.
-- Ability to compile it as a C++ project by adding a main.cpp file. (EXPERIMENTAL)
+- Adding configurations for debugging, flashing and building in the workspace.
+- Ability to compile it as a C++ project by adding a main.cpp file.
+- Automatic configuration of intellisense.
+- Detection of required tools and creating a warning.
 
 ## Disclaimer
-This is a beta version of the software, which comes forth from wanting a nice and fast way of compiling and debugging C++ STM32 projects in VSCode, for this reason some bugs will probably be present I will try to fix them and maintain this extension. Suggestions and feedback are always welcome.
+This an extension created because I wanted a fast way to build, flash and debug STM32 on OSX in VSCode. This extension is used internally at Bureau Moeilijke Dingen for development. As this might be helpfull to others I have allocated time to publish this extension. Should you find any bugs or have feature requests please open an issue on the [Github page](https://github.com/bmd-studio/stm32-for-vscode).
