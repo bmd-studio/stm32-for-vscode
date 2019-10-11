@@ -282,6 +282,9 @@ function giveWarning(definition) {
     }
   }
   // console.log('showing warning message');
+
+
+  // FIXME: Show message does not work if installable is null.
   vscode.window.showWarningMessage(
     definition.missingMessage,
     'Get',

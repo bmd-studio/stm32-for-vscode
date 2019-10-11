@@ -7,7 +7,8 @@ import path from 'path';
 import _ from 'lodash';
 import shelljs from 'shelljs';
 
-
+// FIXME: ENOENT on windows appears the .vscode stuff goes somewhere else.
+// Should check for a more vscode based solution for this.
 function getLaunchTask(info) {
   const config = {
     showDevDebugOutput: true,
