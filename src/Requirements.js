@@ -171,17 +171,22 @@ function checkToolFolder(definition, folderPath) {
     }
   }
 
-  // checks if all the commands are present in a specific folder.
-  const standardGPPPath = path.resolve(folderPath, definition.standardCmd);
-  if (shelljs.which(standardGPPPath)) {
-    return trimmedFolderPath;
+  if (folderPath && _.isString(folderPath)) {
+    // checks if all the commands are present in a specific folder.
+    const standardGPPPath = path.resolve(folderPath, definition.standardCmd);
+    if (shelljs.which(standardGPPPath)) {
+      return trimmedFolderPath;
+    }
+  }
+
+  if (trimmedFolderPath && _.isString(folderPath)) {
+    const dirUpPath = path.dirname(trimmedFolderPath);
+    const dirUpCmd = path.resolve(dirUpPath, definition.standardCmd);
+    if (shelljs.which(dirUpCmd)) {
+      return dirUpPath;
+    }
   }
   // else if not try to go a directory higher
-  const dirUpPath = path.dirname(trimmedFolderPath);
-  const dirUpCmd = path.resolve(dirUpPath, definition.standardCmd);
-  if (shelljs.which(dirUpCmd)) {
-    return dirUpPath;
-  }
   if (shelljs.which(definition.standardCmd)) {
     return path.dirname(definition.standardCmd);
   }
@@ -276,8 +281,9 @@ function giveWarning(definition) {
       installable = true;
     }
   }
+  // console.log('showing warning message');
   vscode.window.showWarningMessage(
-    definition.warningMessage,
+    definition.missingMessage,
     'Get',
     'Browse',
     'Input Path',
@@ -316,6 +322,8 @@ function giveWarning(definition) {
   });
 }
 
+
+// TODO: if not path is defined and gets null then it fails
 export default function checkRequirements() {
   // checks each requirement in order
   const hasOpenOCD = checkSingleRequirement(openocdDefinition);
@@ -325,6 +333,7 @@ export default function checkRequirements() {
 
   // if no path is present. We should give a warning.
   if (!_.isString(hasOpenOCD)) {
+    // console.log('no open ocd');
     giveWarning(openocdDefinition);
   }
   if (!_.isString(hasMake)) {

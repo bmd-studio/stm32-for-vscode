@@ -130,6 +130,7 @@ export async function getInfo(location) {
     const makefileInfoPromise = getMakefileInfo(location);
     const listFilesInfoPromise = getFileList(location);
     const requirementsInfoPromise = getRequirements();
+    console.log('the requirements are', requirementsInfoPromise);
     // TODO: also add a get config in here
     Promise.all([makefileInfoPromise, listFilesInfoPromise, requirementsInfoPromise]).then((values) => {
       const [makefileInfo, fileInfo, requirementInfo] = values;
