@@ -11,8 +11,8 @@ import _ from 'lodash';
 
 
 const { platform } = process;
-const cortexDebugConfig = workspace.getConfiguration('cortex-debug');
-const stm32Config = workspace.getConfiguration('stm32-for-vscode');
+let cortexDebugConfig = workspace.getConfiguration('cortex-debug');
+let stm32Config = workspace.getConfiguration('stm32-for-vscode');
 const tools = {};
 
 export const openocdDefinition = {
@@ -290,7 +290,7 @@ function giveWarning(definition) {
     'Get',
     'Browse',
     'Input Path',
-    installable ? installMethod : null,
+    installable ? installMethod : undefined,
   ).then((selection) => {
     switch (selection) {
       case 'Get':
@@ -328,6 +328,8 @@ function giveWarning(definition) {
 
 // TODO: if not path is defined and gets null then it fails
 export default function checkRequirements() {
+  cortexDebugConfig = workspace.getConfiguration('cortex-debug');
+  stm32Config = workspace.getConfiguration('stm32-for-vscode');
   // checks each requirement in order
   const hasOpenOCD = checkSingleRequirement(openocdDefinition);
   const hasMake = checkSingleRequirement(makeDefinition);
