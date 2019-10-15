@@ -6,6 +6,7 @@ import vscode from 'vscode';
 import path from 'path';
 import _ from 'lodash';
 import shelljs from 'shelljs';
+import { rejects } from 'assert';
 
 // FIXME: ENOENT on windows appears the .vscode stuff goes somewhere else.
 // Should check for a more vscode based solution for this.
@@ -154,16 +155,16 @@ function updateTasks(tasksPath, err, data) {
 }
 
 
-export async function getLaunch(workspaceRoot, info) {
-  const launchPath = path.resolve(workspaceRoot, './.vscode/launch.json');
-  const tasksPath = path.resolve(workspaceRoot, './.vscode/tasks.json');
-  fs.readFile(launchPath, 'utf8', (err, data) => {
-    updateLaunch(launchPath, err, data, info);
-  });
-  fs.readFile(tasksPath, 'utf8', (err, data) => {
-    updateTasks(tasksPath, err, data);
-  });
-}
+// export async function getLaunch(workspaceRoot, info) {
+//   const launchPath = path.resolve(workspaceRoot, './.vscode/launch.json');
+//   const tasksPath = path.resolve(workspaceRoot, './.vscode/tasks.json');
+//   fs.readFile(launchPath, 'utf8', (err, data) => {
+//     updateLaunch(launchPath, err, data, info);
+//   });
+//   fs.readFile(tasksPath, 'utf8', (err, data) => {
+//     updateTasks(tasksPath, err, data);
+//   });
+// }
 
 function getIncludePaths(info) {
   const cIncludes = _.map(info.cIncludes, entry => _.replace(entry, '-I', ''));
@@ -238,17 +239,40 @@ export function updateCProperties(cPropsPath, err, data, info) {
   }
 }
 
-export default function updateConfiguration(workspaceRoot, info) {
+async function checkVscodeFolder(workspaceRoot) {
+  return new Promise((resolve, reject) => {
+    const vscodeFolderPath = path.resolve(workspaceRoot, './.vscode');
+    fs.mkdir(vscodeFolderPath, { recursive: true }, (err) => {
+      if (err.message.indexOf('EEXIST') < 0) {
+        reject(err);
+        return;
+      }
+      resolve();
+    });
+  });
+}
+
+export default async function updateConfiguration(workspaceRoot, info) {
   const launchPath = path.resolve(workspaceRoot, './.vscode/launch.json');
   const tasksPath = path.resolve(workspaceRoot, './.vscode/tasks.json');
   const cPropsPath = path.resolve(workspaceRoot, './.vscode/c_cpp_properties.json');
-  fs.readFile(launchPath, 'utf8', (err, data) => {
-    updateLaunch(launchPath, err, data, info);
-  });
-  fs.readFile(tasksPath, 'utf8', (err, data) => {
-    updateTasks(tasksPath, err, data);
-  });
-  fs.readFile(cPropsPath, 'utf8', (err, data) => {
-    updateCProperties(cPropsPath, err, data, info);
+
+  return new Promise(async (resolve, reject) => {
+    try {
+      await checkVscodeFolder(workspaceRoot);
+    } catch (err) {
+      vscode.window.showErrorMessage('Something went wrong with creating the .vscode folder, for setting setting. Please create it yourself or check folder access privileges.');
+      reject(err);
+    }
+    fs.readFile(launchPath, 'utf8', (err, data) => {
+      updateLaunch(launchPath, err, data, info);
+    });
+    fs.readFile(tasksPath, 'utf8', (err, data) => {
+      updateTasks(tasksPath, err, data);
+    });
+    fs.readFile(cPropsPath, 'utf8', (err, data) => {
+      updateCProperties(cPropsPath, err, data, info);
+    });
+    resolve();
   });
 }

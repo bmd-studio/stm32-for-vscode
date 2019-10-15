@@ -54,7 +54,7 @@ export default async function updateMakefile(workspaceLocation, info) {
       try {
         await writeMakefile(makefilePath, newMakefile);
       } catch (err) {
-        vscode.window.showErrorMessage('Something went wrong with creating the new makefile', err);
+        vscode.window.showErrorMessage(`Something went wrong with creating the new makefile. Error: ${err}`);
         reject(err);
         return;
       }

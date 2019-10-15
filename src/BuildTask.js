@@ -14,13 +14,13 @@ let extensionTerminal;
 
 export default async function buildSTM(options) {
   const { flash, cleanBuild } = options || {};
-  return new Promise(async (resolve, reject) => {
+  return new Promise(async (resolve) => {
+    let currentWorkspaceFolder;
+    let info;
     try {
-      const currentWorkspaceFolder = vscode.workspace.workspaceFolders[0].uri.fsPath;
-      const info = await getInfo(currentWorkspaceFolder);
+      currentWorkspaceFolder = vscode.workspace.workspaceFolders[0].uri.fsPath;
+      info = await getInfo(currentWorkspaceFolder);
       await updateMakefile(currentWorkspaceFolder, info);
-      updateConfiguration(currentWorkspaceFolder, info);
-
       if (!extensionTerminal) {
         extensionTerminal = vscode.window.createTerminal({ name: 'STM32 for VSCode' });
       }
@@ -30,9 +30,13 @@ export default async function buildSTM(options) {
       }
       extensionTerminal.sendText(`make -f ${makefileName}${flash ? ' flash' : ''}`);
     } catch (err) {
-      vscode.window.showErrorMessage('Something went wrong during the build process', err);
-      // console.error(err);
-      reject(err);
+      vscode.window.showErrorMessage(`Something went wrong during the build process: ${err.message}`);
+    }
+
+    try {
+      await updateConfiguration(currentWorkspaceFolder, info);
+    } catch (err) {
+      vscode.window.showErrorMessage(`Something went wrong with configuring the workspace. ERROR: ${err}`);
     }
     resolve();
   });
