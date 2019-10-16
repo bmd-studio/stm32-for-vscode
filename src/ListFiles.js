@@ -3,6 +3,9 @@ import fs from 'fs';
 import fsRecursive from 'recursive-readdir';
 import vscode from 'vscode';
 import path from 'path';
+import process from 'process';
+
+const { platform } = process;
 
 
 /* When a standard project is initialised  this is the file structure:
@@ -220,6 +223,13 @@ export default async function getFileList(location) {
 
     // convert to relative paths.
     initialFileList = convertToRelative(initialFileList, loc);
+
+    // special addition for windows paths to be added correctly.
+    if (platform === 'win32') {
+      _.forEach(initialFileList, (entry) => {
+        entry.replace('\\', '/');
+      });
+    }
     // should sort files and add them to fileList.
     sortFiles(fileList, initialFileList);
     fileList.cIncludes = _.cloneDeep(getIncludes(fileList.headerFiles));

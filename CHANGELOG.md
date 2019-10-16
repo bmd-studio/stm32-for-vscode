@@ -7,6 +7,18 @@
   - Add ability to introduce generated changes from the main.c file into the main.cpp file.
   - Add a separate file for config options, like compiler flags.
   - Add support for unit testing using Google Test and Google Mock.
+  - Add support for windows with xpm install.
+### Fixed
+ - Fix addition of main.c on windows machines during a .cpp project
+ - Fix compilation issues when using STM32L031
+
+
+## [2.0.1] - 2019-10-15
+### Fixed
+ - Fixed issue which could potentially crash the requirements check
+ - Fixed bug for not writing launch and json files when the .vscode folder was not present.
+ - Fixed issue with not showing pop-up for tools on Windows.
+ - Fixed path seperators are different on windows, copied style of STM32Cube generated makefile
 
 ## [2.0.0] - 2019-10-07
 ### Added
