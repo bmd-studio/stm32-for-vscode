@@ -226,8 +226,8 @@ export default async function getFileList(location) {
 
     // special addition for windows paths to be added correctly.
     if (platform === 'win32') {
-      _.forEach(initialFileList, (entry) => {
-        entry.replace('\\', '/');
+      _.forEach(initialFileList, (entry, key) => {
+        initialFileList[key] = entry.replace('\\', '/');
       });
     }
     // should sort files and add them to fileList.
