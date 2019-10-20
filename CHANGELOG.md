@@ -3,15 +3,16 @@
 ## [Unreleased]
 ### Added
   - Add support to use different project types (EWARM, STM32CubeIDE, etc.).
-  - Add support for compilation without generation of the .c/.h peripheral files.
   - Add ability to introduce generated changes from the main.c file into the main.cpp file.
   - Add a separate file for config options, like compiler flags.
   - Add support for unit testing using Google Test and Google Mock.
   - Add support for windows with xpm install.
+  - Add dual bank support
+
+## [2.0.2] - 20-10-2019
 ### Fixed
  - Fix addition of main.c on windows machines during a .cpp project
  - Fix compilation issues when using STM32L031
-
 
 ## [2.0.1] - 2019-10-15
 ### Fixed

@@ -106,6 +106,10 @@ suite('Info test', () => {
   });
   test('combineInfo', () => {
     assert.deepEqual(combineInfo(testMakeFile, testList), totalMakeFileInfo);
+    // console.log('something goes wrong here', totalMakeFileInfo);
+    // console.log(testMakeFile);
+    // console.log(testList);
+    // console.log(combineInfo(testMakeFile, testList));
   });
   test('checkAndConvertCpp', () => {
     // check if it does nothing when only a main.c file is present

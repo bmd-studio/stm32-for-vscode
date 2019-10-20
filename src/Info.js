@@ -101,7 +101,7 @@ export function combineInfo(makefileInfo, fileList, requirementInfo) {
   combineArraysIntoObject(makefileInfo.asIncludes, null, 'asIncludes', bundledInfo);
 
   // now assign makelist values
-  _.set(bundledInfo, 'target', makefileInfo.target);
+  _.set(bundledInfo, 'target', _.replace(makefileInfo.target, /\s/g, '_'));
   _.set(bundledInfo, 'cpu', makefileInfo.cpu);
   _.set(bundledInfo, 'fpu', makefileInfo.fpu);
   _.set(bundledInfo, 'floatAbi', makefileInfo.floatAbi);
