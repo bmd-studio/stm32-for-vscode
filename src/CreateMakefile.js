@@ -5,6 +5,10 @@
  * Created by Jort Band - Bureau Moeilijke Dingen
 */
 import _ from 'lodash';
+import 'process';
+import getTargetConfig from './OpenOcdTargetFiles';
+
+const { platform } = process;
 // TODO: include the openocd path to the makeInfo.
 
 /**
@@ -205,19 +209,19 @@ $(BUILD_DIR):
 # flash
 #######################################
 flash: $(BUILD_DIR)/$(TARGET).elf
-\t${makeInfo.tools.openOCD ? makeInfo.tools.openOCD : 'openocd'} -f interface/stlink-v2-1.cfg  -f target/${makeInfo.targetMCU}.cfg -c "program $(BUILD_DIR)/$(TARGET).elf verify reset exit"
+\t${makeInfo.tools.openOCD ? makeInfo.tools.openOCD : 'openocd'} -f interface/stlink-v2-1.cfg  -f target/${getTargetConfig(makeInfo.targetMCU)} -c "program $(BUILD_DIR)/$(TARGET).elf verify reset exit"
 
 #######################################
 # erase
 #######################################
 erase: $(BUILD_DIR)/$(TARGET).elf
-\t${makeInfo.tools.openOCD ? makeInfo.tools.openOCD : 'openocd'} -f interface/stlink-v2-1.cfg -f target/${makeInfo.targetMCU}.cfg -c "init; reset halt; ${makeInfo.targetMCU} mass_erase 0; exit"
+\t${makeInfo.tools.openOCD ? makeInfo.tools.openOCD : 'openocd'} -f interface/stlink-v2-1.cfg -f target/${getTargetConfig(makeInfo.targetMCU)} -c "init; reset halt; ${makeInfo.targetMCU} mass_erase 0; exit"
 
 #######################################
 # clean up
 #######################################
 clean:
-\t-rm -fR $(BUILD_DIR)
+\t${platform === 'win32' ? 'rd /s /q' : '-rm - fR'} $(BUILD_DIR)
 	
 #######################################
 # dependencies

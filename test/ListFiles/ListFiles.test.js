@@ -131,9 +131,9 @@ const cxxFiles = [
   'Src/RandomDriver.cpp',
 ];
 const cIncludes = [
-  'Inc',
-  'Src',
-  'Drivers/STM32H7xx_HAL_Driver/Inc',
+  '-IInc',
+  '-ISrc',
+  '-IDrivers/STM32H7xx_HAL_Driver/Inc',
 ];
 
 export const totalList = {
@@ -143,9 +143,6 @@ export const totalList = {
   asmFiles: asmFiles.sort(),
 };
 suite('ListFiles test', () => {
-  // before(() => {
-  //   vscode.window.showInformationMessage('Start all tests.');
-  // });
   before(() => {
   });
   test('getDirCaseFree', () => {

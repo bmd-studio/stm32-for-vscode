@@ -7,6 +7,7 @@ import path from 'path';
 import _ from 'lodash';
 import shelljs from 'shelljs';
 import { rejects } from 'assert';
+import getOpenOCDTarget from './OpenOcdTargetFiles';
 
 // FIXME: ENOENT on windows appears the .vscode stuff goes somewhere else.
 // Should check for a more vscode based solution for this.
@@ -24,7 +25,7 @@ function getLaunchTask(info) {
     device: 'stlink',
     configFiles: [
       'interface/stlink-v2-1.cfg',
-      `target/${info.targetMCU}.cfg`,
+      `target/${getOpenOCDTarget(info.targetMCU)}.cfg`,
     ],
   };
   return config;

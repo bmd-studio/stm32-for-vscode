@@ -143,6 +143,7 @@ export function sortFiles(fileObj, list) {
  */
 export function getIncludes(headerList) {
   let incList = [];
+
   _.map(headerList, (entry) => {
     const fileName = entry.split('/').pop();
     let incFolder = entry.replace(fileName, '');
@@ -152,10 +153,8 @@ export function getIncludes(headerList) {
     incList.push(incFolder);
   });
   incList = _.uniq(incList);
-
   // should prepend the -I
   incList = _.map(incList, entry => `-I${entry}`);
-
   return incList;
 }
 function convertToRelative(files, loc) {
@@ -226,8 +225,8 @@ export default async function getFileList(location) {
 
     // special addition for windows paths to be added correctly.
     if (platform === 'win32') {
-      _.forEach(initialFileList, (entry, key) => {
-        initialFileList[key] = entry.replace('\\', '/');
+      _.forEach(initialFileList, (entry, ind) => {
+        initialFileList[ind] = entry.replace('\\', '/');
       });
     }
     // should sort files and add them to fileList.

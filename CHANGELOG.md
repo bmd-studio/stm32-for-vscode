@@ -3,13 +3,18 @@
 ## [Unreleased]
 ### Added
   - Add support to use different project types (EWARM, STM32CubeIDE, etc.).
-  - Add support for compilation without generation of the .c/.h peripheral files.
   - Add ability to introduce generated changes from the main.c file into the main.cpp file.
   - Add a separate file for config options, like compiler flags.
   - Add support for unit testing using Google Test and Google Mock.
   - Add support for windows with xpm install.
   - Add support for different programmers.
   - Add support for newer chipsets e.g. G0 and WB for openocd. Config files should be included in current application.
+  - Add dual bank support
+
+## [2.0.2] - 20-10-2019
+### Fixed
+ - Fix addition of main.c on windows machines during a .cpp project
+ - Fix compilation issues when using STM32L031
 
 ### Changed
  - Switch from regular fs to VSCode's workspace fs
