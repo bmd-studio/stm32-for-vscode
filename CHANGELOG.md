@@ -8,10 +8,11 @@
   - Add a separate file for config options, like compiler flags.
   - Add support for unit testing using Google Test and Google Mock.
   - Add support for windows with xpm install.
-### Fixed
- - Fix addition of main.c on windows machines during a .cpp project
- - Fix compilation issues when using STM32L031
+  - Add support for different programmers.
+  - Add support for newer chipsets e.g. G0 and WB for openocd. Config files should be included in current application.
 
+### Changed
+ - Switch from regular fs to VSCode's workspace fs
 
 ## [2.0.1] - 2019-10-15
 ### Fixed
@@ -19,6 +20,7 @@
  - Fixed bug for not writing launch and json files when the .vscode folder was not present.
  - Fixed issue with not showing pop-up for tools on Windows.
  - Fixed path seperators are different on windows, copied style of STM32Cube generated makefile
+ - Fixed issue where sub directories of library files are not added on Windows, because of path seperators
 
 ## [2.0.0] - 2019-10-07
 ### Added
