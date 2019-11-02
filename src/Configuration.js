@@ -25,7 +25,7 @@ function getLaunchTask(info) {
     device: 'stlink',
     configFiles: [
       'interface/stlink-v2-1.cfg',
-      `target/${getOpenOCDTarget(info.targetMCU)}.cfg`,
+      `target/${getOpenOCDTarget(info.targetMCU)}`,
     ],
   };
   return config;
