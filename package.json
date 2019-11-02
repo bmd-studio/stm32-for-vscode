@@ -2,7 +2,7 @@
   "name": "stm32-for-vscode",
   "displayName": "stm32-for-vscode",
   "description": "An extension for: setting up, compiling, uploading and debugging STM32 applications",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "engines": {
     "vscode": "^1.38.0"
   },
@@ -20,7 +20,7 @@
   ],
   "activationEvents": [
     "onCommand:stm32-for-vscode.build",
-    "onCommand:stm32-for-vscode.init",
+    "onCommand:stm32-for-vscode.flash",
     "onCommand:stm32-for-vscode.cleanBuild"
   ],
   "main": "./dist/extension.js",
