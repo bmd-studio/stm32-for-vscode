@@ -11,6 +11,10 @@
   - Add support for newer chipsets e.g. G0 and WB for openocd. Config files should be included in current application.
   - Add dual bank support
 
+## [2.0.5] - 25-11-2019
+### Fixed
+ - Fixed issue where the launch, c_cpp_properties and task files would not be created.
+
 ## [2.0.4] - 02-11-2019
 ### Fixed
  - Fixed issue with clean build on linux (merged fix from Bonnee)
