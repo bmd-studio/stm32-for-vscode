@@ -1,10 +1,14 @@
 /*
  * Created by Jort Band - Bureau Moeilijke Dingen
-*/
+ */
 
 import vscode from 'vscode';
-import { makefileName } from './Definitions';
-import { getInfo } from './Info';
+import {
+  makefileName
+} from './Definitions';
+import {
+  getInfo
+} from './Info';
 import updateMakefile from './UpdateMakefile';
 import updateConfiguration from './Configuration';
 
@@ -13,7 +17,10 @@ let extensionTerminal;
 
 
 export default async function buildSTM(options) {
-  const { flash, cleanBuild } = options || {};
+  const {
+    flash,
+    cleanBuild
+  } = options || {};
   return new Promise(async (resolve) => {
     let currentWorkspaceFolder;
     let info;
@@ -21,8 +28,20 @@ export default async function buildSTM(options) {
       currentWorkspaceFolder = vscode.workspace.workspaceFolders[0].uri.fsPath;
       info = await getInfo(currentWorkspaceFolder);
       await updateMakefile(currentWorkspaceFolder, info);
+      console.log('terminal');
+      console.log(extensionTerminal);
+      console.log(vscode.window.terminals);
       if (!extensionTerminal) {
-        extensionTerminal = vscode.window.createTerminal({ name: 'STM32 for VSCode' });
+        extensionTerminal = vscode.window.createTerminal({
+          name: 'STM32 for VSCode',
+        });
+        console.log('new terminal');
+        console.log(extensionTerminal);
+      } else {
+        extensionTerminal.dispose();
+        extensionTerminal = vscode.window.createTerminal({
+          name: 'STM32 for VSCode',
+        });
       }
       extensionTerminal.show();
       if (cleanBuild) {

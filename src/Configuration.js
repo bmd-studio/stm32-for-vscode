@@ -25,7 +25,7 @@ function getLaunchTask(info) {
     device: 'stlink',
     configFiles: [
       'interface/stlink-v2-1.cfg',
-      `target/${getOpenOCDTarget(info.targetMCU)}.cfg`,
+      `target/${getOpenOCDTarget(info.targetMCU)}`,
     ],
   };
   return config;
@@ -244,7 +244,7 @@ async function checkVscodeFolder(workspaceRoot) {
   return new Promise((resolve, reject) => {
     const vscodeFolderPath = path.resolve(workspaceRoot, './.vscode');
     fs.mkdir(vscodeFolderPath, { recursive: true }, (err) => {
-      if (err.message.indexOf('EEXIST') < 0) {
+      if (err && err.message.indexOf('EEXIST') < 0) {
         reject(err);
         return;
       }
