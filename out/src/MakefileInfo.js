@@ -58,7 +58,8 @@ var makefileInfo = {
   cIncludes: [],
   cxxIncludes: [],
   asIncludes: []
-};
+}; // TODO: move this to getMakefileInfo() or extractMakefileInfo().
+
 /**
  * @description
  * @param {string} location - location of the makefile e.g. /filepath/Makefile
