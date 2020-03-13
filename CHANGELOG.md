@@ -7,9 +7,18 @@
   - Add a separate file for config options, like compiler flags.
   - Add support for unit testing using Google Test and Google Mock.
   - Add support for windows with xpm install.
-  - Add support for different programmers.
+  - Issue #11: Add support for different programmers.
   - Add support for newer chipsets e.g. G0 and WB for openocd. Config files should be included in current application.
   - Add dual bank support
+
+## [2.1.5] - 13-03-2020
+### Fixed
+ - Issue #15: Fixed overwrite off c_cpp_properties and retained added folders.
+ - Make exits before completion. This makes debugger not act on the new file.
+
+### Added
+- Issue #9: Add an .stmignore file for ignoring globs.
+- Automatically ignore files in test and example in the lib folder (using default .stmignore file).
 
 ## [2.0.5] - 25-11-2019
 ### Fixed

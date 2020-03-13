@@ -6,6 +6,12 @@
   "engines": {
     "vscode": "^1.38.0"
   },
+  "license": "MIT",
+  "author": {
+    "name": "Bureau Moeilijke Dingen",
+    "email": "bureau@moeilijkedingen.nl",
+    "url": "https://bmd.studio"
+  },
   "icon": "icon.png",
   "keywords": [
     "STM32",
@@ -21,19 +27,17 @@
   "activationEvents": [
     "onCommand:stm32-for-vscode.build",
     "onCommand:stm32-for-vscode.flash",
-    "onCommand:stm32-for-vscode.cleanBuild"
+    "onCommand:stm32-for-vscode.cleanBuild",
+    "onCommand:stm32-for-vscode.buildTest"
   ],
   "main": "./dist/extension.js",
   "contributes": {
-    "taskDefinitions": [
-      {
-        "type": "STM32",
-        "required": [],
-        "properties": {}
-      }
-    ],
-    "commands": [
-      {
+    "taskDefinitions": [{
+      "type": "STM32",
+      "required": [],
+      "properties": {}
+    }],
+    "commands": [{
         "command": "stm32-for-vscode.build",
         "title": "Build STM32 project"
       },
@@ -44,6 +48,10 @@
       {
         "command": "stm32-for-vscode.cleanBuild",
         "title": "Build clean STM32 project"
+      },
+      {
+        "command": "stm32-for-vscode.buildTest",
+        "title": "Build STM32 tests"
       }
     ],
     "configuration": {
@@ -99,16 +107,21 @@
     "glob": "^7.1.4",
     "mocha": "^6.1.4",
     "sinon": "^7.4.2",
-    "typescript": "^3.3.1",
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.8.3",
     "vscode-test": "^1.2.0",
     "webpack": "^4.39.3",
     "webpack-cli": "^3.3.2"
   },
   "dependencies": {
+    "@types/lodash": "^4.14.149",
+    "cpp-include": "^1.1.1",
+    "ignore": "^5.1.4",
     "json5": "^2.1.0",
     "lodash": "^4.17.15",
     "recursive-readdir": "^2.2.2",
-    "shelljs": "^0.8.3"
+    "shelljs": "^0.8.3",
+    "strip-comments": "^2.0.1"
   },
   "taskDefinitions": {}
 }

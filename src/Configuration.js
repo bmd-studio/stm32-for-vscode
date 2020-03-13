@@ -1,13 +1,43 @@
+/**
+ * MIT License
+ *
+ * Copyright (c) 2020 Bureau Moeilijke Dingen
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 /*
  * Check the current configuration file and adds the option for debug and build tasks.
-*/
-import fs from 'fs';
-import vscode from 'vscode';
+ */
+// import fs from 'fs';
+
+// FIXME: This file is deprecated and should be removed.
+import vscode, {
+  workspace,
+} from 'vscode';
 import path from 'path';
 import _ from 'lodash';
 import shelljs from 'shelljs';
-import { rejects } from 'assert';
 import getOpenOCDTarget from './OpenOcdTargetFiles';
+
+const {
+  fs,
+} = workspace;
 
 // FIXME: ENOENT on windows appears the .vscode stuff goes somewhere else.
 // Should check for a more vscode based solution for this.
@@ -52,6 +82,27 @@ function getBuildTask() {
   return buildTask;
 }
 
+function getCleanBuildTask() {
+  const buildTask = {
+    label: 'Build Clean STM',
+    type: 'process',
+    // eslint-disable-next-line no-template-curly-in-string
+    command: '${command:stm32-for-vscode.cleanBuild}',
+    options: {
+      // eslint-disable-next-line no-template-curly-in-string
+      cwd: '${workspaceRoot}',
+    },
+    group: {
+      kind: 'build',
+      isDefault: true,
+    },
+    problemMatcher: [
+      '$gcc',
+    ],
+  };
+  return buildTask;
+}
+
 function getFlashTask() {
   const flashTask = {
     label: 'Flash STM',
@@ -72,6 +123,7 @@ function getFlashTask() {
   };
   return flashTask;
 }
+
 function updateLaunch(launchPath, err, data, info) {
   let launchJSON = {};
   if (data) {
@@ -99,11 +151,20 @@ function updateLaunch(launchPath, err, data, info) {
     launchJSON.configurations.push(config);
     // if not update the launchJSON
     const jsonString = JSON.stringify(launchJSON, null, 2);
-    fs.writeFile(launchPath, jsonString, { encoding: 'utf8' }, (error) => {
+    const fString = 'foo';
+
+    fs.writeFile(launchPath, Uint8Array.from(jsonString)).then((error) => {
       if (error) {
         vscode.window.showErrorMessage('Something went wrong with writing the launch config', `${error}`);
       }
     });
+    // fs.writeFile(launchPath, jsonString, {
+    //   encoding: 'utf8',
+    // }, (error) => {
+    //   if (error) {
+    //     vscode.window.showErrorMessage('Something went wrong with writing the launch config', `${error}`);
+    //   }
+    // });
   }
 }
 
@@ -118,13 +179,18 @@ function updateTasks(tasksPath, err, data) {
   }
 
   const buildConfig = getBuildTask();
+  const cleanBuildConfig = getCleanBuildTask();
 
   let hasBuildConfig = false;
+  let hasCleanBuildConfig = false;
 
   if (tasksConfig && !_.isEmpty(tasksConfig)) {
     _.map(tasksConfig.tasks, (entry) => {
       if (_.isEqual(buildConfig, entry)) {
         hasBuildConfig = true;
+      }
+      if (_.isEqual(cleanBuildConfig, entry)) {
+        hasCleanBuildConfig = true;
       }
     });
   } else {
@@ -133,6 +199,9 @@ function updateTasks(tasksPath, err, data) {
   }
   if (!hasBuildConfig) {
     tasksConfig.tasks.push(buildConfig);
+  }
+  if (!hasCleanBuildConfig) {
+    tasksConfig.tasks.push(cleanBuildConfig);
   }
 
   const flashConfig = getFlashTask();
@@ -147,7 +216,9 @@ function updateTasks(tasksPath, err, data) {
   }
   if (!hasBuildConfig || !hasFlashConfig) {
     const jsonString = JSON.stringify(tasksConfig, null, 2);
-    fs.writeFile(tasksPath, jsonString, { encoding: 'utf8' }, (error) => {
+    fs.writeFile(tasksPath, jsonString, {
+      encoding: 'utf8',
+    }, (error) => {
       if (error) {
         vscode.window.showErrorMessage('Something went wrong with writing to the tasks.json file', `${error}`);
       }
@@ -186,6 +257,7 @@ function getDefinitions(info) {
   defs = defs.sort();
   return defs;
 }
+
 function getCPropertiesConfig(info) {
   const includePaths = getIncludePaths(info);
   const config = {
@@ -232,7 +304,9 @@ export function updateCProperties(cPropsPath, err, data, info) {
   if (!hasCConfig) {
     cPropsConfig.configurations.push(config);
     const jsonString = JSON.stringify(cPropsConfig, null, 2);
-    fs.writeFile(cPropsPath, jsonString, { encoding: 'utf8' }, (error) => {
+    fs.writeFile(cPropsPath, jsonString, {
+      encoding: 'utf8',
+    }, (error) => {
       if (error) {
         vscode.window.showErrorMessage('Something went wrong with setting the c/c++ properties');
       }
@@ -243,7 +317,9 @@ export function updateCProperties(cPropsPath, err, data, info) {
 async function checkVscodeFolder(workspaceRoot) {
   return new Promise((resolve, reject) => {
     const vscodeFolderPath = path.resolve(workspaceRoot, './.vscode');
-    fs.mkdir(vscodeFolderPath, { recursive: true }, (err) => {
+    fs.mkdir(vscodeFolderPath, {
+      recursive: true,
+    }, (err) => {
       if (err && err.message.indexOf('EEXIST') < 0) {
         reject(err);
         return;
@@ -257,7 +333,18 @@ export default async function updateConfiguration(workspaceRoot, info) {
   const launchPath = path.resolve(workspaceRoot, './.vscode/launch.json');
   const tasksPath = path.resolve(workspaceRoot, './.vscode/tasks.json');
   const cPropsPath = path.resolve(workspaceRoot, './.vscode/c_cpp_properties.json');
-
+  console.log(vscode.workspace.textDocuments);
+  console.log('found files');
+  const files = await vscode.workspace.findFiles('**/.vscode/launch.json');
+  console.log(files);
+  const config = vscode.workspace.getConfiguration('launch', vscode.workspace.workspaceFolders[0].uri);
+  console.log(config);
+  console.log(config.get('configurations'));
+  config.configurations.push({
+    name: 'hello moto',
+    type: 'test',
+  });
+  config.update('configurations', config.configurations);
   return new Promise(async (resolve, reject) => {
     try {
       await checkVscodeFolder(workspaceRoot);
