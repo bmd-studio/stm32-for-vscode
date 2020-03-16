@@ -7,9 +7,11 @@
   - Add a separate file for config options, like compiler flags.
   - Add support for unit testing using Google Test and Google Mock.
   - Add support for windows with xpm install.
+  - Switch osx to xpm installer (do add to path somehow or extract the path from the installation process)
   - Add support for different programmers.
   - Add support for newer chipsets e.g. G0 and WB for openocd. Config files should be included in current application.
   - Add dual bank support
+  - Added debug info for chips not working. 
 
 ## [2.0.5] - 25-11-2019
 ### Fixed
