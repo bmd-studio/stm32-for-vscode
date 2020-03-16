@@ -1,3 +1,26 @@
+/**
+* MIT License
+*
+* Copyright (c) 2020 Bureau Moeilijke Dingen
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the "Software"), to deal
+* in the Software without restriction, including without limitation the rights
+* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included in all
+* copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+* SOFTWARE.
+*/
 /*
  * Set of functions for creating a makefile based on
  * STM32 makefile info and the Src, Inc and Lib folders
@@ -8,6 +31,7 @@ import vscode from 'vscode';
 import getMakefileInfo from './MakefileInfo';
 import getFileList from './ListFiles';
 import getRequirements from './Requirements';
+import { getIgnores, stripIgnoredFiles } from './HandleIgnoredFiles';
 
 const info = {
 };
@@ -74,7 +98,7 @@ export function checkAndConvertCpp(totalInfo) {
     }
     return newInfo;
   }
-  if (!_.isEmpty(info.cxxSoruces)) {
+  if (!_.isEmpty(info.cxxSources)) {
     vscode.window.showWarningMessage('You have several cxx/cpp files, however no main.cpp file. Will ignore these files for now');
   }
   // else it is a C only file, so remove all the C++ files and definitions.
@@ -118,6 +142,7 @@ export function combineInfo(makefileInfo, fileList, requirementInfo) {
   return bundledInfo;
 }
 
+// TODO: update function to work with the workspace URI
 /**
  * @description function for getting all the info combined. After this
  * the info is accesible at the default exported info.
@@ -136,7 +161,12 @@ export async function getInfo(location) {
       let combinedInfo = combineInfo(makefileInfo, fileInfo, requirementInfo);
       combinedInfo = checkAndConvertCpp(combinedInfo);
       _.assignIn(info, combinedInfo);
-      resolve(info);
+      getIgnores(vscode.workspace.workspaceFolders[0].uri).then((ignores) => {
+        info.cSources = stripIgnoredFiles(info.cSources, ignores);
+        info.cxxSources = stripIgnoredFiles(info.cxxSources, ignores);
+        info.asmSources = stripIgnoredFiles(info.asmSources, ignores);
+        resolve(info);
+      });
     }).catch((err) => {
       vscode.window.showErrorMessage('Something went wrong with scanning directories and reading files', err);
       reject(err);
