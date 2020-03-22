@@ -67,6 +67,19 @@ export function activate(context) {
       }
     }),
   );
+  const flashDFUCmd = vscode.commands.registerCommand(
+    'stm32-for-vscode.flashDFU',
+    async () => new Promise(async (resolve, reject) => {
+      try {
+        await buildSTM({
+          flashDFU: true,
+        });
+        resolve();
+      } catch (err) {
+        reject(err);
+      }
+    }),
+  );
   const cleanBuildCmd = vscode.commands.registerCommand(
     'stm32-for-vscode.cleanBuild',
     async () => new Promise(async (resolve, reject) => {
@@ -95,6 +108,7 @@ export function activate(context) {
   );
   context.subscriptions.push(buildCmd);
   context.subscriptions.push(flashCmd);
+  context.subscriptions.push(flashDFUCmd);
   context.subscriptions.push(cleanBuildCmd);
   context.subscriptions.push(buildTest);
 }

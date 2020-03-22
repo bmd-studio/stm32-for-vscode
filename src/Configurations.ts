@@ -76,6 +76,7 @@ function updateTasks(workspacePathUri: Uri) {
   let hasBuildConfig = false;
   let hasCleanBuildConfig = false;
   let hasFlashConfig = false;
+  let hasFlashDFUConfig = false;
   if (tasksConfig && !_.isEmpty(tasksConfig)) {
     _.map(tasksConfig, (entry: object) => {
       if (_.isEqual(buildTasks.buildTask, entry)) {
@@ -86,6 +87,9 @@ function updateTasks(workspacePathUri: Uri) {
       }
       if (_.isEqual(buildTasks.flashTask, entry)) {
         hasFlashConfig = true;
+      }
+      if (_.isEqual(buildTasks.flashDFUTask, entry)) {
+        hasFlashDFUConfig = true;
       }
     });
   }
@@ -99,7 +103,10 @@ function updateTasks(workspacePathUri: Uri) {
   if (!hasFlashConfig) {
     tasksConfig.push(buildTasks.flashTask)
   }
-  if (!hasFlashConfig || !hasCleanBuildConfig || !hasBuildConfig) {
+  if (!hasFlashDFUConfig) {
+    tasksConfig.push(buildTasks.flashDFUTask)
+  }
+  if (!hasFlashConfig || !hasFlashDFUConfig || !hasCleanBuildConfig || !hasBuildConfig) {
     console.log('updating task')
     taskFile.update('tasks', tasksConfig);
   }
