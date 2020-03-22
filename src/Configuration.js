@@ -54,7 +54,7 @@ function getLaunchTask(info) {
     preLaunchTask: 'Build STM',
     device: 'stlink',
     configFiles: [
-      'interface/stlink-v2-1.cfg',
+      'interface/stlink.cfg',
       `target/${getOpenOCDTarget(info.targetMCU)}`,
     ],
   };
