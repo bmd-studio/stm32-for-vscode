@@ -27,6 +27,7 @@
   "activationEvents": [
     "onCommand:stm32-for-vscode.build",
     "onCommand:stm32-for-vscode.flash",
+    "onCommand:stm32-for-vscode.flashDFU",
     "onCommand:stm32-for-vscode.cleanBuild",
     "onCommand:stm32-for-vscode.buildTest"
   ],
@@ -44,6 +45,10 @@
       {
         "command": "stm32-for-vscode.flash",
         "title": "Build and flash to an STM32 platform"
+      },
+      {
+        "command": "stm32-for-vscode.flashDFU",
+        "title": "Build and flash to an STM32 platform using DFU"
       },
       {
         "command": "stm32-for-vscode.cleanBuild",
