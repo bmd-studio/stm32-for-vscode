@@ -70,33 +70,8 @@ export function getFlashTask() {
   return flashTask;
 }
 
-/**
- * Gives the build and flash dfu task for the STM32VScode extension
- */
-export function getFlashDFUTask() {
-  const flashDFUTask = {
-    label: 'Flash STM using DFU',
-    type: 'process',
-    // eslint-disable-next-line no-template-curly-in-string
-    command: '${command:stm32-for-vscode.flashDFU}',
-    options: {
-      // eslint-disable-next-line no-template-curly-in-string
-      cwd: '${workspaceRoot}',
-    },
-    group: {
-      kind: 'build',
-      isDefault: true,
-    },
-    problemMatcher: [
-      '$gcc',
-    ],
-  };
-  return flashDFUTask;
-}
-
 export default {
   buildTask: getBuildTask(),
   cleanBuild: getCleanBuildTask(),
   flashTask: getFlashTask(),
-  flashDFUTask: getFlashDFUTask(),
 }
