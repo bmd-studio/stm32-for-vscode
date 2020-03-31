@@ -54,7 +54,7 @@ function getLaunchTask(info) {
     preLaunchTask: 'Build STM',
     device: 'stlink',
     configFiles: [
-      'interface/stlink-v2-1.cfg',
+      'interface/stlink.cfg',
       `target/${getOpenOCDTarget(info.targetMCU)}`,
     ],
   };
@@ -214,7 +214,18 @@ function updateTasks(tasksPath, err, data) {
   if (!hasFlashConfig) {
     tasksConfig.tasks.push(flashConfig);
   }
-  if (!hasBuildConfig || !hasFlashConfig) {
+
+  const flashDFUConfig = getFlashDFUTask();
+  let hasFlashDFUConfig = false;
+  _.map(tasksConfig.tasks, (entry) => {
+    if (_.isEqual(flashDFUConfig, entry)) {
+      hasFlashDFUConfig = true;
+    }
+  });
+  if (!hasFlashDFUConfig) {
+    tasksConfig.tasks.push(flashDFUConfig);
+  }
+  if (!hasBuildConfig || !hasFlashConfig || !hasFlashDFUConfig) {
     const jsonString = JSON.stringify(tasksConfig, null, 2);
     fs.writeFile(tasksPath, jsonString, {
       encoding: 'utf8',

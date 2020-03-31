@@ -82,6 +82,21 @@
       "problemMatcher": [
         "$gcc"
       ]
+    },
+    {
+      "label": "Flash STM using DFU",
+      "type": "process",
+      "command": "${command:stm32-for-vscode.flashDFU}",
+      "options": {
+        "cwd": "${workspaceRoot}"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": [
+        "$gcc"
+      ]
     }
   ]
 }

@@ -10,6 +10,7 @@
   - Issue #11: Add support for different programmers.
   - Add support for newer chipsets e.g. G0 and WB for openocd. Config files should be included in current application.
   - Add dual bank support
+  - Added debug info for chips not working. 
 
 ## [2.1.5] - 13-03-2020
 ### Fixed
