@@ -42,7 +42,6 @@ import executeTask from './handleTasks';
 export default async function buildSTM(options) {
   const {
     flash,
-    flashDFU,
     cleanBuild,
   } = options || {};
   return new Promise(async (resolve) => {
@@ -57,7 +56,7 @@ export default async function buildSTM(options) {
       if (cleanBuild) {
         await executeTask('build', 'STM32 clean', `make -f ${makefileName} clean`);
       }
-      await executeTask('build', 'STM32 build', `make -f ${makefileName}${flash ? ' flash' : ''}${flashDFU ? ' flash_dfu' : ''}`);
+      await executeTask('build', 'STM32 build', `make -f ${makefileName}${flash ? ' flash' : ''}`);
     } catch (err) {
       window.showErrorMessage(`Something went wrong during the build process: ${err.message}`);
       // vscode.window.

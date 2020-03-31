@@ -214,18 +214,7 @@ function updateTasks(tasksPath, err, data) {
   if (!hasFlashConfig) {
     tasksConfig.tasks.push(flashConfig);
   }
-
-  const flashDFUConfig = getFlashDFUTask();
-  let hasFlashDFUConfig = false;
-  _.map(tasksConfig.tasks, (entry) => {
-    if (_.isEqual(flashDFUConfig, entry)) {
-      hasFlashDFUConfig = true;
-    }
-  });
-  if (!hasFlashDFUConfig) {
-    tasksConfig.tasks.push(flashDFUConfig);
-  }
-  if (!hasBuildConfig || !hasFlashConfig || !hasFlashDFUConfig) {
+  if (!hasBuildConfig || !hasFlashConfig) {
     const jsonString = JSON.stringify(tasksConfig, null, 2);
     fs.writeFile(tasksPath, jsonString, {
       encoding: 'utf8',
