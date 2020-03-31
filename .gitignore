@@ -1,7 +1,17 @@
 
-node_modules
-.vscode
-out
-dist
+node_modules**
+
+\.vscode/extensions.json
+\.vscode/settings.json
+
+.vscode-test/
+
 .DS_Store
-node_modules
+
+dist/**
+
+out/**
+
+node_modules\**
+out
+node_modules/**
