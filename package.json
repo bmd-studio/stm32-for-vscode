@@ -32,12 +32,15 @@
   ],
   "main": "./dist/extension.js",
   "contributes": {
-    "taskDefinitions": [{
-      "type": "STM32",
-      "required": [],
-      "properties": {}
-    }],
-    "commands": [{
+    "taskDefinitions": [
+      {
+        "type": "STM32",
+        "required": [],
+        "properties": {}
+      }
+    ],
+    "commands": [
+      {
         "command": "stm32-for-vscode.build",
         "title": "Build STM32 project"
       },

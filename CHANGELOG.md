@@ -15,6 +15,7 @@
 ### Fixed
  - Issue #15: Fixed overwrite off c_cpp_properties and retained added folders.
  - Make exits before completion. This makes debugger not act on the new file.
+ - Fixed issue where deeper inclusions in Src or Inc did not have forward slash in windows
 
 ### Added
 - Issue #9: Add an .stmignore file for ignoring globs.

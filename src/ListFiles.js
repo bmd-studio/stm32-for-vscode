@@ -166,10 +166,15 @@ export function sortFiles(fileObj, list) {
  */
 export function getIncludes(headerList) {
   let incList = [];
-
+// FIXME: removes it to the total path. Should only remove xxx.h file part
   _.map(headerList, (entry) => {
-    const fileName = entry.split('/').pop();
-    let incFolder = entry.replace(fileName, '');
+    // const fileName = entry.split('/').pop();
+    // let incFolder = entry.replace(fileName, '');
+    let incFolder = path.dirname(entry);
+    if (platform === 'win32') {
+      incFolder = incFolder.replace(/\\/g, '/');
+    }
+    
     if (incFolder.charAt(incFolder.length - 1) === '/') {
       incFolder = incFolder.substring(0, incFolder.length - 1);
     }
@@ -178,6 +183,8 @@ export function getIncludes(headerList) {
   incList = _.uniq(incList);
   // should prepend the -I
   incList = _.map(incList, entry => `-I${entry}`);
+  console.log('inc list');
+  console.log(incList);
   return incList;
 }
 function convertToRelative(files, loc) {
@@ -221,7 +228,7 @@ export default async function getFileList(location) {
     try { // TODO: maybe refactor as it feels double since you also already used the checkForRequiredFiles() function
       const srcFiles = await searchForFiles(`${loc}/${getDirCaseFree('Src', dir)}`);
       const incFiles = await searchForFiles(`${loc}/${getDirCaseFree('Inc', dir)}`);
-      const libFiles = await trySearchforFiles(`${loc}/${getDirCaseFree('Lib', dir)}`); // TODO: is it necessary to create another try as it is already in a try?
+      const libFiles = await trySearchforFiles(`${loc}/${getDirCaseFree('Lib', dir)}`);
       initialFileList = initialFileList.concat(srcFiles);
       initialFileList = initialFileList.concat(incFiles);
       initialFileList = initialFileList.concat(libFiles);
@@ -249,7 +256,7 @@ export default async function getFileList(location) {
     // special addition for windows paths to be added correctly.
     if (platform === 'win32') {
       _.forEach(initialFileList, (entry, ind) => {
-        initialFileList[ind] = entry.replace('\\', '/');
+        initialFileList[ind] = entry.replace(/\\/g, '/');
       });
     }
     // should sort files and add them to fileList.
