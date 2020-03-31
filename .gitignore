@@ -1,5 +1,5 @@
 
-node_modules/**
+node_modules**
 
 \.vscode/extensions.json
 \.vscode/settings.json
@@ -13,5 +13,5 @@ dist/**
 out/**
 
 node_modules\**
-node_modules
 out
+node_modules/**
