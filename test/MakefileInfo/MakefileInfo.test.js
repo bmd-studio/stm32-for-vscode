@@ -72,6 +72,8 @@ const cIncludes = [
   '-IDrivers/CMSIS/Include',
   '-IDrivers/CMSIS/Include',
 ];
+const libs = ['-lc -lm -lnosys'];
+const libdir = [''];
 
 const asmSources = ['startup_stm32h743xx.s'];
 const floatAbi = '-mfloat-abi=hard';
@@ -85,6 +87,8 @@ export const makefileInfoTemplate = {
   floatAbi: '',
   mcu: '',
   ldscript: '',
+  libs: [],
+  libdir: [],
   cSources: [],
   cxxSources: [],
   asmSources: [],
@@ -104,6 +108,8 @@ export const makefileInfoTest = {
   floatAbi,
   mcu: '$(CPU) -mthumb $(FPU) $(FLOAT-ABI)',
   ldscript: 'STM32H743ZITx_FLASH.ld',
+  libs: [],
+  libdir: [],
   cSources,
   cxxSources: [],
   asmSources,
@@ -127,11 +133,12 @@ suite('MakefileInfoTest', () => {
     assert.equal(extractSingleLineInfo('C_SOURCES', testMakefile), ' \\');
     assert.equal(extractSingleLineInfo('PREFIX', testMakefile), 'arm-none-eabi-');
     assert.equal(extractSingleLineInfo('CPU', testMakefile), '-mcpu=cortex-m7');
-    assert.equal(extractSingleLineInfo('LIBS', testMakefile), '-lc -lm -lnosys');
   });
   test('extractMultiLineInfo', () => {
-    assert.deepEqual(extractMultiLineInfo('C_DEFS', testMakefile), ['-DUSE_HAL_DRIVER', '-DSTM32H743xx', '-DUSE_HAL_DRIVER', '-DSTM32H743xx']);
+    assert.deepEqual(extractMultiLineInfo('C_DEFS', testMakefile), cDefs);
     assert.deepEqual(extractMultiLineInfo('c_sources', testMakefile), cSources);
+    assert.deepEqual(extractMultiLineInfo('LIBS', testMakefile), libs);
+    assert.deepEqual(extractMultiLineInfo('LIBDIR', testMakefile), libdir);
     assert.deepEqual(extractMultiLineInfo('target', testMakefile), []);
   });
   test('extractMakefileInfo', () => {
