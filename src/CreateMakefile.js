@@ -185,8 +185,12 @@ CXXFLAGS += -feliminate-unused-debug-types
 LDSCRIPT = ${makeInfo.ldscript}
 
 # libraries
-LIBS = -lc -lm -lnosys 
-LIBDIR = 
+LIBS = ${'\\'}
+${createStringList(makeInfo.libs)}
+
+LIBDIR = ${'\\'}
+${createStringList(makeInfo.libdir)}
+
 LDFLAGS = $(MCU) -specs=nosys.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 # default action: build all
@@ -244,7 +248,7 @@ erase: $(BUILD_DIR)/$(TARGET).elf
 # clean up
 #######################################
 clean:
-\t${platform === 'win32' ? '-rm -fR' : '-rm -fR'} $(BUILD_DIR)
+\t${platform === 'win32' ? '-del /q /s' : '-rm -fR'} $(BUILD_DIR)
 	
 #######################################
 # dependencies

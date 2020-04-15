@@ -51,6 +51,8 @@ export const makefileInfo = {
   floatAbi: '',
   mcu: '',
   ldscript: '',
+  libs: [],
+  libdir: [],
   cSources: [],
   cxxSources: [],
   asmSources: [],
@@ -158,6 +160,12 @@ export function extractMakefileInfo(infoDef, makefile) {
     if (!info || info.length === 0) return;
     if (info.indexOf('\\') !== -1) {
       infoDef[key] = extractMultiLineInfo(makeFileKey, makefile);
+      if (key == "libs") {
+        // Put a colon after each -l
+        infoDef[key].forEach((line, index) => {infoDef[key][index] = "-l:" + line.slice(2)});
+        // There are -l flags on the first line of libs as well, add them back in
+        infoDef[key].unshift(info.replace(/(\s\\$)|(\s.$)/gim, '').trim());
+      }
     } else {
       infoDef[key] = info;
     }

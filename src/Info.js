@@ -123,6 +123,8 @@ export function combineInfo(makefileInfo, fileList, requirementInfo) {
   combineArraysIntoObject(makefileInfo.cIncludes, fileList.cIncludes, 'cIncludes', bundledInfo);
   combineArraysIntoObject(makefileInfo.cxxIncludes, null, 'cxxIncludes', bundledInfo);
   combineArraysIntoObject(makefileInfo.asIncludes, null, 'asIncludes', bundledInfo);
+  combineArraysIntoObject(makefileInfo.libs, null, 'libs', bundledInfo);
+  combineArraysIntoObject(makefileInfo.libdir, null, 'libdir', bundledInfo);
 
   // now assign makelist values
   _.set(bundledInfo, 'target', _.replace(makefileInfo.target, /\s/g, '_'));
@@ -131,6 +133,8 @@ export function combineInfo(makefileInfo, fileList, requirementInfo) {
   _.set(bundledInfo, 'floatAbi', makefileInfo.floatAbi);
   _.set(bundledInfo, 'mcu', makefileInfo.mcu);
   _.set(bundledInfo, 'ldscript', makefileInfo.ldscript);
+  _.set(bundledInfo, 'libs', makefileInfo.libs);
+  _.set(bundledInfo, 'libdir', makefileInfo.libdir);
   _.set(bundledInfo, 'cDefs', makefileInfo.cDefs);
   _.set(bundledInfo, 'cxxDefs', makefileInfo.cxxDefs);
   _.set(bundledInfo, 'asDefs', makefileInfo.asDefs);
