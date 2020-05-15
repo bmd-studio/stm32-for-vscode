@@ -1,3 +1,19 @@
+"use strict";
+
+var _assert = _interopRequireDefault(require("assert"));
+
+var _mocha = require("mocha");
+
+var _lodash = _interopRequireDefault(require("lodash"));
+
+var _CreateMakefile = require("../../src/CreateMakefile");
+
+var _ListFiles = require("../ListFiles/ListFiles.test");
+
+var _MakefileInfo = require("../MakefileInfo/MakefileInfo.test");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
 /**
 * MIT License
 *
@@ -21,22 +37,6 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 */
-"use strict";
-
-var _assert = _interopRequireDefault(require("assert"));
-
-var _mocha = require("mocha");
-
-var _lodash = _interopRequireDefault(require("lodash"));
-
-var _CreateMakefile = require("../../src/CreateMakefile");
-
-var _ListFiles = require("../ListFiles/ListFiles.test");
-
-var _MakefileInfo = require("../MakefileInfo/MakefileInfo.test");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-
 var testList = {
   cFiles: ['1.c', '2.c', '3.c'],
   cxxFiles: ['4.cpp', '5.cpp', '6.cpp', '7.cpp'],

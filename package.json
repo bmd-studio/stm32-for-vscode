@@ -4,7 +4,7 @@
   "description": "An extension for: setting up, compiling, uploading and debugging STM32 applications",
   "version": "2.1.5",
   "engines": {
-    "vscode": "^1.38.0"
+    "vscode": "^1.44.0"
   },
   "license": "MIT",
   "author": {
@@ -75,6 +75,11 @@
           "type": "string",
           "default": "",
           "description": "Path to the GCC Arm Toolchain (prefix arm-none-eabi) to use, will use the one in PATH or the cortex-debug settings as default"
+        },
+        "stm32-for-vscode.openocd-programmer": {
+          "type": "string",
+          "default": "interface/stlink.cfg",
+          "description": "The standard programmer to be used for erasing, flashing and debugging. The standard for STM32 nucleo, discovery and eval boards is: interface/stlink.cfg"
         }
       }
     }
@@ -88,15 +93,18 @@
     "webpack-dev": "webpack --mode development --watch",
     "webpack-test": "webpack --mode development --config webpack.config-test.js",
     "compile-test": "babel test -d out/test --copy-files && babel src -d out/src",
-    "test": "mocha ./out/runTest.js",
+    "test": "node ./out/test/runTest.js",
     "build": "webpack -p",
-    "compile": "webpack --mode development"
+    "compile": "webpack --mode development",
+    "test:jest": "jest"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.0",
     "@babel/core": "^7.6.0",
     "@babel/preset-env": "^7.6.0",
     "@types/glob": "^7.1.1",
+    "@types/jest": "^25.2.1",
+    "@types/jest-cli": "^24.3.0",
     "@types/mocha": "^5.2.6",
     "@types/node": "^10.12.21",
     "@types/vscode": "1.38",
@@ -112,12 +120,13 @@
     "sinon": "^7.4.2",
     "ts-loader": "^6.2.1",
     "typescript": "^3.8.3",
-    "vscode-test": "^1.2.0",
+    "vscode-test": "^1.3.0",
     "webpack": "^4.39.3",
     "webpack-cli": "^3.3.2"
   },
   "dependencies": {
     "@types/lodash": "^4.14.149",
+    "@types/shelljs": "^0.8.7",
     "cpp-include": "^1.1.1",
     "ignore": "^5.1.4",
     "json5": "^2.1.0",

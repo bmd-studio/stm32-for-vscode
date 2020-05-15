@@ -1,26 +1,3 @@
-/**
-* MIT License
-*
-* Copyright (c) 2020 Bureau Moeilijke Dingen
-* 
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-* 
-* The above copyright notice and this permission notice shall be included in all
-* copies or substantial portions of the Software.
-* 
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-* SOFTWARE.
-*/
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -43,6 +20,8 @@ var _MakefileInfo = _interopRequireDefault(require("./MakefileInfo"));
 var _ListFiles = _interopRequireDefault(require("./ListFiles"));
 
 var _Requirements = _interopRequireDefault(require("./Requirements"));
+
+var _HandleIgnoredFiles = require("./HandleIgnoredFiles");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -138,7 +117,7 @@ function checkAndConvertCpp(totalInfo) {
     return newInfo;
   }
 
-  if (!_lodash["default"].isEmpty(info.cxxSoruces)) {
+  if (!_lodash["default"].isEmpty(info.cxxSources)) {
     _vscode["default"].window.showWarningMessage('You have several cxx/cpp files, however no main.cpp file. Will ignore these files for now');
   } // else it is a C only file, so remove all the C++ files and definitions.
 
@@ -165,7 +144,7 @@ function combineInfo(makefileInfo, fileList, requirementInfo) {
   combineArraysIntoObject(makefileInfo.cxxIncludes, null, 'cxxIncludes', bundledInfo);
   combineArraysIntoObject(makefileInfo.asIncludes, null, 'asIncludes', bundledInfo); // now assign makelist values
 
-  _lodash["default"].set(bundledInfo, 'target', makefileInfo.target);
+  _lodash["default"].set(bundledInfo, 'target', _lodash["default"].replace(makefileInfo.target, /\s/g, '_'));
 
   _lodash["default"].set(bundledInfo, 'cpu', makefileInfo.cpu);
 
@@ -191,7 +170,8 @@ function combineInfo(makefileInfo, fileList, requirementInfo) {
   }
 
   return bundledInfo;
-}
+} // TODO: update function to work with the workspace URI
+
 /**
  * @description function for getting all the info combined. After this
  * the info is accesible at the default exported info.
@@ -229,7 +209,12 @@ function _getInfo() {
 
                 _lodash["default"].assignIn(info, combinedInfo);
 
-                resolve(info);
+                (0, _HandleIgnoredFiles.getIgnores)(_vscode["default"].workspace.workspaceFolders[0].uri).then(function (ignores) {
+                  info.cSources = (0, _HandleIgnoredFiles.stripIgnoredFiles)(info.cSources, ignores);
+                  info.cxxSources = (0, _HandleIgnoredFiles.stripIgnoredFiles)(info.cxxSources, ignores);
+                  info.asmSources = (0, _HandleIgnoredFiles.stripIgnoredFiles)(info.asmSources, ignores);
+                  resolve(info);
+                });
               })["catch"](function (err) {
                 _vscode["default"].window.showErrorMessage('Something went wrong with scanning directories and reading files', err);
 

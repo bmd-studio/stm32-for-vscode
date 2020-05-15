@@ -1,7 +1,10 @@
 import * as path from 'path';
-import {TextEncoder} from 'util';
-import {Uri, workspace,} from 'vscode';
+import { TextEncoder } from 'util';
+import { Uri, workspace, } from 'vscode';
 
+
+
+// FIXME: use native implementation of VSCode
 /**
  * Helper function for writing a file in the workspace. Returns a promise
  * @param workspacePathUri Path to the active workspace
@@ -9,7 +12,7 @@ import {Uri, workspace,} from 'vscode';
  * @param file The file that needs to be written
  */
 export function writeFileInWorkspace(
-    workspacePathUri: Uri, filePath: string, file: string) {
+  workspacePathUri: Uri, filePath: string, file: string) {
   const totalPath = path.resolve(workspacePathUri.fsPath, filePath);
   const propertiesUri = Uri.file(totalPath);
   const encoder = new TextEncoder();

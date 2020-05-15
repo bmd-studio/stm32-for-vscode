@@ -32,6 +32,7 @@ import * as path from 'path';
 import { TextEncoder } from 'util';
 import { Uri, workspace, } from 'vscode';
 import { writeFileInWorkspace } from './Helpers'
+import MakeInfo from './types/MakeInfo';
 
 
 
@@ -45,7 +46,7 @@ import buildTasks from './BuildTasksConfig';
  * @param info info gained from the makefile.
  */
 function updateLaunch(
-  workspacePathUri: Uri, info: { targetMCU: string, target: string }) {
+  workspacePathUri: Uri, info: MakeInfo) {
   const launchFile = workspace.getConfiguration('launch', workspacePathUri);
   const launchConfig: object[] = launchFile.get('configurations') || [];
   const config = getLaunchTask(info);
@@ -105,8 +106,7 @@ function updateTasks(workspacePathUri: Uri) {
   }
 }
 
-function getIncludePaths(
-  info: { cIncludes: string[], cxxIncludes: string[], asIncludes: string[] }) {
+function getIncludePaths(info: MakeInfo) {
   const cIncludes = _.map(info.cIncludes, entry => _.replace(entry, '-I', ''));
   const cxxIncludes =
     _.map(info.cxxIncludes, entry => _.replace(entry, '-I', ''));
@@ -129,45 +129,30 @@ function getDefinitions(
   return defs;
 }
 
-function getCPropertiesConfig(info: {
-  cDefs: string[],
-  cxxDefs: string[],
-  asDefs: string[],
-  cIncludes: string[],
-  cxxIncludes: string[],
-  asIncludes: string[],
-  armToolchain: string
-}) {
+function getCPropertiesConfig(info: MakeInfo) {
   const includePaths = getIncludePaths(info);
   const config = {
     name: 'STM32',
     includePath: includePaths,
     defines: getDefinitions(info),
-    compilerPath: (info.armToolchain || '') + 'arm-none-eabi-gcc',
+    compilerPath: (info.tools.armToolchain || '') + 'arm-none-eabi-gcc',
     cStandard: 'c11',
     cppStandard: 'c++11',
   };
   return config;
 }
 
-export async function updateCProperties(workspacePathUri: Uri, info: {
-  cDefs: string[],
-  cxxDefs: string[],
-  asDefs: string[],
-  cIncludes: string[],
-  cxxIncludes: string[],
-  asIncludes: string[],
-  armToolchain: string
-}) {
+export async function updateCProperties(workspacePathUri: Uri, info: MakeInfo) {
   console.log('info', info);
   const c_cppFiles = await workspace.findFiles('**/c_cpp_properties.json');
-  console.log('c_cppFiles', c_cppFiles);
+  console.log('c_cppFiles found files', c_cppFiles);
   let configFile: {
     configurations: { includePath: string[], defines: string[] }[],
     version: number
   } = { configurations: [], version: 4 };
 
   if (c_cppFiles[0]) {
+    console.log('trying to read cpp file', c_cppFiles);
     const tempFile =
       JSON.parse((await workspace.fs.readFile(c_cppFiles[0])).toString());
     console.log('temp file');
