@@ -33,7 +33,7 @@ async function getCurrentMakefile(makefilePath: string): Promise<Error | string>
   return new Promise((resolve, reject) => {
     workspace.fs.readFile(Uri.file(makefilePath)).then((currentMakefile) => {
       if (currentMakefile.length === 0) {
-        reject(new Error('The makefile was not found'))
+        reject(new Error('The makefile was not found'));
         return;
       }
       resolve(currentMakefile.toString());

@@ -31,7 +31,7 @@ import * as _ from 'lodash';
 import * as path from 'path';
 import { TextEncoder } from 'util';
 import { Uri, workspace, } from 'vscode';
-import { writeFileInWorkspace } from './Helpers'
+import { writeFileInWorkspace } from './Helpers';
 import MakeInfo from './types/MakeInfo';
 
 
@@ -98,10 +98,10 @@ function updateTasks(workspacePathUri: Uri) {
     tasksConfig.push(buildTasks.cleanBuild);
   }
   if (!hasFlashConfig) {
-    tasksConfig.push(buildTasks.flashTask)
+    tasksConfig.push(buildTasks.flashTask);
   }
   if (!hasFlashConfig || !hasCleanBuildConfig || !hasBuildConfig) {
-    console.log('updating task')
+    console.log('updating task');
     taskFile.update('tasks', tasksConfig);
   }
 }

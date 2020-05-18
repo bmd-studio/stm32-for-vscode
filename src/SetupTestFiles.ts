@@ -1,9 +1,9 @@
 import * as cppInclude from 'cpp-include';
 import * as fs from 'fs';
-import {Uri, workspace} from 'vscode';
+import { Uri, workspace } from 'vscode';
 
-import {getCmakeTestFile} from './cmakeTestTemplate';
-import {writeFileInWorkspace} from './Helpers'
+import { getCmakeTestFile } from './cmakeTestTemplate';
+import { writeFileInWorkspace } from './Helpers';
 
 import executeTask from './handleTasks';
 import * as path from 'path';
@@ -25,7 +25,7 @@ export default async function setupTestFiles(workspacePathUri: Uri) {
   console.log('starting test setup');
   const foundMainFiles = await workspace.findFiles('**/Test/main.cpp');
   const foundGoogleTestFolder =
-      fs.existsSync(path.resolve(workspacePathUri.fsPath, 'Test/googletest'));
+    fs.existsSync(path.resolve(workspacePathUri.fsPath, 'Test/googletest'));
   console.log(foundMainFiles);
   console.log(foundGoogleTestFolder);
 
@@ -34,7 +34,7 @@ export default async function setupTestFiles(workspacePathUri: Uri) {
     console.log('writing main.cpp to Test/main.cpp');
     try {
       await writeFileInWorkspace(
-          workspacePathUri, './Test/main.cpp', mainCPPFile);
+        workspacePathUri, './Test/main.cpp', mainCPPFile);
     } catch (err) {
       console.error(err);
     }
@@ -44,8 +44,8 @@ export default async function setupTestFiles(workspacePathUri: Uri) {
     // not found should clone the googletest folder
     console.log('trying to clone googletest repo');
     executeTask(
-        'get requirements', 'cloning googletest', `git clone ${googletestRepo}`,
-        path.resolve(workspacePathUri.fsPath, './Test'));
+      'get requirements', 'cloning googletest', `git clone ${googletestRepo}`,
+      path.resolve(workspacePathUri.fsPath, './Test'));
   }
 
   console.log('finding .c* files');
@@ -54,7 +54,7 @@ export default async function setupTestFiles(workspacePathUri: Uri) {
   console.log('test c files', testCxxFiles);
   let includes: string[] = [];
   const fileReadPromises =
-      testCxxFiles.map((fileUri) => { return workspace.fs.readFile(fileUri); });
+    testCxxFiles.map((fileUri) => { return workspace.fs.readFile(fileUri); });
 
   const files = await Promise.all(fileReadPromises);
   console.log(files);

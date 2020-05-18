@@ -85,6 +85,7 @@ export function activate(context: vscode.ExtensionContext) {
     async () => new Promise(async (resolve, reject) => {
       try {
         console.log('setting up tests files');
+        if (!vscode.workspace.workspaceFolders) {throw Error('no workspace folder is open');}
         await setupTestFiles(vscode.workspace.workspaceFolders[0].uri);
         console.log('done setting up');
         resolve();

@@ -51,7 +51,8 @@ export interface BuildFilesList {
   }
 };
 
-async function findFilesInDir(dir: string): Promise<Uri[]> {
+async function findFilesInDir(dir: string | null): Promise<Uri[]> {
+  if (!dir) {return new Promise((resolve) => { resolve([]); });}
   return new Promise((resolve) => {
     workspace.findFiles(`${dir}/**/*.*`).then((files) => {
       resolve(files);
@@ -78,7 +79,7 @@ async function findFilesInDir(dir: string): Promise<Uri[]> {
 export function getDirCaseFree(dirName: string, directories: string[]) {
   const lowerDirName = _.toLower(dirName);
   const index = _.findIndex(directories, (o: string) => (_.toLower(o) === lowerDirName));
-  if (index === -1) return null;
+  if (index === -1) {return null;}
   return directories[index];
 }
 
@@ -120,10 +121,10 @@ export function sortFiles(fileObj: { cxxFiles: string[], headerFiles: string[], 
    * @param {{ split: (arg0: string) => { pop: () => string; }; }} entry
    */
   // Guard assign the key when none exist.
-  if (!fileObj.cxxFiles) _.set(fileObj, 'cxxFiles', []);
-  if (!fileObj.cFiles) _.set(fileObj, 'cFiles', []);
-  if (!fileObj.headerFiles) _.set(fileObj, 'headerFiles', []);
-  if (!fileObj.asmFiles) _.set(fileObj, 'asmFiles', []);
+  if (!fileObj.cxxFiles) {_.set(fileObj, 'cxxFiles', []);}
+  if (!fileObj.cFiles) {_.set(fileObj, 'cFiles', []);}
+  if (!fileObj.headerFiles) {_.set(fileObj, 'headerFiles', []);}
+  if (!fileObj.asmFiles) {_.set(fileObj, 'asmFiles', []);}
 
   _.map(list, (entry) => {
     const extension = _.toLower(entry.split('.').pop());
@@ -188,8 +189,9 @@ function convertToRelative(files: string[], loc: string) {
  */
 export default async function getFileList(location: string): Promise<BuildFilesList> {
   const FileDirectories = ['Src', 'Lib', 'Inc'];
+  if (!workspace.workspaceFolders) {throw Error('No workspace folder found');}
   const workspaceUri = workspace.workspaceFolders[0].uri;
-  return new Promise(async (resolve, reject) => {
+  return new Promise(async (resolve) => {
     let loc = './';
     if (location) {
       loc = location;

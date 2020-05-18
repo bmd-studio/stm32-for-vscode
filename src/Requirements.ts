@@ -26,7 +26,7 @@
  * Functions to check and get the required tools.
  * Created by Jort Band - Bureau Moeilijke Dingen.
  */
-import { window, workspace, env, Uri } from 'vscode';
+import { window, workspace, env, Uri, MessageItem } from 'vscode';
 import * as shelljs from 'shelljs';
 import * as process from 'process';
 import * as  path from 'path';
@@ -81,14 +81,11 @@ const makeDefinition: BuildToolDefinition = {
   folder: false,
   missingMessage: 'Make is missing, please include the path to the make executable e.g. usr/bin/make, install it, or add it to your PATH variable',
   download: {
-    standard: null,
     darwin: 'https://stackoverflow.com/questions/10265742/how-to-install-make-and-gcc-on-a-mac',
-    linux: null,
     windows: 'https://sourceforge.net/projects/gnuwin32/files/make/3.81/make-3.81.exe/download?use_mirror=datapacket&download=',
 
   },
   brewCmd: 'brew install make',
-  aptGetCmd: null,
   requiredByCortexDebug: false,
   configName: 'makePath',
 };
@@ -271,7 +268,7 @@ function checkSingleRequirement(definition: BuildToolDefinition): boolean | stri
 
 function browseAndAddToConfig(definition: BuildToolDefinition) {
   window.showOpenDialog({ canSelectFolders: definition.folder, filters: {} }).then((uri) => {
-    if (!uri || !uri[0]) return;
+    if (!uri || !uri[0]) {return;}
     const toolPathRes = checkToolPath(definition, uri[0].fsPath);
     if (_.isString(toolPathRes)) {
       stm32Config.update(definition.configName, toolPathRes);
@@ -302,6 +299,7 @@ function inputToolPath(definition: BuildToolDefinition): void {
     return null;
   };
   window.showInputBox({ placeHolder: `Path to: ${definition.name}`, validateInput: validation }).then((pathString) => {
+    if (!pathString) {return;}
     if (_.isString(checkToolPath(definition, pathString))) {
       stm32Config.update(definition.configName, pathString);
       checkSingleRequirement(definition);
@@ -324,13 +322,13 @@ function giveWarning(definition: BuildToolDefinition) {
 
 
   // FIXME: Show message does not work if installable is null.
-  window.showWarningMessage(
-    definition.missingMessage,
-    'Get',
-    'Browse',
-    'Input Path',
-    installable ? installMethod : undefined,
-  ).then((selection) => {
+  const installString = installable ? installMethod : null;
+  const optionString: string[] = ['Get', 'Browse', 'Input Path'];
+  if (typeof installString === 'string') {optionString.push(installString);}
+  // const options: MessageItem = [{ title: 'Get', isCloseAffordance: false }]
+  const warningMessage = (typeof installString === 'string') ? window.showWarningMessage(definition.missingMessage, 'Get', 'Browse', 'Input Path', installString) : window.showWarningMessage(definition.missingMessage, 'Get', 'Browse', 'Input Path');
+
+  warningMessage.then((selection: undefined | string) => {
     switch (selection) {
       case 'Get':
         if (_.get(definition.download, platform)) {
@@ -347,6 +345,7 @@ function giveWarning(definition: BuildToolDefinition) {
         break;
       case 'Brew Install':
         {
+          if (!definition.brewCmd) {return;}
           const terminal = window.createTerminal();
           terminal.sendText(definition.brewCmd);
           terminal.show();
@@ -354,6 +353,7 @@ function giveWarning(definition: BuildToolDefinition) {
         break;
       case 'Apt Get':
         {
+          if (!definition.aptGetCmd) {return;}
           const terminal = window.createTerminal();
           terminal.sendText(definition.aptGetCmd);
           terminal.show();

@@ -74,8 +74,8 @@ export async function getMakefile(location: string): Promise<string> {
 export function extractSingleLineInfo(name: string, makefile: string): string {
   const newPatt = new RegExp(`${name}\\s=\\s(.*)`, 'gmi');
   const newRes = newPatt.exec(makefile);
-
-  return _.last(newRes);
+  const result = _.last(newRes);
+  return result ? result : '';
 }
 /**
  * @description Extracts multiline info from a makefile
@@ -119,10 +119,11 @@ export function extractMultiLineInfo(name: string, makefile: string): string[] {
 export function getTargetSTM(cFiles: string[]) {
   const regPattern = /(.*\/)?(.*)x_hal_msp.c/i;
   let output = '';
-  _.map(cFiles, (fileName) => {
+  cFiles.forEach((fileName) => {
     if (regPattern.test(fileName)) {
       const regOut = regPattern.exec(fileName);
-      output = _.last(regOut);
+      const last = _.last(regOut) || '';
+      output = last;
     }
   });
   return output;
@@ -131,12 +132,11 @@ export function getTargetSTM(cFiles: string[]) {
 /**
  * @description loops through an object file and tries to find the relevant documents
  * in the provided makefile
- * @param {object} infoDef - An object containing camelCased key of what should
- * be extracted from the makefile
  * @param {string} makefile - A string representation of the Makefile
  */
-export function extractMakefileInfo(infoDef: any, makefile: string): MakeInfo {
-  _.forEach(infoDef, (entry, key) => {
+export function extractMakefileInfo(makefile: string): MakeInfo {
+  const output = new MakeInfo();
+  _.forEach(output, (_entry, key) => {
     // converts the make file key from camelCase to makefile casing. e.g. from cSources to c_sources
     let makeFileKey = _.replace(_.kebabCase(key), '-', '_');
 
@@ -145,19 +145,17 @@ export function extractMakefileInfo(infoDef: any, makefile: string): MakeInfo {
       makeFileKey = 'float-abi';
     }
     const info = extractSingleLineInfo(makeFileKey, makefile);
-    if (!info || info.length === 0) return;
+    if (!info || info.length === 0) {return;}
     if (info.indexOf('\\') !== -1) {
-      infoDef[key] = extractMultiLineInfo(makeFileKey, makefile);
+      _.set(output, key, extractMultiLineInfo(makeFileKey, makefile));
     } else {
-      infoDef[key] = info;
+      _.set(output, key, info);
     }
   });
-  if (_.isString(infoDef.targetMCU)) {
-    // seperately get the tartgetMCU
-    infoDef.targetMCU = getTargetSTM(infoDef.cSources);
-  }
 
-  return infoDef;
+  // get the targetSTM separately as we need the cSources
+  output.targetMCU = getTargetSTM(output.cSources);
+  return output;
 }
 
 /**
@@ -192,7 +190,7 @@ export default async function getMakefileInfo(location: string): Promise<MakeInf
       return;
     }
     // when the makefile is found, extract the information according to the makefileInfo fields
-    resolve(extractMakefileInfo(makefileInfo, makefile));
+    resolve(extractMakefileInfo(makefile));
   });
 }
 

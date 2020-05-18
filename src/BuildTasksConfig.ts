@@ -74,4 +74,4 @@ export default {
   buildTask: getBuildTask(),
   cleanBuild: getCleanBuildTask(),
   flashTask: getFlashTask(),
-}
+};

@@ -40,7 +40,7 @@ const { platform } = process;
 export function createStringList(arr: string[]) {
   // guard against singular entries.
   if (!_.isArray(arr)) {
-    if (_.isString(arr)) return arr;
+    if (_.isString(arr)) {return arr;}
     return '';
   }
   let output = '';

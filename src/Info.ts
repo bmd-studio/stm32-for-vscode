@@ -33,7 +33,7 @@ import getFileList from './ListFiles';
 import getRequirements from './Requirements';
 import { getIgnores, stripIgnoredFiles } from './HandleIgnoredFiles';
 import MakeInfo, { ToolChain } from './types/MakeInfo';
-const info = {} as MakeInfo;
+const info = new MakeInfo();
 export default info;
 
 export function prependInfo() {
@@ -115,13 +115,16 @@ export function checkAndConvertCpp(totalInfo: MakeInfo) {
 export function combineInfo(makefileInfo: MakeInfo, fileList: { cFiles: string[], cxxFiles: string[], asmFiles: string[], cIncludes: string[] }, requirementInfo: ToolChain): MakeInfo {
   const bundledInfo = {} as MakeInfo;
 
+
+  // TODO: check if cxxIncludes are actually a thing. For now this could be left out as far as I can tell.
+  // TODO: check if asIncludes are actually a thing. For now this could be left out as far as I can tell.
   // Bundling info which both the makeFile and the File list have
   combineArraysIntoObject(makefileInfo.cSources, fileList.cFiles, 'cSources', bundledInfo);
   combineArraysIntoObject(makefileInfo.cxxSources, fileList.cxxFiles, 'cxxSources', bundledInfo);
   combineArraysIntoObject(makefileInfo.asmSources, fileList.asmFiles, 'asmSources', bundledInfo);
   combineArraysIntoObject(makefileInfo.cIncludes, fileList.cIncludes, 'cIncludes', bundledInfo);
-  combineArraysIntoObject(makefileInfo.cxxIncludes, null, 'cxxIncludes', bundledInfo);
-  combineArraysIntoObject(makefileInfo.asIncludes, null, 'asIncludes', bundledInfo);
+  combineArraysIntoObject(makefileInfo.cxxIncludes, [], 'cxxIncludes', bundledInfo);
+  combineArraysIntoObject(makefileInfo.asIncludes, [], 'asIncludes', bundledInfo);
 
   // now assign make list values
   _.set(bundledInfo, 'target', _.replace(makefileInfo.target, /\s/g, '_'));
@@ -156,7 +159,7 @@ export async function getInfo(location: string): Promise<MakeInfo> {
     const makefileInfoPromise = getMakefileInfo(location);
     console.log('getting file list');
     const listFilesInfoPromise = getFileList(location);
-    console.log('getting requirements')
+    console.log('getting requirements');
     const requirementsInfoPromise = getRequirements();
     // TODO: also add a get config in here
     Promise.all([makefileInfoPromise, listFilesInfoPromise, requirementsInfoPromise]).then((values) => {
@@ -167,6 +170,7 @@ export async function getInfo(location: string): Promise<MakeInfo> {
       combinedInfo = checkAndConvertCpp(combinedInfo);
       console.log('combined info', combinedInfo);
       _.assignIn(info, combinedInfo);
+      if (!vscode.workspace.workspaceFolders) {throw Error('No workspace folder was selected');}
       getIgnores(vscode.workspace.workspaceFolders[0].uri).then((ignores: string[]) => {
         info.cSources = stripIgnoredFiles(info.cSources, ignores);
         info.cxxSources = stripIgnoredFiles(info.cxxSources, ignores);

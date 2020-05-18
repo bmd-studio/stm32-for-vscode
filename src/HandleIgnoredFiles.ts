@@ -1,17 +1,17 @@
-import { workspace } from 'vscode'
+import { workspace } from 'vscode';
 import ignore from 'ignore';
 import { writeFileInWorkspace, splitStringLines } from './Helpers';
-import * as stripComments from 'strip-comments';
+import stripComments from 'strip-comments';
 import { Uri } from 'vscode';
-import { ignoreFileName } from './Definitions'
+import { ignoreFileName } from './Definitions';
 
-export function getIgnores(workspacePathUri: Uri) {
-  return new Promise((resolve, reject) => {
+export function getIgnores(workspacePathUri: Uri): Promise<string[]> {
+  return new Promise((resolve) => {
     workspace.findFiles('.stmignore').then(async (files) => {
       if (files.length > 0) {
         console.log('found .stmignore files', files);
         workspace.fs.readFile(files[0]).then((file) => {
-          const ignorePaths =
+          const ignorePaths: string[] =
             splitStringLines(stripComments(file.toString(), {}));
           resolve(ignorePaths);
         });

@@ -49,6 +49,7 @@ export default async function buildSTM(options: { flash?: Boolean, cleanBuild?: 
     let currentWorkspaceFolder;
     let info = {} as MakeInfo;
     try {
+      if (!workspace.workspaceFolders) {throw Error('no workspace folder is open');}
       currentWorkspaceFolder = workspace.workspaceFolders[0].uri.fsPath;
       console.log('getting info');
       info = await getInfo(currentWorkspaceFolder);
@@ -66,6 +67,7 @@ export default async function buildSTM(options: { flash?: Boolean, cleanBuild?: 
     }
 
     try {
+      if (!workspace.workspaceFolders) {throw Error('No workspace folder is open');}
       await updateConfiguration(workspace.workspaceFolders[0].uri, info);
     } catch (err) {
       window.showErrorMessage(`Something went wrong with configuring the workspace. ERROR: ${err}`);

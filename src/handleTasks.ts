@@ -1,5 +1,5 @@
 
-import {ShellExecution, Task, tasks, workspace} from 'vscode';
+import { ShellExecution, Task, tasks, workspace } from 'vscode';
 
 
 
@@ -10,15 +10,15 @@ import {ShellExecution, Task, tasks, workspace} from 'vscode';
  * @param cmd The command to execute within a shell.
  */
 export default function executeTask(
-    type: string, name: string, cmd: string, cwd?: string) {
+  type: string, name: string, cmd: string, cwd?: string) {
   return new Promise((resolve, reject) => {
-    const processExec = new ShellExecution(cmd, cwd ? {cwd} : {});
-
+    const processExec = new ShellExecution(cmd, cwd ? { cwd } : {});
+    if (!workspace.workspaceFolders) {throw Error('no workspace folder is selected');}
     const proccessTask = new Task(
-        {
-            type,
-        },
-        workspace.workspaceFolders[0], name, 'STM32 for VSCode', processExec);
+      {
+        type,
+      },
+      workspace.workspaceFolders[0], name, 'STM32 for VSCode', processExec);
     tasks.executeTask(proccessTask);
     tasks.onDidEndTaskProcess((e: any) => {
       // console.log('onDidEndTask event');
