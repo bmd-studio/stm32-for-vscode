@@ -5,16 +5,16 @@ export interface ToolChainInterface {
   armToolchain: string | boolean,
 }
 
-export interface MakeInfoInterface {
-  cDefs: string[],
-  cxxDefs: string[],
-  asDefs: string[],
+export interface BuildFilesInterface {
   cIncludes: string[],
-  cxxIncludes: string[],
-  asIncludes: string[],
   cSources: string[],
   cxxSources: string[],
   asmSources: string[],
+}
+export interface MakeInfoInterface extends BuildFilesInterface {
+  cDefs: string[],
+  cxxDefs: string[],
+  asDefs: string[],
   tools: ToolChain,
   target: string,
   cpu: string,
@@ -32,14 +32,19 @@ export class ToolChain implements ToolChainInterface {
   armToolchain: string | boolean = false;
   constructor() {}
 }
+export class BuildFiles implements BuildFilesInterface {
+  cIncludes: string[] = [];
+  cSources: string[] = [];
+  cxxSources: string[] = [];
+  asmSources: string[] = [];
+  constructor() {}
+}
 
 export default class MakeInfo implements MakeInfoInterface {
   cDefs: string[] = [];
   cxxDefs: string[] = [];
   asDefs: string[] = [];
   cIncludes:string[] =  [];
-  cxxIncludes:string[] = [];
-  asIncludes:string[] = [];
   cSources:string[] = [];
   cxxSources:string[] = [];
   asmSources:string[] = [];

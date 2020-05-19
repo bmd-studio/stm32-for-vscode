@@ -84,8 +84,6 @@ export const testMakefileInfo: MakeInfo = {
   cxxDefs: [],
   asDefs: [],
   cIncludes,
-  cxxIncludes: [],
-  asIncludes: [],
   cSources: cSources,
   cxxSources: [],
   asmSources,

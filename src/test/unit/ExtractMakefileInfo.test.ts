@@ -65,8 +65,6 @@ suite('MakefileInfoTest', () => {
     assert.deepEqual(output.asmSources, testMakefileInfo.asmSources);
     assert.deepEqual(output.cxxSources, testMakefileInfo.cxxSources);
     assert.deepEqual(output.cSources, testMakefileInfo.cSources);
-    assert.deepEqual(output.asIncludes, testMakefileInfo.asIncludes);
-    assert.deepEqual(output.cxxIncludes, testMakefileInfo.cxxIncludes);
     assert.deepEqual(output.cIncludes, testMakefileInfo.cIncludes);
     assert.deepEqual(output.asDefs, testMakefileInfo.asDefs);
     assert.deepEqual(output.cxxDefs, testMakefileInfo.cxxDefs);

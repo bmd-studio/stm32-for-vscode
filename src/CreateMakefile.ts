@@ -154,7 +154,6 @@ ${createStringList(makeInfo.cDefs)}
 
 # AS includes
 AS_INCLUDES = ${'\\'}
-${createStringList(makeInfo.asIncludes)}
 
 # C includes
 C_INCLUDES =  ${'\\'}
@@ -162,7 +161,7 @@ ${createStringList(makeInfo.cIncludes)}
 
 
 # compile gcc flags
-ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
+ASFLAGS = $(MCU) $(AS_DEFS) $(OPT) -Wall -fdata-sections -ffunction-sections
 
 CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 

@@ -108,11 +108,7 @@ function updateTasks(workspacePathUri: Uri) {
 
 function getIncludePaths(info: MakeInfo) {
   const cIncludes = _.map(info.cIncludes, entry => _.replace(entry, '-I', ''));
-  const cxxIncludes =
-    _.map(info.cxxIncludes, entry => _.replace(entry, '-I', ''));
-  const asmIncludes =
-    _.map(info.asIncludes, entry => _.replace(entry, '-I', ''));
-  let includes = _.concat(cIncludes, cxxIncludes, asmIncludes);
+  let includes = _.concat(cIncludes);
   includes = _.uniq(includes);
   includes = includes.sort();
   return includes;

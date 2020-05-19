@@ -26,30 +26,28 @@ import * as _ from 'lodash';
 import { window, workspace, Uri, FileType } from 'vscode';
 import * as path from 'path';
 import * as process from 'process';
-import MakeInfo from './types/MakeInfo';
+import MakeInfo, {BuildFiles} from './types/MakeInfo';
 
 const { platform } = process;
 
-interface BuildFiles {
-
-}
-
-export interface BuildFilesList {
-  includeDirectories?: string[],
-  cFiles: string[],
-  cxxFiles: string[],
-  headerFiles: string[],
-  asmFiles: string[],
-  cIncludes: string[],
-  testFiles?: {
-    cxxFiles: string[],
-    cfiles: string[],
-    headerFiles: string[],
-    asmFiles: string[],
-    cFiles: string[],
-    includeDirectories: string[],
-  }
-};
+export const REQUIRED_RESOURCES = [
+   {
+    file: 'makefile',
+    warning: 'No Makefile is present, please initialize your project using CubeMX, with the toolchain set to Makefile under the project manager'
+  },
+  {
+    file: 'src',
+    warning: 'No Src directory is present, please initialize your project using CubeMX, with the toolchain set to Makefile under the project manager'
+  },
+  {
+    file: 'inc',
+    warning: 'No Inc directory is present, please initialize your project using CubeMX, with the toolchain set to Makefile under the project manager'
+  },
+  {
+    file: 'drivers',
+    warning: 'No Drivers directory is present, please initialize your project using CubeMX, and under Code Generator make sure that the "Copy all user libraries into the project folder" option is selected.'
+  },
+];
 
 async function findFilesInDir(dir: string | null): Promise<Uri[]> {
   if (!dir) {return new Promise((resolve) => { resolve([]); });}
@@ -74,11 +72,15 @@ async function findFilesInDir(dir: string | null): Promise<Uri[]> {
 
 
 /**
- * @description gets dir ignoring upper or lower case
+ *  Returns the Dirname, with the same spelling as the actual directory, however with correct upper or lower case.
+ * @param dirName Directory name. e.g. src
+ * @param directories Directories on filesystem
+ * @returns directory name e.g for dirName src and directory name Src it will return Src
  */
-export function getDirCaseFree(dirName: string, directories: string[]) {
+export function getDirCaseFree(dirName: string, directories: string[]): string | null {
   const lowerDirName = _.toLower(dirName);
-  const index = _.findIndex(directories, (o: string) => (_.toLower(o) === lowerDirName));
+  // should match ends to the required files
+  const index = _.findIndex(directories, (o: string) => (path.basename(_.toLower(o)) === lowerDirName));
   if (index === -1) {return null;}
   return directories[index];
 }
@@ -90,23 +92,13 @@ export function getDirCaseFree(dirName: string, directories: string[]) {
 export function checkForRequiredFiles(directoryFiles: string[]) {
   // required files/directories are: makefile, Src, Inc and Drivers
   let check = true;
-  if (_.indexOf(directoryFiles, 'Makefile') === -1) {
-    // should show warning
-    window.showWarningMessage('No Makefile is present, please initialize your project using CubeMX, with the Toolchain set to Makefile under the project manager');
-    check = false;
-  }
-  if (!getDirCaseFree('Src', directoryFiles)) {
-    window.showWarningMessage('No Src directory is present, please initialize your project using CubeMX, with the Toolchain set to Makefile under the project manager');
-    check = false;
-  }
-  if (!getDirCaseFree('Inc', directoryFiles)) {
-    window.showWarningMessage('No Inc directory is present, please initialize your project using CubeMX, with the Toolchain set to Makefile under the project manager');
-    check = false;
-  }
-  if (!getDirCaseFree('Drivers', directoryFiles)) {
-    window.showWarningMessage('No Drivers directory is present, please initialize your project using CubeMX, and under Code Generator make sure that the "Copy all user libraries into the project folder" option is selected.');
-    check = false;
-  }
+  REQUIRED_RESOURCES.forEach((entry: {file: string, warning: string}) => {
+    if(getDirCaseFree(entry.file, directoryFiles) === null) {
+      window.showWarningMessage(entry.warning);
+      const res = getDirCaseFree(entry.file, directoryFiles);
+      check = false;
+    }
+  });
   return check;
 }
 
@@ -116,34 +108,33 @@ export function checkForRequiredFiles(directoryFiles: string[]) {
  * @param BuildFilesList fileObj
  * @param {any[]} list
  */
-export function sortFiles(fileObj: { cxxFiles: string[], headerFiles: string[], asmFiles: string[], cFiles: string[] }, list: string[]) {
-  /**
-   * @param {{ split: (arg0: string) => { pop: () => string; }; }} entry
-   */
-  // Guard assign the key when none exist.
-  if (!fileObj.cxxFiles) {_.set(fileObj, 'cxxFiles', []);}
-  if (!fileObj.cFiles) {_.set(fileObj, 'cFiles', []);}
-  if (!fileObj.headerFiles) {_.set(fileObj, 'headerFiles', []);}
-  if (!fileObj.asmFiles) {_.set(fileObj, 'asmFiles', []);}
-
+export function sortFiles(list: string[]): BuildFiles {
+  const output = new BuildFiles();
   _.map(list, (entry) => {
     const extension = _.toLower(entry.split('.').pop());
     if (extension === 'cpp' || extension === 'cxx') {
-      fileObj.cxxFiles.push(entry);
+      output.cxxSources.push(entry);
     } else if (extension === 'c') {
-      fileObj.cFiles.push(entry);
+      output.cSources.push(entry);
     } else if (extension === 'h' || extension === 'hpp') {
-      fileObj.headerFiles.push(entry);
+      output.cIncludes.push(entry);
     } else if (extension === 's') {
-      fileObj.asmFiles.push(entry);
+      output.asmSources.push(entry);
     }
   });
-  _.forEach(fileObj, (entry: string[]) => {
+  console.log({cIncludesBefore: output.cIncludes});
+
+  output.cIncludes = getIncludes(output.cIncludes);
+  // sort arrays and remove possible duplicates.
+  _.forEach(output, (entry, key) => {
     if (_.isArray(entry)) {
+      _.set(entry, key, _.uniq(entry));
       entry.sort();
     }
   });
-  return fileObj;
+
+  console.log({cIncludesAfter: output.cIncludes});
+  return output;
 }
 
 /**
@@ -169,12 +160,11 @@ export function getIncludes(headerList: string[]) {
   incList = _.uniq(incList);
   // should prepend the -I
   incList = _.map(incList, entry => `-I${entry}`);
-  console.log('inc list');
-  console.log(incList);
+  console.log({incList});
   return incList;
 }
 
-function convertToRelative(files: string[], loc: string) {
+export function convertToRelative(files: string[], loc: string) {
   const relativeFiles = _.map(files, (file: string) => path.relative(loc, file));
   return relativeFiles;
 }
@@ -187,7 +177,7 @@ function convertToRelative(files: string[], loc: string) {
  * @description Locates the files in the Src, Inc and Lib folder.
  * @param {string} location - the location of the project, in which it should search for files
  */
-export default async function getFileList(location: string): Promise<BuildFilesList> {
+export default async function getFileList(location: string): Promise<BuildFiles> {
   const FileDirectories = ['Src', 'Lib', 'Inc'];
   if (!workspace.workspaceFolders) {throw Error('No workspace folder found');}
   const workspaceUri = workspace.workspaceFolders[0].uri;
@@ -204,6 +194,11 @@ export default async function getFileList(location: string): Promise<BuildFilesL
     const fileUriProm = FileDirectories.map((dirname: string) => (
       findFilesInDir(getDirCaseFree(dirname, dir)))
     );
+    if(!checkForRequiredFiles(dir)) {
+      throw new Error('Does not have the required files, maybe the project is not properly initialized using CubeMX');
+    }
+
+
     const fileUris = await Promise.all(fileUriProm);
     // converts uris to filesystem paths
     const filePaths = _.flatten(fileUris).map((fileUri) => {
@@ -212,6 +207,7 @@ export default async function getFileList(location: string): Promise<BuildFilesL
 
     const relativeFiles = convertToRelative(filePaths, loc);
 
+
     // special addition for windows paths to be added correctly.
     if (platform === 'win32') {
       _.forEach(relativeFiles, (entry, ind) => {
@@ -219,9 +215,7 @@ export default async function getFileList(location: string): Promise<BuildFilesL
       });
     }
     // should sort files and add them to fileList.
-    const fileList = {} as BuildFilesList;
-    sortFiles(fileList, relativeFiles);
-    fileList.cIncludes = _.cloneDeep(getIncludes(fileList.headerFiles));
+    const fileList = sortFiles(relativeFiles);
     resolve(fileList);
   });
 }
