@@ -24,10 +24,10 @@
 import * as _ from 'lodash';
 // import fsRecursive from 'recursive-readdir';
 import { window, workspace, Uri, FileType } from 'vscode';
-import * as path from 'path';
+import * as pth from 'path';
 import * as process from 'process';
 import MakeInfo, {BuildFiles} from './types/MakeInfo';
-
+const path = pth.posix;
 const { platform } = process;
 
 export const REQUIRED_RESOURCES = [
@@ -122,8 +122,6 @@ export function sortFiles(list: string[]): BuildFiles {
       output.asmSources.push(entry);
     }
   });
-  console.log({cIncludesBefore: output.cIncludes});
-
   output.cIncludes = getIncludes(output.cIncludes);
   // sort arrays and remove possible duplicates.
   _.forEach(output, (entry, key) => {
@@ -132,8 +130,6 @@ export function sortFiles(list: string[]): BuildFiles {
       entry.sort();
     }
   });
-
-  console.log({cIncludesAfter: output.cIncludes});
   return output;
 }
 
@@ -160,12 +156,14 @@ export function getIncludes(headerList: string[]) {
   incList = _.uniq(incList);
   // should prepend the -I
   incList = _.map(incList, entry => `-I${entry}`);
-  console.log({incList});
   return incList;
 }
 
 export function convertToRelative(files: string[], loc: string) {
-  const relativeFiles = _.map(files, (file: string) => path.relative(loc, file));
+  const relativeFiles = _.map(files, (file: string) => {
+    let relative = path.relative(loc , file);
+    return relative;
+  });
   return relativeFiles;
 }
 
@@ -207,8 +205,8 @@ export default async function getFileList(location: string): Promise<BuildFiles>
 
     const relativeFiles = convertToRelative(filePaths, loc);
 
-
-    // special addition for windows paths to be added correctly.
+    // TODO: check if this is required when using the VSCode API
+    // // special addition for windows paths to be added correctly.
     if (platform === 'win32') {
       _.forEach(relativeFiles, (entry, ind) => {
         relativeFiles[ind] = entry.replace(/\\/g, '/');

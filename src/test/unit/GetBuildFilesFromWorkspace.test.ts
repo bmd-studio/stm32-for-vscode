@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import { before, test, suite, afterEach, it } from 'mocha';
 import {expect} from 'chai';
 import {getDirCaseFree, checkForRequiredFiles, sortFiles, getIncludes, convertToRelative, REQUIRED_RESOURCES} from '../../GetBuildFilesFromWorkspace';
-import {FileListWithRandomFiles, cFiles, asmFiles, HeaderFiles, cxxFiles, cIncludes, SortedBuildFiles } from '../fixtures/testFileLists';
+import {FileListWithRandomFiles, SortedBuildFiles } from '../fixtures/testFileLists';
 import * as Sinon from 'sinon';
 import { window } from 'vscode';
 import * as _ from 'lodash';
@@ -46,11 +46,33 @@ suite('GetFilesTest', () => {
     assert.equal(checkForRequiredFiles(files), true);
     assert.equal(warningMsg.callCount, 0);
   });
+  test('convertToRelative', () => {
+    const absolutePaths = [
+      'c:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/Makefile',
+      'c:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/Inc',
+      'c:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/Src/someawesomfolder/awesomecakes.cpp'
+    ];
+    const absolutePathsWithSlashes = [
+      'c:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/Makefile/',
+      'c:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/Inc/',
+      'c:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/Src/someawesomfolder/awesomecakes.cpp'
+    ];
+    const currentWorkspace = 'c:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/';
+    const currentWorkspaceWithoutSlash = 'c:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/';
+    const relativePaths = [
+      'Makefile',
+      'Inc',
+      'Src/someawesomfolder/awesomecakes.cpp',
+    ];
+    //TODO: define behavior for when the string cannot be converted to a relative path to that position.
+    // TODO: check if we need windows conversion or that we can just do it the POSIX way
+    expect(convertToRelative(absolutePaths, currentWorkspaceWithoutSlash)).to.deep.equal(relativePaths);
+    expect(convertToRelative(absolutePaths, currentWorkspace)).to.deep.equal(relativePaths);
+    expect(convertToRelative(absolutePathsWithSlashes, currentWorkspace)).to.deep.equal(relativePaths);
+
+  });
   test('sortFiles', () => {
-    const output = sortFiles(FileListWithRandomFiles);
-    console.log({SortedBuildFiles, output});
-    console.log({SortedBuildFilesIncs: SortedBuildFiles.cIncludes, outputIncs: output.cIncludes});
-    
+    const output = sortFiles(FileListWithRandomFiles);    
     // assert.deepEqual(SortedBuildFiles.cIncludes, output.cIncludes);
     expect(SortedBuildFiles.cIncludes).to.deep.equal(output.cIncludes);
     expect(SortedBuildFiles.cSources).to.deep.equal(output.cSources);
