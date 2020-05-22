@@ -27,11 +27,11 @@ import { window, workspace, Uri, FileType } from 'vscode';
 import * as pth from 'path';
 import * as process from 'process';
 import MakeInfo, {BuildFiles} from './types/MakeInfo';
-const path = pth.posix;
+const path = pth.posix; // did this so everything would be posix.
 const { platform } = process;
 
 export const REQUIRED_RESOURCES = [
-   {
+  {
     file: 'makefile',
     warning: 'No Makefile is present, please initialize your project using CubeMX, with the toolchain set to Makefile under the project manager'
   },
@@ -49,6 +49,10 @@ export const REQUIRED_RESOURCES = [
   },
 ];
 
+/**
+ * Recursively finds files in a directory
+ * @param dir directory to find files in
+ */
 async function findFilesInDir(dir: string | null): Promise<Uri[]> {
   if (!dir) {return new Promise((resolve) => { resolve([]); });}
   return new Promise((resolve) => {
@@ -89,7 +93,7 @@ export function getDirCaseFree(dirName: string, directories: string[]): string |
  * @description Checks if the Makefile, Src, Inc and Drivers directories/files are present.
  * @param {string[] | ArrayLike<string>} directoryFiles
  */
-export function checkForRequiredFiles(directoryFiles: string[]) {
+export function checkForRequiredFiles(directoryFiles: string[]): boolean {
   // required files/directories are: makefile, Src, Inc and Drivers
   let check = true;
   REQUIRED_RESOURCES.forEach((entry: {file: string, warning: string}) => {
@@ -134,32 +138,28 @@ export function sortFiles(list: string[]): BuildFiles {
 }
 
 /**
- * @description creates a list of directories which include headers
+ * @description takes found header files and generates a list of include directories with -I prepended
  * @param {string[]} headerList - list of headerfiles
  */
-export function getIncludes(headerList: string[]) {
+export function getIncludes(headerList: string[]): string[] {
   let incList: string[] = [];
-  // FIXME: removes it to the total path. Should only remove xxx.h file part
   _.map(headerList, (entry) => {
-    // const fileName = entry.split('/').pop();
-    // let incFolder = entry.replace(fileName, '');
     let incFolder = path.dirname(entry);
-    if (platform === 'win32') {
-      incFolder = incFolder.replace(/\\/g, '/');
-    }
-
-    if (incFolder.charAt(incFolder.length - 1) === '/') {
-      incFolder = incFolder.substring(0, incFolder.length - 1);
-    }
     incList.push(incFolder);
   });
   incList = _.uniq(incList);
   // should prepend the -I
   incList = _.map(incList, entry => `-I${entry}`);
+  incList.sort();
   return incList;
 }
 
-export function convertToRelative(files: string[], loc: string) {
+/**
+ * Converts paths to a relative path for a given location
+ * @param files array containing path strings
+ * @param loc location to be used as the relative starting point
+ */
+export function convertToRelative(files: string[], loc: string):string[] {
   const relativeFiles = _.map(files, (file: string) => {
     let relative = path.relative(loc , file);
     return relative;
@@ -178,7 +178,6 @@ export function convertToRelative(files: string[], loc: string) {
 export default async function getFileList(location: string): Promise<BuildFiles> {
   const FileDirectories = ['Src', 'Lib', 'Inc'];
   if (!workspace.workspaceFolders) {throw Error('No workspace folder found');}
-  const workspaceUri = workspace.workspaceFolders[0].uri;
   return new Promise(async (resolve) => {
     let loc = './';
     if (location) {
@@ -196,7 +195,6 @@ export default async function getFileList(location: string): Promise<BuildFiles>
       throw new Error('Does not have the required files, maybe the project is not properly initialized using CubeMX');
     }
 
-
     const fileUris = await Promise.all(fileUriProm);
     // converts uris to filesystem paths
     const filePaths = _.flatten(fileUris).map((fileUri) => {
@@ -205,13 +203,6 @@ export default async function getFileList(location: string): Promise<BuildFiles>
 
     const relativeFiles = convertToRelative(filePaths, loc);
 
-    // TODO: check if this is required when using the VSCode API
-    // // special addition for windows paths to be added correctly.
-    if (platform === 'win32') {
-      _.forEach(relativeFiles, (entry, ind) => {
-        relativeFiles[ind] = entry.replace(/\\/g, '/');
-      });
-    }
     // should sort files and add them to fileList.
     const fileList = sortFiles(relativeFiles);
     resolve(fileList);

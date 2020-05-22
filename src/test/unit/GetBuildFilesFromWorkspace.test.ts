@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import { before, test, suite, afterEach, it } from 'mocha';
 import {expect} from 'chai';
 import {getDirCaseFree, checkForRequiredFiles, sortFiles, getIncludes, convertToRelative, REQUIRED_RESOURCES} from '../../GetBuildFilesFromWorkspace';
-import {FileListWithRandomFiles, SortedBuildFiles } from '../fixtures/testFileLists';
+import {FileListWithRandomFiles, SortedBuildFiles, HeaderFiles } from '../fixtures/testFileLists';
 import * as Sinon from 'sinon';
 import { window } from 'vscode';
 import * as _ from 'lodash';
@@ -65,10 +65,24 @@ suite('GetFilesTest', () => {
       'Src/someawesomfolder/awesomecakes.cpp',
     ];
     //TODO: define behavior for when the string cannot be converted to a relative path to that position.
-    // TODO: check if we need windows conversion or that we can just do it the POSIX way
     expect(convertToRelative(absolutePaths, currentWorkspaceWithoutSlash)).to.deep.equal(relativePaths);
     expect(convertToRelative(absolutePaths, currentWorkspace)).to.deep.equal(relativePaths);
     expect(convertToRelative(absolutePathsWithSlashes, currentWorkspace)).to.deep.equal(relativePaths);
+
+    // test paths that are outside of the relative scope
+    const pathsOutsideWorkspace = ['c:somepath/gcc_arm/arm-none-eabi-gcc', 'c:/somepath/workspace/main.cpp'];
+    const pathsOutsideWorkspaceOutput = ['../../../c:somepath/gcc_arm/arm-none-eabi-gcc', 'main.cpp'];
+    expect(convertToRelative(pathsOutsideWorkspace,'c:/somepath/workspace/' )).to.deep.equal(pathsOutsideWorkspaceOutput);
+
+  });
+  test('includes', () => {
+    const testArr = ['something/otherthing.h', 'c:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/Src/someawesomfolder/thefile.h'];
+    const expectedTestoutput = ['-Ic:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/Src/someawesomfolder','-Isomething'];
+    expect(getIncludes(testArr)).to.deep.equal(expectedTestoutput);
+
+    const output = getIncludes(HeaderFiles);
+    expect(output).to.deep.equal(SortedBuildFiles.cIncludes);
+
 
   });
   test('sortFiles', () => {
