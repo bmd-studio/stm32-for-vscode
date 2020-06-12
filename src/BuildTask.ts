@@ -36,20 +36,25 @@ import {
   getInfo,
 } from './Info';
 import updateMakefile from './UpdateMakefile';
-import updateConfiguration from './Configurations';
+import updateConfiguration from './workspaceConfiguration/WorkspaceConfigurations';
 import executeTask from './handleTasks';
 import MakeInfo from './types/MakeInfo';
 
-export default async function buildSTM(options: { flash?: Boolean, cleanBuild?: Boolean }) {
+export default async function buildSTM(options: { flash?: Boolean, cleanBuild?: Boolean }): Promise<void> {
   const {
     flash,
     cleanBuild,
   } = options || {};
-  return new Promise(async (resolve) => {
+  return new Promise(async (resolve, reject) => {
     let currentWorkspaceFolder;
     let info = {} as MakeInfo;
+    if (!workspace.workspaceFolders) {
+      window.showErrorMessage('No workspace folder is open. Stopped build');
+      reject(Error('no workspace folder is open'));
+      return;
+    }
     try {
-      if (!workspace.workspaceFolders) {throw Error('no workspace folder is open');}
+      
       currentWorkspaceFolder = workspace.workspaceFolders[0].uri.fsPath;
       console.log('getting info');
       info = await getInfo(currentWorkspaceFolder);
@@ -62,15 +67,18 @@ export default async function buildSTM(options: { flash?: Boolean, cleanBuild?: 
       }
       await executeTask('build', 'STM32 build', `make -f ${makefileName}${flash ? ' flash' : ''}`);
     } catch (err) {
-      window.showErrorMessage(`Something went wrong during the build process: ${err}`);
-      // vscode.window.
+      const errMsg = `Something went wrong during the build process: ${err}`;
+      window.showErrorMessage(errMsg);
+      reject(errMsg);
+      return;
     }
 
     try {
-      if (!workspace.workspaceFolders) {throw Error('No workspace folder is open');}
       await updateConfiguration(workspace.workspaceFolders[0].uri, info);
     } catch (err) {
-      window.showErrorMessage(`Something went wrong with configuring the workspace. ERROR: ${err}`);
+      const errorMsg = `Something went wrong with configuring the workspace. ERROR: ${err}`; 
+      window.showErrorMessage(errorMsg);
+      reject(errorMsg);
     }
     resolve();
   });

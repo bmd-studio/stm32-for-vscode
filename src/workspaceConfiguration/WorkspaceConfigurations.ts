@@ -28,25 +28,21 @@
  */
 // import fs from 'fs';
 import * as _ from 'lodash';
-import * as path from 'path';
-import { TextEncoder } from 'util';
 import { Uri, workspace, } from 'vscode';
-import { writeFileInWorkspace } from './Helpers';
-import MakeInfo from './types/MakeInfo';
-
-
+import MakeInfo from '../types/MakeInfo';
 
 // import getOpenOCDTarget from './OpenOcdTargetFiles';
 import getLaunchTask from './LaunchTasksConfig';
 import buildTasks from './BuildTasksConfig';
+import updateCProperties from './CCCPConfig';
 
 /**
  * Function for updating the launch.json file to include debugging information.
  * @param workspacePathUri Path to the active workspace
  * @param info info gained from the makefile.
  */
-function updateLaunch(
-  workspacePathUri: Uri, info: MakeInfo) {
+export function updateLaunch(
+  workspacePathUri: Uri, info: MakeInfo): void {
   const launchFile = workspace.getConfiguration('launch', workspacePathUri);
   const launchConfig: object[] = launchFile.get('configurations') || [];
   const config = getLaunchTask(info);
@@ -69,7 +65,7 @@ function updateLaunch(
  *
  * @param workspacePathUri Path to the active workspace
  */
-function updateTasks(workspacePathUri: Uri) {
+function updateTasks(workspacePathUri: Uri): void {
   const taskFile = workspace.getConfiguration('tasks', workspacePathUri);
   const tasksConfig: object[] = taskFile.get('tasks') || [];
   console.log('taskFile');
@@ -106,92 +102,6 @@ function updateTasks(workspacePathUri: Uri) {
   }
 }
 
-function getIncludePaths(info: MakeInfo) {
-  const cIncludes = _.map(info.cIncludes, entry => _.replace(entry, '-I', ''));
-  let includes = _.concat(cIncludes);
-  includes = _.uniq(includes);
-  includes = includes.sort();
-  return includes;
-}
-
-function getDefinitions(
-  info: { cDefs: string[], cxxDefs: string[], asDefs: string[] }) {
-  const cDefs = _.map(info.cDefs, entry => _.replace(entry, '-D', ''));
-  const cxxDefs = _.map(info.cxxDefs, entry => _.replace(entry, '-D', ''));
-  const asDefs = _.map(info.asDefs, entry => _.replace(entry, '-D', ''));
-  let defs = _.concat(cDefs, cxxDefs, asDefs);
-  defs = _.uniq(defs);
-  defs = defs.sort();
-  return defs;
-}
-
-function getCPropertiesConfig(info: MakeInfo) {
-  const includePaths = getIncludePaths(info);
-  const config = {
-    name: 'STM32',
-    includePath: includePaths,
-    defines: getDefinitions(info),
-    compilerPath: (info.tools.armToolchain || '') + 'arm-none-eabi-gcc',
-    cStandard: 'c11',
-    cppStandard: 'c++11',
-  };
-  return config;
-}
-
-export async function updateCProperties(workspacePathUri: Uri, info: MakeInfo) {
-  console.log('info', info);
-  const c_cppFiles = await workspace.findFiles('**/c_cpp_properties.json');
-  console.log('c_cppFiles found files', c_cppFiles);
-  let configFile: {
-    configurations: { includePath: string[], defines: string[] }[],
-    version: number
-  } = { configurations: [], version: 4 };
-
-  if (c_cppFiles[0]) {
-    console.log('trying to read cpp file', c_cppFiles);
-    const tempFile =
-      JSON.parse((await workspace.fs.readFile(c_cppFiles[0])).toString());
-    console.log('temp file');
-    console.log(tempFile);
-    configFile = tempFile;
-    if (!configFile.configurations) {
-      configFile.configurations = [];
-    }
-  }
-  console.log('current config file', configFile);
-  const cPropsConfig = configFile.configurations;
-  let hasCConfig = false;
-
-  const config = getCPropertiesConfig(info);
-  let index = -1;
-  if (cPropsConfig && !_.isEmpty(cPropsConfig)) {
-    _.map(cPropsConfig, (entry: { name: string }, ind) => {
-      if (_.isEqual(config, entry)) {
-        hasCConfig = true;
-      } else if (config.name === entry.name) {
-        // same but different. Then remove current
-        hasCConfig = true;
-        index = ind;
-      }
-    });
-  }
-
-  if (!hasCConfig) {
-    configFile.configurations.push(config);
-  } else {
-    // should add missing includes
-    console.log('configs');
-    console.log(configFile);
-    configFile.configurations[index].includePath =
-      _.uniq(cPropsConfig[index].includePath.concat(config.includePath));
-    configFile.configurations[index].defines =
-      _.uniq(cPropsConfig[index].defines.concat(config.defines));
-  }
-
-  await writeFileInWorkspace(
-    workspacePathUri, '.vscode/c_cpp_properties.json',
-    JSON.stringify(configFile, null, 2));
-}
 
 export default async function updateConfiguration(
   workspaceRoot: Uri, info: any) {

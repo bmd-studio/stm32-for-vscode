@@ -3,9 +3,9 @@ import * as fs from 'fs';
 import { Uri, workspace } from 'vscode';
 
 import { getCmakeTestFile } from './cmakeTestTemplate';
-import { writeFileInWorkspace } from './Helpers';
+import { writeFileInWorkspace } from '../Helpers';
 
-import executeTask from './handleTasks';
+import executeTask from '../handleTasks';
 import * as path from 'path';
 import * as _ from 'lodash';
 

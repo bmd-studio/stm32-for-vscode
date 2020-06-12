@@ -12,7 +12,7 @@ import { Uri, workspace, } from 'vscode';
  * @param file The file that needs to be written
  */
 export function writeFileInWorkspace(
-  workspacePathUri: Uri, filePath: string, file: string) {
+  workspacePathUri: Uri, filePath: string, file: string): Promise<void | Error> {
   const totalPath = path.resolve(workspacePathUri.fsPath, filePath);
   const propertiesUri = Uri.file(totalPath);
   const encoder = new TextEncoder();
@@ -27,6 +27,6 @@ export function writeFileInWorkspace(
   });
 }
 
-export function splitStringLines(input: string) {
+export function splitStringLines(input: string): string[] {
   return input.split(/\r\n|\r|\n/);
 }

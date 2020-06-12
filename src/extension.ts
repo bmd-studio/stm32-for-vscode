@@ -25,7 +25,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import buildSTM from './BuildTask';
-import setupTestFiles from './SetupTestFiles';
+import setupTestFiles from './testing/SetupTestFiles';
 // // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 
