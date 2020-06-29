@@ -65,11 +65,11 @@ export function updateLaunch(
  *
  * @param workspacePathUri Path to the active workspace
  */
-function updateTasks(workspacePathUri: Uri): void {
+export function updateTasks(workspacePathUri: Uri): void {
   const taskFile = workspace.getConfiguration('tasks', workspacePathUri);
   const tasksConfig: object[] = taskFile.get('tasks') || [];
-  console.log('taskFile');
-  console.log(JSON.stringify(taskFile));
+  // console.log('taskFile');
+  // console.log(JSON.stringify(taskFile));
   let hasBuildConfig = false;
   let hasCleanBuildConfig = false;
   let hasFlashConfig = false;

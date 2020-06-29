@@ -1,7 +1,9 @@
 import getOpenOCDTarget from '../OpenOcdTargetFiles';
+import MakefileInfo from '../types/MakeInfo';
+import {TaskDefinition} from 'vscode';
 
-export default function getLaunchTask(
-  info: {targetMCU: string, target: string}) {
+
+export default function getLaunchTask(info: MakefileInfo):TaskDefinition {
   const config = {
     showDevDebugOutput: true,
     // eslint-disable-next-line no-template-curly-in-string

@@ -1,13 +1,10 @@
 import * as Sinon from 'sinon';
-import {expect, use} from 'chai';
-import * as assert from 'assert';
-import { before, test, suite, afterEach, it } from 'mocha';
-// import { workspace, Uri, WorkspaceFolder, window } from 'vscode';
-import * as chaiAsPromised from 'chai-as-promised';
-import {getDefinitions, getCPropertiesConfig, getIncludePaths, updateCProperties, getWorkspaceConfigFile} from '../../../workspaceConfiguration/CCCPConfig';
+import {expect} from 'chai';
+import { test, suite} from 'mocha';
+import {getDefinitions, getCPropertiesConfig, getIncludePaths, updateCProperties} from '../../../workspaceConfiguration/CCCPConfig';
 import MakeInfo from '../../../types/MakeInfo';
 
-import { Uri, workspace, } from 'vscode';
+import { Uri } from 'vscode';
 import * as helpers from '../../../Helpers';
 import {testMakefileInfo} from '../../fixtures/testSTMCubeMakefile';
 import {newMakeInfo} from '../../fixtures/makeInfoFixture';
@@ -48,9 +45,6 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
       name: 'STM32',
       includePath: ['someInclude/Path', 'Some/other/1nclud3p@th/w1th5omeW135DCh@r$'].sort(),
       defines: ['defSomeC', 'defSomeD', 'efineThis', 'efinethat', 'asDefinition', 'escriptiveDef'].sort(),
-      // compilerPath: 'start/somelocation/arm-none-eabi-gcc',
-      // cStandard: 'c11',
-      // cppStandard: 'c++11',
     };
     const testOutput = getCPropertiesConfig(ingoing);
     testOutput.includePath.sort();

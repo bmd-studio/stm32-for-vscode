@@ -1,7 +1,9 @@
+import { TaskDefinition } from 'vscode';
+
 /**
  * Gives the default build task for the STM32VScode extension
  */
-export function getBuildTask() {
+export function getBuildTask(): TaskDefinition {
   const buildTask = {
     label: 'Build STM',
     type: 'process',
@@ -25,7 +27,7 @@ export function getBuildTask() {
 /**
  * Gives the Clean build task for the STM32VScode extension
  */
-export function getCleanBuildTask() {
+export function getCleanBuildTask(): TaskDefinition {
   const buildTask = {
     label: 'Build Clean STM',
     type: 'process',
@@ -49,7 +51,7 @@ export function getCleanBuildTask() {
 /**
  * Gives the build and flash task for the STM32VScode extension
  */
-export function getFlashTask() {
+export function getFlashTask(): TaskDefinition {
   const flashTask = {
     label: 'Flash STM',
     type: 'process',

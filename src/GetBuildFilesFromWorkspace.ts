@@ -169,8 +169,6 @@ export function convertToRelative(files: string[], loc: string):string[] {
 
 
 
-
-// TODO: refactor this. This can be cleaner and more concise. AKA to much code for functionality
 /**
  * @description Locates the files in the Src, Inc and Lib folder.
  * @param {string} location - the location of the project, in which it should search for files

@@ -2,7 +2,6 @@ import { Uri, workspace, } from 'vscode';
 import * as _ from 'lodash';
 import { writeFileInWorkspace } from '../Helpers';
 import MakeInfo from '../types/MakeInfo';
-import { isBuffer } from 'util';
 
 export interface CCppConfig {
   name: string,

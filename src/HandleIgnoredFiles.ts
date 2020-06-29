@@ -1,23 +1,31 @@
 import { workspace } from 'vscode';
 import ignore from 'ignore';
 import { writeFileInWorkspace, splitStringLines } from './Helpers';
-import stripComments from 'strip-comments';
+const strip = require('strip-comments'); // did require here, because import seems to mess up default export
 import { Uri } from 'vscode';
 import { ignoreFileName } from './Definitions';
+import * as _ from 'lodash';
 
 export function getIgnores(workspacePathUri: Uri): Promise<string[]> {
   return new Promise((resolve) => {
-    workspace.findFiles('.stmignore').then(async (files) => {
+    workspace.findFiles(ignoreFileName).then(async (files) => {
       if (files.length > 0) {
-        console.log('found .stmignore files', files);
         workspace.fs.readFile(files[0]).then((file) => {
-          const ignorePaths: string[] =
-            splitStringLines(stripComments(file.toString(), {}));
-          resolve(ignorePaths);
+          const lines: string[] =
+            splitStringLines(file.toString());
+          const ignoredPaths: string[]= [];
+          lines.map((entry: string) => {
+            const trimmedEntry = _.trim(entry);
+            const commentReg = /#.*/gm;
+            const unCommented = _.trim(trimmedEntry.replace(commentReg, ''));
+            if(!_.isEmpty(unCommented)) {
+              ignoredPaths.push(unCommented);
+            }
+          });
+          resolve(ignoredPaths);
         });
       } else {
         // should add the file
-        // TODO: remove this and use native vscode implementation
         await writeFileInWorkspace(
           workspacePathUri, ignoreFileName,
           '#files that should be ignored by the STM32 For VSCode extension.\n#Use standard .ignore (e.g .gitignore) glob patters\nTest/*\ntest/*\nExamples/*\nexamples/*');
@@ -28,7 +36,7 @@ export function getIgnores(workspacePathUri: Uri): Promise<string[]> {
 }
 
 
-export function stripIgnoredFiles(fileList: string[], ignoredFiles: string[]) {
+export function stripIgnoredFiles(fileList: string[], ignoredFiles: string[]): string[] {
   const ign = ignore().add(ignoredFiles);
   return ign.filter(fileList);
 }
