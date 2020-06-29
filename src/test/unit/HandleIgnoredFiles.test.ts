@@ -27,7 +27,6 @@ suite('Handle ignored files', () => {
     expect(writeFileInWorkspaceFake.calledOnceWith(mockWorkspaceUri, ignoreFileName)).to.be.true;
     return new Promise((resolve) => {resolve();});
   });
-  // TODO: got stuck here fixing this.
   test(`Getting the fileglobs from ${ignoreFileName}`, async () => {
     const findWorkspacefilesFake = Sinon.fake.returns( new Promise((resolve) => { resolve([ignoreFileName]); }));
     const writeFileInWorkspaceFake = Sinon.fake();
@@ -42,5 +41,26 @@ suite('Handle ignored files', () => {
     expect(writeFileInWorkspaceFake.callCount).to.equal(0);
     expect(readFileInWorkspaceFake.calledOnceWith(ignoreFileName)).to.be.true;
     return new Promise((resolve) => {resolve();});
+  });
+  test('ignoring the right files', () => {
+    const fileListInput = [
+      'ignoredDir/fileOne.txt',
+      'ignoredDir/With/Some/DeeplyNestedFile.cpp',
+      'unignoredTopFile.cpp',
+      'localDir/somefile.h',
+      'specificallyIgnoredFile.h',
+      'ignoredDir/other.h',
+      'someOtherOneLevelDeepDir/examples/example1.cpp',
+      'someOtherOneLevelDeepDir/headers/hello.h',
+    ];
+    const fileListOutput = [
+      'unignoredTopFile.cpp',
+      'localDir/somefile.h',
+      'someOtherOneLevelDeepDir/headers/hello.h',
+    ];
+    const globs = ['ignoredDir/**', 'specificallyIgnoredFile.h', 'someOtherOneLevelDeepDir/examples'];
+
+    const processedFileList = stripIgnoredFiles(fileListInput, globs);
+    expect(processedFileList.sort()).to.deep.equal(fileListOutput.sort());
   });
 });
