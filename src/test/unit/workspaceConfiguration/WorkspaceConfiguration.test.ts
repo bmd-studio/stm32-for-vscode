@@ -6,16 +6,13 @@ import { before, test, suite, afterEach, beforeEach } from 'mocha';
 // import { workspace, Uri, WorkspaceFolder, window } from 'vscode';
 import * as chaiAsPromised from 'chai-as-promised';
 import updateConfiguration, { updateLaunch, updateTasks } from '../../../workspaceConfiguration/WorkspaceConfigurations';
-import { Uri, workspace, } from 'vscode';
+import { Uri, workspace, TaskDefinition} from 'vscode';
 import LaunchTestFile from '../../fixtures/launchTaskFixture';
 import { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
 import BuildTasks from '../../fixtures/tasksFixture';
 // import {SinonFake } from '@types/sinon';
 
 use(chaiAsPromised);
-
-// TODO: write tests for Workspace configuration. As of yet it is completely empty.
-
 suite('WorkspaceConfiguration', () => {
   let launchFixtures: {
     getWorkspaceConfigFake: Sinon.SinonSpy;
@@ -26,7 +23,7 @@ suite('WorkspaceConfiguration', () => {
     updateConfigFake: Sinon.fake(),
     getConfigInWorkspaceFake: Sinon.fake(),
   };
-  const setWorkspaceConfigFakeOutput = (output?: []): void => {
+  const setWorkspaceConfigFakeOutput = (output?: TaskDefinition[]): void => {
     launchFixtures.getConfigInWorkspaceFake = Sinon.fake.returns({
       get: launchFixtures.getWorkspaceConfigFake,
       update: launchFixtures.updateConfigFake,
@@ -38,16 +35,12 @@ suite('WorkspaceConfiguration', () => {
         update: launchFixtures.updateConfigFake,
       });
     }
-    // const returningEmptyConfigFake = Sinon.fake.returns(output);
-    // launchFixtures.getWorkspaceConfigFake = returningEmptyConfigFake;
     Sinon.replace(workspace, 'getConfiguration', launchFixtures.getConfigInWorkspaceFake);
   };
 
   beforeEach(() => {
     launchFixtures.getWorkspaceConfigFake = Sinon.fake.returns([LaunchTestFile]);
     launchFixtures.updateConfigFake = Sinon.fake();
-    // Sinon.replace(workspace, 'getConfiguration', launchFixtures.getConfigInWorkspaceFake);
-
   });
   afterEach(() => {
     Sinon.restore();
@@ -86,10 +79,7 @@ suite('WorkspaceConfiguration', () => {
   });
   test('add launch config on empty config', () => {
     setWorkspaceConfigFakeOutput([]);
-    // Sinon.replace(workspace, 'getConfiguration', launchFixtures.getConfigInWorkspaceFake);
 
-    // const returningEmptyConfigFake = Sinon.fake.returns([]);
-    // Sinon.replace(launchFixtures, 'getWorkspaceConfigFake', returningEmptyConfigFake);
     const { getWorkspaceConfigFake, getConfigInWorkspaceFake, updateConfigFake } = launchFixtures;
     const testUri = Uri.file('local');
 
@@ -112,10 +102,25 @@ suite('WorkspaceConfiguration', () => {
     expect(updateConfigFake.calledOnce).to.be.true;
     expect(updateConfigFake.getCall(0).args[1]).to.deep.equal(BuildTasks);
   });
-  test('update tasks', () => {
-
+  test('update tasks when one task is missing', () => {
+    setWorkspaceConfigFakeOutput([BuildTasks[0], BuildTasks[1]]);
+    const { getWorkspaceConfigFake, getConfigInWorkspaceFake, updateConfigFake} = launchFixtures;
+    const testUri = Uri.file('local');
+    updateTasks(testUri);
+    expect(getWorkspaceConfigFake.calledOnce).to.be.true;
+    expect(getConfigInWorkspaceFake.calledOnceWith('tasks', testUri)).to.be.true;
+    expect(updateConfigFake.calledOnce).to.be.true;
+    expect(updateConfigFake.getCall(0).args[1]).to.deep.equal(BuildTasks);
   });
-  test('create new tasks', () => {
-
+  test('add task when similar task is present', () => {
+    const similarTask = { ...BuildTasks[0], device: 'someRandoDevice'};
+    setWorkspaceConfigFakeOutput([similarTask, BuildTasks[1], BuildTasks[2]]);
+    const { getWorkspaceConfigFake, getConfigInWorkspaceFake, updateConfigFake} = launchFixtures;
+    const testUri = Uri.file('local');
+    updateTasks(testUri);
+    expect(getWorkspaceConfigFake.calledOnce).to.be.true;
+    expect(getConfigInWorkspaceFake.calledOnceWith('tasks', testUri)).to.be.true;
+    expect(updateConfigFake.calledOnce).to.be.true;
+    expect(updateConfigFake.getCall(0).args[1]).to.deep.equal([similarTask, BuildTasks[0], BuildTasks[1], BuildTasks[2]]);
   });
 });

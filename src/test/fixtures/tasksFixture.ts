@@ -48,5 +48,5 @@ export const flashSTMTask: TaskDefinition = {
   ],
 };
 
-const STMTasks = [buildSTMTask, buildCleanSTMTask, flashSTMTask];
+const STMTasks: TaskDefinition[] = [buildSTMTask, buildCleanSTMTask, flashSTMTask];
 export default STMTasks;
