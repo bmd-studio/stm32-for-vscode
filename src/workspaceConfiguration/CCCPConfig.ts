@@ -4,17 +4,17 @@ import { writeFileInWorkspace } from '../Helpers';
 import MakeInfo from '../types/MakeInfo';
 
 export interface CCppConfig {
-  name: string,
-  compilerPath?: string,
-  cStandard?: string,
-  cppStandard?: string,
-  includePath: string[],
-  defines: string[],
+  name: string;
+  compilerPath?: string;
+  cStandard?: string;
+  cppStandard?: string;
+  includePath: string[];
+  defines: string[];
 }
 
 export interface CCppProperties {
-  configurations: CCppConfig [],
-  version: number,
+  configurations: CCppConfig[];
+  version: number;
 }
 
 /**
@@ -23,7 +23,7 @@ export interface CCppProperties {
  */
 export function getIncludePaths(info: MakeInfo): string[] {
   // TODO: rethink if -I should be included only in the makefile generation process.
-  const cIncludes = _.map(info.cIncludes, entry => _.replace(entry, '-I', ''));
+  const cIncludes = _.map(info.includes, entry => _.replace(entry, '-I', ''));
   return cIncludes;
 }
 
@@ -32,7 +32,7 @@ export function getIncludePaths(info: MakeInfo): string[] {
  * @param info MakeInfo containing all the info required for building the project
  */
 export function getDefinitions(
-  info: { cDefs: string[], cxxDefs: string[], asDefs: string[] }): string[] {
+  info: { cDefs: string[]; cxxDefs: string[]; asDefs: string[] }): string[] {
   const cDefs = _.map(info.cDefs, entry => _.replace(entry, '-D', ''));
   const cxxDefs = _.map(info.cxxDefs, entry => _.replace(entry, '-D', ''));
   const asDefs = _.map(info.asDefs, entry => _.replace(entry, '-D', ''));
@@ -65,13 +65,13 @@ export function getCPropertiesConfig(info: MakeInfo): CCppConfig {
  */
 export async function getWorkspaceConfigFile(): Promise<null | CCppProperties> {
   return new Promise(async (resolve) => {
-    const c_cppWorkspaceConfigFiles = await workspace.findFiles('**/c_cpp_properties.json');
-    if (c_cppWorkspaceConfigFiles[0]) {
+    const cCppWorkspaceConfigFiles = await workspace.findFiles('**/c_cpp_properties.json');
+    if (cCppWorkspaceConfigFiles[0]) {
       try {
-        const file = (await workspace.fs.readFile(c_cppWorkspaceConfigFiles[0])).toString();
+        const file = (await workspace.fs.readFile(cCppWorkspaceConfigFiles[0])).toString();
         const parsedJSON = JSON.parse(file);
         resolve(parsedJSON);
-      } catch(err)  {
+      } catch (err) {
         resolve(null);
       }
       return;
@@ -94,17 +94,17 @@ export async function updateCProperties(workspacePathUri: Uri, info: MakeInfo): 
     let needsUpdating = false;
     // check for the stm32 configuration and if not there add it.
     const currentConfigFile = await getWorkspaceConfigFile();
-    if(currentConfigFile) {
-    // configFile = defaultCCPPProperties;
+    if (currentConfigFile) {
+      // configFile = defaultCCPPProperties;
       configFile = currentConfigFile;
-      let index = _.findIndex(currentConfigFile.configurations, {name: 'STM32 for VSCode Config'});
-      if(index >= 0) {
+      const index = _.findIndex(currentConfigFile.configurations, { name: 'STM32 for VSCode Config' });
+      if (index >= 0) {
         stmConfigIndex = index;
         stmConfiguration = currentConfigFile.configurations[index];
       } else {
-      // no file has been found and should be added to the configurations
+        // no file has been found and should be added to the configurations
         configFile.configurations.push(stmConfiguration); //push default config
-        stmConfigIndex =  configFile.configurations.length - 1;
+        stmConfigIndex = configFile.configurations.length - 1;
         needsUpdating = true;
       }
     } else {
@@ -121,10 +121,10 @@ export async function updateCProperties(workspacePathUri: Uri, info: MakeInfo): 
     stmConfiguration.includePath = _.uniq(stmConfiguration.includePath.concat(includes)).sort();
     configFile.configurations[stmConfigIndex] = stmConfiguration;
 
-    if(!_.isEqual(stmConfiguration.defines, oldConfig.defines) || !_.isEqual(stmConfiguration.includePath, oldConfig.includePath)) {
+    if (!_.isEqual(stmConfiguration.defines, oldConfig.defines) || !_.isEqual(stmConfiguration.includePath, oldConfig.includePath)) {
       needsUpdating = true;
     }
-    if(!needsUpdating) {
+    if (!needsUpdating) {
       resolve();
       return;
     }
@@ -133,7 +133,7 @@ export async function updateCProperties(workspacePathUri: Uri, info: MakeInfo): 
       JSON.stringify(configFile, null, 2));
     resolve();
   });
-  
+
 }
 
 

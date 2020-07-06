@@ -22,7 +22,7 @@
 * SOFTWARE.
 */
 import * as assert from 'assert';
-import { before, test, suite } from 'mocha';
+import { test, suite } from 'mocha';
 import {
   extractMultiLineInfo, extractSingleLineInfo, extractMakefileInfo, getTargetSTM,
 } from '../../ExtractMakefileInfo';
@@ -30,11 +30,6 @@ import testMakefile, { testMakefileInfo } from '../fixtures/testSTMCubeMakefile'
 import MakeInfo from '../../types/MakeInfo';
 
 suite('MakefileInfoTest', () => {
-  // before(() => {
-  //   vscode.window.showInformationMessage('Start all tests.');
-  // });
-  before(() => {
-  });
   test('extractSingleLineInfo', () => {
     // assert.
     assert.equal(extractSingleLineInfo('target', testMakefile), testMakefileInfo.target);
@@ -53,7 +48,6 @@ suite('MakefileInfoTest', () => {
   });
 
   test('extractAllInfo', () => {
-    const info: MakeInfo = new MakeInfo();
     const output = extractMakefileInfo(testMakefile);
     assert.deepEqual(output.targetMCU, testMakefileInfo.targetMCU);
     assert.deepEqual(output.target, testMakefileInfo.target);
@@ -65,7 +59,7 @@ suite('MakefileInfoTest', () => {
     assert.deepEqual(output.asmSources, testMakefileInfo.asmSources);
     assert.deepEqual(output.cxxSources, testMakefileInfo.cxxSources);
     assert.deepEqual(output.cSources, testMakefileInfo.cSources);
-    assert.deepEqual(output.cIncludes, testMakefileInfo.cIncludes);
+    assert.deepEqual(output.includes, testMakefileInfo.includes);
     assert.deepEqual(output.asDefs, testMakefileInfo.asDefs);
     assert.deepEqual(output.cxxDefs, testMakefileInfo.cxxDefs);
     assert.deepEqual(output.cDefs, testMakefileInfo.cDefs);

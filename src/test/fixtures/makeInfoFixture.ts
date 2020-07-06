@@ -1,13 +1,13 @@
 
 
-import MakeInfo, { ToolChain } from '../../types/MakeInfo';
+import MakeInfo from '../../types/MakeInfo';
 import * as _ from 'lodash';
 export function newMakeInfo(info: Partial<MakeInfo>): MakeInfo {
   const standard: MakeInfo = {
     cDefs: [],
     cxxDefs: [],
     asDefs: [],
-    cIncludes: [],
+    includes: [],
     cSources: [],
     cxxSources: [],
     asmSources: [],

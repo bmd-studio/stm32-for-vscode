@@ -1,25 +1,25 @@
 import * as Sinon from 'sinon';
-import {expect} from 'chai';
-import { test, suite} from 'mocha';
-import {getDefinitions, getCPropertiesConfig, getIncludePaths, updateCProperties} from '../../../workspaceConfiguration/CCCPConfig';
+import { expect } from 'chai';
+import { test, suite } from 'mocha';
+import { getDefinitions, getCPropertiesConfig, getIncludePaths, updateCProperties } from '../../../workspaceConfiguration/CCCPConfig';
 import MakeInfo from '../../../types/MakeInfo';
 
 import { Uri } from 'vscode';
 import * as helpers from '../../../Helpers';
-import {testMakefileInfo} from '../../fixtures/testSTMCubeMakefile';
-import {newMakeInfo} from '../../fixtures/makeInfoFixture';
+import { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
+import { newMakeInfo } from '../../fixtures/makeInfoFixture';
 
 
 suite('CCCPConfig test (c_cpp_properties configuration', () => {
   test('includePath conversion', () => {
     // as include paths start with -I for the makefile, these should be converted back to regular paths
-    const testIncludes =  ['-IsomeInclude/Path', '-ISome/other/1nclud3p@th/w1th5omeW135DCh@r$'];
+    const testIncludes = ['-IsomeInclude/Path', '-ISome/other/1nclud3p@th/w1th5omeW135DCh@r$'];
     const finalIncludes = ['someInclude/Path', 'Some/other/1nclud3p@th/w1th5omeW135DCh@r$'];
-    const info: Partial<MakeInfo> = {cIncludes: testIncludes};
+    const info: Partial<MakeInfo> = { includes: testIncludes };
     expect(getIncludePaths(info as MakeInfo)).to.deep.equal(finalIncludes);
   });
   test('definitionConversion', () => {
-    const testDefs: {cDefs: string[], cxxDefs: string[], asDefs: string[] } = {
+    const testDefs: { cDefs: string[]; cxxDefs: string[]; asDefs: string[] } = {
       cDefs: ['-DdefSomeC', '-DdefSomeD'],
       cxxDefs: ['-DefineThis', '-Definethat'],
       asDefs: ['-DasDefinition', '-DescriptiveDef']
@@ -32,7 +32,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
       cDefs: ['-DdefSomeC', '-DdefSomeD'],
       cxxDefs: ['-DefineThis', '-Definethat'],
       asDefs: ['-DasDefinition', '-DescriptiveDef'],
-      cIncludes: ['-IsomeInclude/Path', '-ISome/other/1nclud3p@th/w1th5omeW135DCh@r$'],
+      includes: ['-IsomeInclude/Path', '-ISome/other/1nclud3p@th/w1th5omeW135DCh@r$'],
       tools: {
         armToolchain: 'start/somelocation/',  //TODO: check if the slash is always added
         openOCD: true,
@@ -65,13 +65,14 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
         configurations: [{
           name: 'STM32',
           includePath: getIncludePaths(testMakefileInfo),
-          defines: getDefinitions(testMakefileInfo),}
+          defines: getDefinitions(testMakefileInfo),
+        }
         ],
         version: 4,
       })
     ));
     Sinon.restore();
-    
+
   });
 
 });

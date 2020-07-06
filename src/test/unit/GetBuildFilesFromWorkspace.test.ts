@@ -1,19 +1,13 @@
 import * as assert from 'assert';
-import { before, test, suite, afterEach, it } from 'mocha';
-import {expect} from 'chai';
-import {getDirCaseFree, checkForRequiredFiles, sortFiles, getIncludes, convertToRelative, REQUIRED_RESOURCES} from '../../GetBuildFilesFromWorkspace';
-import {FileListWithRandomFiles, SortedBuildFiles, HeaderFiles } from '../fixtures/testFileLists';
+import { test, suite, afterEach, it } from 'mocha';
+import { expect } from 'chai';
+import { getDirCaseFree, checkForRequiredFiles, sortFiles, getIncludes, convertToRelative, REQUIRED_RESOURCES } from '../../GetBuildFilesFromWorkspace';
+import { FileListWithRandomFiles, SortedBuildFiles, HeaderFiles } from '../fixtures/testFileLists';
 import * as Sinon from 'sinon';
 import { window } from 'vscode';
-import * as _ from 'lodash';
 
 suite('GetFilesTest', () => {
-  // before(() => {
-  //   vscode.window.showInformationMessage('Start all tests.');
-  // });
-  before(() => {
-  });
-  afterEach(()=>{
+  afterEach(() => {
     Sinon.restore();
   });
   test('GetDirCaseFree', () => {
@@ -72,27 +66,27 @@ suite('GetFilesTest', () => {
     // test paths that are outside of the relative scope
     const pathsOutsideWorkspace = ['c:somepath/gcc_arm/arm-none-eabi-gcc', 'c:/somepath/workspace/main.cpp'];
     const pathsOutsideWorkspaceOutput = ['../../../c:somepath/gcc_arm/arm-none-eabi-gcc', 'main.cpp'];
-    expect(convertToRelative(pathsOutsideWorkspace,'c:/somepath/workspace/' )).to.deep.equal(pathsOutsideWorkspaceOutput);
+    expect(convertToRelative(pathsOutsideWorkspace, 'c:/somepath/workspace/')).to.deep.equal(pathsOutsideWorkspaceOutput);
 
   });
   test('includes', () => {
     const testArr = ['something/otherthing.h', 'c:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/Src/someawesomfolder/thefile.h'];
-    const expectedTestoutput = ['-Ic:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/Src/someawesomfolder','-Isomething'];
+    const expectedTestoutput = ['-Ic:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/Src/someawesomfolder', '-Isomething'];
     expect(getIncludes(testArr)).to.deep.equal(expectedTestoutput);
 
     const output = getIncludes(HeaderFiles);
-    expect(output).to.deep.equal(SortedBuildFiles.cIncludes);
+    expect(output).to.deep.equal(SortedBuildFiles.includes);
 
 
   });
   test('sortFiles', () => {
-    const output = sortFiles(FileListWithRandomFiles);    
+    const output = sortFiles(FileListWithRandomFiles);
     // assert.deepEqual(SortedBuildFiles.cIncludes, output.cIncludes);
-    expect(SortedBuildFiles.cIncludes).to.deep.equal(output.cIncludes);
+    expect(SortedBuildFiles.includes).to.deep.equal(output.includes);
     expect(SortedBuildFiles.cSources).to.deep.equal(output.cSources);
     expect(SortedBuildFiles.cxxSources).to.deep.equal(output.cxxSources);
     expect(SortedBuildFiles.asmSources).to.deep.equal(output.asmSources);
-    expect(SortedBuildFiles.cIncludes).to.deep.equal(output.cIncludes);
+    expect(SortedBuildFiles.includes).to.deep.equal(output.includes);
     expect(SortedBuildFiles).to.deep.equal(output);
   });
 });

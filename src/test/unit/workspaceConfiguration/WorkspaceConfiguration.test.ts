@@ -1,8 +1,7 @@
 
 import * as Sinon from 'sinon';
 import { expect, use } from 'chai';
-import * as assert from 'assert';
-import { before, test, suite, afterEach, beforeEach } from 'mocha';
+import { test, suite, afterEach, beforeEach } from 'mocha';
 // import { workspace, Uri, WorkspaceFolder, window } from 'vscode';
 import * as chaiAsPromised from 'chai-as-promised';
 import updateConfiguration, { updateLaunch, updateTasks } from '../../../workspaceConfiguration/WorkspaceConfigurations';

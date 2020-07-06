@@ -26,7 +26,7 @@
  * Functions to check and get the required tools.
  * Created by Jort Band - Bureau Moeilijke Dingen.
  */
-import { window, workspace, env, Uri, MessageItem } from 'vscode';
+import { window, workspace, env, Uri } from 'vscode';
 import * as shelljs from 'shelljs';
 import * as process from 'process';
 import * as  path from 'path';
@@ -34,23 +34,23 @@ import * as _ from 'lodash';
 import { ToolChain } from './types/MakeInfo';
 
 interface BuildToolDefinition {
-  name: string,
-  standardCmd: string,
-  otherCmds: string[],
-  folder: boolean,
-  missingMessage: string,
+  name: string;
+  standardCmd: string;
+  otherCmds: string[];
+  folder: boolean;
+  missingMessage: string;
   download: {
-    standard?: string,
-    darwin?: string | null,
-    linux?: string | null,
-    windows?: string | null,
-  },
-  brewCmd?: string | null,
-  aptGetCmd?: string | null,
-  winCmd?: string | null,
-  requiredByCortexDebug: boolean,
-  configName: string,
-};
+    standard?: string;
+    darwin?: string | null;
+    linux?: string | null;
+    windows?: string | null;
+  };
+  brewCmd?: string | null;
+  aptGetCmd?: string | null;
+  winCmd?: string | null;
+  requiredByCortexDebug: boolean;
+  configName: string;
+}
 
 
 const { platform } = process;
@@ -133,6 +133,53 @@ function checkInstallMethods(): string | null {
 }
 
 /**
+ * @description Checks if the commands are available in a folder and returns that folder.
+ * @param {object} definition
+ * @param {string} folderPath
+ * @returns {string | boolean}
+ */
+function checkToolFolder(definition: BuildToolDefinition, folderPath: string): boolean | string {
+  if (!definition.folder) {
+    // FIXME: fix cyclic dependency of checkToolFolder and checkToolPath
+    // eslint-disable-next-line @typescript-eslint/no-use-before-define
+    return checkToolPath(definition, folderPath);
+  }
+  const trimmedFolderPath = _.trimEnd(folderPath, '/');
+  if (!folderPath || folderPath === '' || folderPath === './' || trimmedFolderPath === '.') {
+    let hasAll = true;
+    _.forEach(definition.otherCmds, (entry) => {
+      if (!shelljs.which(entry)) {
+        hasAll = false;
+      }
+    });
+    if (hasAll) {
+      return trimmedFolderPath;
+    }
+  }
+
+  if (folderPath && _.isString(folderPath)) {
+    // checks if all the commands are present in a specific folder.
+    const standardGPPPath = path.resolve(folderPath, definition.standardCmd);
+    if (shelljs.which(standardGPPPath)) {
+      return trimmedFolderPath;
+    }
+  }
+
+  if (trimmedFolderPath && _.isString(folderPath)) {
+    const dirUpPath = path.dirname(trimmedFolderPath);
+    const dirUpCmd = path.resolve(dirUpPath, definition.standardCmd);
+    if (shelljs.which(dirUpCmd)) {
+      return dirUpPath;
+    }
+  }
+  // else if not try to go a directory higher
+  if (shelljs.which(definition.standardCmd)) {
+    return path.dirname(definition.standardCmd);
+  }
+  return false;
+}
+
+/**
  * @description Checks for tooling at the specific toolpath and returns the path
  * to the command if available
  * @param {object} definition
@@ -185,50 +232,7 @@ export function checkToolPath(definition: BuildToolDefinition, cmdPath: string):
   // if none of the commands work return false
   return false;
 }
-/**
- * @description Checks if the commands are available in a folder and returns that folder.
- * @param {object} definition
- * @param {string} folderPath
- * @returns {string | boolean}
- */
-function checkToolFolder(definition: BuildToolDefinition, folderPath: string): boolean | string {
-  if (!definition.folder) {
-    return checkToolPath(definition, folderPath);
-  }
-  const trimmedFolderPath = _.trimEnd(folderPath, '/');
-  if (!folderPath || folderPath === '' || folderPath === './' || trimmedFolderPath === '.') {
-    let hasAll = true;
-    _.forEach(definition.otherCmds, (entry) => {
-      if (!shelljs.which(entry)) {
-        hasAll = false;
-      }
-    });
-    if (hasAll) {
-      return trimmedFolderPath;
-    }
-  }
 
-  if (folderPath && _.isString(folderPath)) {
-    // checks if all the commands are present in a specific folder.
-    const standardGPPPath = path.resolve(folderPath, definition.standardCmd);
-    if (shelljs.which(standardGPPPath)) {
-      return trimmedFolderPath;
-    }
-  }
-
-  if (trimmedFolderPath && _.isString(folderPath)) {
-    const dirUpPath = path.dirname(trimmedFolderPath);
-    const dirUpCmd = path.resolve(dirUpPath, definition.standardCmd);
-    if (shelljs.which(dirUpCmd)) {
-      return dirUpPath;
-    }
-  }
-  // else if not try to go a directory higher
-  if (shelljs.which(definition.standardCmd)) {
-    return path.dirname(definition.standardCmd);
-  }
-  return false;
-}
 
 function checkSingleRequirement(definition: BuildToolDefinition): boolean | string {
   const STMToolPath = _.get(stm32Config, definition.configName);
@@ -266,9 +270,9 @@ function checkSingleRequirement(definition: BuildToolDefinition): boolean | stri
   return false;
 }
 
-function browseAndAddToConfig(definition: BuildToolDefinition) {
+function browseAndAddToConfig(definition: BuildToolDefinition): void {
   window.showOpenDialog({ canSelectFolders: definition.folder, filters: {} }).then((uri) => {
-    if (!uri || !uri[0]) {return;}
+    if (!uri || !uri[0]) { return; }
     const toolPathRes = checkToolPath(definition, uri[0].fsPath);
     if (_.isString(toolPathRes)) {
       stm32Config.update(definition.configName, toolPathRes);
@@ -291,7 +295,7 @@ function browseAndAddToConfig(definition: BuildToolDefinition) {
  */
 function inputToolPath(definition: BuildToolDefinition): void {
   // TODO: add validateInput option, to check for appropriate paths
-  const validation = (toolPath: string) => {
+  const validation = (toolPath: string): string | null => {
     const checkedPath = checkToolPath(definition, toolPath);
     if (!checkedPath) {
       return 'The current path does not point to the appropriate tool';
@@ -299,7 +303,7 @@ function inputToolPath(definition: BuildToolDefinition): void {
     return null;
   };
   window.showInputBox({ placeHolder: `Path to: ${definition.name}`, validateInput: validation }).then((pathString) => {
-    if (!pathString) {return;}
+    if (!pathString) { return; }
     if (_.isString(checkToolPath(definition, pathString))) {
       stm32Config.update(definition.configName, pathString);
       checkSingleRequirement(definition);
@@ -307,7 +311,7 @@ function inputToolPath(definition: BuildToolDefinition): void {
   });
 }
 
-function giveWarning(definition: BuildToolDefinition) {
+function giveWarning(definition: BuildToolDefinition): void {
   const installMethod = checkInstallMethods();
   let installable = false;
   if (_.isString(installMethod)) {
@@ -324,7 +328,7 @@ function giveWarning(definition: BuildToolDefinition) {
   // FIXME: Show message does not work if installable is null.
   const installString = installable ? installMethod : null;
   const optionString: string[] = ['Get', 'Browse', 'Input Path'];
-  if (typeof installString === 'string') {optionString.push(installString);}
+  if (typeof installString === 'string') { optionString.push(installString); }
   // const options: MessageItem = [{ title: 'Get', isCloseAffordance: false }]
   const warningMessage = (typeof installString === 'string') ? window.showWarningMessage(definition.missingMessage, 'Get', 'Browse', 'Input Path', installString) : window.showWarningMessage(definition.missingMessage, 'Get', 'Browse', 'Input Path');
 
@@ -345,7 +349,7 @@ function giveWarning(definition: BuildToolDefinition) {
         break;
       case 'Brew Install':
         {
-          if (!definition.brewCmd) {return;}
+          if (!definition.brewCmd) { return; }
           const terminal = window.createTerminal();
           terminal.sendText(definition.brewCmd);
           terminal.show();
@@ -353,7 +357,7 @@ function giveWarning(definition: BuildToolDefinition) {
         break;
       case 'Apt Get':
         {
-          if (!definition.aptGetCmd) {return;}
+          if (!definition.aptGetCmd) { return; }
           const terminal = window.createTerminal();
           terminal.sendText(definition.aptGetCmd);
           terminal.show();
@@ -397,6 +401,6 @@ export default function checkRequirements(): ToolChain {
   });
 }
 
-export function getTools() {
+export function getTools(): {} {
   return tools;
 }

@@ -29,7 +29,6 @@ import MakeInfo from './types/MakeInfo';
 
 
 async function getCurrentMakefile(makefilePath: string): Promise<Error | string> {
-  console.log('trying to read makefile', makefilePath, Uri.file(makefilePath));
   return new Promise((resolve, reject) => {
     workspace.fs.readFile(Uri.file(makefilePath)).then((currentMakefile) => {
       if (currentMakefile.length === 0) {
@@ -44,15 +43,6 @@ async function getCurrentMakefile(makefilePath: string): Promise<Error | string>
 async function writeMakefile(makefilePath: string, makefile: string): Promise<void> {
   return new Promise((resolve) => {
     workspace.fs.writeFile(Uri.file(makefilePath), Buffer.from(makefile, 'utf8')).then(() => { resolve(); });
-
-    //   fs.writeFile(makefilePath, makefile, { encoding: 'utf8' }, (err) => {
-    //     if (err) {
-    //       window.showErrorMessage('Something went wrong with writing to the new makefile', `${err}`);
-    //       reject(err);
-    //       return;
-    //     }
-    //     resolve();
-    //   });
   });
 }
 
@@ -64,7 +54,7 @@ async function writeMakefile(makefilePath: string, makefile: string): Promise<vo
  * @param {{makefile: {}, config: {}}} info object containing the information
  * necessary for compilation
  */
-export default async function updateMakefile(workspaceLocation: string, info: MakeInfo) {
+export default async function updateMakefile(workspaceLocation: string, info: MakeInfo): Promise<Error | string> {
   return new Promise(async (resolve, reject) => {
     const makefilePath = path.resolve(workspaceLocation, makefileName);
     let oldMakefile;

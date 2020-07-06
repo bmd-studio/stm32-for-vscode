@@ -40,7 +40,7 @@ import updateConfiguration from './workspaceConfiguration/WorkspaceConfiguration
 import executeTask from './handleTasks';
 import MakeInfo from './types/MakeInfo';
 
-export default async function buildSTM(options: { flash?: Boolean, cleanBuild?: Boolean }): Promise<void> {
+export default async function buildSTM(options: { flash?: boolean; cleanBuild?: boolean }): Promise<void> {
   const {
     flash,
     cleanBuild,
@@ -54,14 +54,10 @@ export default async function buildSTM(options: { flash?: Boolean, cleanBuild?: 
       return;
     }
     try {
-      
-      currentWorkspaceFolder = workspace.workspaceFolders[0].uri.fsPath;
-      console.log('getting info');
-      info = await getInfo(currentWorkspaceFolder);
-      console.log('finished getting info, updating makefile');
-      await updateMakefile(currentWorkspaceFolder, info);
 
-      console.log('starting build');
+      currentWorkspaceFolder = workspace.workspaceFolders[0].uri.fsPath;
+      info = await getInfo(currentWorkspaceFolder);
+      await updateMakefile(currentWorkspaceFolder, info);
       if (cleanBuild) {
         await executeTask('build', 'STM32 clean', `make -f ${makefileName} clean`);
       }
@@ -76,7 +72,7 @@ export default async function buildSTM(options: { flash?: Boolean, cleanBuild?: 
     try {
       await updateConfiguration(workspace.workspaceFolders[0].uri, info);
     } catch (err) {
-      const errorMsg = `Something went wrong with configuring the workspace. ERROR: ${err}`; 
+      const errorMsg = `Something went wrong with configuring the workspace. ERROR: ${err}`;
       window.showErrorMessage(errorMsg);
       reject(errorMsg);
     }

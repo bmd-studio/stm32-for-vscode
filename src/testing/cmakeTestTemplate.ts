@@ -1,4 +1,4 @@
-export function getCmakeTestFile(cSource: string[], includeDirs: string[]) {
+export function getCmakeTestFile(cSource: string[], includeDirs: string[]): string {
   let includeDirectories = '';
   includeDirs.forEach((entry) => { includeDirectories += `${entry} `; });
   let sources = '';

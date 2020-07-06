@@ -1,9 +1,8 @@
 import buildSTM from '../../BuildTask';
 import * as Sinon from 'sinon';
-import {expect, use} from 'chai';
-import * as assert from 'assert';
-import { before, test, suite, afterEach, it } from 'mocha';
-import { workspace, Uri, WorkspaceFolder, window } from 'vscode';
+import { expect, use } from 'chai';
+import { test, suite, afterEach } from 'mocha';
+import { workspace, WorkspaceFolder, window } from 'vscode';
 import * as chaiAsPromised from 'chai-as-promised';
 use(chaiAsPromised);
 
@@ -15,7 +14,7 @@ suite('MakefileInfoTest', () => {
   });
   test('errorOnNoWorkspace', () => {
     let workspaceFoldersToReAdd: WorkspaceFolder[] | null = null;
-    if(workspace.workspaceFolders) {
+    if (workspace.workspaceFolders) {
       workspaceFoldersToReAdd = workspace.workspaceFolders;
       workspace.updateWorkspaceFolders(0, workspace.workspaceFolders.length);
     }
@@ -23,12 +22,12 @@ suite('MakefileInfoTest', () => {
     Sinon.replace(window, 'showErrorMessage', errorMsg);
 
     expect(buildSTM({})).to.eventually.be.rejected;
-    expect(buildSTM({cleanBuild: true})).to.be.rejected;
-    expect(buildSTM({flash: true})).to.be.rejected;
-    expect(buildSTM({flash: true, cleanBuild: true})).to.be.rejected;
+    expect(buildSTM({ cleanBuild: true })).to.be.rejected;
+    expect(buildSTM({ flash: true })).to.be.rejected;
+    expect(buildSTM({ flash: true, cleanBuild: true })).to.be.rejected;
 
     expect(errorMsg.callCount).to.equal(4);
-    if(workspaceFoldersToReAdd) {
+    if (workspaceFoldersToReAdd) {
       workspaceFoldersToReAdd.forEach((entry) => {
         workspace.updateWorkspaceFolders(0, null, entry);
       });

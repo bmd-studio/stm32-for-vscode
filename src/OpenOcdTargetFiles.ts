@@ -42,7 +42,7 @@ const configFiles = [
   'stm32_stlink.cfg',
 ];
 
-export default function getTargetConfig(target: string) {
+export default function getTargetConfig(target: string): string | boolean {
   const cleanTarget = _.toLower(
     _.trimEnd(
       _.trimEnd(target, 'cfg'),

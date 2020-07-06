@@ -1,10 +1,8 @@
 
-import * as Sinon from 'sinon';
-import {expect, use} from 'chai';
-import * as assert from 'assert';
-import { before, test, suite, afterEach, it } from 'mocha';
+import { expect } from 'chai';
+import { test, suite } from 'mocha';
 import getLaunchTask from '../../../workspaceConfiguration/LaunchTasksConfig';
-import {testMakefileInfo} from '../../fixtures/testSTMCubeMakefile';
+import { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
 import LaunchTestFile from '../../fixtures/launchTaskFixture';
 
 suite('Launch configuration test', () => {

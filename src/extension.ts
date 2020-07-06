@@ -32,7 +32,7 @@ import setupTestFiles from './testing/SetupTestFiles';
 /**
  * @param {vscode.ExtensionContext} context
  */
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext): void {
   // Use the console to output diagnostic information (console.log) and errors
   // (console.error)
   // This line of code will only be executed once when your extension is
@@ -84,10 +84,10 @@ export function activate(context: vscode.ExtensionContext) {
     'stm32-for-vscode.buildTest',
     async () => new Promise(async (resolve, reject) => {
       try {
-        console.log('setting up tests files');
-        if (!vscode.workspace.workspaceFolders) {throw Error('no workspace folder is open');}
+        // console.log('setting up tests files');
+        if (!vscode.workspace.workspaceFolders) { throw Error('no workspace folder is open'); }
         await setupTestFiles(vscode.workspace.workspaceFolders[0].uri);
-        console.log('done setting up');
+        // console.log('done setting up');
         resolve();
       } catch (err) {
         reject(err);
@@ -100,5 +100,5 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(buildTest);
 }
 
-// this method is called when your extension is deactivated
-export function deactivate() { }
+// // this method is called when your extension is deactivated
+// export function deactivate(): void { }

@@ -1,6 +1,7 @@
 import { workspace } from 'vscode';
 import ignore from 'ignore';
 import { writeFileInWorkspace, splitStringLines } from './Helpers';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const strip = require('strip-comments'); // did require here, because import seems to mess up default export
 import { Uri } from 'vscode';
 import { ignoreFileName } from './Definitions';
@@ -13,12 +14,12 @@ export function getIgnores(workspacePathUri: Uri): Promise<string[]> {
         workspace.fs.readFile(files[0]).then((file) => {
           const lines: string[] =
             splitStringLines(file.toString());
-          const ignoredPaths: string[]= [];
+          const ignoredPaths: string[] = [];
           lines.map((entry: string) => {
             const trimmedEntry = _.trim(entry);
             const commentReg = /#.*/gm;
             const unCommented = _.trim(trimmedEntry.replace(commentReg, ''));
-            if(!_.isEmpty(unCommented)) {
+            if (!_.isEmpty(unCommented)) {
               ignoredPaths.push(unCommented);
             }
           });

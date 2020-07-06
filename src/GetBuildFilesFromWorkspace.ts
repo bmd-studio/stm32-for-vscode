@@ -23,12 +23,10 @@
 */
 import * as _ from 'lodash';
 // import fsRecursive from 'recursive-readdir';
-import { window, workspace, Uri, FileType } from 'vscode';
+import { window, workspace, Uri } from 'vscode';
 import * as pth from 'path';
-import * as process from 'process';
-import MakeInfo, {BuildFiles} from './types/MakeInfo';
+import { BuildFiles } from './types/MakeInfo';
 const path = pth.posix; // did this so everything would be posix.
-const { platform } = process;
 
 export const REQUIRED_RESOURCES = [
   {
@@ -54,7 +52,7 @@ export const REQUIRED_RESOURCES = [
  * @param dir directory to find files in
  */
 async function findFilesInDir(dir: string | null): Promise<Uri[]> {
-  if (!dir) {return new Promise((resolve) => { resolve([]); });}
+  if (!dir) { return new Promise((resolve) => { resolve([]); }); }
   return new Promise((resolve) => {
     workspace.findFiles(`${dir}/**/*.*`).then((files) => {
       resolve(files);
@@ -85,7 +83,7 @@ export function getDirCaseFree(dirName: string, directories: string[]): string |
   const lowerDirName = _.toLower(dirName);
   // should match ends to the required files
   const index = _.findIndex(directories, (o: string) => (path.basename(_.toLower(o)) === lowerDirName));
-  if (index === -1) {return null;}
+  if (index === -1) { return null; }
   return directories[index];
 }
 
@@ -96,16 +94,32 @@ export function getDirCaseFree(dirName: string, directories: string[]): string |
 export function checkForRequiredFiles(directoryFiles: string[]): boolean {
   // required files/directories are: makefile, Src, Inc and Drivers
   let check = true;
-  REQUIRED_RESOURCES.forEach((entry: {file: string, warning: string}) => {
-    if(getDirCaseFree(entry.file, directoryFiles) === null) {
+  REQUIRED_RESOURCES.forEach((entry: { file: string; warning: string }) => {
+    if (getDirCaseFree(entry.file, directoryFiles) === null) {
       window.showWarningMessage(entry.warning);
-      const res = getDirCaseFree(entry.file, directoryFiles);
+      // const res = getDirCaseFree(entry.file, directoryFiles);
       check = false;
     }
   });
   return check;
 }
 
+/**
+ * @description takes found header files and generates a list of include directories with -I prepended
+ * @param {string[]} headerList - list of headerfiles
+ */
+export function getIncludes(headerList: string[]): string[] {
+  let incList: string[] = [];
+  _.map(headerList, (entry) => {
+    const incFolder = path.dirname(entry);
+    incList.push(incFolder);
+  });
+  incList = _.uniq(incList);
+  // should prepend the -I
+  incList = _.map(incList, entry => `-I${entry}`);
+  incList.sort();
+  return incList;
+}
 
 /**
  * @description Sorts files according to their extension.
@@ -121,12 +135,12 @@ export function sortFiles(list: string[]): BuildFiles {
     } else if (extension === 'c') {
       output.cSources.push(entry);
     } else if (extension === 'h' || extension === 'hpp') {
-      output.cIncludes.push(entry);
+      output.includes.push(entry);
     } else if (extension === 's') {
       output.asmSources.push(entry);
     }
   });
-  output.cIncludes = getIncludes(output.cIncludes);
+  output.includes = getIncludes(output.includes);
   // sort arrays and remove possible duplicates.
   _.forEach(output, (entry, key) => {
     if (_.isArray(entry)) {
@@ -137,31 +151,16 @@ export function sortFiles(list: string[]): BuildFiles {
   return output;
 }
 
-/**
- * @description takes found header files and generates a list of include directories with -I prepended
- * @param {string[]} headerList - list of headerfiles
- */
-export function getIncludes(headerList: string[]): string[] {
-  let incList: string[] = [];
-  _.map(headerList, (entry) => {
-    let incFolder = path.dirname(entry);
-    incList.push(incFolder);
-  });
-  incList = _.uniq(incList);
-  // should prepend the -I
-  incList = _.map(incList, entry => `-I${entry}`);
-  incList.sort();
-  return incList;
-}
+
 
 /**
  * Converts paths to a relative path for a given location
  * @param files array containing path strings
  * @param loc location to be used as the relative starting point
  */
-export function convertToRelative(files: string[], loc: string):string[] {
+export function convertToRelative(files: string[], loc: string): string[] {
   const relativeFiles = _.map(files, (file: string) => {
-    let relative = path.relative(loc , file);
+    const relative = path.relative(loc, file);
     return relative;
   });
   return relativeFiles;
@@ -175,7 +174,7 @@ export function convertToRelative(files: string[], loc: string):string[] {
  */
 export default async function getFileList(location: string): Promise<BuildFiles> {
   const FileDirectories = ['Src', 'Lib', 'Inc'];
-  if (!workspace.workspaceFolders) {throw Error('No workspace folder found');}
+  if (!workspace.workspaceFolders) { throw Error('No workspace folder found'); }
   return new Promise(async (resolve) => {
     let loc = './';
     if (location) {
@@ -189,7 +188,7 @@ export default async function getFileList(location: string): Promise<BuildFiles>
     const fileUriProm = FileDirectories.map((dirname: string) => (
       findFilesInDir(getDirCaseFree(dirname, dir)))
     );
-    if(!checkForRequiredFiles(dir)) {
+    if (!checkForRequiredFiles(dir)) {
       throw new Error('Does not have the required files, maybe the project is not properly initialized using CubeMX');
     }
 

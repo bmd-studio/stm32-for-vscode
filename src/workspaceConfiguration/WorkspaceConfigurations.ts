@@ -42,7 +42,7 @@ import updateCProperties from './CCCPConfig';
  * @param info info gained from the makefile.
  */
 export function updateLaunch(
-  workspacePathUri: Uri, info: MakeInfo): void {
+  workspacePathUri: Uri, info: MakeInfo): Promise<void> {
   const launchFile = workspace.getConfiguration('launch', workspacePathUri);
   const launchConfig: object[] = launchFile.get('configurations') || [];
   const config = getLaunchTask(info);
@@ -57,15 +57,20 @@ export function updateLaunch(
   if (!hasConfig) {
     launchConfig.push(config);
     // if not update the launchJSON
-    launchFile.update('configurations', launchConfig);
+    return new Promise((resolve) => {
+      launchFile.update('configurations', launchConfig).then(() => {
+        resolve();
+      });
+    });
   }
+  return new Promise((resolve) => { resolve(); });
 }
 
 /**
- *
- * @param workspacePathUri Path to the active workspace
- */
-export function updateTasks(workspacePathUri: Uri): void {
+   *
+   * @param workspacePathUri Path to the active workspace
+   */
+export function updateTasks(workspacePathUri: Uri): Promise<void> {
   const taskFile = workspace.getConfiguration('tasks', workspacePathUri);
   const tasksConfig: object[] = taskFile.get('tasks') || [];
   // console.log('taskFile');
@@ -97,15 +102,27 @@ export function updateTasks(workspacePathUri: Uri): void {
     tasksConfig.push(buildTasks.flashTask);
   }
   if (!hasFlashConfig || !hasCleanBuildConfig || !hasBuildConfig) {
-    console.log('updating task');
-    taskFile.update('tasks', tasksConfig);
+    return new Promise((resolve) => {
+      taskFile.update('tasks', tasksConfig).then(() => {
+        resolve();
+      });
+    });
   }
+  return new Promise((resolve) => { resolve(); });
 }
 
 
 export default async function updateConfiguration(
-  workspaceRoot: Uri, info: any) {
-  updateLaunch(workspaceRoot, info);
-  updateTasks(workspaceRoot);
-  updateCProperties(workspaceRoot, info);
-};
+  workspaceRoot: Uri, info: MakeInfo): Promise<void> {
+  const tasks: Promise<void>[] = [];
+
+  tasks.push(updateLaunch(workspaceRoot, info));
+  tasks.push(updateTasks(workspaceRoot));
+  tasks.push(updateCProperties(workspaceRoot, info));
+  return new Promise((resolve) => {
+    Promise.all(tasks).then(() => {
+      resolve();
+    });
+  });
+
+}

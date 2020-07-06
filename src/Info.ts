@@ -35,11 +35,6 @@ import { getIgnores, stripIgnoredFiles } from './HandleIgnoredFiles';
 import MakeInfo, { ToolChain, BuildFiles } from './types/MakeInfo';
 const info = new MakeInfo();
 export default info;
-
-export function prependInfo() {
-
-}
-
 /**
  *
  * @param {string[] | object} arr1
@@ -47,7 +42,7 @@ export function prependInfo() {
  * @param {string} key
  * @param {object} obj
  */
-export function combineArraysIntoObject(arr1: string[], arr2: string[], key: string, obj: {}) {
+export function combineArraysIntoObject(arr1: string[], arr2: string[], key: string, obj: {}): {} {
   // GUARD: against empty or null arrays.
   if (!arr2 || !_.isArray(arr2)) {
     if (arr1 && _.isArray(arr1)) {
@@ -73,7 +68,7 @@ export function combineArraysIntoObject(arr1: string[], arr2: string[], key: str
  * @param {string[]} array
  * @param {boolean} [caseMatters]
  */
-export function checkForFileNameInArray(name: string, array: string[], caseMatters?: boolean) {
+export function checkForFileNameInArray(name: string, array: string[], caseMatters?: boolean): number {
   const reg = new RegExp(`(^|\\b)${name}$`, `${caseMatters ? '' : 'i'}`);
   for (let i = 0; i < array.length; i += 1) {
     if (array[i].search(reg) >= 0) {
@@ -87,7 +82,7 @@ export function checkForFileNameInArray(name: string, array: string[], caseMatte
  * @description Check if the program is a c++ or c program and automatically converts.
  * @param {object} totalInfo combined info of the makefile and file list
  */
-export function checkAndConvertCpp(totalInfo: MakeInfo) {
+export function checkAndConvertCpp(totalInfo: MakeInfo): MakeInfo {
   const newInfo = _.cloneDeep(totalInfo);
   if (checkForFileNameInArray('main.cpp', newInfo.cxxSources) >= 0) {
     const indMain = checkForFileNameInArray('main.c', newInfo.cSources);
@@ -121,7 +116,7 @@ export function combineInfo(makefileInfo: MakeInfo, fileList: BuildFiles, requir
   combineArraysIntoObject(makefileInfo.cSources, fileList.cSources, 'cSources', bundledInfo);
   combineArraysIntoObject(makefileInfo.cxxSources, fileList.cxxSources, 'cxxSources', bundledInfo);
   combineArraysIntoObject(makefileInfo.asmSources, fileList.asmSources, 'asmSources', bundledInfo);
-  combineArraysIntoObject(makefileInfo.cIncludes, fileList.cIncludes, 'cIncludes', bundledInfo);
+  combineArraysIntoObject(makefileInfo.includes, fileList.includes, 'cIncludes', bundledInfo);
   // combineArraysIntoObject(makefileInfo.cxxIncludes, [], 'cxxIncludes', bundledInfo);
   // combineArraysIntoObject(makefileInfo.asIncludes, [], 'asIncludes', bundledInfo);
 
@@ -154,22 +149,17 @@ export function combineInfo(makefileInfo: MakeInfo, fileList: BuildFiles, requir
  */
 export async function getInfo(location: string): Promise<MakeInfo> {
   return new Promise((resolve, reject) => {
-    console.log('getting makefile info');
     const makefileInfoPromise = getMakefileInfo(location);
-    console.log('getting file list');
     const listFilesInfoPromise = getFileList(location);
-    console.log('getting requirements');
     const requirementsInfoPromise = getRequirements();
     // TODO: also add a get config in here
     Promise.all([makefileInfoPromise, listFilesInfoPromise, requirementsInfoPromise]).then((values) => {
       const [makefileInfo, fileInfo, requirementInfo] = values;
-      console.log('promises resolved');
 
       let combinedInfo = combineInfo(makefileInfo as MakeInfo, fileInfo, requirementInfo);
       combinedInfo = checkAndConvertCpp(combinedInfo);
-      console.log('combined info', combinedInfo);
       _.assignIn(info, combinedInfo);
-      if (!vscode.workspace.workspaceFolders) {throw Error('No workspace folder was selected');}
+      if (!vscode.workspace.workspaceFolders) { throw Error('No workspace folder was selected'); }
       getIgnores(vscode.workspace.workspaceFolders[0].uri).then((ignores: string[]) => {
         info.cSources = stripIgnoredFiles(info.cSources, ignores);
         info.cxxSources = stripIgnoredFiles(info.cxxSources, ignores);

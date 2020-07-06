@@ -8,21 +8,14 @@
 	"plugins": [
 		"@typescript-eslint"
 	],
+	"extends": [
+		"eslint:recommended",
+		"plugin:@typescript-eslint/eslint-recommended",
+		"plugin:@typescript-eslint/recommended"
+	],
 	"rules": {
 		"@typescript-eslint/class-name-casing": "warn",
 		"@typescript-eslint/semi": "warn",
-		"react/prefer-stateless-function": [
-			0
-		],
-		"react/destructuring-assignment": [
-			0
-		],
-		"react/no-array-index-key": [
-			1
-		],
-		"react/prop-types": [
-			0
-		],
 		"@typescript-eslint/no-unused-vars": [
 			1,
 			{

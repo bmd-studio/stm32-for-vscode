@@ -54,7 +54,6 @@ export const makefileInfo = {} as MakeInfo;
  * @param {string} location - location of the makefile e.g. /filepath/Makefile
  */
 export async function getMakefile(location: string): Promise<string> {
-  console.log('getting makefile at location', location);
   return new Promise((resolve, reject) => {
     try {
       workspace.fs.readFile(Uri.file(location)).then((makefileFile) => {
@@ -116,7 +115,7 @@ export function extractMultiLineInfo(name: string, makefile: string): string[] {
  * e.g getting the target stm32l4x from: Src/stm32l4xx_hal_msp.c
  * @param {string[]} cFiles
  */
-export function getTargetSTM(cFiles: string[]) {
+export function getTargetSTM(cFiles: string[]): string {
   const regPattern = /(.*\/)?(.*)x_hal_msp.c/i;
   let output = '';
   cFiles.forEach((fileName) => {
@@ -145,7 +144,7 @@ export function extractMakefileInfo(makefile: string): MakeInfo {
       makeFileKey = 'float-abi';
     }
     const info = extractSingleLineInfo(makeFileKey, makefile);
-    if (!info || info.length === 0) {return;}
+    if (!info || info.length === 0) { return; }
     if (info.indexOf('\\') !== -1) {
       _.set(output, key, extractMultiLineInfo(makeFileKey, makefile));
     } else {
@@ -183,7 +182,6 @@ export default async function getMakefileInfo(location: string): Promise<MakeInf
     let makefile = '' as string;
     try {
       makefile = await getMakefile(loc);
-      console.log('The makefile is', makefile);
     } catch (err) {
       window.showErrorMessage('Something went wrong with getting the information from the makefile. Please make sure there is a makefile and that the project is initialized through STM32CubeMX.', err);
       reject(err);

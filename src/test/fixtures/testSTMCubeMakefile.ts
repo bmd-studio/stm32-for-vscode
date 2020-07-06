@@ -66,7 +66,7 @@ const cSources = [
   'Src/system_stm32h7xx.c',
 ];
 const cDefs = ['-DUSE_HAL_DRIVER', '-DSTM32H743xx', '-DUSE_HAL_DRIVER', '-DSTM32H743xx'];
-const cIncludes = [
+const includes = [
   '-IInc',
   '-IDrivers/STM32H7xx_HAL_Driver/Inc',
   '-IDrivers/STM32H7xx_HAL_Driver/Inc/Legacy',
@@ -83,7 +83,7 @@ export const testMakefileInfo: MakeInfo = {
   cDefs,
   cxxDefs: [],
   asDefs: [],
-  cIncludes,
+  includes,
   cSources: cSources,
   cxxSources: [],
   asmSources,
