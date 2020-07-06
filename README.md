@@ -21,7 +21,7 @@ There are a few command line tools that needs to be added to the PATH for this e
 ## Configuring CubeMX
 This extension assumes the project initialised with CubeMX and the option to create a Makefile project under Project Manager->Project->Toolchain/IDE.
 
-Also please leave the default on Copy all used libraries into the project folder and generate seperate .c and .h files for the peripherals.
+Also please leave the default on Copy all used libraries into the project folder and generate seperate .c and .h files for the peripherals. The advanced project structure is not supported, so please uncheck that box if checked.
 
 ## How to use
 Use cmd/ctrl+shift+p to open the show all commands panel and issue the command: Build STM32 project. Please note that external libraries should be placed in the lib folder and source code should be place in the src and inc folders.
