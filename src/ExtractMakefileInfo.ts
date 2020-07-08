@@ -40,10 +40,13 @@
 /* eslint no-param-reassign: ["error", {
   "props": true, "ignorePropertyModificationsFor": ["infoDef"] }] */
 // const fs = require('fs'); // TODO: Rewrite this to use native Vscode implementation
-import MakeInfo from './types/MakeInfo';
-import * as _ from 'lodash';
-import { window, workspace, Uri } from 'vscode';
 
+import * as _ from 'lodash';
+import * as path from 'path';
+
+import { Uri, window, workspace } from 'vscode';
+
+import MakeInfo from './types/MakeInfo';
 
 // FIXME: global variable. Perhaps not the best idea.
 export const makefileInfo = {} as MakeInfo;
@@ -57,7 +60,7 @@ export async function getMakefile(location: string): Promise<string> {
   return new Promise((resolve, reject) => {
     try {
       workspace.fs.readFile(Uri.file(location)).then((makefileFile) => {
-        const makefile = makefileFile.toString();
+        const makefile = Buffer.from(makefileFile).toString('utf-8');
         resolve(makefile);
       });
     } catch (err) {
@@ -168,15 +171,10 @@ export default async function getMakefileInfo(location: string): Promise<MakeInf
       loc = location;
     }
 
-    // FIXME: weird guard this should be specified before hand.
     // Guard for checking if the makefile name is actually appended to the location
-    if (loc.lastIndexOf('Makefile') === -1) {
-      if (loc.charAt(loc.length - 1) !== '/') {
-        loc = loc.concat('/');
-      }
-      loc = loc.concat('Makefile');
+    if(path.posix.basename(location) != 'Makefile') {
+      loc = path.posix.join(loc, 'Makefile');
     }
-
 
     // try getting the makefile
     let makefile = '' as string;

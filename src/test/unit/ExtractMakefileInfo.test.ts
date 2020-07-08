@@ -1,3 +1,4 @@
+import * as Sinon from 'sinon';
 /**
 * MIT License
 *
@@ -23,18 +24,28 @@
 */
 import * as assert from 'assert';
 
-import {
+import {FileSystemError, Uri, workspace} from 'vscode';
+import MakeInfo, { ToolChain } from '../../types/MakeInfo';
+import { afterEach, suite, test } from 'mocha';
+import getMakefileInfo, {
   extractMakefileInfo,
   extractMultiLineInfo,
   extractSingleLineInfo,
+  getMakefile,
   getTargetSTM,
 } from '../../ExtractMakefileInfo';
-import { suite, test } from 'mocha';
 import testMakefile, { testMakefileInfo } from '../fixtures/testSTMCubeMakefile';
 
-import MakeInfo from '../../types/MakeInfo';
+import { TextEncoder } from 'util';
+import { expect } from 'chai';
+import { reject } from 'lodash';
+
+const fs = workspace.fs;
 
 suite('MakefileInfoTest', () => {
+  afterEach(() => {
+    Sinon.restore();
+  })
   test('extractSingleLineInfo', () => {
     // assert.
     assert.equal(extractSingleLineInfo('target', testMakefile), testMakefileInfo.target);
@@ -68,5 +79,36 @@ suite('MakefileInfoTest', () => {
     assert.deepEqual(output.asDefs, testMakefileInfo.asDefs);
     assert.deepEqual(output.cxxDefs, testMakefileInfo.cxxDefs);
     assert.deepEqual(output.cDefs, testMakefileInfo.cDefs);
+  });
+  test('getMakefile while the makefile is present', async () => {
+    const returnedMakefile = 'short makefile';
+    const fakeReadFile = Sinon.fake.returns( new Promise((resolve) => {resolve( new TextEncoder().encode(returnedMakefile)); }));
+    Sinon.replace(fs, 'readFile', fakeReadFile);
+    const makefile = await getMakefile('./Makefile');
+
+    expect(fakeReadFile.calledOnceWith(Uri.file('./Makefile'))).to.be.true;
+    expect(makefile).to.equal(returnedMakefile);
+    Sinon.restore();
+  });
+  test('getMakefile when not present', async () => {
+    const makefileUri = Uri.file('./Makefile');
+    const fakeReadFile = Sinon.fake.returns( new Promise((_resolve, reject) => {reject( FileSystemError.FileNotFound(makefileUri));}));
+    Sinon.replace(fs, 'readFile', fakeReadFile);
+    expect(await getMakefile('./Makefile')).to.be.rejectedWith(FileSystemError.FileNotFound(makefileUri));
+    expect(fakeReadFile.calledOnceWith(Uri.file('./Makefile'))).to.be.true;
+    Sinon.restore();
+  });
+  test('getMakefileInfo', async () => {
+    const makefilePath = 'someRelevant/path';
+    const fakeReadFile = Sinon.fake.returns(new Promise((resolve) => {
+      resolve(new TextEncoder().encode(testMakefile));
+    }));
+    Sinon.replace(fs, 'readFile', fakeReadFile);
+    const makefileInfo = await getMakefileInfo(makefilePath);
+    expect(fakeReadFile.calledOnceWith(Uri.file('someRelevant/path/Makefile'))).to.be.true;
+    const outputInfo = testMakefileInfo;
+    outputInfo.tools = new ToolChain();
+    expect(makefileInfo).to.deep.equal(testMakefileInfo);
+    Sinon.restore();
   });
 });
