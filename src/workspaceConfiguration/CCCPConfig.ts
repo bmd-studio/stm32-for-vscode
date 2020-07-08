@@ -21,17 +21,20 @@ export interface CCppProperties {
 
 /**
  * Extracts the include paths from the MakeInfo and strips the -I
- * @param info MakeInfo containing all the info required for building the project
+ * @param info MakeInfo containing all the info required for building the
+ *     project
  */
 export function getIncludePaths(info: MakeInfo): string[] {
-  // TODO: rethink if -I should be included only in the makefile generation process.
+  // TODO: rethink if -I should be included only in the makefile generation
+  // process.
   const cIncludes = _.map(info.cIncludes, entry => _.replace(entry, '-I', ''));
   return cIncludes;
 }
 
 /**
  * Extracts the definitions from te makefile and strips the -D
- * @param info MakeInfo containing all the info required for building the project
+ * @param info MakeInfo containing all the info required for building the
+ *     project
  */
 export function getDefinitions(
   info: { cDefs: string[]; cxxDefs: string[]; asDefs: string[] }): string[] {
@@ -45,8 +48,10 @@ export function getDefinitions(
 }
 
 /**
- * Function for getting the basic configuration for STM32 for the c_cpp_properties file
- * @param info MakeInfo containing all the info required for building the project
+ * Function for getting the basic configuration for STM32 for the
+ * c_cpp_properties file
+ * @param info MakeInfo containing all the info required for building the
+ *     project
  */
 export function getCPropertiesConfig(info: MakeInfo): CCppConfig {
   const config = {
@@ -67,26 +72,27 @@ export function getCPropertiesConfig(info: MakeInfo): CCppConfig {
  */
 export async function getWorkspaceConfigFile(): Promise<null | CCppProperties> {
   return new Promise(async (resolve) => {
-    const cCppWorkspaceConfigFiles = await workspace.findFiles('**/c_cpp_properties.json');
+    const cCppWorkspaceConfigFiles =
+      await workspace.findFiles('**/c_cpp_properties.json');
     if (cCppWorkspaceConfigFiles[0]) {
-      try {
-        const file = (await workspace.fs.readFile(cCppWorkspaceConfigFiles[0])).toString();
-        const parsedJSON = JSON.parse(file);
-        resolve(parsedJSON);
-      } catch (err) {
-        resolve(null);
-      }
+      const file = (await workspace.fs.readFile(cCppWorkspaceConfigFiles[0]));
+      const parsedJSON = JSON.parse(Buffer.from(file).toString());
+      resolve(parsedJSON);
       return;
     }
     resolve(null);
   });
 }
 
-// TODO: check for path validity. Is low prio as vscode does this for you already. But would be more elegant.
+// TODO: check for path validity. Is low prio as vscode does this for you
+// already. But would be more elegant.
 /**
- * Updates the c_cpp_properties.json file if there are changes.Currently it works additively so once an includepath or definition is added it wil not dissapear
+ * Updates the c_cpp_properties.json file if there are changes.Currently it
+ * works additively so once an include path or definition is added it wil not
+ * disappear
  * @param workspacePathUri Uri to the current workspace
- * @param info  MakeInfo containing all the info required for building the project
+ * @param info  MakeInfo containing all the info required for building the
+ *     project
  */
 export async function updateCProperties(workspacePathUri: Uri, info: MakeInfo): Promise<void> {
   return new Promise(async (resolve) => {
@@ -99,13 +105,15 @@ export async function updateCProperties(workspacePathUri: Uri, info: MakeInfo): 
     if (currentConfigFile) {
       // configFile = defaultCCPPProperties;
       configFile = currentConfigFile;
-      const index = _.findIndex(currentConfigFile.configurations, { name: 'STM32 for VSCode Config' });
+      const index = _.findIndex(
+        currentConfigFile.configurations, { name: 'STM32 for VSCode Config' });
       if (index >= 0) {
         stmConfigIndex = index;
         stmConfiguration = currentConfigFile.configurations[index];
       } else {
         // no file has been found and should be added to the configurations
-        configFile.configurations.push(stmConfiguration); //push default config
+        configFile.configurations.push(stmConfiguration);  // push default
+        // config
         stmConfigIndex = configFile.configurations.length - 1;
         needsUpdating = true;
       }
@@ -119,11 +127,14 @@ export async function updateCProperties(workspacePathUri: Uri, info: MakeInfo): 
     const definitions = getDefinitions(info);
     const oldConfig = _.cloneDeep(stmConfiguration);
 
-    stmConfiguration.defines = _.uniq(stmConfiguration.defines.concat(definitions)).sort();
-    stmConfiguration.includePath = _.uniq(stmConfiguration.includePath.concat(includes)).sort();
+    stmConfiguration.defines =
+      _.uniq(stmConfiguration.defines.concat(definitions)).sort();
+    stmConfiguration.includePath =
+      _.uniq(stmConfiguration.includePath.concat(includes)).sort();
     configFile.configurations[stmConfigIndex] = stmConfiguration;
 
-    if (!_.isEqual(stmConfiguration.defines, oldConfig.defines) || !_.isEqual(stmConfiguration.includePath, oldConfig.includePath)) {
+    if (!_.isEqual(stmConfiguration.defines, oldConfig.defines) ||
+      !_.isEqual(stmConfiguration.includePath, oldConfig.includePath)) {
       needsUpdating = true;
     }
     if (!needsUpdating) {
@@ -135,7 +146,6 @@ export async function updateCProperties(workspacePathUri: Uri, info: MakeInfo): 
       JSON.stringify(configFile, null, 2));
     resolve();
   });
-
 }
 
 

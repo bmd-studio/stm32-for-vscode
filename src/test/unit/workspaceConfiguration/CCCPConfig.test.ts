@@ -1,15 +1,20 @@
 import * as Sinon from 'sinon';
+import * as chaiAsPromised from 'chai-as-promised';
 import * as helpers from '../../../Helpers';
 
-import { getCPropertiesConfig, getDefinitions, getIncludePaths, updateCProperties } from '../../../workspaceConfiguration/CCCPConfig';
+import { Uri, workspace } from 'vscode';
+import { expect, use } from 'chai';
+import { getCPropertiesConfig, getDefinitions, getIncludePaths, getWorkspaceConfigFile, updateCProperties } from '../../../workspaceConfiguration/CCCPConfig';
 import { suite, test } from 'mocha';
 
 import MakeInfo from '../../../types/MakeInfo';
-import { Uri } from 'vscode';
-import { expect } from 'chai';
+import { TextEncoder } from 'util';
+import expectedResult from '../../fixtures/launchTaskFixture';
 import { newMakeInfo } from '../../fixtures/makeInfoFixture';
 import { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
 
+const fs = workspace.fs;
+use(chaiAsPromised);
 suite('CCCPConfig test (c_cpp_properties configuration', () => {
   test('includePath conversion', () => {
     // as include paths start with -I for the makefile, these should be converted back to regular paths
@@ -73,6 +78,26 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     ));
     Sinon.restore();
 
+  });
+  test('getWorkspaceConfigFile while file present', async () => {
+    const resultingJSON = {
+      someKey: 'somevalue',
+    };
+    const resultingJSONString = JSON.stringify(resultingJSON);
+    const findFilesFake =  Sinon.fake.returns([ Uri.file('file')]);
+    const fakeReadFile = Sinon.fake.returns(new TextEncoder().encode(resultingJSONString));
+    Sinon.replace(workspace, 'findFiles', findFilesFake);
+    Sinon.replace(fs, 'readFile', fakeReadFile);
+    const result = await getWorkspaceConfigFile();
+    expect(findFilesFake.calledOnceWith('**/c_cpp_properties.json')).to.be.true;
+    expect(fakeReadFile.calledOnceWith(Uri.file('file')));
+    expect(result).should.equal(resultingJSON);
+    Sinon.restore();
+  });
+  test('getWorkspaceConfigFile while file absent', () => {
+    const findFilesFake = Sinon.fake.returns([]);
+    Sinon.replace(workspace, 'findFiles', findFilesFake);
+    expect(getWorkspaceConfigFile()).should.be.rejected;
   });
 
 });
