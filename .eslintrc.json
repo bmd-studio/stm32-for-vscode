@@ -36,6 +36,12 @@
 		"curly": "warn",
 		"eqeqeq": "warn",
 		"no-throw-literal": "warn",
-		"semi": "off"
+		"semi": "off",
+		"max-len": [
+			"warn",
+			{
+				"code": 120
+			}
+		]
 	}
 }
