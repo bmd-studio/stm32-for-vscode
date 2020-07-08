@@ -22,11 +22,16 @@
 * SOFTWARE.
 */
 import * as assert from 'assert';
-import { test, suite } from 'mocha';
+
 import {
-  extractMultiLineInfo, extractSingleLineInfo, extractMakefileInfo, getTargetSTM,
+  extractMakefileInfo,
+  extractMultiLineInfo,
+  extractSingleLineInfo,
+  getTargetSTM,
 } from '../../ExtractMakefileInfo';
+import { suite, test } from 'mocha';
 import testMakefile, { testMakefileInfo } from '../fixtures/testSTMCubeMakefile';
+
 import MakeInfo from '../../types/MakeInfo';
 
 suite('MakefileInfoTest', () => {
@@ -59,7 +64,7 @@ suite('MakefileInfoTest', () => {
     assert.deepEqual(output.asmSources, testMakefileInfo.asmSources);
     assert.deepEqual(output.cxxSources, testMakefileInfo.cxxSources);
     assert.deepEqual(output.cSources, testMakefileInfo.cSources);
-    assert.deepEqual(output.includes, testMakefileInfo.includes);
+    assert.deepEqual(output.cIncludes, testMakefileInfo.cIncludes);
     assert.deepEqual(output.asDefs, testMakefileInfo.asDefs);
     assert.deepEqual(output.cxxDefs, testMakefileInfo.cxxDefs);
     assert.deepEqual(output.cDefs, testMakefileInfo.cDefs);

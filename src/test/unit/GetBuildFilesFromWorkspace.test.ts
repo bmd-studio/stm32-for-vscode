@@ -1,9 +1,11 @@
-import * as assert from 'assert';
-import { test, suite, afterEach, it } from 'mocha';
-import { expect } from 'chai';
-import { getDirCaseFree, checkForRequiredFiles, sortFiles, getIncludes, convertToRelative, REQUIRED_RESOURCES } from '../../GetBuildFilesFromWorkspace';
-import { FileListWithRandomFiles, SortedBuildFiles, HeaderFiles } from '../fixtures/testFileLists';
 import * as Sinon from 'sinon';
+import * as assert from 'assert';
+
+import { FileListWithRandomFiles, HeaderFiles, SortedBuildFiles } from '../fixtures/testFileLists';
+import { REQUIRED_RESOURCES, checkForRequiredFiles, convertToRelative, getDirCaseFree, getIncludes, sortFiles } from '../../GetBuildFilesFromWorkspace';
+import { afterEach, it, suite, test } from 'mocha';
+
+import { expect } from 'chai';
 import { window } from 'vscode';
 
 suite('GetFilesTest', () => {
@@ -75,18 +77,18 @@ suite('GetFilesTest', () => {
     expect(getIncludes(testArr)).to.deep.equal(expectedTestoutput);
 
     const output = getIncludes(HeaderFiles);
-    expect(output).to.deep.equal(SortedBuildFiles.includes);
+    expect(output).to.deep.equal(SortedBuildFiles.cIncludes);
 
 
   });
   test('sortFiles', () => {
     const output = sortFiles(FileListWithRandomFiles);
     // assert.deepEqual(SortedBuildFiles.cIncludes, output.cIncludes);
-    expect(SortedBuildFiles.includes).to.deep.equal(output.includes);
+    expect(SortedBuildFiles.cIncludes).to.deep.equal(output.cIncludes);
     expect(SortedBuildFiles.cSources).to.deep.equal(output.cSources);
     expect(SortedBuildFiles.cxxSources).to.deep.equal(output.cxxSources);
     expect(SortedBuildFiles.asmSources).to.deep.equal(output.asmSources);
-    expect(SortedBuildFiles.includes).to.deep.equal(output.includes);
+    expect(SortedBuildFiles.cIncludes).to.deep.equal(output.cIncludes);
     expect(SortedBuildFiles).to.deep.equal(output);
   });
 });

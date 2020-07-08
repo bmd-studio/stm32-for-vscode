@@ -6,7 +6,7 @@ export interface ToolChainInterface {
 }
 
 export interface BuildFilesInterface {
-  includes: string[];
+  cIncludes: string[];
   cSources: string[];
   cxxSources: string[];
   asmSources: string[];
@@ -33,7 +33,7 @@ export class ToolChain implements ToolChainInterface {
   // public constructor() { }
 }
 export class BuildFiles implements BuildFilesInterface {
-  public includes: string[] = [];
+  public cIncludes: string[] = [];
   public cSources: string[] = [];
   public cxxSources: string[] = [];
   public asmSources: string[] = [];
@@ -44,7 +44,7 @@ export default class MakeInfo implements MakeInfoInterface {
   public cDefs: string[] = [];
   public cxxDefs: string[] = [];
   public asDefs: string[] = [];
-  public includes: string[] = [];
+  public cIncludes: string[] = [];
   public cSources: string[] = [];
   public cxxSources: string[] = [];
   public asmSources: string[] = [];

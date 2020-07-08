@@ -1,6 +1,5 @@
 import { BuildFiles } from '../../types/MakeInfo';
 
-
 export const TotalFileList = [
   'Src/main.cpp',
   'Src/RandomDriver.cpp',
@@ -126,7 +125,7 @@ export const cxxFiles = [
   'Src/main.cpp',
   'Src/RandomDriver.cpp',
 ];
-export const includes = [
+export const cIncludes = [
   '-IDrivers/STM32H7xx_HAL_Driver/Inc',
   '-IInc',
   '-ISrc',
@@ -137,7 +136,7 @@ export const FileListWithRandomFiles = ['randomFile.ts', 'Src/otherrandomfile.js
 
 export const SortedBuildFiles: BuildFiles = {
   asmSources: asmFiles.sort(),
-  includes: includes.sort(),
+  cIncludes: cIncludes.sort(),
   cSources: cFiles.sort(),
   cxxSources: cxxFiles.sort(),
 };

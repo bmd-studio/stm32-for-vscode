@@ -1,7 +1,9 @@
-import { Uri, workspace, } from 'vscode';
 import * as _ from 'lodash';
-import { writeFileInWorkspace } from '../Helpers';
+
+import { Uri, workspace, } from 'vscode';
+
 import MakeInfo from '../types/MakeInfo';
+import { writeFileInWorkspace } from '../Helpers';
 
 export interface CCppConfig {
   name: string;
@@ -23,7 +25,7 @@ export interface CCppProperties {
  */
 export function getIncludePaths(info: MakeInfo): string[] {
   // TODO: rethink if -I should be included only in the makefile generation process.
-  const cIncludes = _.map(info.includes, entry => _.replace(entry, '-I', ''));
+  const cIncludes = _.map(info.cIncludes, entry => _.replace(entry, '-I', ''));
   return cIncludes;
 }
 

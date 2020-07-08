@@ -22,9 +22,11 @@
 * SOFTWARE.
 */
 import * as _ from 'lodash';
-// import fsRecursive from 'recursive-readdir';
-import { window, workspace, Uri } from 'vscode';
 import * as pth from 'path';
+
+// import fsRecursive from 'recursive-readdir';
+import { Uri, window, workspace } from 'vscode';
+
 import { BuildFiles } from './types/MakeInfo';
 const path = pth.posix; // did this so everything would be posix.
 
@@ -135,12 +137,12 @@ export function sortFiles(list: string[]): BuildFiles {
     } else if (extension === 'c') {
       output.cSources.push(entry);
     } else if (extension === 'h' || extension === 'hpp') {
-      output.includes.push(entry);
+      output.cIncludes.push(entry);
     } else if (extension === 's') {
       output.asmSources.push(entry);
     }
   });
-  output.includes = getIncludes(output.includes);
+  output.cIncludes = getIncludes(output.cIncludes);
   // sort arrays and remove possible duplicates.
   _.forEach(output, (entry, key) => {
     if (_.isArray(entry)) {

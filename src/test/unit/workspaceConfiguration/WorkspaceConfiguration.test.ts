@@ -1,14 +1,17 @@
-
 import * as Sinon from 'sinon';
-import { expect, use } from 'chai';
-import { test, suite, afterEach, beforeEach } from 'mocha';
+import * as _ from 'lodash';
 // import { workspace, Uri, WorkspaceFolder, window } from 'vscode';
 import * as chaiAsPromised from 'chai-as-promised';
+
+import { TaskDefinition, Uri, workspace } from 'vscode';
+import { afterEach, beforeEach, suite, test } from 'mocha';
+import { expect, use } from 'chai';
 import updateConfiguration, { updateLaunch, updateTasks } from '../../../workspaceConfiguration/WorkspaceConfigurations';
-import { Uri, workspace, TaskDefinition} from 'vscode';
+
+import BuildTasks from '../../fixtures/tasksFixture';
 import LaunchTestFile from '../../fixtures/launchTaskFixture';
 import { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
-import BuildTasks from '../../fixtures/tasksFixture';
+
 // import {SinonFake } from '@types/sinon';
 
 use(chaiAsPromised);
@@ -120,6 +123,6 @@ suite('WorkspaceConfiguration', () => {
     expect(getWorkspaceConfigFake.calledOnce).to.be.true;
     expect(getConfigInWorkspaceFake.calledOnceWith('tasks', testUri)).to.be.true;
     expect(updateConfigFake.calledOnce).to.be.true;
-    expect(updateConfigFake.getCall(0).args[1]).to.deep.equal([similarTask, BuildTasks[0], BuildTasks[1], BuildTasks[2]]);
+    expect(_.sortBy(updateConfigFake.getCall(0).args[1], ['command', 'device'])).to.deep.equal(_.sortBy([similarTask, BuildTasks[0], BuildTasks[1], BuildTasks[2]], ['command', 'device']));
   });
 });

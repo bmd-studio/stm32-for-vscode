@@ -26,13 +26,17 @@
  * STM32 makefile info and the Src, Inc and Lib folders
  * Created by Jort Band - Bureau Moeilijke Dingen
 */
+
 import * as _ from 'lodash';
 import * as vscode from 'vscode';
-import getMakefileInfo from './ExtractMakefileInfo';
-import getFileList from './GetBuildFilesFromWorkspace';
-import getRequirements from './Requirements';
+
+import MakeInfo, { BuildFiles, ToolChain } from './types/MakeInfo';
 import { getIgnores, stripIgnoredFiles } from './HandleIgnoredFiles';
-import MakeInfo, { ToolChain, BuildFiles } from './types/MakeInfo';
+
+import getFileList from './GetBuildFilesFromWorkspace';
+import getMakefileInfo from './ExtractMakefileInfo';
+import getRequirements from './Requirements';
+
 const info = new MakeInfo();
 export default info;
 /**
@@ -116,7 +120,7 @@ export function combineInfo(makefileInfo: MakeInfo, fileList: BuildFiles, requir
   combineArraysIntoObject(makefileInfo.cSources, fileList.cSources, 'cSources', bundledInfo);
   combineArraysIntoObject(makefileInfo.cxxSources, fileList.cxxSources, 'cxxSources', bundledInfo);
   combineArraysIntoObject(makefileInfo.asmSources, fileList.asmSources, 'asmSources', bundledInfo);
-  combineArraysIntoObject(makefileInfo.includes, fileList.includes, 'cIncludes', bundledInfo);
+  combineArraysIntoObject(makefileInfo.cIncludes, fileList.cIncludes, 'cIncludes', bundledInfo);
   // combineArraysIntoObject(makefileInfo.cxxIncludes, [], 'cxxIncludes', bundledInfo);
   // combineArraysIntoObject(makefileInfo.asIncludes, [], 'asIncludes', bundledInfo);
 
