@@ -88,11 +88,14 @@
     "marus25.cortex-debug"
   ],
   "scripts": {
-    "test": "nyc node ./out/test/runTest.js",
-    "vscode:prepublish": "yarn run compile",
+    "test": "node ./out/test/runTest.js",
+    "coverage": "nyc --exclude=.vscode-test  yarn run test",
+    "vscode:prepublish": "yarn webpack",
     "compile": "tsc -p ./",
+    "webpack": "webpack --mode development",
     "lint": "eslint src --ext ts",
     "watch": "tsc -watch -p ./",
+    "prewebpack": "yarn run lint",
     "pretest": "yarn run compile && yarn run lint"
   },
   "devDependencies": {
