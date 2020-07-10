@@ -57,12 +57,11 @@ export const makefileInfo = {} as MakeInfo;
  * @param {string} location - location of the makefile e.g. /filepath/Makefile
  */
 export async function getMakefile(location: string): Promise<string> {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     try {
-      workspace.fs.readFile(Uri.file(location)).then((makefileFile) => {
-        const makefile = Buffer.from(makefileFile).toString('utf-8');
-        resolve(makefile);
-      });
+      const makefileFile = await workspace.fs.readFile(Uri.file(location));
+      const makefile = Buffer.from(makefileFile).toString('utf-8');
+      resolve(makefile);
     } catch (err) {
       reject(err);
     }
@@ -172,7 +171,7 @@ export default async function getMakefileInfo(location: string): Promise<MakeInf
     }
 
     // Guard for checking if the makefile name is actually appended to the location
-    if(path.posix.basename(location) != 'Makefile') {
+    if (path.posix.basename(location) != 'Makefile') {
       loc = path.posix.join(loc, 'Makefile');
     }
 

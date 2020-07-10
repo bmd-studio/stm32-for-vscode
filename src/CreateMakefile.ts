@@ -48,9 +48,10 @@ export function createStringList(arr: string[]): string {
     return '';
   }
   let output = '';
-  _.map(arr, (entry: string, ind: number) => {
+  const sortedArray = _.uniq(arr).sort();
+  _.map(sortedArray, (entry: string, ind: number) => {
     output += `${entry}`;
-    if (ind < arr.length - 1) {
+    if (ind < sortedArray.length - 1) {
       output += ' \\';
     }
     output += '\n';

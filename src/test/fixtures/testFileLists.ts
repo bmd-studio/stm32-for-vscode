@@ -59,6 +59,7 @@ export const TotalFileList = [
   'Drivers/STM32H7xx_HAL_Driver/Inc/stm32h7xx_hal_i2c_ex.h',
   'Inc/system_stm32h7xx.h',
   'startup_stm32h743xx.s',
+  'Src/randomCXXFile.cxx',
 ];
 export const HeaderFiles = [
   'Inc/RandomDriver.h',
@@ -124,6 +125,7 @@ export const cFiles = [
 export const cxxFiles = [
   'Src/main.cpp',
   'Src/RandomDriver.cpp',
+  'Src/randomCXXFile.cxx'
 ];
 export const cIncludes = [
   '-IDrivers/STM32H7xx_HAL_Driver/Inc',

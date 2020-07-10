@@ -219,16 +219,12 @@ AS_DEFS =
 
 # C defines
 C_DEFS =  \\
--DUSE_HAL_DRIVER \\
 -DSTM32H743xx \\
--DUSE_HAL_DRIVER \\
--DSTM32H743xx
-
+-DUSE_HAL_DRIVER
 
 
 # AS includes
 AS_INCLUDES = \\
-
 
 # C includes
 C_INCLUDES =  \\
