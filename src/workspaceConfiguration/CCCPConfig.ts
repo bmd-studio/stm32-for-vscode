@@ -106,7 +106,9 @@ export async function updateCProperties(workspacePathUri: Uri, info: MakeInfo): 
       // configFile = defaultCCPPProperties;
       configFile = currentConfigFile;
       const index = _.findIndex(
-        currentConfigFile.configurations, { name: stmConfiguration.name });
+        currentConfigFile.configurations, { name: stmConfiguration.name }
+      );
+
       if (index >= 0) {
         stmConfigIndex = index;
         stmConfiguration = currentConfigFile.configurations[index];

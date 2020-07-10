@@ -87,6 +87,81 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     )).to.be.true;
     Sinon.restore();
   });
+  test('update c properties, while another config is present', async () => {
+    const mockWorkspaceUri = Uri.file('./localworkspace');
+    const writeFileInWorkspaceFake = Sinon.fake();
+    const findFileInWorkspaceFake = Sinon.fake.returns([Uri.file('c_cpp_properties.json')]);
+    const readFileInWorkspaceFake = Sinon.fake.returns(new TextEncoder().encode(JSON.stringify({
+      configurations: [
+        {
+          name: "SomeOtherConfig",
+          includePath: [
+            "somenonStandard/Include/Path",
+          ],
+          defines: [
+            "iWillNotBeDefined"
+          ],
+          compilerPath: "arm-none-eabi-gcc",
+          cStandard: "c11",
+          cppStandard: "c++11"
+        }
+      ],
+      "version": 4
+    }, null, 2)));
+    const expectedResult = JSON.stringify({
+      configurations: [
+        {
+          name: "SomeOtherConfig",
+          includePath: [
+            "somenonStandard/Include/Path",
+          ],
+          defines: [
+            "iWillNotBeDefined"
+          ],
+          compilerPath: "arm-none-eabi-gcc",
+          cStandard: "c11",
+          cppStandard: "c++11"
+        },
+        {
+          name: 'STM32',
+          includePath: _.uniq(getIncludePaths(testMakefileInfo)).sort(),
+          defines: _.uniq(getDefinitions(testMakefileInfo)).sort(),
+        }
+      ],
+      "version": 4
+    }, null, 2);
+    Sinon.replace(helpers, 'writeFileInWorkspace', writeFileInWorkspaceFake);
+    Sinon.replace(workspace, 'findFiles', findFileInWorkspaceFake);
+    Sinon.replace(fs, 'readFile', readFileInWorkspaceFake);
+    await updateCProperties(mockWorkspaceUri, testMakefileInfo);
+    expect(writeFileInWorkspaceFake.calledOnce).to.be.true;
+    expect(findFileInWorkspaceFake.calledOnce).to.be.true;
+    expect(readFileInWorkspaceFake.calledOnce).to.be.true;
+    expect(writeFileInWorkspaceFake.getCall(0).args[2]).to.deep.equal(expectedResult);
+  });
+  test('do not update c properties when same config is present', async () => {
+    const mockWorkspaceUri = Uri.file('./localworkspace');
+    const writeFileInWorkspaceFake = Sinon.fake();
+    const findFileInWorkspaceFake = Sinon.fake.returns([Uri.file('c_cpp_properties.json')]);
+    const expectedResult = JSON.stringify({
+      configurations: [{
+        name: 'STM32',
+        includePath: _.uniq(getIncludePaths(testMakefileInfo)).sort(),
+        defines: _.uniq(getDefinitions(testMakefileInfo)).sort(),
+      }
+      ],
+      version: 4,
+    }, null, 2);
+    const readFileInWorkspaceFake = Sinon.fake.returns(new TextEncoder().encode(expectedResult));
+    Sinon.replace(helpers, 'writeFileInWorkspace', writeFileInWorkspaceFake);
+    Sinon.replace(workspace, 'findFiles', findFileInWorkspaceFake);
+    Sinon.replace(fs, 'readFile', readFileInWorkspaceFake);
+    await updateCProperties(mockWorkspaceUri, testMakefileInfo);
+    expect(writeFileInWorkspaceFake.callCount).to.equal(0);
+    expect(findFileInWorkspaceFake.calledOnce).to.be.true;
+    expect(readFileInWorkspaceFake.calledOnce).to.be.true;
+
+  });
   test('update c properties, with several other definitions present', async () => {
     const writeFileInWorkspaceFake = Sinon.fake();
     const findFileInWorkspaceFake = Sinon.fake.returns([Uri.file('c_cpp_properties.json')]);
