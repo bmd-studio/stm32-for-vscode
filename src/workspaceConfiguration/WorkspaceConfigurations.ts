@@ -27,14 +27,20 @@
  * tasks.
  */
 // import fs from 'fs';
+
 import * as _ from 'lodash';
+
 import { Uri, workspace, } from 'vscode';
+
 import MakeInfo from '../types/MakeInfo';
+import buildTasks from './BuildTasksConfig';
+import getLaunchTask from './LaunchTasksConfig';
+import updateCProperties from './CCCPConfig';
 
 // import getOpenOCDTarget from './OpenOcdTargetFiles';
-import getLaunchTask from './LaunchTasksConfig';
-import buildTasks from './BuildTasksConfig';
-import updateCProperties from './CCCPConfig';
+
+
+
 
 /**
  * Function for updating the launch.json file to include debugging information.
@@ -44,7 +50,7 @@ import updateCProperties from './CCCPConfig';
 export function updateLaunch(
   workspacePathUri: Uri, info: MakeInfo): Promise<void> {
   const launchFile = workspace.getConfiguration('launch', workspacePathUri);
-  const launchConfig: object[] = launchFile.get('configurations') || [];
+  const launchConfig: object[] = launchFile.get('configurations', []);
   const config = getLaunchTask(info);
   let hasConfig = false;
   if (launchConfig && !_.isEmpty(launchConfig)) {
@@ -72,7 +78,7 @@ export function updateLaunch(
    */
 export function updateTasks(workspacePathUri: Uri): Promise<void> {
   const taskFile = workspace.getConfiguration('tasks', workspacePathUri);
-  const tasksConfig: object[] = taskFile.get('tasks') || [];
+  const tasksConfig: object[] = taskFile.get('tasks', []);
   // console.log('taskFile');
   // console.log(JSON.stringify(taskFile));
   let hasBuildConfig = false;
