@@ -89,7 +89,7 @@
   ],
   "scripts": {
     "test": "node ./out/test/runTest.js",
-    "coverage": "nyc --exclude=.vscode-test  yarn run test",
+    "coverage": "nyc --exclude=.vscode-test --exclude=**/*.test.ts  yarn run test",
     "vscode:prepublish": "yarn webpack",
     "compile": "tsc -p ./",
     "webpack": "webpack --mode development",
