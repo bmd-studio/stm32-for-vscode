@@ -29,16 +29,17 @@ import {
   window,
   workspace,
 } from 'vscode';
-import {
-  makefileName,
-} from './Definitions';
+
+import MakeInfo from './types/MakeInfo';
+import executeTask from './handleTasks';
 import {
   getInfo,
 } from './Info';
-import updateMakefile from './UpdateMakefile';
+import {
+  makefileName,
+} from './Definitions';
 import updateConfiguration from './workspaceConfiguration/WorkspaceConfigurations';
-import executeTask from './handleTasks';
-import MakeInfo from './types/MakeInfo';
+import updateMakefile from './UpdateMakefile';
 
 export default async function buildSTM(options: { flash?: boolean; cleanBuild?: boolean }): Promise<void> {
   const {
@@ -54,7 +55,6 @@ export default async function buildSTM(options: { flash?: boolean; cleanBuild?: 
       return;
     }
     try {
-
       currentWorkspaceFolder = workspace.workspaceFolders[0].uri.fsPath;
       info = await getInfo(currentWorkspaceFolder);
       await updateMakefile(currentWorkspaceFolder, info);
