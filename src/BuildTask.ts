@@ -31,7 +31,7 @@ import {
 } from 'vscode';
 
 import MakeInfo from './types/MakeInfo';
-import executeTask from './handleTasks';
+import executeTask from './HandleTasks';
 import {
   getInfo,
 } from './Info';

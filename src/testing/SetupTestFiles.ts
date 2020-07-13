@@ -1,14 +1,13 @@
+import * as _ from 'lodash';
 import * as cppInclude from 'cpp-include';
 import * as fs from 'fs';
-import { Uri, workspace, window } from 'vscode';
+import * as path from 'path';
 
+import { Uri, window, workspace } from 'vscode';
+
+import executeTask from '../HandleTasks';
 import { getCmakeTestFile } from './cmakeTestTemplate';
 import { writeFileInWorkspace } from '../Helpers';
-
-import executeTask from '../handleTasks';
-import * as path from 'path';
-import * as _ from 'lodash';
-
 
 const mainCPPFile = '#include "gtest/gtest.h"\n\
 \n\

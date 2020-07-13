@@ -1,7 +1,4 @@
-
-import { ShellExecution, Task, tasks, workspace, TaskProcessEndEvent } from 'vscode';
-
-
+import { ShellExecution, Task, TaskProcessEndEvent, tasks, workspace } from 'vscode';
 
 /**
  *
@@ -13,17 +10,18 @@ export default function executeTask(
   type: string, name: string, cmd: string, cwd?: string): Promise<void | number> {
   return new Promise((resolve, reject) => {
     const processExec = new ShellExecution(cmd, cwd ? { cwd } : {});
-    if (!workspace.workspaceFolders) { throw Error('no workspace folder is selected'); }
-    const proccessTask = new Task(
-      {
-        type,
-      },
-      workspace.workspaceFolders[0], name, 'STM32 for VSCode', processExec);
-    tasks.executeTask(proccessTask);
+    if (!workspace.workspaceFolders) {
+      reject(Error('no workspace folder is selected'));
+      return;
+    }
+    const processTask = new Task(
+      { type },
+      workspace.workspaceFolders[0],
+      name, 'STM32 for VSCode',
+      processExec
+    );
+    tasks.executeTask(processTask);
     tasks.onDidEndTaskProcess((e: TaskProcessEndEvent) => {
-      // console.log('onDidEndTask event');
-      // console.log(e.execution.task);
-      // console.log(e.exitCode);
       if (e.execution.task.name === name) {
         if (e.exitCode === 0) {
           resolve();
