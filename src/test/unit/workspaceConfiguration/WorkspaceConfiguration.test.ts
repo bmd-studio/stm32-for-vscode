@@ -7,14 +7,14 @@ import * as helpers from '../../../Helpers';
 import { TaskDefinition, Uri, workspace } from 'vscode';
 import { afterEach, beforeEach, suite, test } from 'mocha';
 import { assert, expect, use } from 'chai';
-import updateConfiguration, { updateLaunch, updateTasks } from '../../../workspaceConfiguration/WorkspaceConfigurations';
+import updateConfiguration, {
+  updateLaunch,
+  updateTasks
+} from '../../../workspaceConfiguration/WorkspaceConfigurations';
 
 import BuildTasks from '../../fixtures/tasksFixture';
 import LaunchTestFile from '../../fixtures/launchTaskFixture';
 import { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
-import { update } from 'lodash';
-
-const fs = workspace.fs;
 
 // import {SinonFake } from '@types/sinon';
 
@@ -94,7 +94,10 @@ suite('WorkspaceConfiguration', () => {
     expect(getWorkspaceConfigFake.calledOnce).to.be.true;
     expect(getConfigInWorkspaceFake.calledOnceWith('launch', testUri)).to.be.true;
     expect(updateConfigFake.calledOnce).to.be.true;
-    expect(updateConfigFake.getCall(0).args[1]).to.deep.equal([{ ...LaunchTestFile, executable: "./build/othertesttarget.elf" }]);
+    expect(updateConfigFake.getCall(0).args[1]).to.deep.equal([{
+      ...LaunchTestFile,
+      executable: "./build/othertesttarget.elf"
+    }]);
   });
 
   test('adds all new tasks', async () => {
@@ -126,7 +129,15 @@ suite('WorkspaceConfiguration', () => {
     expect(getWorkspaceConfigFake.calledOnce).to.be.true;
     expect(getConfigInWorkspaceFake.calledOnceWith('tasks', testUri)).to.be.true;
     expect(updateConfigFake.calledOnce).to.be.true;
-    expect(_.sortBy(updateConfigFake.getCall(0).args[1], ['command', 'device'])).to.deep.equal(_.sortBy([similarTask, BuildTasks[0], BuildTasks[1], BuildTasks[2]], ['command', 'device']));
+    expect(
+      _.sortBy(
+        updateConfigFake.getCall(0).args[1],
+        ['command', 'device']
+      )
+    ).to.deep.equal(_.sortBy(
+      [similarTask, BuildTasks[0], BuildTasks[1], BuildTasks[2]],
+      ['command', 'device']
+    ));
   });
   test('does nothing when all tasks are present', async () => {
     setWorkspaceConfigFakeOutput([BuildTasks[0], BuildTasks[1], BuildTasks[2]]);

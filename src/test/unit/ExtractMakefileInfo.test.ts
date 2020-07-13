@@ -24,9 +24,8 @@ import * as Sinon from 'sinon';
 */
 import * as assert from 'assert';
 
-import { Done, afterEach, suite, test } from 'mocha';
 import { FileSystemError, Uri, workspace } from 'vscode';
-import MakeInfo, { ToolChain } from '../../types/MakeInfo';
+import { afterEach, suite, test } from 'mocha';
 import getMakefileInfo, {
   extractMakefileInfo,
   extractMultiLineInfo,
@@ -37,8 +36,8 @@ import getMakefileInfo, {
 import testMakefile, { testMakefileInfo } from '../fixtures/testSTMCubeMakefile';
 
 import { TextEncoder } from 'util';
+import { ToolChain } from '../../types/MakeInfo';
 import { expect } from 'chai';
-import { reject } from 'lodash';
 
 const fs = workspace.fs;
 
@@ -55,7 +54,8 @@ suite('MakefileInfoTest', () => {
     assert.equal(extractSingleLineInfo('LIBS', testMakefile), '-lc -lm -lnosys');
   });
   test('extractMultiLineInfo', () => {
-    assert.deepEqual(extractMultiLineInfo('C_DEFS', testMakefile), ['-DUSE_HAL_DRIVER', '-DSTM32H743xx', '-DUSE_HAL_DRIVER', '-DSTM32H743xx']);
+    assert.deepEqual(extractMultiLineInfo('C_DEFS', testMakefile),
+      ['-DUSE_HAL_DRIVER', '-DSTM32H743xx', '-DUSE_HAL_DRIVER', '-DSTM32H743xx']);
     assert.deepEqual(extractMultiLineInfo('c_sources', testMakefile), testMakefileInfo.cSources);
     assert.deepEqual(extractMultiLineInfo('target', testMakefile), []);
   });
@@ -82,7 +82,9 @@ suite('MakefileInfoTest', () => {
   });
   test('getMakefile while the makefile is present', async () => {
     const returnedMakefile = 'short makefile';
-    const fakeReadFile = Sinon.fake.returns(new Promise((resolve) => { resolve(new TextEncoder().encode(returnedMakefile)); }));
+    const fakeReadFile = Sinon.fake.returns(new Promise((resolve) => {
+      resolve(new TextEncoder().encode(returnedMakefile));
+    }));
     Sinon.replace(fs, 'readFile', fakeReadFile);
     try {
       const makefile = await getMakefile('./Makefile');
@@ -95,7 +97,9 @@ suite('MakefileInfoTest', () => {
   });
   test('getMakefile when not present', async () => {
     const makefileUri = Uri.file('./Makefile');
-    const fakeReadFile = Sinon.fake.returns(new Promise((_resolve, reject) => { reject(FileSystemError.FileNotFound(makefileUri)); }));
+    const fakeReadFile = Sinon.fake.returns(new Promise((_resolve, reject) => {
+      reject(FileSystemError.FileNotFound(makefileUri));
+    }));
     Sinon.replace(fs, 'readFile', fakeReadFile);
     expect(getMakefile('./Makefile')).to.be.rejectedWith(FileSystemError.FileNotFound(makefileUri));
     expect(fakeReadFile.calledOnceWith(Uri.file('./Makefile'))).to.be.true;

@@ -1,11 +1,11 @@
-import { workspace } from 'vscode';
-import ignore from 'ignore';
-import { writeFileInWorkspace, splitStringLines } from './Helpers';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const strip = require('strip-comments'); // did require here, because import seems to mess up default export
-import { Uri } from 'vscode';
-import { ignoreFileName } from './Definitions';
 import * as _ from 'lodash';
+
+import { splitStringLines, writeFileInWorkspace } from './Helpers';
+
+import { Uri } from 'vscode';
+import ignore from 'ignore';
+import { ignoreFileName } from './Definitions';
+import { workspace } from 'vscode';
 
 export function getIgnores(workspacePathUri: Uri): Promise<string[]> {
   return new Promise((resolve) => {
@@ -29,6 +29,7 @@ export function getIgnores(workspacePathUri: Uri): Promise<string[]> {
         // should add the file
         await writeFileInWorkspace(
           workspacePathUri, ignoreFileName,
+          // eslint-disable-next-line max-len
           '#files that should be ignored by the STM32 For VSCode extension.\n#Use standard .ignore (e.g .gitignore) glob patters\nTest/*\ntest/*\nExamples/*\nexamples/*');
         resolve([]);
       }

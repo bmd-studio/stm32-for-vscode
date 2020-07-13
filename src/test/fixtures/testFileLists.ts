@@ -134,7 +134,11 @@ export const cIncludes = [
 ];
 
 
-export const FileListWithRandomFiles = ['randomFile.ts', 'Src/otherrandomfile.json', 'Src/filethatdoesnotmatter.js', 'README.md'].concat(TotalFileList);
+export const FileListWithRandomFiles = [
+  'randomFile.ts',
+  'Src/otherrandomfile.json',
+  'Src/filethatdoesnotmatter.js',
+  'README.md'].concat(TotalFileList);
 
 export const SortedBuildFiles: BuildFiles = {
   asmSources: asmFiles.sort(),

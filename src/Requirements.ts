@@ -26,11 +26,14 @@
  * Functions to check and get the required tools.
  * Created by Jort Band - Bureau Moeilijke Dingen.
  */
-import { window, workspace, env, Uri } from 'vscode';
-import * as shelljs from 'shelljs';
-import * as process from 'process';
-import * as  path from 'path';
+
 import * as _ from 'lodash';
+import * as  path from 'path';
+import * as process from 'process';
+import * as shelljs from 'shelljs';
+
+import { Uri, env, window, workspace } from 'vscode';
+
 import { ToolChain } from './types/MakeInfo';
 
 interface BuildToolDefinition {
@@ -63,6 +66,7 @@ export const openocdDefinition: BuildToolDefinition = {
   standardCmd: 'openocd',
   otherCmds: ['open-ocd'],
   folder: false,
+  // eslint-disable-next-line max-len
   missingMessage: 'OpenOCD is missing, please include the path to the openocd executable e.g. usr/bin/openocd, install it, or add it to your PATH variable',
   download: {
     standard: 'http://openocd.org/getting-openocd/',
@@ -79,10 +83,14 @@ const makeDefinition: BuildToolDefinition = {
   standardCmd: 'make',
   otherCmds: ['gmake'],
   folder: false,
-  missingMessage: 'Make is missing, please include the path to the make executable e.g. usr/bin/make, install it, or add it to your PATH variable',
+  missingMessage:
+    // eslint-disable-next-line max-len
+    'Make is missing, please include the path to the make executable e.g. usr/bin/make, install it, or add it to your PATH variable',
   download: {
     darwin: 'https://stackoverflow.com/questions/10265742/how-to-install-make-and-gcc-on-a-mac',
-    windows: 'https://sourceforge.net/projects/gnuwin32/files/make/3.81/make-3.81.exe/download?use_mirror=datapacket&download=',
+    windows:
+      // eslint-disable-next-line max-len
+      'https://sourceforge.net/projects/gnuwin32/files/make/3.81/make-3.81.exe/download?use_mirror=datapacket&download=',
 
   },
   brewCmd: 'brew install make',
@@ -95,7 +103,9 @@ const cmakeDefinition: BuildToolDefinition = {
   standardCmd: 'cmake',
   otherCmds: [],
   folder: false,
-  missingMessage: 'cMake is missing, please include the path to the make executable e.g. usr/bin/cMake, install it, or add it to your PATH variable',
+  missingMessage:
+    // eslint-disable-next-line max-len
+    'cMake is missing, please include the path to the make executable e.g. usr/bin/cMake, install it, or add it to your PATH variable',
   download: {
     standard: 'https://cmake.org/download/',
   },
@@ -110,9 +120,13 @@ export const armNoneEabiDefinition: BuildToolDefinition = {
   standardCmd: 'arm-none-eabi-g++',
   otherCmds: ['arm-none-eabi-g++', 'arm-none-eabi-gcc', 'arm-none-eabi-objcopy', 'arm-none-eabi-size'],
   folder: true,
-  missingMessage: 'The GNU Arm Embedded toolchain is missing, please include the path to the arm-none-eabi-g++ executable e.g. usr/bin/local/arm-none-eabi/bin, install it, or add the arm-none-eabi tooling to your path variable',
+  missingMessage:
+    // eslint-disable-next-line max-len
+    'The GNU Arm Embedded toolchain is missing, please include the path to the arm-none-eabi-g++ executable e.g. usr/bin/local/arm-none-eabi/bin, install it, or add the arm-none-eabi tooling to your path variable',
   download: {
-    standard: 'https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads',
+    standard:
+      // eslint-disable-next-line max-len
+      'https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads',
   },
   requiredByCortexDebug: true,
   configName: 'armToolchainPath',
@@ -330,7 +344,10 @@ function giveWarning(definition: BuildToolDefinition): void {
   const optionString: string[] = ['Get', 'Browse', 'Input Path'];
   if (typeof installString === 'string') { optionString.push(installString); }
   // const options: MessageItem = [{ title: 'Get', isCloseAffordance: false }]
-  const warningMessage = (typeof installString === 'string') ? window.showWarningMessage(definition.missingMessage, 'Get', 'Browse', 'Input Path', installString) : window.showWarningMessage(definition.missingMessage, 'Get', 'Browse', 'Input Path');
+  const warningMessage =
+    (typeof installString === 'string')
+      ? window.showWarningMessage(definition.missingMessage, 'Get', 'Browse', 'Input Path', installString)
+      : window.showWarningMessage(definition.missingMessage, 'Get', 'Browse', 'Input Path');
 
   warningMessage.then((selection: undefined | string) => {
     switch (selection) {

@@ -6,11 +6,16 @@ import * as helpers from '../../../Helpers';
 import { Uri, workspace } from 'vscode';
 import { afterEach, suite, test } from 'mocha';
 import { expect, use } from 'chai';
-import { getCPropertiesConfig, getDefinitions, getIncludePaths, getWorkspaceConfigFile, updateCProperties } from '../../../workspaceConfiguration/CCCPConfig';
+import {
+  getCPropertiesConfig,
+  getDefinitions,
+  getIncludePaths,
+  getWorkspaceConfigFile,
+  updateCProperties
+} from '../../../workspaceConfiguration/CCCPConfig';
 
 import MakeInfo from '../../../types/MakeInfo';
 import { TextEncoder } from 'util';
-import expectedResult from '../../fixtures/launchTaskFixture';
 import { newMakeInfo } from '../../fixtures/makeInfoFixture';
 import { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
 
@@ -206,8 +211,16 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
       ],
       "version": 4
     };
-    expectedCallResult.configurations[0].includePath = _.uniq(expectedCallResult.configurations[0].includePath.concat(getIncludePaths(testMakefileInfo))).sort();
-    expectedCallResult.configurations[0].defines = _.uniq(expectedCallResult.configurations[0].defines.concat(getDefinitions(testMakefileInfo))).sort();
+    expectedCallResult.configurations[0].includePath =
+      _.uniq(
+        expectedCallResult.configurations[0].includePath.concat(
+          getIncludePaths(testMakefileInfo)
+        )).sort();
+    expectedCallResult.configurations[0].defines =
+      _.uniq(
+        expectedCallResult.configurations[0].defines.concat(
+          getDefinitions(testMakefileInfo)
+        )).sort();
     expect(writeFileInWorkspaceFake.getCall(0).args[2]).to.deep.equal(JSON.stringify(expectedCallResult, null, 2));
     expect(writeFileInWorkspaceFake.calledOnceWith(
       mockWorkspaceUri, '.vscode/c_cpp_properties.json',

@@ -28,23 +28,28 @@ import * as pth from 'path';
 import { Uri, window, workspace } from 'vscode';
 
 import { BuildFiles } from './types/MakeInfo';
+
 const path = pth.posix; // did this so everything would be posix.
 
 export const REQUIRED_RESOURCES = [
   {
     file: 'makefile',
+    // eslint-disable-next-line max-len
     warning: 'No Makefile is present, please initialize your project using CubeMX, with the toolchain set to Makefile under the project manager'
   },
   {
     file: 'src',
+    // eslint-disable-next-line max-len
     warning: 'No Src directory is present, please initialize your project using CubeMX, with the toolchain set to Makefile under the project manager'
   },
   {
     file: 'inc',
+    // eslint-disable-next-line max-len
     warning: 'No Inc directory is present, please initialize your project using CubeMX, with the toolchain set to Makefile under the project manager'
   },
   {
     file: 'drivers',
+    // eslint-disable-next-line max-len
     warning: 'No Drivers directory is present, please initialize your project using CubeMX, and under Code Generator make sure that the "Copy all user libraries into the project folder" option is selected.'
   },
 ];
@@ -63,7 +68,7 @@ async function findFilesInDir(dir: string | null): Promise<Uri[]> {
 }
 
 
-/* When a standard project is initialised  this is the file structure:
+/* When a standard project is initialized  this is the file structure:
  |-${projectName}.ioc
  |-Drivers
  |-Inc

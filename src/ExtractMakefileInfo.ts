@@ -171,7 +171,7 @@ export default async function getMakefileInfo(location: string): Promise<MakeInf
     }
 
     // Guard for checking if the makefile name is actually appended to the location
-    if (path.posix.basename(location) != 'Makefile') {
+    if (path.posix.basename(location) !== 'Makefile') {
       loc = path.posix.join(loc, 'Makefile');
     }
 
@@ -180,6 +180,7 @@ export default async function getMakefileInfo(location: string): Promise<MakeInf
     try {
       makefile = await getMakefile(loc);
     } catch (err) {
+      // eslint-disable-next-line max-len
       window.showErrorMessage('Something went wrong with getting the information from the makefile. Please make sure there is a makefile and that the project is initialized through STM32CubeMX.', err);
       reject(err);
       return;
@@ -188,8 +189,3 @@ export default async function getMakefileInfo(location: string): Promise<MakeInf
     resolve(extractMakefileInfo(makefile));
   });
 }
-
-// module.exports = {
-//   getMakefileInfo,
-//   makefileInfo,
-// };

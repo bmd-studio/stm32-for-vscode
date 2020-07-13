@@ -97,7 +97,9 @@ export function checkAndConvertCpp(totalInfo: MakeInfo): MakeInfo {
     return newInfo;
   }
   if (!_.isEmpty(info.cxxSources)) {
-    vscode.window.showWarningMessage('You have several cxx/cpp files, however no main.cpp file. Will ignore these files for now');
+    vscode.window.showWarningMessage(
+      'You have several cxx/cpp files, however no main.cpp file. Will ignore these files for now'
+    );
   }
   // else it is a C only file, so remove all the C++ files and definitions.
   newInfo.cxxSources = [];

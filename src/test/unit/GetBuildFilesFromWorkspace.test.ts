@@ -2,8 +2,15 @@ import * as Sinon from 'sinon';
 import * as assert from 'assert';
 
 import { FileListWithRandomFiles, HeaderFiles, SortedBuildFiles } from '../fixtures/testFileLists';
-import { REQUIRED_RESOURCES, checkForRequiredFiles, convertToRelative, getDirCaseFree, getIncludes, sortFiles } from '../../GetBuildFilesFromWorkspace';
-import { afterEach, it, suite, test } from 'mocha';
+import {
+  REQUIRED_RESOURCES,
+  checkForRequiredFiles,
+  convertToRelative,
+  getDirCaseFree,
+  getIncludes,
+  sortFiles
+} from '../../GetBuildFilesFromWorkspace';
+import { afterEach, suite, test } from 'mocha';
 
 import { expect } from 'chai';
 import { window } from 'vscode';
@@ -29,14 +36,22 @@ suite('GetFilesTest', () => {
     assert.equal(warningMsg.callCount, REQUIRED_RESOURCES.length);
   });
   test('CheckForRequiredFilesSomeFail', () => {
-    const someFiles = ['somePreamble/src', 'somesortofw13r@preamble_ofsomeSort/inc', 'src/tuna', 'src/melt', 'Drivers/STM32_HAL/some_overly_long_file_name_to_depict_some/STM/library_hal_file.c'];
+    const someFiles = ['somePreamble/src',
+      'somesortofw13r@preamble_ofsomeSort/inc',
+      'src/tuna',
+      'src/melt',
+      'Drivers/STM32_HAL/some_overly_long_file_name_to_depict_some/STM/library_hal_file.c'
+    ];
     const warningMsg = Sinon.fake();
     Sinon.replace(window, 'showWarningMessage', warningMsg);
     assert.equal(checkForRequiredFiles(someFiles), false);
     assert.equal(warningMsg.callCount, REQUIRED_RESOURCES.length - 2);
   });
   test('CheckForRequiredFilesSucceeds', () => {
-    const files = ['somePreamble/src', 'somesortofw13r@preamble_ofsomeSort/inc', 'Drivers/STM32_HAL/some_overly_long_file_name_to_depict_some/STM/library_hal_file.c', './preamble_ofsomeSort/preamble/Drivers', 'Makefile'];
+    const files = ['somePreamble/src',
+      'somesortofw13r@preamble_ofsomeSort/inc',
+      'Drivers/STM32_HAL/some_overly_long_file_name_to_depict_some/STM/library_hal_file.c',
+      './preamble_ofsomeSort/preamble/Drivers', 'Makefile'];
     const warningMsg = Sinon.fake();
     Sinon.replace(window, 'showWarningMessage', warningMsg);
     assert.equal(checkForRequiredFiles(files), true);
@@ -46,14 +61,17 @@ suite('GetFilesTest', () => {
     const absolutePaths = [
       'c:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/Makefile',
       'c:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/Inc',
+      // eslint-disable-next-line max-len
       'c:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/Src/someawesomfolder/awesomecakes.cpp'
     ];
     const absolutePathsWithSlashes = [
       'c:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/Makefile/',
       'c:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/Inc/',
+      // eslint-disable-next-line max-len
       'c:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/Src/someawesomfolder/awesomecakes.cpp'
     ];
     const currentWorkspace = 'c:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/';
+    // eslint-disable-next-line max-len
     const currentWorkspaceWithoutSlash = 'c:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/';
     const relativePaths = [
       'Makefile',
@@ -68,11 +86,15 @@ suite('GetFilesTest', () => {
     // test paths that are outside of the relative scope
     const pathsOutsideWorkspace = ['c:somepath/gcc_arm/arm-none-eabi-gcc', 'c:/somepath/workspace/main.cpp'];
     const pathsOutsideWorkspaceOutput = ['../../../c:somepath/gcc_arm/arm-none-eabi-gcc', 'main.cpp'];
-    expect(convertToRelative(pathsOutsideWorkspace, 'c:/somepath/workspace/')).to.deep.equal(pathsOutsideWorkspaceOutput);
+    expect(convertToRelative(pathsOutsideWorkspace, 'c:/somepath/workspace/'))
+      .to.deep.equal(pathsOutsideWorkspaceOutput);
 
   });
   test('includes', () => {
-    const testArr = ['something/otherthing.h', 'c:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/Src/someawesomfolder/thefile.h'];
+    const testArr = ['something/otherthing.h',
+      // eslint-disable-next-line max-len
+      'c:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/Src/someawesomfolder/thefile.h'];
+    // eslint-disable-next-line max-len
     const expectedTestoutput = ['-Ic:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/Src/someawesomfolder', '-Isomething'];
     expect(getIncludes(testArr)).to.deep.equal(expectedTestoutput);
 
