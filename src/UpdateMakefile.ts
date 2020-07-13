@@ -21,14 +21,21 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 */
+
 import * as path from 'path';
-import { window, workspace, Uri } from 'vscode';
+
+import { Uri, window, workspace } from 'vscode';
+
+import MakeInfo from './types/MakeInfo';
 import createMakefile from './CreateMakefile';
 import { makefileName } from './Definitions';
-import MakeInfo from './types/MakeInfo';
 
-
-async function getCurrentMakefile(makefilePath: string): Promise<Error | string> {
+/**
+ * Used to retrieve the makefile, however do not that the requirement of 
+ * having the makefile is checked earlier in the whole process
+ * @param makefilePath path to the makefile, usually it is ./Makefile
+ */
+export async function getCurrentMakefile(makefilePath: string): Promise<Error | string> {
   return new Promise((resolve, reject) => {
     workspace.fs.readFile(Uri.file(makefilePath)).then((currentMakefile) => {
       if (currentMakefile.length === 0) {
@@ -40,7 +47,12 @@ async function getCurrentMakefile(makefilePath: string): Promise<Error | string>
   });
 }
 
-async function writeMakefile(makefilePath: string, makefile: string): Promise<void> {
+/**
+ * Writes the makefile to the specified location
+ * @param makefilePath the path to the makefile
+ * @param makefile the makefile to write in string format
+ */
+export async function writeMakefile(makefilePath: string, makefile: string): Promise<void> {
   return new Promise((resolve) => {
     workspace.fs.writeFile(Uri.file(makefilePath), Buffer.from(makefile, 'utf8')).then(() => { resolve(); });
   });
