@@ -43,11 +43,6 @@ const { platform } = process;
  * @param {string[]} arr
  */
 export function createStringList(arr: string[]): string {
-  // guard against singular entries.
-  if (!_.isArray(arr)) {
-    if (_.isString(arr)) { return arr; }
-    return '';
-  }
   let output = '';
   const sortedArray = _.uniq(arr).sort();
   _.map(sortedArray, (entry: string, ind: number) => {
