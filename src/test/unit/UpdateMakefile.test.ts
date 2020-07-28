@@ -4,7 +4,11 @@ import * as chaiAsPromised from 'chai-as-promised';
 import { Uri, workspace } from 'vscode';
 import { afterEach, suite, test } from 'mocha';
 import { expect, use } from 'chai';
-import { getCurrentMakefile, writeMakefile } from '../../UpdateMakefile';
+import { stm32ForVSCodeResult, testMakefileInfo } from '../fixtures/testSTMCubeMakefile';
+import updateMakefile, { getCurrentMakefile, writeMakefile } from '../../UpdateMakefile';
+
+import { TextEncoder } from 'util';
+import { readFile } from 'fs';
 
 const fs = workspace.fs;
 use(chaiAsPromised);
@@ -29,4 +33,32 @@ suite('Update makefile', () => {
     expect(getCurrentMakefile(makefilePath)).to.eventually.be.rejected;
     expect(workspaceFSReadFileFake.calledOnceWith(Uri.file(makefilePath))).to.be.true;
   });
+  test('write makefile successfully in utf-8 format', async () => {
+    const writeFileFake = Sinon.fake();
+    Sinon.replace(fs, 'writeFile', writeFileFake);
+    const makefilePath = 'AwesomeSTM32Makefile';
+    const makefileString = 'a nice looking makefile';
+    const fileToWriteTo = Uri.file(makefilePath);
+    await writeMakefile(makefilePath, makefileString);
+    expect(writeFileFake.calledOnce).to.be.true;
+    expect(
+      writeFileFake.calledOnceWith(
+        fileToWriteTo,
+        Buffer.from(makefileString, 'utf-8')
+      )
+    ).to.be.true;
+  });
+  test('to not update makefile when same makefile is present', async () => {
+    // TODO: use standard makefiles and makefile info to tests this.
+    const fakeMakefileReadFile = Sinon.fake.returns(new Promise(
+      (resolve) => {
+        resolve(new TextEncoder().encode(stm32ForVSCodeResult));
+      })
+    );
+    Sinon.replace(fs, 'readFile', fakeMakefileReadFile);
+    await updateMakefile('local', testMakefileInfo);
+
+
+  });
+
 });

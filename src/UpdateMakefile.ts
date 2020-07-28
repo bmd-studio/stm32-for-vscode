@@ -42,7 +42,7 @@ export async function getCurrentMakefile(makefilePath: string): Promise<Error | 
         reject(new Error('The makefile was not found'));
         return;
       }
-      resolve(currentMakefile.toString());
+      resolve(Buffer.from(currentMakefile).toString());
     });
   });
 }
