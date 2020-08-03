@@ -132,6 +132,9 @@ export const armNoneEabiDefinition: BuildToolDefinition = {
   configName: 'armToolchainPath',
 };
 
+// TODO: refactor this so you can still add your own path or install it at a default location.
+
+
 /**
  * @description Checks if brew install or apt-get are available and returns
  * a string representation of this.
