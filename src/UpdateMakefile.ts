@@ -67,7 +67,7 @@ export async function writeMakefile(makefilePath: string, makefile: string): Pro
  * necessary for compilation
  */
 export default async function updateMakefile(workspaceLocation: string, info: MakeInfo): Promise<Error | string> {
-  return new Promise(async (resolve, reject) => {
+  return new Promise(async (resolve) => {
     const makefilePath = path.resolve(workspaceLocation, makefileName);
     let oldMakefile;
     try {
@@ -79,13 +79,7 @@ export default async function updateMakefile(workspaceLocation: string, info: Ma
     const newMakefile = createMakefile(info);
     if (newMakefile !== oldMakefile) {
       // console.log('difference in makefile updating');
-      try {
-        await writeMakefile(makefilePath, newMakefile);
-      } catch (err) {
-        window.showErrorMessage(`Something went wrong with creating the new makefile. Error: ${err}`);
-        reject(err);
-        return;
-      }
+      await writeMakefile(makefilePath, newMakefile);
     } else {
       // console.log('makefile is same same');
     }
