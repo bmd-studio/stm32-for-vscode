@@ -88,7 +88,7 @@
     "webpack-dev": "webpack --mode development --watch",
     "webpack-test": "webpack --mode development --config webpack.config-test.js",
     "compile-test": "babel test -d out/test --copy-files && babel src -d out/src",
-    "test": "mocha ./out/runTest.js",
+    "test": "mocha ./out/test/runTest.js",
     "build": "webpack -p",
     "compile": "webpack --mode development"
   },
@@ -118,6 +118,7 @@
   },
   "dependencies": {
     "@types/lodash": "^4.14.149",
+    "core-js": "3",
     "cpp-include": "^1.1.1",
     "ignore": "^5.1.4",
     "json5": "^2.1.0",

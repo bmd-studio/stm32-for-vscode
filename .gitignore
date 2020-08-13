@@ -1,7 +1,8 @@
-
 node_modules
 .vscode
 out
 dist
 .DS_Store
-node_modules
+*.log
+releases
+.vscode-test
