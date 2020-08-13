@@ -3,6 +3,9 @@ node_modules
 out
 dist
 .DS_Store
+*.log
+releases
 node_modules
 .vscode-test
+.nyc_output
 .nyc_output

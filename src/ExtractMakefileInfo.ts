@@ -148,6 +148,12 @@ export function extractMakefileInfo(makefile: string): MakeInfo {
     const info = extractSingleLineInfo(makeFileKey, makefile);
     if (!info || info.length === 0) { return; }
     if (info.indexOf('\\') !== -1) {
+      if (key == "libs") {
+        // Put a colon after each -l
+        infoDef[key].forEach((line, index) => {infoDef[key][index] = "-l:" + line.slice(2)});
+        // There are -l flags on the first line of libs as well, add them back in
+        infoDef[key].unshift(info.replace(/(\s\\$)|(\s.$)/gim, '').trim());
+      }
       _.set(output, key, extractMultiLineInfo(makeFileKey, makefile));
     } else {
       _.set(output, key, info);

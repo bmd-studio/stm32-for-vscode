@@ -17,6 +17,7 @@ There are a few command line tools that needs to be added to the PATH for this e
 - [ST-Link (Drivers and Utility)](https://www.st.com/en/development-tools/st-link-v2.html)
 - [GNU Arm Embedded Toolchain](https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads)
 - Make (platform dependend, [Windows](http://gnuwin32.sourceforge.net/packages/make.htm), OSX: install command line developer tools)
+- OpenOCD: [Windows](https://gnutoolchains.com/arm-eabi/openocd/), [all platforms](https://xpack.github.io/openocd/install/)
 
 ## Configuring CubeMX
 This extension assumes the project initialised with CubeMX and the option to create a Makefile project under Project Manager->Project->Toolchain/IDE.
