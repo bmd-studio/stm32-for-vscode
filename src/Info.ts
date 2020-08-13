@@ -124,6 +124,7 @@ export function combineInfo(makefileInfo: MakeInfo, fileList: BuildFiles, requir
   combineArraysIntoObject(makefileInfo.asmSources, fileList.asmSources, 'asmSources', bundledInfo);
   combineArraysIntoObject(makefileInfo.libs, fileList.libs, 'libs', bundledInfo);
   combineArraysIntoObject(makefileInfo.libDirs, fileList.libDirs, 'libDirs', bundledInfo);
+  combineArraysIntoObject(makefileInfo.cIncludes, fileList.cIncludes, 'cIncludes', bundledInfo);
   // combineArraysIntoObject(makefileInfo.cxxIncludes, [], 'cxxIncludes', bundledInfo);
   // combineArraysIntoObject(makefileInfo.asIncludes, [], 'asIncludes', bundledInfo);
 
@@ -159,11 +160,16 @@ export async function getInfo(location: string): Promise<MakeInfo> {
     const makefileInfoPromise = getMakefileInfo(location);
     const listFilesInfoPromise = getFileList(location);
     const requirementsInfoPromise = getRequirements();
+
     // TODO: also add a get config in here
     Promise.all([makefileInfoPromise, listFilesInfoPromise, requirementsInfoPromise]).then((values) => {
       const [makefileInfo, fileInfo, requirementInfo] = values;
 
-      let combinedInfo = combineInfo(makefileInfo as MakeInfo, fileInfo, requirementInfo);
+      // eslint-disable-next-line no-console
+      console.log('makefile info');
+      // eslint-disable-next-line no-console
+      console.log(makefileInfo);
+      let combinedInfo = combineInfo(makefileInfo, fileInfo, requirementInfo);
       combinedInfo = checkAndConvertCpp(combinedInfo);
       _.assignIn(info, combinedInfo);
       if (!vscode.workspace.workspaceFolders) { throw Error('No workspace folder was selected'); }
