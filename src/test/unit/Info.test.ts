@@ -5,6 +5,6 @@ import { afterEach, suite, test } from 'mocha';
 import { checkAndConvertCpp, checkForFileNameInArray, combineArraysIntoObject, combineInfo, getInfo } from '../../Info';
 import { expect, use } from 'chai';
 
-suite('Info', () => {
+// suite('Info', () => {
 
-}); 
+// }); 

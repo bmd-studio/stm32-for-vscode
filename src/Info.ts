@@ -122,7 +122,8 @@ export function combineInfo(makefileInfo: MakeInfo, fileList: BuildFiles, requir
   combineArraysIntoObject(makefileInfo.cSources, fileList.cSources, 'cSources', bundledInfo);
   combineArraysIntoObject(makefileInfo.cxxSources, fileList.cxxSources, 'cxxSources', bundledInfo);
   combineArraysIntoObject(makefileInfo.asmSources, fileList.asmSources, 'asmSources', bundledInfo);
-  combineArraysIntoObject(makefileInfo.cIncludes, fileList.cIncludes, 'cIncludes', bundledInfo);
+  combineArraysIntoObject(makefileInfo.libs, fileList.libs, 'libs', bundledInfo);
+  combineArraysIntoObject(makefileInfo.libDirs, fileList.libDirs, 'libDirs', bundledInfo);
   // combineArraysIntoObject(makefileInfo.cxxIncludes, [], 'cxxIncludes', bundledInfo);
   // combineArraysIntoObject(makefileInfo.asIncludes, [], 'asIncludes', bundledInfo);
 

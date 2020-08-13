@@ -56,6 +56,19 @@ export function createStringList(arr: string[]): string {
   return output;
 }
 
+/**
+ * @description formats an array of strings into one string with spaces between entries.
+ * @param {string[]} arr
+ */
+export function createSingleLineStringList(arr: string[]): string {
+  let output = '';
+  const sortedArray = _.uniq(arr).sort();
+  sortedArray.map((entry) => {
+    output += `${entry} `;
+  });
+  return output;
+}
+
 export default function createMakefile(makeInfo: MakeInfo): string {
   // NOTE: check for the correct info needs to be given beforehand
   const makeFile = `##########################################################################################################################
@@ -183,8 +196,10 @@ CXXFLAGS += -feliminate-unused-debug-types
 LDSCRIPT = ${makeInfo.ldscript}
 
 # libraries
-LIBS = -lc -lm -lnosys 
-LIBDIR = 
+LIBS = ${createSingleLineStringList(makeInfo.libs)}
+LIBDIR = ${'\\'}
+${createStringList(makeInfo.libDirs)}
+
 LDFLAGS = $(MCU) -specs=nosys.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 # default action: build all

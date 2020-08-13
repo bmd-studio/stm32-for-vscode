@@ -113,6 +113,18 @@ export function extractMultiLineInfo(name: string, makefile: string): string[] {
 }
 
 /**
+ * @description - Extract the libraries from the makefile e.g the nosys library
+ * @param makefile - A string representation of the Makefile
+ */
+export function extractLibs(makefile: string): string[] {
+  const libsString = extractSingleLineInfo('LIBS', makefile);
+  const libRegex = /-l\S*\b/g;
+  const result = libsString.match(libRegex) || [];
+  const stringArrayResult = result.map((entry: string) => entry);
+  return stringArrayResult;
+}
+
+/**
  * @description Function for getting the target from the hal_msp.c file
  * e.g getting the target stm32l4x from: Src/stm32l4xx_hal_msp.c
  * @param {string[]} cFiles
@@ -146,17 +158,25 @@ export function extractMakefileInfo(makefile: string): MakeInfo {
       makeFileKey = 'float-abi';
     }
     const info = extractSingleLineInfo(makeFileKey, makefile);
+
     if (!info || info.length === 0) { return; }
+
     if (info.indexOf('\\') !== -1) {
-      if (key == "libs") {
-        // Put a colon after each -l
-        infoDef[key].forEach((line, index) => {infoDef[key][index] = "-l:" + line.slice(2)});
-        // There are -l flags on the first line of libs as well, add them back in
-        infoDef[key].unshift(info.replace(/(\s\\$)|(\s.$)/gim, '').trim());
-      }
+      // TODO: check if this is unnecessary, as it would automatically add the correct formatting.
+      // However it is added by seancsi so he would probably know why the extra formatting step is necessary
+
+      // if (key == "libs") {
+      //   // Put a colon after each -l
+      //   infoDef[key].forEach((line, index) => {infoDef[key][index] = "-l:" + line.slice(2)});
+      //   // There are -l flags on the first line of libs as well, add them back in
+      //   infoDef[key].unshift(info.replace(/(\s\\$)|(\s.$)/gim, '').trim());
+      // }
       _.set(output, key, extractMultiLineInfo(makeFileKey, makefile));
     } else {
       _.set(output, key, info);
+      if (key === 'libs') {
+        _.set(output, key, extractLibs(makefile));
+      }
     }
   });
 

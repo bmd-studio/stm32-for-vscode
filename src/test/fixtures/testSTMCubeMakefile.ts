@@ -78,6 +78,7 @@ const cIncludes = [
 const asmSources = ['startup_stm32h743xx.s'];
 const floatAbi = '-mfloat-abi=hard';
 const fpu = '-mfpu=fpv5-d16';
+const libs = ['-lc', '-lm', '-lnosys'];
 
 export const testMakefileInfo: MakeInfo = {
   cDefs,
@@ -94,7 +95,9 @@ export const testMakefileInfo: MakeInfo = {
   floatAbi,
   tools: {} as ToolChain,
   ldscript: 'STM32H743ZITx_FLASH.ld',
-  targetMCU: 'stm32h7x'
+  targetMCU: 'stm32h7x',
+  libs,
+  libDirs: [],
 };
 
 export const stm32ForVSCodeResult = `##########################################################################################################################
@@ -259,7 +262,9 @@ LDSCRIPT = STM32H743ZITx_FLASH.ld
 
 # libraries
 LIBS = -lc -lm -lnosys 
-LIBDIR = 
+LIBDIR = \\
+
+
 LDFLAGS = $(MCU) -specs=nosys.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 # default action: build all

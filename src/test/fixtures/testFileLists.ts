@@ -133,6 +133,8 @@ export const cIncludes = [
   '-ISrc',
 ];
 
+export const libDirs = [];
+export const libs = [];  // ['-lc', '-lm', '-lnosys']
 
 export const FileListWithRandomFiles = [
   'randomFile.ts',
@@ -145,4 +147,6 @@ export const SortedBuildFiles: BuildFiles = {
   cIncludes: cIncludes.sort(),
   cSources: cFiles.sort(),
   cxxSources: cxxFiles.sort(),
+  libDirs: libDirs.sort(),
+  libs: libs.sort(),
 };

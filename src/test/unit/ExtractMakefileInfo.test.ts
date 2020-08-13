@@ -27,6 +27,7 @@ import * as assert from 'assert';
 import { FileSystemError, Uri, workspace } from 'vscode';
 import { afterEach, suite, test } from 'mocha';
 import getMakefileInfo, {
+  extractLibs,
   extractMakefileInfo,
   extractMultiLineInfo,
   extractSingleLineInfo,
@@ -62,7 +63,17 @@ suite('MakefileInfoTest', () => {
   test('getTargetSTM', () => {
     assert.equal(getTargetSTM(testMakefileInfo.cSources), 'stm32h7x');
   });
+  test('getLibs', () => {
+    const libLTestString = 'LIBS = -llib -lotherlib -lsomeotherotherLib\n';
+    const result = extractLibs(libLTestString);
+    const expectedResult = [
+      '-llib',
+      '-lotherlib',
+      '-lsomeotherotherLib',
+    ];
+    assert.deepEqual(result, expectedResult);
 
+  });
   test('extractAllInfo', () => {
     const output = extractMakefileInfo(testMakefile);
     assert.deepEqual(output.targetMCU, testMakefileInfo.targetMCU);
@@ -79,6 +90,8 @@ suite('MakefileInfoTest', () => {
     assert.deepEqual(output.asDefs, testMakefileInfo.asDefs);
     assert.deepEqual(output.cxxDefs, testMakefileInfo.cxxDefs);
     assert.deepEqual(output.cDefs, testMakefileInfo.cDefs);
+    assert.deepEqual(output.libs, testMakefileInfo.libs);
+    assert.deepEqual(output.libDirs, testMakefileInfo.libDirs);
   });
   test('getMakefile while the makefile is present', async () => {
     const returnedMakefile = 'short makefile';

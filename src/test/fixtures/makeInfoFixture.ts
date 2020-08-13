@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 
 import MakeInfo from '../../types/MakeInfo';
+
 export function newMakeInfo(info: Partial<MakeInfo>): MakeInfo {
   const standard: MakeInfo = {
     cDefs: [],
@@ -22,7 +23,9 @@ export function newMakeInfo(info: Partial<MakeInfo>): MakeInfo {
       openOCD: '',
       cMake: '',
       make: '',
-    }
+    },
+    libs: [],
+    libDirs: [],
   };
   return _.assign(standard, info);
 }

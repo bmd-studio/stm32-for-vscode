@@ -10,6 +10,8 @@ export interface BuildFilesInterface {
   cSources: string[];
   cxxSources: string[];
   asmSources: string[];
+  libs: string[];
+  libDirs: string[];
 }
 export interface MakeInfoInterface extends BuildFilesInterface {
   cDefs: string[];
@@ -37,6 +39,8 @@ export class BuildFiles implements BuildFilesInterface {
   public cSources: string[] = [];
   public cxxSources: string[] = [];
   public asmSources: string[] = [];
+  public libs: string[] = [];
+  public libDirs: string[] = [];
   // public constructor() { }
 }
 
@@ -48,6 +52,8 @@ export default class MakeInfo implements MakeInfoInterface {
   public cSources: string[] = [];
   public cxxSources: string[] = [];
   public asmSources: string[] = [];
+  public libDirs: string[] = [];
+  public libs: string[] = [];
   public tools: ToolChain = new ToolChain();
   public target = '';
   public cpu = '';
