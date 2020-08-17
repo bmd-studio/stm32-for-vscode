@@ -14,6 +14,7 @@ export default function executeTask(
       reject(Error('no workspace folder is selected'));
       return;
     }
+
     const processTask = new Task(
       { type },
       workspace.workspaceFolders[0],
