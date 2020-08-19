@@ -2,7 +2,7 @@ import * as Sinon from 'sinon';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as path from 'path';
 
-import { FileSystemError, Uri, workspace } from 'vscode';
+import { Uri, workspace } from 'vscode';
 import { afterEach, suite, test } from 'mocha';
 import { expect, use } from 'chai';
 import { stm32ForVSCodeResult, testMakefileInfo } from '../fixtures/testSTMCubeMakefile';

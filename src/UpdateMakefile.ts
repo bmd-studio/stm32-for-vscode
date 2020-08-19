@@ -24,7 +24,7 @@
 
 import * as path from 'path';
 
-import { Uri, window, workspace } from 'vscode';
+import { Uri, workspace } from 'vscode';
 
 import MakeInfo from './types/MakeInfo';
 import createMakefile from './CreateMakefile';
