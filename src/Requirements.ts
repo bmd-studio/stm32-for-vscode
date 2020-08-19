@@ -28,13 +28,15 @@
  */
 
 import * as _ from 'lodash';
-import * as  path from 'path';
+import * as path from 'path';
 import * as process from 'process';
 import * as shelljs from 'shelljs';
 
 import { Uri, env, window, workspace } from 'vscode';
 
 import { ToolChain } from './types/MakeInfo';
+
+// const path pre
 
 interface BuildToolDefinition {
   name: string;
@@ -131,9 +133,6 @@ export const armNoneEabiDefinition: BuildToolDefinition = {
   requiredByCortexDebug: true,
   configName: 'armToolchainPath',
 };
-
-// TODO: refactor this so you can still add your own path or install it at a default location.
-
 
 /**
  * @description Checks if brew install or apt-get are available and returns
