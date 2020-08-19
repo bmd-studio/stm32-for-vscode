@@ -132,13 +132,12 @@
   },
   "dependencies": {
     "@types/lodash": "^4.14.149",
-    "@types/shelljs": "^0.8.7",
     "cpp-include": "^1.1.1",
     "ignore": "^5.1.4",
     "json5": "^2.1.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.20",
     "recursive-readdir": "^2.2.2",
-    "shelljs": "^0.8.3",
+    "shelljs": "^0.8.4",
     "strip-comments": "^2.0.1"
   },
   "taskDefinitions": {}

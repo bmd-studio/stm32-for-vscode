@@ -1,2 +1,0 @@
-### Please read for testing (tldr: run a debug session) ###
-Because only the insider version of VSCode supports running multiple cli instances of code, somehow testing crashed when not run as a debug session. For this reason please use the debug configuration to run tests.
