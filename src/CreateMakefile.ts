@@ -229,7 +229,7 @@ $(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
 \t$(AS) -c $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
-\t$(CC) $(OBJECTS) $(LDFLAGS) -o $@
+\t$(${_.isEmpty(makeInfo.cxxSources) ? 'CC' : 'CXX'}) $(OBJECTS) $(LDFLAGS) -o $@
 \t$(SZ) $@
 
 $(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
