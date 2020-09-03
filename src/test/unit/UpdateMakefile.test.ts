@@ -1,5 +1,6 @@
 import * as Sinon from 'sinon';
 import * as chaiAsPromised from 'chai-as-promised';
+import * as makefileFunctions from '../../CreateMakefile';
 import * as path from 'path';
 
 import { Uri, workspace } from 'vscode';
@@ -51,14 +52,18 @@ suite('Update makefile', () => {
   });
   test('to not update makefile when same makefile is present', async () => {
     // TODO: use standard makefiles and makefile info to tests this.
+
     const fakeMakefileReadFile = Sinon.fake.returns(new Promise(
       (resolve) => {
         resolve(new TextEncoder().encode(stm32ForVSCodeResult));
       })
     );
     const fakeMakefileWriteFile = Sinon.fake.returns(Promise.resolve());
+    const fakeMakefileCreate = Sinon.fake.returns(stm32ForVSCodeResult);
+    Sinon.replace(makefileFunctions, 'default', fakeMakefileCreate);
     Sinon.replace(fs, 'writeFile', fakeMakefileWriteFile);
     Sinon.replace(fs, 'readFile', fakeMakefileReadFile);
+
     await updateMakefile('local', testMakefileInfo);
     expect(fakeMakefileReadFile.calledOnce).to.be.true;
     expect(fakeMakefileWriteFile.callCount).to.equal(0);
@@ -79,7 +84,7 @@ suite('Update makefile', () => {
     expect(fakeMakefileWriteFile.calledOnce).to.be.true;
     expect(
       fakeMakefileWriteFile.calledOnceWith(
-        Uri.file(path.resolve('local', makefileName)),
+        Uri.file(path.posix.join('local', makefileName)),
         Buffer.from(stm32ForVSCodeResult, 'utf8')
       )
     ).to.be.true;
@@ -87,8 +92,8 @@ suite('Update makefile', () => {
 
   test('writemakefile when no earlier makefile is present', async () => {
     const fakeMakefileReadFile = Sinon.fake.returns(new Promise(
-      (resolve) => {
-        resolve([]);
+      (_resolve, reject) => {
+        reject(new Error('makefile is not present'));
       })
     );
     const fakeMakefileWriteFile = Sinon.fake.returns(Promise.resolve());
@@ -99,7 +104,7 @@ suite('Update makefile', () => {
     expect(fakeMakefileWriteFile.calledOnce).to.be.true;
     expect(
       fakeMakefileWriteFile.calledOnceWith(
-        Uri.file(path.resolve('local', makefileName)),
+        Uri.file(path.posix.join('local', makefileName)),
         Buffer.from(stm32ForVSCodeResult, 'utf8')
       )
     ).to.be.true;
