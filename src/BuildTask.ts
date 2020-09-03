@@ -57,15 +57,11 @@ export default async function buildSTM(options: { flash?: boolean; cleanBuild?: 
     }
     try {
       currentWorkspaceFolder = fsPathToPosix(workspace.workspaceFolders[0].uri.fsPath);
-      console.log('getting info');
       info = await getInfo(currentWorkspaceFolder);
-      console.log('updating makefile');
       await updateMakefile(currentWorkspaceFolder, info);
       if (cleanBuild) {
-        console.log('exedcuting clean build task');
         await executeTask('build', 'STM32 clean', `make -f ${makefileName} clean`);
       }
-      console.log('executing build task');
       await executeTask('build', 'STM32 build', `make -f ${makefileName}${flash ? ' flash' : ''}`);
     } catch (err) {
       const errMsg = `Something went wrong during the build process: ${err}`;

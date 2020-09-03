@@ -28,8 +28,6 @@ import * as pth from 'path';
 import { Uri, window, workspace } from 'vscode';
 
 import { BuildFiles } from './types/MakeInfo';
-import { Console } from 'console';
-import {platform} from 'process';
 import {fsPathToPosix} from './Helpers';
 
 const path = pth.posix; // did this so everything would be posix.
@@ -187,7 +185,7 @@ export function convertToRelative(files: string[], loc: string): string[] {
  * @param {string} location - the location of the project, in which it should search for files
  */
 export default async function getFileList(location: string): Promise<BuildFiles> {
-  const FileDirectories = ['Src', 'Lib', 'Inc', 'Core'];  // TODO: check if this fixes the advanced structure, might have side effects
+  const FileDirectories = ['Src', 'Lib', 'Inc', 'Core'];
   if (!workspace.workspaceFolders) { throw Error('No workspace folder found'); }
   return new Promise(async (resolve) => {
     let loc = './';
