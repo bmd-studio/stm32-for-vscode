@@ -40,6 +40,7 @@ import {
 } from './Definitions';
 import updateConfiguration from './workspaceConfiguration/WorkspaceConfigurations';
 import updateMakefile from './UpdateMakefile';
+import {fsPathToPosix} from './Helpers';
 
 export default async function buildSTM(options: { flash?: boolean; cleanBuild?: boolean }): Promise<void> {
   const {
@@ -55,12 +56,16 @@ export default async function buildSTM(options: { flash?: boolean; cleanBuild?: 
       return;
     }
     try {
-      currentWorkspaceFolder = workspace.workspaceFolders[0].uri.fsPath;
+      currentWorkspaceFolder = fsPathToPosix(workspace.workspaceFolders[0].uri.fsPath);
+      console.log('getting info');
       info = await getInfo(currentWorkspaceFolder);
+      console.log('updating makefile');
       await updateMakefile(currentWorkspaceFolder, info);
       if (cleanBuild) {
+        console.log('exedcuting clean build task');
         await executeTask('build', 'STM32 clean', `make -f ${makefileName} clean`);
       }
+      console.log('executing build task');
       await executeTask('build', 'STM32 build', `make -f ${makefileName}${flash ? ' flash' : ''}`);
     } catch (err) {
       const errMsg = `Something went wrong during the build process: ${err}`;

@@ -13,7 +13,8 @@
   - Added debug info for chips not working.
   - Switch to xpm for all platforms to install missing packages.
   - Include dfu programming.
-  - Add support for libraries.
+  - Add support for libraries
+  - Add support for the advanced project structure.
 
 ## [2.1.5] - 13-03-2020
 ### Fixed

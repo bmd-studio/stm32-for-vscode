@@ -79,8 +79,6 @@ export function updateLaunch(
 export function updateTasks(workspacePathUri: Uri): Promise<void> {
   const taskFile = workspace.getConfiguration('tasks', workspacePathUri);
   const tasksConfig: object[] = taskFile.get('tasks', []);
-  // console.log('taskFile');
-  // console.log(JSON.stringify(taskFile));
   let hasBuildConfig = false;
   let hasCleanBuildConfig = false;
   let hasFlashConfig = false;

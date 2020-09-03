@@ -257,7 +257,7 @@ erase: $(BUILD_DIR)/$(TARGET).elf
 # clean up
 #######################################
 clean:
-\t${platform === 'win32' ? 'cmd //C rm -fR' : '-rm -fR'} $(BUILD_DIR)
+\t${platform === 'win32' ? 'cmd /c rm -rf' : '-rm -fR'} $(BUILD_DIR)
 	
 #######################################
 # dependencies
