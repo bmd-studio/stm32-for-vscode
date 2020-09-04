@@ -15,7 +15,7 @@ import { afterEach, suite, test } from 'mocha';
 import { expect } from 'chai';
 import { window } from 'vscode';
 
-suite('GetFilesTest', () => {
+suite('GetBuildFilesFromWorkspaceTest', () => {
   afterEach(() => {
     Sinon.restore();
   });

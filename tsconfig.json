@@ -16,6 +16,9 @@
     "forceConsistentCasingInFileNames": true,
     "strictFunctionTypes": true,
   },
+  "rules": {
+    "no-console": "off",
+  },
   "exclude": [
     "node_modules",
     ".vscode-test",

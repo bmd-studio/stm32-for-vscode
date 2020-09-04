@@ -33,12 +33,8 @@ import setupTestFiles from './testing/SetupTestFiles';
  * @param {vscode.ExtensionContext} context
  */
 export function activate(context: vscode.ExtensionContext): void {
-  // Use the console to output diagnostic information (console.log) and errors
-  // (console.error)
   // This line of code will only be executed once when your extension is
   // activated
-  // console.log('Congratulations, your extension "stm32-for-vscode" is now
-  // active!');
 
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with  registerCommand
@@ -84,10 +80,8 @@ export function activate(context: vscode.ExtensionContext): void {
     'stm32-for-vscode.buildTest',
     async () => new Promise(async (resolve, reject) => {
       try {
-        // console.log('setting up tests files');
         if (!vscode.workspace.workspaceFolders) { throw Error('no workspace folder is open'); }
         await setupTestFiles(vscode.workspace.workspaceFolders[0].uri);
-        // console.log('done setting up');
         resolve();
       } catch (err) {
         reject(err);

@@ -36,14 +36,17 @@ import { makefileName } from './Definitions';
  * @param makefilePath path to the makefile, usually it is ./Makefile
  */
 export async function getCurrentMakefile(makefilePath: string): Promise<Error | string> {
-  return new Promise((resolve, reject) => {
-    workspace.fs.readFile(Uri.file(makefilePath)).then((currentMakefile) => {
-      if (currentMakefile.length === 0) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const currentMakefile = await workspace.fs.readFile(Uri.file(makefilePath));
+      if(currentMakefile.length === 0) {
         reject(new Error('The makefile was not found'));
         return;
       }
-      resolve(Buffer.from(currentMakefile).toString());
-    });
+      resolve(Buffer.from(currentMakefile).toString('utf8'));
+    } catch (error) {
+      reject(error);
+    }
   });
 }
 
@@ -68,20 +71,16 @@ export async function writeMakefile(makefilePath: string, makefile: string): Pro
  */
 export default async function updateMakefile(workspaceLocation: string, info: MakeInfo): Promise<Error | string> {
   return new Promise(async (resolve) => {
-    const makefilePath = path.resolve(workspaceLocation, makefileName);
+    const makefilePath = path.posix.join(workspaceLocation, makefileName);
     let oldMakefile;
     try {
       oldMakefile = await getCurrentMakefile(makefilePath);
     } catch (err) {
       oldMakefile = null;
     }
-    // console.log('creating new makefile with info', info);
     const newMakefile = createMakefile(info);
     if (newMakefile !== oldMakefile) {
-      // console.log('difference in makefile updating');
       await writeMakefile(makefilePath, newMakefile);
-    } else {
-      // console.log('makefile is same same');
     }
     resolve(newMakefile);
   });

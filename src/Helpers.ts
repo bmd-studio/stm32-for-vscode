@@ -4,7 +4,16 @@ import { Uri, workspace, } from 'vscode';
 
 
 
-// FIXME: use native implementation of VSCode
+
+
+export function splitStringLines(input: string): string[] {
+  return input.split(/\r\n|\r|\n/);
+}
+
+export function fsPathToPosix(fsPath: string): string {
+  return fsPath.split(path.sep).join(path.posix.sep);
+}
+
 /**
  * Helper function for writing a file in the workspace. Returns a promise
  * @param workspacePathUri Path to the active workspace
@@ -13,7 +22,7 @@ import { Uri, workspace, } from 'vscode';
  */
 export function writeFileInWorkspace(
   workspacePathUri: Uri, filePath: string, file: string): Promise<void | Error> {
-  const totalPath = path.resolve(workspacePathUri.fsPath, filePath);
+  const totalPath = path.resolve(fsPathToPosix(workspacePathUri.fsPath), filePath);
   const propertiesUri = Uri.file(totalPath);
   const encoder = new TextEncoder();
   return new Promise((resolve, reject) => {
@@ -25,8 +34,4 @@ export function writeFileInWorkspace(
       reject(error);
     }
   });
-}
-
-export function splitStringLines(input: string): string[] {
-  return input.split(/\r\n|\r|\n/);
 }

@@ -28,8 +28,10 @@ import * as pth from 'path';
 import { Uri, window, workspace } from 'vscode';
 
 import { BuildFiles } from './types/MakeInfo';
+import { fsPathToPosix } from './Helpers';
 
 const path = pth.posix; // did this so everything would be posix.
+// TODO: create tests for the advanced makefile structure.
 
 export const REQUIRED_RESOURCES = [
   {
@@ -52,6 +54,8 @@ export const REQUIRED_RESOURCES = [
     // eslint-disable-next-line max-len
     warning: 'No Drivers directory is present, please initialize your project using CubeMX, and under Code Generator make sure that the "Copy all user libraries into the project folder" option is selected.'
   },
+
+
 ];
 
 /**
@@ -182,7 +186,7 @@ export function convertToRelative(files: string[], loc: string): string[] {
  * @param {string} location - the location of the project, in which it should search for files
  */
 export default async function getFileList(location: string): Promise<BuildFiles> {
-  const FileDirectories = ['Src', 'Lib', 'Inc'];
+  const FileDirectories = ['Src', 'Lib', 'Inc', 'Core'];
   if (!workspace.workspaceFolders) { throw Error('No workspace folder found'); }
   return new Promise(async (resolve) => {
     let loc = './';
@@ -193,6 +197,20 @@ export default async function getFileList(location: string): Promise<BuildFiles>
     const dirFiletypes = await workspace.fs.readDirectory(Uri.file(loc));
     const dir = dirFiletypes.map((entry) => entry[0]); // strips the filetype. For now this is not relevant
 
+
+
+    // check for Advanced structure
+    let advancedStructure: string | boolean = _.indexOf(dir, 'Core') > -1 ? dir[_.indexOf(dir, 'Core')] : false;
+    if (!advancedStructure) {
+      advancedStructure = _.indexOf(dir, 'core') > -1 ? dir[_.indexOf(dir, 'core')] : false;
+    }
+    if (advancedStructure) {
+      // it has the advanced makefile structure
+      const coreDirFiletypes = await workspace.fs.readDirectory(Uri.file(path.join(loc, advancedStructure)));
+      coreDirFiletypes.map((entry) => {
+        dir.push(path.join(advancedStructure, entry[0]));
+      });
+    }
     // search src, lib and inc directories for files
     const fileUriProm = FileDirectories.map((dirname: string) => (
       findFilesInDir(getDirCaseFree(dirname, dir)))
@@ -202,11 +220,14 @@ export default async function getFileList(location: string): Promise<BuildFiles>
     }
 
     const fileUris = await Promise.all(fileUriProm);
+
     // converts uris to filesystem paths
     const filePaths = _.flatten(fileUris).map((fileUri) => {
-      return fileUri.fsPath;
+      // fsPath on windows gives a backward slash, using the below conversion
+      // uniform conversion can be achieved.
+      const posixPath = fsPathToPosix(fileUri.fsPath);
+      return posixPath;
     });
-
     const relativeFiles = convertToRelative(filePaths, loc);
 
     // should sort files and add them to fileList.

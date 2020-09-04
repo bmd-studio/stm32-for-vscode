@@ -33,6 +33,7 @@
 			}
 		],
 		"@typescript-eslint/explicit-member-accessibility": 2,
+		"no-console": "warn",
 		"curly": "warn",
 		"eqeqeq": "warn",
 		"no-throw-literal": "warn",

@@ -40,6 +40,7 @@ import {
 } from './Definitions';
 import updateConfiguration from './workspaceConfiguration/WorkspaceConfigurations';
 import updateMakefile from './UpdateMakefile';
+import {fsPathToPosix} from './Helpers';
 
 export default async function buildSTM(options: { flash?: boolean; cleanBuild?: boolean }): Promise<void> {
   const {
@@ -55,7 +56,7 @@ export default async function buildSTM(options: { flash?: boolean; cleanBuild?: 
       return;
     }
     try {
-      currentWorkspaceFolder = workspace.workspaceFolders[0].uri.fsPath;
+      currentWorkspaceFolder = fsPathToPosix(workspace.workspaceFolders[0].uri.fsPath);
       info = await getInfo(currentWorkspaceFolder);
       await updateMakefile(currentWorkspaceFolder, info);
       if (cleanBuild) {

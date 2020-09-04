@@ -164,11 +164,6 @@ export async function getInfo(location: string): Promise<MakeInfo> {
     // TODO: also add a get config in here
     Promise.all([makefileInfoPromise, listFilesInfoPromise, requirementsInfoPromise]).then((values) => {
       const [makefileInfo, fileInfo, requirementInfo] = values;
-
-      // eslint-disable-next-line no-console
-      console.log('makefile info');
-      // eslint-disable-next-line no-console
-      console.log(makefileInfo);
       let combinedInfo = combineInfo(makefileInfo, fileInfo, requirementInfo);
       combinedInfo = checkAndConvertCpp(combinedInfo);
       _.assignIn(info, combinedInfo);

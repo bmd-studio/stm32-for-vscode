@@ -35,6 +35,7 @@ import * as shelljs from 'shelljs';
 import { Uri, env, window, workspace } from 'vscode';
 
 import { ToolChain } from './types/MakeInfo';
+import {fsPathToPosix} from './Helpers';
 
 // const path pre
 
@@ -289,7 +290,7 @@ function checkSingleRequirement(definition: BuildToolDefinition): boolean | stri
 function browseAndAddToConfig(definition: BuildToolDefinition): void {
   window.showOpenDialog({ canSelectFolders: definition.folder, filters: {} }).then((uri) => {
     if (!uri || !uri[0]) { return; }
-    const toolPathRes = checkToolPath(definition, uri[0].fsPath);
+    const toolPathRes = checkToolPath(definition, fsPathToPosix(uri[0].fsPath));
     if (_.isString(toolPathRes)) {
       stm32Config.update(definition.configName, toolPathRes);
       checkSingleRequirement(definition);
@@ -338,7 +339,7 @@ function giveWarning(definition: BuildToolDefinition): void {
       installable = true;
     }
   }
-  // console.log('showing warning message');
+  // ('showing warning message');
 
 
   // FIXME: Show message does not work if installable is null.
@@ -400,7 +401,6 @@ export default function checkRequirements(): ToolChain {
 
   // if no path is present. We should give a warning.
   if (!_.isString(hasOpenOCD)) {
-    // console.log('no open ocd');
     giveWarning(openocdDefinition);
   }
   if (!_.isString(hasMake)) {

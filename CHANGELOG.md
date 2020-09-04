@@ -13,7 +13,8 @@
   - Added debug info for chips not working.
   - Switch to xpm for all platforms to install missing packages.
   - Include dfu programming.
-  - Add support for libraries.
+  - Add support for libraries
+  - Add support for the advanced project structure.
 
 ### Fixed
  - Issue #32: Switched to g++ linker when linking C++ project.
