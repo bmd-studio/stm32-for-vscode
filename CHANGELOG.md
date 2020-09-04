@@ -15,6 +15,9 @@
   - Include dfu programming.
   - Add support for libraries.
 
+### Fixed
+ - Issue #32: Switched to g++ linker when linking C++ project.
+
 ## [2.1.5] - 13-03-2020
 ### Fixed
  - Issue #15: Fixed overwrite off c_cpp_properties and retained added folders.
