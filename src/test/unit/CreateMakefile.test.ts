@@ -5,6 +5,7 @@ import { suite, test } from 'mocha';
 import { expect } from 'chai';
 
 // TODO: add library testing in the mix. 
+// TODO: add test for different programmer inclusions
 suite('CreateMakefile', () => {
   test('check for proper line endings on string list', () => {
     const testEntries = ['hi', 'hello', 'some/filename.txt'];

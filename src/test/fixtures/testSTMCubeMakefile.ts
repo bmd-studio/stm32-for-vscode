@@ -97,7 +97,7 @@ export const testMakefileInfo: MakeInfo = {
   fpu,
   mcu: '$(CPU) -mthumb $(FPU) $(FLOAT-ABI)',
   floatAbi,
-  tools: {} as ToolChain,
+  tools: new ToolChain(),
   ldscript: 'STM32H743ZITx_FLASH.ld',
   targetMCU: 'stm32h7x',
   libs,

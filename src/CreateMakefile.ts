@@ -245,13 +245,13 @@ $(BUILD_DIR):
 # flash
 #######################################
 flash: $(BUILD_DIR)/$(TARGET).elf
-\t${makeInfo.tools.openOCDPath ? makeInfo.tools.openOCDPath : 'openocd'} -f interface/stlink.cfg  -f target/${getTargetConfig(makeInfo.targetMCU)} -c "program $(BUILD_DIR)/$(TARGET).elf verify reset exit"
+\t${makeInfo.tools.openOCDPath ? makeInfo.tools.openOCDPath : 'openocd'} -f ${makeInfo.tools.openOCDInterface}  -f target/${getTargetConfig(makeInfo.targetMCU)} -c "program $(BUILD_DIR)/$(TARGET).elf verify reset exit"
 
 #######################################
 # erase
 #######################################
 erase: $(BUILD_DIR)/$(TARGET).elf
-\t${makeInfo.tools.openOCDPath ? makeInfo.tools.openOCDPath : 'openocd'} -f interface/stlink.cfg -f target/${getTargetConfig(makeInfo.targetMCU)} -c "init; reset halt; ${makeInfo.targetMCU} mass_erase 0; exit"
+\t${makeInfo.tools.openOCDPath ? makeInfo.tools.openOCDPath : 'openocd'} -f ${makeInfo.tools.openOCDInterface} -f target/${getTargetConfig(makeInfo.targetMCU)} -c "init; reset halt; ${makeInfo.targetMCU} mass_erase 0; exit"
 
 #######################################
 # clean up

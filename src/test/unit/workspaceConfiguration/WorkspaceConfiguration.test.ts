@@ -68,7 +68,7 @@ suite('WorkspaceConfiguration', () => {
     expect(updateConfigFake.notCalled).to.be.true;
     Sinon.restore();
   });
-  test('add launch config on similar config', async () => {
+  test('overwrite launch config with the same name', async () => {
     setWorkspaceConfigFakeOutput();
     const { getWorkspaceConfigFake, getConfigInWorkspaceFake, updateConfigFake } = launchFixtures;
     const testUri = Uri.file('local');
@@ -77,7 +77,7 @@ suite('WorkspaceConfiguration', () => {
     expect(getWorkspaceConfigFake.calledOnce).to.be.true;
     expect(getConfigInWorkspaceFake.calledOnceWith('launch', testUri)).to.be.true;
     const configurations = [
-      LaunchTestFile,
+      // LaunchTestFile,
       { ...LaunchTestFile, executable: "./build/othertesttarget.elf" },
     ];
     expect(updateConfigFake.calledOnce).to.be.true;
