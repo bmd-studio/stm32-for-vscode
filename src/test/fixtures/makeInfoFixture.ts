@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 
-import MakeInfo from '../../types/MakeInfo';
+import MakeInfo, { ToolChain } from '../../types/MakeInfo';
 
 export function newMakeInfo(info: Partial<MakeInfo>): MakeInfo {
   const standard: MakeInfo = {
@@ -18,12 +18,7 @@ export function newMakeInfo(info: Partial<MakeInfo>): MakeInfo {
     mcu: '',
     ldscript: '',
     targetMCU: '',
-    tools: {
-      armToolchain: '',
-      openOCD: '',
-      cMake: '',
-      make: '',
-    },
+    tools: new ToolChain(),
     libs: [],
     libDirs: [],
   };

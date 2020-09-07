@@ -35,7 +35,7 @@ import * as shelljs from 'shelljs';
 import { Uri, env, window, workspace } from 'vscode';
 
 import { ToolChain } from './types/MakeInfo';
-import {fsPathToPosix} from './Helpers';
+import { fsPathToPosix } from './Helpers';
 
 // const path pre
 
@@ -78,7 +78,7 @@ export const openocdDefinition: BuildToolDefinition = {
   aptGetCmd: 'apt-get install openocd',
   winCmd: null,
   requiredByCortexDebug: true,
-  configName: 'openocdPath',
+  configName: 'openOCDPath',
 };
 
 const makeDefinition: BuildToolDefinition = {
@@ -413,10 +413,12 @@ export default function checkRequirements(): ToolChain {
     giveWarning(armNoneEabiDefinition);
   }
   return ({
-    openOCD: hasOpenOCD,
-    make: hasMake,
-    cMake: hasCmake,
-    armToolchain: hasArmToolchain,
+    openOCDPath: hasOpenOCD,
+    makePath: hasMake,
+    cMakePath: hasCmake,
+    armToolchainPath: hasArmToolchain,
+    // FIXME: this should not be here, split up once more separation between toolchain and settings occur
+    openOCDInterface: '',
   });
 }
 

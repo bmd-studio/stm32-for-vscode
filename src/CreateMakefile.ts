@@ -125,7 +125,7 @@ ${createStringList(makeInfo.asmSources)}
 PREFIX = arm-none-eabi-
 # The gcc compiler bin path can be either defined in make command via GCC_PATH variable (> make GCC_PATH=xxx)
 # either it can be added to the PATH environment variable.
-${makeInfo.tools.armToolchain ? `GCC_PATH=${makeInfo.tools.armToolchain}` : ''}
+${makeInfo.tools.armToolchainPath ? `GCC_PATH=${makeInfo.tools.armToolchainPath}` : ''}
 ifdef GCC_PATH
 CXX = $(GCC_PATH)/$(PREFIX)g++
 CC = $(GCC_PATH)/$(PREFIX)gcc
@@ -245,13 +245,13 @@ $(BUILD_DIR):
 # flash
 #######################################
 flash: $(BUILD_DIR)/$(TARGET).elf
-\t${makeInfo.tools.openOCD ? makeInfo.tools.openOCD : 'openocd'} -f interface/stlink.cfg  -f target/${getTargetConfig(makeInfo.targetMCU)} -c "program $(BUILD_DIR)/$(TARGET).elf verify reset exit"
+\t${makeInfo.tools.openOCDPath ? makeInfo.tools.openOCDPath : 'openocd'} -f interface/stlink.cfg  -f target/${getTargetConfig(makeInfo.targetMCU)} -c "program $(BUILD_DIR)/$(TARGET).elf verify reset exit"
 
 #######################################
 # erase
 #######################################
 erase: $(BUILD_DIR)/$(TARGET).elf
-\t${makeInfo.tools.openOCD ? makeInfo.tools.openOCD : 'openocd'} -f interface/stlink.cfg -f target/${getTargetConfig(makeInfo.targetMCU)} -c "init; reset halt; ${makeInfo.targetMCU} mass_erase 0; exit"
+\t${makeInfo.tools.openOCDPath ? makeInfo.tools.openOCDPath : 'openocd'} -f interface/stlink.cfg -f target/${getTargetConfig(makeInfo.targetMCU)} -c "init; reset halt; ${makeInfo.targetMCU} mass_erase 0; exit"
 
 #######################################
 # clean up

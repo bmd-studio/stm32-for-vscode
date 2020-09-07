@@ -17,6 +17,7 @@ import {
 import MakeInfo from '../../../types/MakeInfo';
 import { TextEncoder } from 'util';
 import { newMakeInfo } from '../../fixtures/makeInfoFixture';
+import { standardOpenOCDInterface } from '../../../Definitions';
 import { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
 
 const fs = workspace.fs;
@@ -48,10 +49,11 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
       asDefs: ['-DasDefinition', '-DescriptiveDef'],
       cIncludes: ['-IsomeInclude/Path', '-ISome/other/1nclud3p@th/w1th5omeW135DCh@r$'],
       tools: {
-        armToolchain: 'start/somelocation/',  //TODO: check if the slash is always added
-        openOCD: true,
-        cMake: true,
-        make: true,
+        armToolchainPath: 'start/somelocation/',  //TODO: check if the slash is always added
+        openOCDPath: true,
+        cMakePath: true,
+        makePath: true,
+        openOCDInterface: standardOpenOCDInterface,
       },
     });
 

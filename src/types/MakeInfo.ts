@@ -1,8 +1,18 @@
+import { standardOpenOCDInterface } from '../Definitions';
+
+export interface Stm32SettingsInterface {
+  armToolchainPath: string;
+  openOCDPath: string;
+  makePath: string;
+  openOCDInterface: string;
+}
+
 export interface ToolChainInterface {
-  openOCD: string | boolean;
-  make: string | boolean;
-  cMake: string | boolean;
-  armToolchain: string | boolean;
+  openOCDPath: string | boolean;
+  makePath: string | boolean;
+  cMakePath: string | boolean;
+  armToolchainPath: string | boolean;
+  openOCDInterface: string;
 }
 
 export interface BuildFilesInterface {
@@ -28,10 +38,11 @@ export interface MakeInfoInterface extends BuildFilesInterface {
 }
 
 export class ToolChain implements ToolChainInterface {
-  public openOCD: string | boolean = false;
-  public make: string | boolean = false;
-  public cMake: string | boolean = false;
-  public armToolchain: string | boolean = false;
+  public openOCDPath: string | boolean = false;
+  public makePath: string | boolean = false;
+  public cMakePath: string | boolean = false;
+  public armToolchainPath: string | boolean = false;
+  public openOCDInterface = standardOpenOCDInterface;
   // public constructor() { }
 }
 export class BuildFiles implements BuildFilesInterface {
