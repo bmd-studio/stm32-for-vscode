@@ -1,18 +1,13 @@
+import * as CCCPConfig from '../../../workspaceConfiguration/CCCPConfig';
 import * as Sinon from 'sinon';
 import * as _ from 'lodash';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as helpers from '../../../Helpers';
+import * as shelljs from 'shelljs';
 
 import { Uri, workspace } from 'vscode';
-import { afterEach, suite, test } from 'mocha';
+import { afterEach, beforeEach, suite, test } from 'mocha';
 import { expect, use } from 'chai';
-import {
-  getCPropertiesConfig,
-  getDefinitions,
-  getIncludePaths,
-  getWorkspaceConfigFile,
-  updateCProperties
-} from '../../../workspaceConfiguration/CCCPConfig';
 
 import MakeInfo from '../../../types/MakeInfo';
 import { TextEncoder } from 'util';
@@ -20,11 +15,25 @@ import { newMakeInfo } from '../../fixtures/makeInfoFixture';
 import { standardOpenOCDInterface } from '../../../Definitions';
 import { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
 
+const {
+  getCPropertiesConfig,
+  getDefinitions,
+  getIncludePaths,
+  getWorkspaceConfigFile,
+  updateCProperties,
+  // getAbsoluteCompilerPath,
+} = CCCPConfig;
+
+
 const fs = workspace.fs;
 use(chaiAsPromised);
 suite('CCCPConfig test (c_cpp_properties configuration', () => {
   afterEach(() => {
     Sinon.restore();
+  });
+  beforeEach(() => {
+    Sinon.replace(shelljs, 'which', Sinon.fake.returns('arm-none-eabi-gcc'));
+    Sinon.replace(CCCPConfig, 'getAbsoluteCompilerPath', Sinon.fake.returns('arm-none-eabi-gcc'));
   });
   test('includePath conversion', () => {
     // as include paths start with -I for the makefile, these should be converted back to regular paths
@@ -43,6 +52,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     expect(getDefinitions(testDefs).sort()).to.deep.equal(result);
   });
   test('getCProperties', () => {
+
     const ingoing: MakeInfo = newMakeInfo({
       cDefs: ['-DdefSomeC', '-DdefSomeD'],
       cxxDefs: ['-DefineThis', '-Definethat'],
@@ -61,7 +71,9 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
       name: 'STM32',
       includePath: ['someInclude/Path', 'Some/other/1nclud3p@th/w1th5omeW135DCh@r$'].sort(),
       defines: ['defSomeC', 'defSomeD', 'efineThis', 'efinethat', 'asDefinition', 'escriptiveDef'].sort(),
+      compilerPath: 'arm-none-eabi-gcc',
     };
+
     const testOutput = getCPropertiesConfig(ingoing);
     testOutput.includePath.sort();
     testOutput.defines.sort();
@@ -78,6 +90,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
         name: 'STM32',
         includePath: _.uniq(getIncludePaths(testMakefileInfo)).sort(),
         defines: _.uniq(getDefinitions(testMakefileInfo)).sort(),
+        compilerPath: 'arm-none-eabi-gcc',
       }
       ],
       version: 4,
@@ -133,6 +146,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
           name: 'STM32',
           includePath: _.uniq(getIncludePaths(testMakefileInfo)).sort(),
           defines: _.uniq(getDefinitions(testMakefileInfo)).sort(),
+          compilerPath: "arm-none-eabi-gcc",
         }
       ],
       "version": 4
@@ -155,6 +169,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
         name: 'STM32',
         includePath: _.uniq(getIncludePaths(testMakefileInfo)).sort(),
         defines: _.uniq(getDefinitions(testMakefileInfo)).sort(),
+        compilerPath: 'arm-none-eabi-gcc',
       }
       ],
       version: 4,

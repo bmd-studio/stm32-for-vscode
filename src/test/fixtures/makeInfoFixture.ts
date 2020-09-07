@@ -21,6 +21,7 @@ export function newMakeInfo(info: Partial<MakeInfo>): MakeInfo {
     tools: new ToolChain(),
     libs: [],
     libDirs: [],
+    language: 'C',
   };
   return _.assign(standard, info);
 }

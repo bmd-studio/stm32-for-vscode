@@ -102,6 +102,7 @@ export const testMakefileInfo: MakeInfo = {
   targetMCU: 'stm32h7x',
   libs,
   libDirs: [],
+  language: 'C',
 };
 
 export const stm32ForVSCodeResult = `##########################################################################################################################

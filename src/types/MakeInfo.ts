@@ -23,6 +23,8 @@ export interface BuildFilesInterface {
   libs: string[];
   libDirs: string[];
 }
+
+export type STM32Languages = 'C' | 'C++';
 export interface MakeInfoInterface extends BuildFilesInterface {
   cDefs: string[];
   cxxDefs: string[];
@@ -35,6 +37,7 @@ export interface MakeInfoInterface extends BuildFilesInterface {
   mcu: string;
   ldscript: string;
   targetMCU: string;
+  language: STM32Languages;
 }
 
 export class ToolChain implements ToolChainInterface {
@@ -73,5 +76,6 @@ export default class MakeInfo implements MakeInfoInterface {
   public mcu = '';
   public ldscript = '';
   public targetMCU = '';
+  public language = 'C' as STM32Languages;
   // public constructor() { }
 }

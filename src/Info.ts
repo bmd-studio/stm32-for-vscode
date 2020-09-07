@@ -142,6 +142,7 @@ export function combineInfo(makefileInfo: MakeInfo, fileList: BuildFiles, requir
   if (requirementInfo) {
     _.set(bundledInfo, 'tools', requirementInfo); // extra check to not break tests, if this is not provided.
   }
+  if (!_.isEmpty(bundledInfo.cxxSources)) { bundledInfo.language = 'C++'; }
 
   return bundledInfo;
 }

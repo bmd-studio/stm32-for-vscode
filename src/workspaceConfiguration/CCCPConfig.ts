@@ -1,4 +1,5 @@
 import * as _ from 'lodash';
+import * as shelljs from 'shelljs';
 
 import { Uri, workspace, } from 'vscode';
 
@@ -48,6 +49,18 @@ export function getDefinitions(
 }
 
 /**
+ * @description function for getting the absolute compiler path
+ * @param info MakeInfo containing all the info required for building the
+ *     project
+ */
+export function getAbsoluteCompilerPath(info: MakeInfo): string {
+  const compiler = info.language === 'C' ? 'arm-none-eabi-gcc' : 'arm-none-eabi-g++';
+  const relativeCompilerPath = (info.tools.armToolchainPath || '') + compiler;
+  const compilerPath = shelljs.which(relativeCompilerPath);
+  return compilerPath;
+}
+
+/**
  * Function for getting the basic configuration for STM32 for the
  * c_cpp_properties file
  * @param info MakeInfo containing all the info required for building the
@@ -58,17 +71,15 @@ export function getCPropertiesConfig(info: MakeInfo): CCppConfig {
     name: 'STM32',
     includePath: getIncludePaths(info),
     defines: getDefinitions(info),
-    // Below should be left to default.
-    // compilerPath: (info.tools.armToolchain || '') + 'arm-none-eabi-gcc',
-    // cStandard: 'c11',
-    // cppStandard: 'c++11',
+    compilerPath: getAbsoluteCompilerPath(info),
   };
   return config;
 }
 
 
 /**
- * Gets the c_cpp_properties.json file from the current workspace.
+ * @description Gets the c_cpp_properties.json file from the current workspace.
+ * @Note This cannot be done by workpace.getConfiguration as it is not a standard .vscode configuration.
  */
 export async function getWorkspaceConfigFile(): Promise<null | CCppProperties> {
   return new Promise(async (resolve) => {
@@ -84,8 +95,6 @@ export async function getWorkspaceConfigFile(): Promise<null | CCppProperties> {
   });
 }
 
-// TODO: check for path validity. Is low prio as vscode does this for you
-// already. But would be more elegant.
 /**
  * Updates the c_cpp_properties.json file if there are changes.Currently it
  * works additively so once an include path or definition is added it wil not
@@ -133,10 +142,12 @@ export async function updateCProperties(workspacePathUri: Uri, info: MakeInfo): 
       _.uniq(stmConfiguration.defines.concat(definitions)).sort();
     stmConfiguration.includePath =
       _.uniq(stmConfiguration.includePath.concat(includes)).sort();
+    stmConfiguration.compilerPath = getAbsoluteCompilerPath(info);
     configFile.configurations[stmConfigIndex] = stmConfiguration;
 
     if (!_.isEqual(stmConfiguration.defines, oldConfig.defines) ||
-      !_.isEqual(stmConfiguration.includePath, oldConfig.includePath)) {
+      !_.isEqual(stmConfiguration.includePath, oldConfig.includePath)
+      || !_.isEqual(stmConfiguration.compilerPath, oldConfig.compilerPath)) {
       needsUpdating = true;
     }
     if (!needsUpdating) {
