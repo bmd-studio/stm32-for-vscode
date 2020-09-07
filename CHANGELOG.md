@@ -12,6 +12,10 @@
   - Switch to xpm for all platforms to install missing packages.
   - Include dfu programming.
 
+## [2.2.2] - 2020-09-07
+### Fixed
+ - Issue #25: Added absolute compiler path to c_cpp_properties.json
+
 ## [2.2.1] - 2020-09-07
 ### Added
  - Issue #11 & Issue #33 : Add support for different programmers.
