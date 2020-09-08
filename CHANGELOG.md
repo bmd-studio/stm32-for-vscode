@@ -7,12 +7,18 @@
   - Add a separate file for config options, like compiler flags.
   - Add support for unit testing using Google Test and Google Mock.
   - Add support for windows with xpm install.
-  - Issue #11: Add support for different programmers.
-  - Add support for newer chipsets e.g. G0 and WB for openocd. Config files should be included in current application.
   - Add dual bank support
   - Added debug info for chips not working.
   - Switch to xpm for all platforms to install missing packages.
   - Include dfu programming.
+
+## [2.2.2] - 2020-09-07
+### Fixed
+ - Issue #25: Added absolute compiler path to c_cpp_properties.json
+
+## [2.2.1] - 2020-09-07
+### Added
+ - Issue #11 & Issue #33 : Add support for different programmers.
   
 ## [2.2.0] - 2020-09-04
 ### Fixed

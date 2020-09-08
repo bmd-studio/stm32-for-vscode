@@ -2,7 +2,7 @@
   "name": "stm32-for-vscode",
   "displayName": "stm32-for-vscode",
   "description": "An extension for: setting up, compiling, uploading and debugging STM32 applications",
-  "version": "2.2.0",
+  "version": "2.2.2",
   "engines": {
     "vscode": "^1.44.0"
   },
@@ -57,7 +57,7 @@
       "type": "object",
       "title": "STM32 for VSCode configuration",
       "properties": {
-        "stm32-for-vscode.openocdPath": {
+        "stm32-for-vscode.openOCDPath": {
           "type": "string",
           "default": "",
           "description": "Path to openOCD, will use the one in PATH or the cortex-debug settings automatically"
@@ -72,7 +72,7 @@
           "default": "",
           "description": "Path to the GCC Arm Toolchain (prefix arm-none-eabi) to use, will use the one in PATH or the cortex-debug settings as default"
         },
-        "stm32-for-vscode.openocd-programmer": {
+        "stm32-for-vscode.openOCDInterface": {
           "type": "string",
           "default": "interface/stlink.cfg",
           "description": "The standard programmer to be used for erasing, flashing and debugging. The standard for STM32 nucleo, discovery and eval boards is: interface/stlink.cfg"
@@ -105,8 +105,8 @@
     "@types/node": "^10.12.21",
     "@types/sinon": "^9.0.1",
     "@types/vscode": "1.38",
-    "@typescript-eslint/eslint-plugin": "^2.33.0",
-    "@typescript-eslint/parser": "^2.33.0",
+    "@typescript-eslint/eslint-plugin": "^2.34.0",
+    "@typescript-eslint/parser": "^2.34.0",
     "babel-core": "^6.26.3",
     "babel-loader": "^8.0.6",
     "babel-polyfill": "^6.26.0",
@@ -121,7 +121,7 @@
     "nyc": "^15.1.0",
     "sinon": "^7.4.2",
     "ts-loader": "^6.2.1",
-    "typescript": "^3.8.3",
+    "typescript": "^3.9.7",
     "vscode-test": "^1.3.0",
     "webpack": "^4.39.3",
     "webpack-cli": "^3.3.2"

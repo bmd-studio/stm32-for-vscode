@@ -23,3 +23,4 @@
 */
 export const makefileName = 'STM32Make.make';
 export const ignoreFileName = '.stm32ignore';
+export const standardOpenOCDInterface = 'interface/stlink.cfg';

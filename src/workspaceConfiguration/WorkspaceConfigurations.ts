@@ -30,7 +30,7 @@
 
 import * as _ from 'lodash';
 
-import { Uri, workspace, } from 'vscode';
+import { DebugConfiguration, Uri, workspace } from 'vscode';
 
 import MakeInfo from '../types/MakeInfo';
 import buildTasks from './BuildTasksConfig';
@@ -53,15 +53,23 @@ export function updateLaunch(
   const launchConfig: object[] = launchFile.get('configurations', []);
   const config = getLaunchTask(info);
   let hasConfig = false;
+  let configWithSameNameIndex = -1;
   if (launchConfig && !_.isEmpty(launchConfig)) {
-    _.map(launchConfig, (entry: object) => {
+    _.map(launchConfig, (entry: DebugConfiguration, index) => {
       if (_.isEqual(config, entry)) {
         hasConfig = true;
+      }
+      if (entry.name === config.name) {
+        configWithSameNameIndex = index;
       }
     });
   }
   if (!hasConfig) {
-    launchConfig.push(config);
+    if (configWithSameNameIndex >= 0) {
+      launchConfig[configWithSameNameIndex] = config;
+    } else {
+      launchConfig.push(config);
+    }
     // if not update the launchJSON
     return new Promise((resolve) => {
       launchFile.update('configurations', launchConfig).then(() => {
