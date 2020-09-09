@@ -34,6 +34,7 @@ import 'process';
 import * as _ from 'lodash';
 
 import MakeInfo from './types/MakeInfo';
+import { convertToolPathToAbsolutePath } from './Helpers';
 import getTargetConfig from './OpenOcdTargetFiles';
 
 const { platform } = process;
@@ -67,6 +68,15 @@ export function createSingleLineStringList(arr: string[]): string {
     output += `${entry} `;
   });
   return output;
+}
+
+export function createGCCPathOutput(makeInfo: MakeInfo): string {
+  if (makeInfo.tools.armToolchainPath && _.isString(makeInfo.tools.armToolchainPath)) {
+    if (!_.isEmpty(makeInfo.tools.armToolchainPath) && makeInfo.tools.armToolchainPath !== '.') {
+      return `GCC_PATH=${convertToolPathToAbsolutePath(makeInfo.tools.armToolchainPath + '/arm-none-eabi-gcc', true)}`;
+    }
+  }
+  return '';
 }
 
 export default function createMakefile(makeInfo: MakeInfo): string {
@@ -125,7 +135,7 @@ ${createStringList(makeInfo.asmSources)}
 PREFIX = arm-none-eabi-
 # The gcc compiler bin path can be either defined in make command via GCC_PATH variable (> make GCC_PATH=xxx)
 # either it can be added to the PATH environment variable.
-${makeInfo.tools.armToolchainPath ? `GCC_PATH=${makeInfo.tools.armToolchainPath}` : ''}
+${createGCCPathOutput(makeInfo)}
 ifdef GCC_PATH
 CXX = $(GCC_PATH)/$(PREFIX)g++
 CC = $(GCC_PATH)/$(PREFIX)gcc

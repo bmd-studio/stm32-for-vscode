@@ -11,6 +11,10 @@
   - Added debug info for chips not working.
   - Switch to xpm for all platforms to install missing packages.
   - Include dfu programming.
+  
+## [2.2.3] - 2020-09-08
+### Fixed
+ - Fixed issue where the makefile did not respond well to relative paths for the gcc compiler.
 
 ## [2.2.2] - 2020-09-07
 ### Fixed

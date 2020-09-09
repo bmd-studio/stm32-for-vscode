@@ -1,10 +1,9 @@
 import * as path from 'path';
-import { TextEncoder } from 'util';
+import * as shelljs from 'shelljs';
+
 import { Uri, workspace, } from 'vscode';
 
-
-
-
+import { TextEncoder } from 'util';
 
 export function splitStringLines(input: string): string[] {
   return input.split(/\r\n|\r|\n/);
@@ -12,6 +11,16 @@ export function splitStringLines(input: string): string[] {
 
 export function fsPathToPosix(fsPath: string): string {
   return fsPath.split(path.sep).join(path.posix.sep);
+}
+
+export function convertToolPathToAbsolutePath(toolPath: string, dir?: boolean): string {
+  const absolutePAth = shelljs.which(toolPath);
+  let returnPath = absolutePAth;
+  returnPath = fsPathToPosix(returnPath);
+  if (dir) {
+    returnPath = path.posix.dirname(returnPath);
+  }
+  return returnPath;
 }
 
 /**
