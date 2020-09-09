@@ -70,6 +70,15 @@ export function createSingleLineStringList(arr: string[]): string {
   return output;
 }
 
+export function createGCCPathOutput(makeInfo: MakeInfo): string {
+  if (makeInfo.tools.armToolchainPath && _.isString(makeInfo.tools.armToolchainPath)) {
+    if (!_.isEmpty(makeInfo.tools.armToolchainPath) && makeInfo.tools.armToolchainPath !== '.') {
+      return `GCC_PATH=${convertToolPathToAbsolutePath(makeInfo.tools.armToolchainPath + '/arm-none-eabi-gcc', true)}`;
+    }
+  }
+  return '';
+}
+
 export default function createMakefile(makeInfo: MakeInfo): string {
   // NOTE: check for the correct info needs to be given beforehand
   const makeFile = `##########################################################################################################################
@@ -126,7 +135,11 @@ ${createStringList(makeInfo.asmSources)}
 PREFIX = arm-none-eabi-
 # The gcc compiler bin path can be either defined in make command via GCC_PATH variable (> make GCC_PATH=xxx)
 # either it can be added to the PATH environment variable.
+${createGCCPathOutput(makeInfo)}
 ifdef GCC_PATH
+CXX = $(GCC_PATH)/$(PREFIX)g++
+CC = $(GCC_PATH)/$(PREFIX)gcc
+AS = $(GCC_PATH)/$(PREFIX)gcc -x assembler-with-cpp
 CP = $(GCC_PATH)/$(PREFIX)objcopy
 SZ = $(GCC_PATH)/$(PREFIX)size
 else
