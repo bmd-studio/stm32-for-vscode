@@ -118,7 +118,7 @@ export function extractMultiLineInfo(name: string, makefile: string): string[] {
  */
 export function extractLibs(makefile: string): string[] {
   const libsString = extractSingleLineInfo('LIBS', makefile);
-  const libRegex = /-l\S*\b/g;
+  const libRegex = /-l\S*/g;
   const result = libsString.match(libRegex) || [];
   const stringArrayResult = result.map((entry: string) => entry);
   return stringArrayResult;

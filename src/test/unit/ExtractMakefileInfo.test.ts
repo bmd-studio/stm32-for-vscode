@@ -64,15 +64,15 @@ suite('MakefileInfoTest', () => {
     assert.equal(getTargetSTM(testMakefileInfo.cSources), 'stm32h7x');
   });
   test('getLibs', () => {
-    const libLTestString = 'LIBS = -llib -lotherlib -lsomeotherotherLib\n';
+    const libLTestString = 'LIBS = -llib -lotherlib -lsomeotherotherLib -lstdc++\n';
     const result = extractLibs(libLTestString);
     const expectedResult = [
       '-llib',
       '-lotherlib',
       '-lsomeotherotherLib',
+      '-lstdc++',
     ];
-    assert.deepEqual(result, expectedResult);
-
+    expect(result).to.deep.equal(expectedResult);
   });
   test('extractAllInfo', () => {
     const output = extractMakefileInfo(testMakefile);
