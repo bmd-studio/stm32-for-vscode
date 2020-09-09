@@ -37,20 +37,13 @@
  *   LDSCRIPT
  * Created by Jort Band- Bureau Moeilijke Dingen
  */
-/* eslint no-param-reassign: ["error", {
-  "props": true, "ignorePropertyModificationsFor": ["infoDef"] }] */
-// const fs = require('fs'); // TODO: Rewrite this to use native Vscode implementation
 
 import * as _ from 'lodash';
 import * as path from 'path';
 
 import { Uri, window, workspace } from 'vscode';
 
-import MakeInfo from './types/MakeInfo';
-
-// FIXME: global variable. Perhaps not the best idea.
-export const makefileInfo = {} as MakeInfo;
-
+import MakeInfo from '../types/MakeInfo';
 
 /**
  * @description
