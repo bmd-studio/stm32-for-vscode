@@ -3,7 +3,9 @@ import * as _ from 'lodash';
 import { BuildFiles, MakeInfo, ToolChain } from '../types/MakeInfo';
 
 import { combineArraysIntoObject } from './infoHelpers';
+import getFileList from './getFiles';
 import getMakefileInfo from './getCubeMakefileInfo';
+import getSettings from './getSettings';
 
 /**
  * @description Combines the information from the Makefile and the FileList
