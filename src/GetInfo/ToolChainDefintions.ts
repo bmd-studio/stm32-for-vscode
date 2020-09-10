@@ -2,7 +2,7 @@ import { ToolChain } from '../types/MakeInfo';
 
 // const path pre
 
-interface BuildToolDefinition {
+export interface BuildToolDefinition {
   name: string;
   standardCmd: string;
   otherCmds: string[];
@@ -51,8 +51,8 @@ const cmakeDefinition: BuildToolDefinition = {
 
 export const armNoneEabiDefinition: BuildToolDefinition = {
   name: 'Arm toolchain',
-  standardCmd: 'arm-none-eabi-g++',
-  otherCmds: ['arm-none-eabi-g++', 'arm-none-eabi-gcc', 'arm-none-eabi-objcopy', 'arm-none-eabi-size'],
+  standardCmd: 'arm-none-eabi-gcc',
+  otherCmds: [],
   folder: true,
   installation: {
     xpm: '@xpack-dev-tools/arm-none-eabi-gcc@latest',
