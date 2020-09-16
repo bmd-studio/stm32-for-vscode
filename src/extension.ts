@@ -68,8 +68,7 @@ export function activate(context: vscode.ExtensionContext): void {
   );
   const cleanBuildCmd = vscode.commands.registerCommand(
     'stm32-for-vscode.cleanBuild',
-    async (args, moreARgs) => new Promise(async (resolve, reject) => {
-      console.log('args', args, moreARgs);
+    async () => new Promise(async (resolve, reject) => {
       try {
         await buildSTM({
           cleanBuild: true,
