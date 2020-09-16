@@ -11,6 +11,10 @@
   - Added debug info for chips not working.
   - Switch to xpm for all platforms to install missing packages.
   - Include dfu programming.
+  - 
+## [2.2.4] - 2020-09-16
+### Fixed
+ - Issue #36: rm command is not found on windows. Used suggested fix by bw1faeh0
   
 ## [2.2.3] - 2020-09-08
 ### Fixed
