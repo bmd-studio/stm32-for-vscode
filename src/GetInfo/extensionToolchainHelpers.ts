@@ -62,9 +62,16 @@ export function compareVersions(version1: XPMToolVersion | null, version2: XPMTo
 
 export function getNewestToolchainVersion(tool: BuildToolDefinition): Promise<XPMToolVersion | boolean> {
   return new Promise((resolve, reject) => {
-    if(!tool.xpmName ) {reject(new Error('No xpm name found in definition file'));return;}
+    if(!tool.xpmName ) {
+      reject(new Error('No xpm name found in definition file'));
+      return;
+    }
     const toolPath = vscode.Uri.file(path.join(INSTALLATION_PATH, TOOL_FOLDER_PATH, tool.xpmName));
     vscode.workspace.fs.readDirectory(toolPath).then((files) => {
+      if(!files) {
+        reject(new Error('No files found'));
+        return;
+      }
       let newest: XPMToolVersion | null = null;
       files.map((file) => {
         const [fileName, fileType] = file;
