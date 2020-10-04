@@ -28,7 +28,8 @@
     "onCommand:stm32-for-vscode.build",
     "onCommand:stm32-for-vscode.flash",
     "onCommand:stm32-for-vscode.cleanBuild",
-    "onCommand:stm32-for-vscode.buildTest"
+    "onCommand:stm32-for-vscode.buildTest",
+    "workspaceContains:*.ioc"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -124,7 +125,8 @@
     "typescript": "^3.9.7",
     "vscode-test": "^1.3.0",
     "webpack": "^4.39.3",
-    "webpack-cli": "^3.3.2"
+    "webpack-cli": "^3.3.2",
+    "@xpack-dev-tools/openocd": "0.10.0-14.3"
   },
   "dependencies": {
     "@types/lodash": "^4.14.149",
