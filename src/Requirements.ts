@@ -36,7 +36,7 @@ import { Uri, env, window, workspace } from 'vscode';
 
 import { ToolChain } from './types/MakeInfo';
 import { fsPathToPosix } from './Helpers';
-import getSettingsFromWorkspace from './GetSettings';
+import getSettingsFromWorkspace from './getInfo/getSettings';
 
 // const path pre
 

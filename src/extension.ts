@@ -27,6 +27,7 @@
 import * as vscode from 'vscode';
 
 import buildSTM from './BuildTask';
+import { checkBuildTools } from './buildTools';
 import setupTestFiles from './testing/SetupTestFiles';
 
 // // this method is called when your extension is activated
@@ -42,60 +43,66 @@ export function activate(context: vscode.ExtensionContext): void {
   // The command has been defined in the package.json file
   // Now provide the implementation of the command with  registerCommand
   // The commandId parameter must match the command field in package.json
-  const buildCmd = vscode.commands.registerCommand(
-    'stm32-for-vscode.build',
-    async () => new Promise(async (resolve, reject) => {
-      try {
-        await buildSTM({});
-        resolve();
-      } catch (err) {
-        reject(err);
-      }
-    }),
-  );
-  const flashCmd = vscode.commands.registerCommand(
-    'stm32-for-vscode.flash',
-    async () => new Promise(async (resolve, reject) => {
-      try {
-        await buildSTM({
-          flash: true,
-        });
-        resolve();
-      } catch (err) {
-        reject(err);
-      }
-    }),
-  );
-  const cleanBuildCmd = vscode.commands.registerCommand(
-    'stm32-for-vscode.cleanBuild',
-    async (args, moreARgs) => new Promise(async (resolve, reject) => {
-      console.log('args', args, moreARgs);
-      try {
-        await buildSTM({
-          cleanBuild: true,
-        });
-        resolve();
-      } catch (err) {
-        reject(err);
-      }
-    }),
-  );
-  const buildTest = vscode.commands.registerCommand(
-    'stm32-for-vscode.buildTest',
-    async () => new Promise(async (resolve, reject) => {
-      try {
-        if (!vscode.workspace.workspaceFolders) { throw Error('no workspace folder is open'); }
-        await setupTestFiles(vscode.workspace.workspaceFolders[0].uri);
-        resolve();
-      } catch (err) {
-        reject(err);
-      }
-    }),
-  );
-  context.subscriptions.push(buildCmd);
-  context.subscriptions.push(flashCmd);
-  context.subscriptions.push(cleanBuildCmd);
-  context.subscriptions.push(buildTest);
+  console.log('STM32 for vscode has started');
+  checkBuildTools(context);
+  const openSettingsCommand = vscode.commands.registerCommand('stm32-for-vscode.openSettings', () => {
+    vscode.commands.executeCommand('workbench.action.openSettings', `@ext:bmd.stm32-for-vscode`);
+  });
+
+  // const buildCmd = vscode.commands.registerCommand(
+  //   'stm32-for-vscode.build',
+  //   async () => new Promise(async (resolve, reject) => {
+  //     try {
+  //       await buildSTM({});
+  //       resolve();
+  //     } catch (err) {
+  //       reject(err);
+  //     }
+  //   }),
+  // );
+  // const flashCmd = vscode.commands.registerCommand(
+  //   'stm32-for-vscode.flash',
+  //   async () => new Promise(async (resolve, reject) => {
+  //     try {
+  //       await buildSTM({
+  //         flash: true,
+  //       });
+  //       resolve();
+  //     } catch (err) {
+  //       reject(err);
+  //     }
+  //   }),
+  // );
+  // const cleanBuildCmd = vscode.commands.registerCommand(
+  //   'stm32-for-vscode.cleanBuild',
+  //   async (args, moreARgs) => new Promise(async (resolve, reject) => {
+  //     console.log('args', args, moreARgs);
+  //     try {
+  //       await buildSTM({
+  //         cleanBuild: true,
+  //       });
+  //       resolve();
+  //     } catch (err) {
+  //       reject(err);
+  //     }
+  //   }),
+  // );
+  // const buildTest = vscode.commands.registerCommand(
+  //   'stm32-for-vscode.buildTest',
+  //   async () => new Promise(async (resolve, reject) => {
+  //     try {
+  //       if (!vscode.workspace.workspaceFolders) { throw Error('no workspace folder is open'); }
+  //       await setupTestFiles(vscode.workspace.workspaceFolders[0].uri);
+  //       resolve();
+  //     } catch (err) {
+  //       reject(err);
+  //     }
+  //   }),
+  // );
+  // context.subscriptions.push(buildCmd);
+  // context.subscriptions.push(flashCmd);
+  // context.subscriptions.push(cleanBuildCmd);
+  // context.subscriptions.push(buildTest);
 }
 
 // // this method is called when your extension is deactivated

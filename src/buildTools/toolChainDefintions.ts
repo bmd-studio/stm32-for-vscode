@@ -1,5 +1,7 @@
-import { ToolChain } from '../types/MakeInfo';
+// import { ToolChain } from '../types/MakeInfo';
+
 import * as process from 'process';
+
 // const path pre
 export const INSTALLATION_PATH = process.platform === 'win32' ? '%HOMEPATH%' : '~/';
 export const STANDARD_XPM_PATH = './content/bin';

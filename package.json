@@ -12,7 +12,7 @@
     "email": "bureau@moeilijkedingen.nl",
     "url": "https://bmd.studio"
   },
-  "icon": "icon.png",
+  "icon": "media/icon.png",
   "keywords": [
     "STM32",
     "stm",
@@ -40,6 +40,31 @@
         "properties": {}
       }
     ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "stm32-for-vscode-commands",
+          "icon": "media/STM32-for-VSCode-logo.svg",
+          "title": "STM32 For VSCode"
+        }
+      ]
+    },
+    "views": {
+      "stm32-for-vscode-commands": [
+        {
+          "id": "stm32ForVSCodeCommands",
+          "name": "STM32 For VSCode commands",
+          "contextualTitle": "STM32 For VSCode commands",
+          "visibility": "visible"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "stm32ForVSCodeCommands",
+        "contents": "One or more build tools have not been found. Either let them be installed automatically or manually enter the path to these build tools\n[Enter path to build tools](command:stm32-for-vscode.openSettings)\n[Install Build tools](command:stm32-for-vscode.installBuildTools)"
+      }
+    ],
     "commands": [
       {
         "command": "stm32-for-vscode.build",
@@ -52,6 +77,14 @@
       {
         "command": "stm32-for-vscode.cleanBuild",
         "title": "Build clean STM32 project"
+      },
+      {
+        "command": "stm32-for-vscode.installBuildTools",
+        "title": "Installs all the build tools for the STM32 for VSCode extension"
+      },
+      {
+        "command": "stm32-for-vscode.openSettings",
+        "title": "Opens the settings editor for STM32 for VSCode"
       }
     ],
     "configuration": {
@@ -66,7 +99,7 @@
         "stm32-for-vscode.makePath": {
           "type": "string",
           "default": "",
-          "description": "Path to make, will use the one in PATH as standard."
+          "description": "Path to the make executable (e.g. make or ~/usr/bin/make), will use the one in PATH as standard."
         },
         "stm32-for-vscode.armToolchainPath": {
           "type": "string",
@@ -75,7 +108,7 @@
         },
         "stm32-for-vscode.openOCDInterface": {
           "type": "string",
-          "default": "interface/stlink.cfg",
+          "default": "",
           "description": "The standard programmer to be used for erasing, flashing and debugging. The standard for STM32 nucleo, discovery and eval boards is: interface/stlink.cfg"
         }
       }

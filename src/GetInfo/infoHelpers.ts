@@ -1,6 +1,8 @@
 import * as _ from 'lodash';
 import * as vscode from 'vscode';
 
+import MakeInfo from '../types/MakeInfo';
+
 export function combineArraysIntoObject(arr1: string[], arr2: string[], key: string, obj: {}): {} {
   // GUARD: against empty or null arrays.
   if (!arr2 || !_.isArray(arr2)) {
