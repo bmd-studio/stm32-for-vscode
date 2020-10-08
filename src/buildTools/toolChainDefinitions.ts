@@ -6,7 +6,7 @@ import * as process from 'process';
 export const INSTALLATION_PATH = process.platform === 'win32' ? '%HOMEPATH%' : '~/';
 export const STANDARD_XPM_PATH = './content/bin';
 export const TOOL_FOLDER_PATH = 'stm32-for-vscode/packs/@xpack-dev-tools';// is installed as ~/stm32-for-vscode/packs/@xpack-dev-tools/PACKNAME/x.x.x-x.x/.content/bin
-
+export const XPACKS_DEV_TOOL_PATH = 'packs/@xpack-dev-tools';
 
 export interface BuildToolDefinition {
   name: string;
@@ -21,8 +21,8 @@ export interface BuildToolDefinition {
     darwin?: string;
     linux?: string;
   };
-  xpmPath?: string;
-  xpmName?: string;
+  xpmPath: string;
+  xpmName: string;
 }
 
 
@@ -52,7 +52,8 @@ export const makeDefinition: BuildToolDefinition = {
     darwin: 'xcode-select --install',
     linux: 'sudo apt-get install build-essential',
   },
-  xpmPath: './content/bin'
+  xpmPath: './content/bin',
+  xpmName: 'windows-build-tools'
 };
 
 //TODO: check if this is an easy install on linux and osx. 
@@ -66,7 +67,9 @@ const cmakeDefinition: BuildToolDefinition = {
   installation: {
     xpm: '@xpack-dev-tools/cmake@latest',
     url: "https://cmake.org/download/",
-  }
+  },
+  xpmName: 'cmake',
+  xpmPath: './content/bin'  // TODO: check the actual tool path
 };
 
 export const armNoneEabiDefinition: BuildToolDefinition = {
@@ -77,5 +80,7 @@ export const armNoneEabiDefinition: BuildToolDefinition = {
   installation: {
     xpm: '@xpack-dev-tools/arm-none-eabi-gcc@latest',
   },
+  xpmPath: './content/bin',
   requiredByCortexDebug: true,
+  xpmName: 'arm-none-eabi-gcc',
 };

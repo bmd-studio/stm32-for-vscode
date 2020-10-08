@@ -85,6 +85,10 @@
       {
         "command": "stm32-for-vscode.openSettings",
         "title": "Opens the settings editor for STM32 for VSCode"
+      },
+      {
+        "command": "stm32-for-vscode.checkBuildTools",
+        "title": "Checks if the required build tools are present"
       }
     ],
     "configuration": {

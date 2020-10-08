@@ -49,6 +49,9 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.executeCommand('workbench.action.openSettings', `@ext:bmd.stm32-for-vscode`);
   });
 
+  const buildToolsCommand = vscode.commands.registerCommand("stm32-for-vscode.checkBuildTools", () => {
+    checkBuildTools(context);
+  });
   // const buildCmd = vscode.commands.registerCommand(
   //   'stm32-for-vscode.build',
   //   async () => new Promise(async (resolve, reject) => {

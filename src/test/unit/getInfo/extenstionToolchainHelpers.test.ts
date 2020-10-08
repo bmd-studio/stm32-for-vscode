@@ -1,10 +1,10 @@
 import * as Sinon from 'sinon';
 import * as vscode from 'vscode';
 
-import { XPMToolVersion, compareVersions, getNewestToolchainVersion, isVersionFile, parseXPMVersionNumbers } from '../../../getInfo/extensionToolchainHelpers';
+import { XPMToolVersion, compareVersions, getNewestToolchainVersion, isVersionFile, parseXPMVersionNumbers } from '../../../buildTools/extensionToolchainHelpers';
 
 import { expect } from 'chai';
-import { openocdDefinition } from '../../../getInfo/toolChainDefintions';
+import { openocdDefinition } from '../../../buildTools/toolChainDefinitions';
 
 const standardVersionFile: XPMToolVersion = {
   xpmVersion: [5, 2, 0],
@@ -64,9 +64,9 @@ suite('Extension Toolchain Helpers', () => {
     ]));
     const fs = vscode.workspace.fs;
     Sinon.replace(fs, 'readDirectory', fakeReadDirectory);
-    expect(getNewestToolchainVersion(openocdDefinition)).to.eventually.equal(standardVersionFile);
+    expect(getNewestToolchainVersion(openocdDefinition, 'pathIsNotRead')).to.eventually.equal(standardVersionFile);
     expect(fakeReadDirectory.calledOn).to.be.true;
-    getNewestToolchainVersion(openocdDefinition).then((value) => {
+    getNewestToolchainVersion(openocdDefinition, 'pathIsNotRead').then((value) => {
       expect(value).to.deep.equal(standardVersionFile);
     });
     Sinon.restore();
@@ -75,7 +75,7 @@ suite('Extension Toolchain Helpers', () => {
     const fakeReadDirectory = Sinon.fake.returns(Promise.resolve(undefined));
     const fs = vscode.workspace.fs;
     Sinon.replace(fs, 'readDirectory', fakeReadDirectory);
-    expect(getNewestToolchainVersion(openocdDefinition)).to.be.rejected;
+    expect(getNewestToolchainVersion(openocdDefinition, 'pathIsNotRead')).to.be.rejected;
     Sinon.restore();
   });
 
