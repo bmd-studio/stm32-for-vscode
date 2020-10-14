@@ -62,7 +62,7 @@
     "viewsWelcome": [
       {
         "view": "stm32ForVSCodeCommands",
-        "contents": "One or more build tools have not been found. Either let them be installed automatically or manually enter the path to these build tools\n[Enter path to build tools](command:stm32-for-vscode.openSettings)\n[Install Build tools](command:stm32-for-vscode.installBuildTools)"
+        "contents": "One or more build tools have not been found. Either let them be installed automatically or manually enter the path to these build tools\n[Enter path to build tools](command:stm32-for-vscode.openSettings)\n[Install Build tools](command:stm32-for-vscode.installBuildTools)\n[Check Build tools](command:stm32-for-vscode.checkBuildTools)"
       }
     ],
     "commands": [

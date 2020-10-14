@@ -9,7 +9,11 @@ export async function checkBuildTools(context: vscode.ExtensionContext): Promise
     // should run validation and if true update state.
   }
   let currentToolchain = toolChainValidation.checkSettingsForBuildTools();
+  console.log('current toolchain from settings', currentToolchain);
   currentToolchain = await toolChainValidation.checkAutomaticallyInstalledBuildTools(currentToolchain, context);
-  console.log('current Toolchain', currentToolchain);
-  return Promise.resolve(false);
+  console.log('current Toolchain with build tools', currentToolchain);
+  currentToolchain = toolChainValidation.checkBuildToolsInPath(currentToolchain);
+  console.log('final toolchain check', currentToolchain);
+
+  return Promise.resolve(toolChainValidation.hasRelevantBuildTools(currentToolchain));
 }

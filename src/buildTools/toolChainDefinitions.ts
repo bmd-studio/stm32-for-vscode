@@ -58,7 +58,7 @@ export const makeDefinition: BuildToolDefinition = {
 
 //TODO: check if this is an easy install on linux and osx. 
 //TODO: consider installing it anyway using a custom way.
-const cmakeDefinition: BuildToolDefinition = {
+export const cMakeDefinition: BuildToolDefinition = {
   name: 'cmake',
   standardCmd: 'cmake',
   otherCmds: [],

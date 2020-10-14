@@ -6,6 +6,7 @@ import * as vscode from 'vscode';
 import { BuildToolDefinition, INSTALLATION_PATH, TOOL_FOLDER_PATH, XPACKS_DEV_TOOL_PATH } from './toolChainDefinitions';
 
 import { armNoneEabiDefinition } from '../Requirements';
+import { standardOpenOCDInterface } from '../Definitions';
 
 export interface XPMToolVersion {
   toolVersion: number[];
@@ -99,7 +100,9 @@ export function getNewestToolchainVersion(tool: BuildToolDefinition, xpmPath: st
       }
       resolve(newest);
     }, (error) => {
-      console.error(error);
+      // console.error(error);
+      // console.error('not fulfullid because path does not exist');
+      reject(error);
     });
   });
 }
@@ -125,6 +128,7 @@ export function validateXPMToolchainPath(tool: BuildToolDefinition, xpmPath: str
       resolve(false);
     }).catch((error) => {
       console.error(error);
+      console.log('path of tool does not exits');
       resolve(false);
     });
   });
@@ -146,4 +150,32 @@ export function validateArmToolchainPath(armToolChainPath: string | boolean): st
   return armPath;
 }
 
-
+export function checkToolchainPathForTool(toolPath: string | boolean, definition: BuildToolDefinition): string | boolean {
+  if (!checkSettingsPathValidity(toolPath)) {
+    return false;
+  }
+  const regularPath = shelljs.which(toolPath);
+  if (checkSettingsPathValidity(regularPath)) {
+    return regularPath;
+  }
+  // after this check the path with the standard command
+  if (_.isString(toolPath)) {
+    const standardCommandPath = shelljs.which(path.resolve(toolPath, definition.standardCmd));
+    if (checkSettingsPathValidity(standardCommandPath)) {
+      return standardCommandPath;
+    }
+    // after this check the path with the non standard commands
+    let nonStandardPath = false;
+    _.forEach(definition.otherCmds, (entry) => {
+      const tryPath = path.resolve(toolPath, entry);
+      const whichedTryPath = shelljs.which(tryPath);
+      if (checkSettingsPathValidity(whichedTryPath)) {
+        nonStandardPath = whichedTryPath;
+      }
+    });
+    if (nonStandardPath) {
+      return nonStandardPath;
+    }
+  }
+  return false;
+}

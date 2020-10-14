@@ -50,7 +50,8 @@ export function activate(context: vscode.ExtensionContext): void {
   });
 
   const buildToolsCommand = vscode.commands.registerCommand("stm32-for-vscode.checkBuildTools", () => {
-    checkBuildTools(context);
+    const hasBuildTools = checkBuildTools(context);
+    // TODO: make this link back to the vscode commands panel.
   });
   // const buildCmd = vscode.commands.registerCommand(
   //   'stm32-for-vscode.build',
