@@ -5,7 +5,7 @@ import { Stm32SettingsInterface, ToolChain } from '../../types/MakeInfo';
 import { afterEach, suite, test } from 'mocha';
 
 import { expect } from 'chai';
-import getWorkspaceSettings from '../../getInfo/getSettings';
+import { getWorkspaceSettings } from '../../getInfo/getSettings';
 import { workspace } from 'vscode';
 
 // class MockConfig {

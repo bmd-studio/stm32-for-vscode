@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 
 import { XPMToolVersion, compareVersions, getNewestToolchainVersion, isVersionFile, parseXPMVersionNumbers } from '../../../buildTools/extensionToolchainHelpers';
 
+import { afterEach } from 'mocha';
 import { expect } from 'chai';
 import { openocdDefinition } from '../../../buildTools/toolChainDefinitions';
 
@@ -14,6 +15,9 @@ const standardVersionFile: XPMToolVersion = {
 
 
 suite('Extension Toolchain Helpers', () => {
+  afterEach(() => {
+    Sinon.restore();
+  });
   test('parse XPM version number', () => {
     const versionFileName = '1.2.333-5.2';
     const versionResult: XPMToolVersion = {
@@ -21,7 +25,8 @@ suite('Extension Toolchain Helpers', () => {
       toolVersion: [1, 2, 333],
       fileName: versionFileName,
     };
-    expect(parseXPMVersionNumbers).to.deep.equal(versionResult);
+    const version = parseXPMVersionNumbers(versionFileName);
+    expect(version).to.deep.equal(versionResult);
   });
   test('is version file', () => {
     const noVersionFile: XPMToolVersion = {
@@ -64,19 +69,18 @@ suite('Extension Toolchain Helpers', () => {
     ]));
     const fs = vscode.workspace.fs;
     Sinon.replace(fs, 'readDirectory', fakeReadDirectory);
-    expect(getNewestToolchainVersion(openocdDefinition, 'pathIsNotRead')).to.eventually.equal(standardVersionFile);
-    expect(fakeReadDirectory.calledOn).to.be.true;
+    expect(getNewestToolchainVersion(openocdDefinition, 'pathIsNotRead')).to.eventually.deep.equal(standardVersionFile);
+    expect(fakeReadDirectory.calledOnce).to.be.true;
     getNewestToolchainVersion(openocdDefinition, 'pathIsNotRead').then((value) => {
       expect(value).to.deep.equal(standardVersionFile);
     });
-    Sinon.restore();
   });
+
   test('get newest xpm version when none are present', () => {
     const fakeReadDirectory = Sinon.fake.returns(Promise.resolve(undefined));
     const fs = vscode.workspace.fs;
     Sinon.replace(fs, 'readDirectory', fakeReadDirectory);
     expect(getNewestToolchainVersion(openocdDefinition, 'pathIsNotRead')).to.be.rejected;
-    Sinon.restore();
   });
 
 });

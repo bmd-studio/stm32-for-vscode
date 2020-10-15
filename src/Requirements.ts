@@ -36,7 +36,7 @@ import { Uri, env, window, workspace } from 'vscode';
 
 import { ToolChain } from './types/MakeInfo';
 import { fsPathToPosix } from './Helpers';
-import getSettingsFromWorkspace from './getInfo/getSettings';
+import { getWorkspaceSettings } from './getInfo/getSettings';
 
 // const path pre
 
@@ -417,7 +417,7 @@ export default function checkRequirements(): ToolChain {
   // FIXME: this flow should go differently.
   // geConfiguration -> alert for requirements
   // perhaps I should think more about error handling and overall program flow.
-  const settings = getSettingsFromWorkspace();
+  const settings = getWorkspaceSettings();
 
   return ({
     openOCDPath: hasOpenOCD,

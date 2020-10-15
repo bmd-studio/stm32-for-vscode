@@ -160,14 +160,14 @@ export function checkToolchainPathForTool(toolPath: string | boolean, definition
   }
   // after this check the path with the standard command
   if (_.isString(toolPath)) {
-    const standardCommandPath = shelljs.which(path.resolve(toolPath, definition.standardCmd));
+    const standardCommandPath = shelljs.which(path.join(toolPath, definition.standardCmd));
     if (checkSettingsPathValidity(standardCommandPath)) {
       return standardCommandPath;
     }
     // after this check the path with the non standard commands
     let nonStandardPath = false;
     _.forEach(definition.otherCmds, (entry) => {
-      const tryPath = path.resolve(toolPath, entry);
+      const tryPath = path.join(toolPath, entry);
       const whichedTryPath = shelljs.which(tryPath);
       if (checkSettingsPathValidity(whichedTryPath)) {
         nonStandardPath = whichedTryPath;

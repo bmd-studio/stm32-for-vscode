@@ -31,7 +31,7 @@ import { workspace } from 'vscode';
  * @description returns workspace settings
  * @returns {ToolChain} the settings from the workspace
  */
-export default function getWorkspaceSettings(): ToolChain {
+export function getWorkspaceSettings(): ToolChain {
   const settings = workspace.getConfiguration('stm32-for-vscode');
   const result = new ToolChain();
   const armToolchainPath = settings.get('armToolchainPath');

@@ -15,7 +15,7 @@ import {
 } from './extensionToolchainHelpers';
 
 import { ToolChain } from '../types/MakeInfo';
-import getExtensionSettings from '../getInfo/getSettings';
+import { getWorkspaceSettings } from '../getInfo/getSettings';
 import { set } from 'lodash';
 
 /*
@@ -29,7 +29,7 @@ import { set } from 'lodash';
  */
 export function checkSettingsForBuildTools(): ToolChain {
   const settingsToolchain = new ToolChain();  // has standard all paths to false
-  const settings = getExtensionSettings();
+  const settings = getWorkspaceSettings();
   // arm none eabi
   if (checkSettingsPathValidity(settings.armToolchainPath)) {
     const armPath = validateArmToolchainPath(settings.armToolchainPath);
