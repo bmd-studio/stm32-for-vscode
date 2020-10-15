@@ -28,6 +28,7 @@ import * as vscode from 'vscode';
 
 import buildSTM from './BuildTask';
 import { checkBuildTools } from './buildTools';
+import { installOpenOcd } from './buildTools/installTools';
 import setupTestFiles from './testing/SetupTestFiles';
 
 // // this method is called when your extension is activated
@@ -47,6 +48,9 @@ export function activate(context: vscode.ExtensionContext): void {
   checkBuildTools(context);
   const openSettingsCommand = vscode.commands.registerCommand('stm32-for-vscode.openSettings', () => {
     vscode.commands.executeCommand('workbench.action.openSettings', `@ext:bmd.stm32-for-vscode`);
+  });
+  const installBuildTools = vscode.commands.registerCommand('stm32-for-vscode.installBuildTools', () => {
+    installOpenOcd(context);
   });
 
   const buildToolsCommand = vscode.commands.registerCommand("stm32-for-vscode.checkBuildTools", () => {

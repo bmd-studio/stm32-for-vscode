@@ -79,7 +79,6 @@ export async function checkAutomaticallyInstalledBuildTools(
     if ((checkSettingsPathValidity(armToolchainPath))) {
       settingsToolchain.armToolchainPath = armToolchainPath;
     }
-    console.log('arm toolchain path', armToolchainPath);
   }
   // OpenOCD
   if (!settingsToolchain.openOCDPath) {
@@ -87,7 +86,6 @@ export async function checkAutomaticallyInstalledBuildTools(
     if (checkSettingsPathValidity(openOCDPath)) {
       settingsToolchain.openOCDPath = openOCDPath;
     }
-    console.log('openOCDPath', openOCDPath);
   }
 
   // make should not be checked for now except for windows. The others ones should have it in PATH
@@ -97,7 +95,6 @@ export async function checkAutomaticallyInstalledBuildTools(
     if (checkSettingsPathValidity(makePath)) {
       settingsToolchain.makePath = makePath;
     }
-    console.log('makePath', makePath);
   }
 
   // Cmake
@@ -119,10 +116,6 @@ export function checkBuildToolsInPath(settingsToolchain: ToolChain): ToolChain {
   if (!settingsToolchain.armToolchainPath) {
     const shellPath = shelljs.which(armNoneEabiDefinition.standardCmd);
     if (checkSettingsPathValidity(shellPath)) {
-      console.log({ shellPath });
-      if (!_.isString(shellPath)) {
-        console.log('watchjout shellPAth is not a string');
-      }
       // for some weird reason the shellPath gets rejected when I do not toString() it
       const armDirectory = path.dirname(shellPath.toString());
       settingsToolchain.armToolchainPath = armDirectory;
