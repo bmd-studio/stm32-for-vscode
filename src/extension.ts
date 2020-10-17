@@ -24,10 +24,13 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 
+import * as curl from 'curl';
+import * as proc from 'process';
 import * as vscode from 'vscode';
 
 import buildSTM from './BuildTask';
 import { checkBuildTools } from './buildTools';
+import { exec } from 'child_process';
 import { installOpenOcd } from './buildTools/installTools';
 import setupTestFiles from './testing/SetupTestFiles';
 
@@ -50,6 +53,18 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.executeCommand('workbench.action.openSettings', `@ext:bmd.stm32-for-vscode`);
   });
   const installBuildTools = vscode.commands.registerCommand('stm32-for-vscode.installBuildTools', () => {
+    console.log('getting nodejs latest');
+    try {
+      const curlGET = curl.get('https://nodejs.org/dist/latest/', {}, (err: any, response: any, body: any) => {
+        console.log(err)
+        console.log('body');
+        console.log(body);
+        console.log(response);
+      });
+      console.log(curlGET);
+    } catch (error) {
+      console.log('get error', error);
+    }
     installOpenOcd(context);
   });
 

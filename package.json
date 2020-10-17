@@ -168,6 +168,7 @@
   "dependencies": {
     "@types/lodash": "^4.14.149",
     "cpp-include": "^1.1.1",
+    "curl": "^0.1.4",
     "ignore": "^5.1.4",
     "json5": "^2.1.0",
     "lodash": "^4.17.20",
