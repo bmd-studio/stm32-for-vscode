@@ -130,6 +130,7 @@ export function extractLibs(makefile: string): string[] {
  * @param {string[]} cFiles
  */
 export function getTargetSTM(cFiles: string[]): string {
+  // TODO: get this from something else, as this is not valid for compiling examples
   const regPattern = /(.*\/)?(.*)x_hal_msp.c/i;
   let output = '';
   cFiles.forEach((fileName) => {

@@ -33,6 +33,7 @@ import { checkBuildTools } from './buildTools';
 import { exec } from 'child_process';
 import { installOpenOcd } from './buildTools/installTools';
 import setupTestFiles from './testing/SetupTestFiles';
+import {getLatestNodeLink, downloadLatestNode, extractFile, getNode} from './buildTools/installTools';
 
 // // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -48,28 +49,56 @@ export function activate(context: vscode.ExtensionContext): void {
   // Now provide the implementation of the command with  registerCommand
   // The commandId parameter must match the command field in package.json
   console.log('STM32 for vscode has started');
+  console.log('version', process.version);
+  console.log('release', process.release);
+  console.log('arch', process.arch);
   checkBuildTools(context);
   const openSettingsCommand = vscode.commands.registerCommand('stm32-for-vscode.openSettings', () => {
     vscode.commands.executeCommand('workbench.action.openSettings', `@ext:bmd.stm32-for-vscode`);
   });
   const installBuildTools = vscode.commands.registerCommand('stm32-for-vscode.installBuildTools', () => {
-    console.log('getting nodejs latest');
-    try {
-      const curlGET = curl.get('https://nodejs.org/dist/latest/', {}, (err: any, response: any, body: any) => {
-        console.log(err)
-        console.log('body');
-        console.log(body);
-        console.log(response);
-      });
-      console.log(curlGET);
-    } catch (error) {
-      console.log('get error', error);
-    }
-    installOpenOcd(context);
+
+    getNode(context).then((nodeFileName) => {
+      console.log('doanloading and extracting node was successfull, installation can be found at:', nodeFileName);
+    }).catch((err) => {
+      console.error('something went wrong with getting and installing latest nodeversion', err);
+    });
+
+    // console.log('getting nodejs latest');
+    // getLatestNodeLink(context).then((latest) => {
+    //   console.log(`latest node link ${latest}`);
+    //   downloadLatestNode(context, latest).then((nodeDownloadPath) => {
+    //     console.log('downloaded node to', nodeDownloadPath);
+    //     console.log('extracting file');
+    //     extractFile(context, nodeDownloadPath).then((fileName) => {
+    //       console.log('extracted successfully to:', fileName);
+    //     }).catch((err) => {
+    //       console.error('something went wrong when extracting the file', err);
+    //     });
+    //   }). catch((err) => {  
+    //     console.error(err);
+    //   });
+
+    // }).catch((err) => {
+    //   console.log('error getting node link', err);
+    // });
+    // try {
+    //   const curlGET = curl.get('https://nodejs.org/dist/latest/', {}, (err: any, response: any, body: any) => {
+    //     console.log(err)
+    //     console.log('body');
+    //     console.log(body);
+    //     console.log(response);
+    //   });
+    //   console.log(curlGET);
+    // } catch (error) {
+    //   console.log('get error', error);
+    // }
+    // installOpenOcd(context);
   });
 
   const buildToolsCommand = vscode.commands.registerCommand("stm32-for-vscode.checkBuildTools", () => {
     const hasBuildTools = checkBuildTools(context);
+
     // TODO: make this link back to the vscode commands panel.
   });
   // const buildCmd = vscode.commands.registerCommand(
