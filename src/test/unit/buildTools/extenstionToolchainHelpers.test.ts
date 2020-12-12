@@ -7,12 +7,13 @@ import { afterEach } from 'mocha';
 import { expect } from 'chai';
 import { openocdDefinition } from '../../../buildTools/toolChainDefinitions';
 
+const fs = vscode.workspace.fs;
+
 const standardVersionFile: XPMToolVersion = {
   xpmVersion: [5, 2, 0],
   toolVersion: [1, 2, 3],
   fileName: '1.2.3-5.2',
 };
-
 
 suite('Extension Toolchain Helpers', () => {
   afterEach(() => {
@@ -60,27 +61,26 @@ suite('Extension Toolchain Helpers', () => {
     expect(compareVersions(standardVersionFile, lowerVersionFileXPM)).to.deep.equal(standardVersionFile);
     expect(compareVersions(lowerVersionFileXPM, standardVersionFile)).to.deep.equal(standardVersionFile);
   });
-  test('get newest xpm version when present', () => {
+  test('get newest xpm version when present', async () => {
     const fakeReadDirectory = Sinon.fake.returns(Promise.resolve([
       ['randomFolder', vscode.FileType.Directory],
       ['randomFile', vscode.FileType.File],
       ['1.1.3-5.2', vscode.FileType.Directory],
       ['1.2.3-5.2', vscode.FileType.Directory],
     ]));
-    const fs = vscode.workspace.fs;
     Sinon.replace(fs, 'readDirectory', fakeReadDirectory);
-    expect(getNewestToolchainVersion(openocdDefinition, 'pathIsNotRead')).to.eventually.deep.equal(standardVersionFile);
+    const newestToolChainVersion = await getNewestToolchainVersion(openocdDefinition, 'pathIsNotRead');
+    expect(newestToolChainVersion).to.deep.equal(standardVersionFile);
     expect(fakeReadDirectory.calledOnce).to.be.true;
-    getNewestToolchainVersion(openocdDefinition, 'pathIsNotRead').then((value) => {
-      expect(value).to.deep.equal(standardVersionFile);
-    });
+    const pathNotRead = await getNewestToolchainVersion(openocdDefinition, 'pathIsNotRead');
+    expect(pathNotRead).to.deep.equal(standardVersionFile);
   });
 
-  test('get newest xpm version when none are present', () => {
+  test('get newest xpm version when none are present', async () => {
     const fakeReadDirectory = Sinon.fake.returns(Promise.resolve(undefined));
-    const fs = vscode.workspace.fs;
     Sinon.replace(fs, 'readDirectory', fakeReadDirectory);
-    expect(getNewestToolchainVersion(openocdDefinition, 'pathIsNotRead')).to.be.rejected;
+
+    return expect(getNewestToolchainVersion(openocdDefinition, 'pathIsNotRead')).to.be.rejected;
   });
 
 });

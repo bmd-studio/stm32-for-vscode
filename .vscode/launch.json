@@ -17,13 +17,14 @@
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "args": [
+        "—disable-extensions",
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
       ],
       "outFiles": [
         "${workspaceFolder}/out/test/**/*.js"
       ],
-      "preLaunchTask": "${defaultBuildTask}"
+      "preLaunchTask": "compile tests"
     },
     {
       "showDevDebugOutput": true,

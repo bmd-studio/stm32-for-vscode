@@ -12,6 +12,19 @@
         "kind": "build",
         "isDefault": true
       }
-    }
+    },
+    {
+      "label": "compile tests",
+      "type": "shell",
+      // "script": " echo",
+      "command": "echo && yarn pretest",
+      "options": {
+        // "cwd": "${workspaceRoot}",
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
   ]
 }

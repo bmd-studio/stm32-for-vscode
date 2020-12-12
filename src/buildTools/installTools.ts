@@ -1,11 +1,9 @@
 import * as _ from 'lodash';
+import * as fs from 'fs';
 import * as path from 'path';
 import * as process from 'process';
-import * as shelljs from 'shelljs';
-import * as vscode from 'vscode';
-import axios from 'axios';
 import * as unzipper from 'unzipper';
-import * as fs from 'fs';
+import * as vscode from 'vscode';
 
 import {
   BuildToolDefinition,
@@ -15,10 +13,11 @@ import {
   openocdDefinition
 } from './toolChainDefinitions';
 
+import { ExtensionContext } from 'vscode';
+import { GITHUB_ISSUES_URL } from '../Definitions';
+import axios from 'axios';
 import { checkBuildTools } from '.';
 import { exec } from 'child_process';
-import { ExtensionContext } from 'vscode';
-import {GITHUB_ISSUES_URL} from '../Definitions';
 
 type xpmInstallType = Promise<void>;
 
@@ -52,56 +51,34 @@ export function xpmInstall(context: vscode.ExtensionContext, definition: BuildTo
   });
 }
 
+/**
+ * Installs openocd using xpm
+ * @param context vscode extension context
+ */
 export function installOpenOcd(context: vscode.ExtensionContext): xpmInstallType {
   return xpmInstall(context, openocdDefinition);
 }
-
+/**
+ * Installs make using xpm
+ * @param context vscode extension context
+ */
 export function installMake(context: vscode.ExtensionContext): xpmInstallType {
   return xpmInstall(context, makeDefinition);
 }
-
+/**
+ * Installs cmake using xpm
+ * @param context vscode extension context
+ */
 export function installCMake(context: vscode.ExtensionContext): xpmInstallType {
   return xpmInstall(context, cMakeDefinition);
 }
-
+/**
+ * Installs arm-none-eabi tool chain using xpm
+ * @param context vscode extension context
+ */
 export function installArmNonEabi(context: vscode.ExtensionContext): xpmInstallType {
   return xpmInstall(context, armNoneEabiDefinition);
 }
-
-export function getNodeInstallation(context: vscode.ExtensionContext): Promise<string> {
-  const standardNodePath = shelljs.which('node');
-  if (standardNodePath) {
-    return Promise.resolve(standardNodePath);
-  }
-  const pathToSaveTo = context.globalStoragePath;
-  const downloadPath = path.posix.join(pathToSaveTo, 'tmp');
-  const nodePath = path.posix.join(pathToSaveTo, 'node');
-  return new Promise((resolve, reject) => {
-    // curl.get('https://nodejs.org/dist/latest/', (err, response, body) => {
-    //   console.log('body')
-    // });
-    const pkgRegex = /href="(node-v\d*.\d*.\d*.pkg)/gm;
-    const win32Regex = /href="(node-v\d*.\d*.\d*-win-x86.zip)/gm;
-    //TODO: use zip here to install and download node.
-    if (shelljs.which('curl')) {
-      exec(
-        `curl "https://nodejs.org/dist/latest/node-\${VERSION: -$(wget - qO - https://nodejs.org/dist/latest/ | sed -nE 's|.*>node-(.*)\\.pkg</a>.*|\\1|p')}.pkg" > "${downloadPath}/node-latest.pkg" && sudo installer -store -pkg "${downloadPath}/node-latest.pkg" -target "${nodePath}" | bash`,
-        (error, _stdout, stderr) => {
-          if (stderr || error) {
-            reject(new Error(stderr));
-            return;
-          }
-          console.log(`downloaded the latest version of node to ${downloadPath}`);
-          resolve(nodePath);
-        }
-      );
-    }
-    // curl is assumed for linux and osx. So there should only be an alternative for windows.
-
-  });
-
-}
-
 
 const nodeRegex = {
   win32: {
@@ -127,7 +104,7 @@ const nodeRegex = {
  * @param arch the arch for which to get the node version
  */
 export function getPlatformSpecificNodeLink(latestNodeBody: string, platform: NodeJS.Platform, arch: string): string | null {
-  const platformRegex =_.cloneDeep( _.get(nodeRegex, `${platform}.${arch}`, null));
+  const platformRegex = _.cloneDeep(_.get(nodeRegex, `${platform}.${arch}`, null));
   let link = null;
   if (platformRegex) {
     const result = platformRegex.exec(latestNodeBody);
@@ -145,8 +122,11 @@ export function getPlatformSpecificNodeLink(latestNodeBody: string, platform: No
 
 const nodeLatestURL = 'https://nodejs.org/dist/latest/';
 
-export function getLatestNodeLink(_context: vscode.ExtensionContext): Promise<string> {
-  
+/**
+ * Gets the latest node version download filename for the current platform.
+ */
+export function getLatestNodeLink(): Promise<string> {
+
   return new Promise((resolve, reject) => {
     axios.get(nodeLatestURL).then((response) => {
       // console.log('axios response', response.data);
@@ -166,48 +146,48 @@ export function getLatestNodeLink(_context: vscode.ExtensionContext): Promise<st
   });
 }
 
+/**
+ * Downloads the latest compressed version of node to the extensions global storage directory in ta tmp folder.
+ * @param context vscode extensions context
+ * @param fileDownloadName the platform specific filename for node
+ */
 export function downloadLatestNode(context: vscode.ExtensionContext, fileDownloadName: string): Promise<string> {
   const pathToSaveTo = context.globalStoragePath;
-  // FIXME: should convert take the filename from the getLatestNodeLink
   const downloadURL = `${nodeLatestURL}${fileDownloadName}`;
   const downloadPath = path.join(pathToSaveTo, 'tmp', fileDownloadName);
-  const nodePath = path.join(pathToSaveTo, 'node');
-  console.log('starting download', fileDownloadName, downloadPath);
+
   return new Promise((resolve, reject) => {
 
-    axios.get(downloadURL, {responseType: 'arraybuffer'}).then((response) => {
-      console.log('gotten response', response.headers, typeof response.data, response.data.length);
-      const file = Buffer.from(response.data, 0, response.data.length);
-      // const fileBlob = new Blob([response.data]);
-      vscode.workspace.fs.writeFile(vscode.Uri.file(downloadPath),response.data).then(() => {
-        console.log('written file to', downloadPath);
+    axios.get(downloadURL, { responseType: 'arraybuffer' }).then((response) => {
+      vscode.workspace.fs.writeFile(vscode.Uri.file(downloadPath), response.data).then(() => {
         resolve(downloadPath);
       }, (error) => {
-        console.log('download failed');
         reject(error);
       });
     }).catch(err => reject(err));
+
   });
 }
-export function extractFile(context: vscode.ExtensionContext, filePath: string): Promise<string> {
-  const pathToSaveTo = context.globalStoragePath;
-  const nodePath = path.join(pathToSaveTo, 'node');
-  const name = '';
-  // const filePathWithoutFilename = filePath.replace(/\/g, '/');
+
+/**
+ * Extracts compressed files to a specific directory.
+ * @param context vscode extension context
+ * @param filePath path to the file to be extracted
+ * @param outPath path to the output directory
+ */
+export function extractFile(filePath: string, outPath: string): Promise<string> {
   return new Promise((resolve, reject) => {
     fs.createReadStream(filePath)
-      .pipe(unzipper.Extract({ path: nodePath })).on('close', () => {
-        console.log('extracted file at', nodePath);
-        resolve(nodePath);
+      .pipe(unzipper.Extract({ path: outPath })).on('close', () => {
+        resolve(outPath);
       }).on('error', (error) => {
-        console.error(error);
         reject(error);
-      }).on('data', (chunk) => {
-        console.log('chunk');
-        console.log(chunk);
       });
   });
 }
+
+// TODO: create a clean-up function
+// TODO: create an integration test for downloading node.
 /**
  * Function for downloading and extracting a new latest node version
  * @param context vscode context
@@ -215,17 +195,17 @@ export function extractFile(context: vscode.ExtensionContext, filePath: string):
 export function getNode(context: vscode.ExtensionContext): Promise<string> {
   return new Promise(async (resolve, reject) => {
     try {
-      const latestNodeLink = await getLatestNodeLink(context);
+      const latestNodeLink = await getLatestNodeLink();
       const latestNodeCompressed = await downloadLatestNode(context, latestNodeLink);
-      const extractedNodeFileLoc = await extractFile(context, latestNodeCompressed);
+      const extractedNodeFileLoc = await extractFile(latestNodeCompressed, path.join(context.globalStoragePath, 'node'));
       const dirContents = await vscode.workspace.fs.readDirectory(vscode.Uri.file(extractedNodeFileLoc));
-      const nodeInstallationFilePath = _.find(dirContents, (file) => {return (file[0].indexOf('node') >= 0 );});
-      if(!nodeInstallationFilePath || !nodeInstallationFilePath[0]) {
+      const nodeInstallationFilePath = _.find(dirContents, (file) => { return (file[0].indexOf('node') >= 0); });
+      if (!nodeInstallationFilePath || !nodeInstallationFilePath[0]) {
         reject(new Error('No node installation could be found after download and extraction'));
         return;
-      } 
+      }
       resolve(path.join(extractedNodeFileLoc, nodeInstallationFilePath[0]));
-    } catch(error) {
+    } catch (error) {
       vscode.window.showErrorMessage(`An error occurred during the node installation process, please try again or create an issue at: ${GITHUB_ISSUES_URL}, with stating error: ${error}`);
       reject(error);
     }

@@ -24,16 +24,12 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 
-import * as curl from 'curl';
-import * as proc from 'process';
 import * as vscode from 'vscode';
+
+import { downloadLatestNode, extractFile, getLatestNodeLink, getNode } from './buildTools/installTools';
 
 import buildSTM from './BuildTask';
 import { checkBuildTools } from './buildTools';
-import { exec } from 'child_process';
-import { installOpenOcd } from './buildTools/installTools';
-import setupTestFiles from './testing/SetupTestFiles';
-import {getLatestNodeLink, downloadLatestNode, extractFile, getNode} from './buildTools/installTools';
 
 // // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -57,43 +53,13 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.executeCommand('workbench.action.openSettings', `@ext:bmd.stm32-for-vscode`);
   });
   const installBuildTools = vscode.commands.registerCommand('stm32-for-vscode.installBuildTools', () => {
-
+    console.log('starting getting node');
     getNode(context).then((nodeFileName) => {
       console.log('doanloading and extracting node was successfull, installation can be found at:', nodeFileName);
     }).catch((err) => {
       console.error('something went wrong with getting and installing latest nodeversion', err);
     });
 
-    // console.log('getting nodejs latest');
-    // getLatestNodeLink(context).then((latest) => {
-    //   console.log(`latest node link ${latest}`);
-    //   downloadLatestNode(context, latest).then((nodeDownloadPath) => {
-    //     console.log('downloaded node to', nodeDownloadPath);
-    //     console.log('extracting file');
-    //     extractFile(context, nodeDownloadPath).then((fileName) => {
-    //       console.log('extracted successfully to:', fileName);
-    //     }).catch((err) => {
-    //       console.error('something went wrong when extracting the file', err);
-    //     });
-    //   }). catch((err) => {  
-    //     console.error(err);
-    //   });
-
-    // }).catch((err) => {
-    //   console.log('error getting node link', err);
-    // });
-    // try {
-    //   const curlGET = curl.get('https://nodejs.org/dist/latest/', {}, (err: any, response: any, body: any) => {
-    //     console.log(err)
-    //     console.log('body');
-    //     console.log(body);
-    //     console.log(response);
-    //   });
-    //   console.log(curlGET);
-    // } catch (error) {
-    //   console.log('get error', error);
-    // }
-    // installOpenOcd(context);
   });
 
   const buildToolsCommand = vscode.commands.registerCommand("stm32-for-vscode.checkBuildTools", () => {
