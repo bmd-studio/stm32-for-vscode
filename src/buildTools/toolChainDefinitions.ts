@@ -5,8 +5,8 @@ import * as process from 'process';
 // const path pre
 export const INSTALLATION_PATH = process.platform === 'win32' ? '%HOMEPATH%' : '~/';
 export const STANDARD_XPM_PATH = './content/bin';
-export const TOOL_FOLDER_PATH = 'stm32-for-vscode/packs/@xpack-dev-tools';// is installed as ~/stm32-for-vscode/packs/@xpack-dev-tools/PACKNAME/x.x.x-x.x/.content/bin
-export const XPACKS_DEV_TOOL_PATH = 'packs/@xpack-dev-tools';
+export const TOOL_FOLDER_PATH = 'stm32-for-vscode/@xpack-dev-tools';// is installed as %globalstoragepath%/stm32-for-vscode/@xpack-dev-tools/PACKNAME/x.x.x-x.x/.content/bin
+export const XPACKS_DEV_TOOL_PATH = '@xpack-dev-tools';
 
 export interface BuildToolDefinition {
   name: string;
@@ -35,12 +35,11 @@ export const openocdDefinition: BuildToolDefinition = {
   installation: {
     xpm: '@xpack-dev-tools/openocd@latest',
   },
-  xpmPath: './content/bin',
+  xpmPath: './.content/bin',
   xpmName: 'openocd',
 };
 
-// TODO: figure out how to best install make on all relevant platforms
-// WIndows: The xPack Windows Build Tools
+// NOTE: only one which isx not installed through xpm on all platforms
 export const makeDefinition: BuildToolDefinition = {
   name: 'make',
   standardCmd: 'make',
@@ -51,13 +50,12 @@ export const makeDefinition: BuildToolDefinition = {
     windows: 'npx xpm install --global @xpack-dev-tools/windows-build-tools@latest',
     darwin: 'xcode-select --install',
     linux: 'sudo apt-get install build-essential',
+    // xpm: '@xpack-dev-tools/openocd@latest',
   },
-  xpmPath: './content/bin',
+  xpmPath: './.content/bin',
   xpmName: 'windows-build-tools'
 };
 
-//TODO: check if this is an easy install on linux and osx. 
-//TODO: consider installing it anyway using a custom way.
 export const cMakeDefinition: BuildToolDefinition = {
   name: 'cmake',
   standardCmd: 'cmake',
@@ -69,7 +67,7 @@ export const cMakeDefinition: BuildToolDefinition = {
     url: "https://cmake.org/download/",
   },
   xpmName: 'cmake',
-  xpmPath: './content/bin'  // TODO: check the actual tool path
+  xpmPath: './.content/bin'  // TODO: check the actual tool path
 };
 
 export const armNoneEabiDefinition: BuildToolDefinition = {
@@ -80,7 +78,7 @@ export const armNoneEabiDefinition: BuildToolDefinition = {
   installation: {
     xpm: '@xpack-dev-tools/arm-none-eabi-gcc@latest',
   },
-  xpmPath: './content/bin',
+  xpmPath: './.content/bin',
   requiredByCortexDebug: true,
   xpmName: 'arm-none-eabi-gcc',
 };
