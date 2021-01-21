@@ -13,6 +13,7 @@ import {
   makeDefinition,
   openocdDefinition
 } from './toolChainDefinitions';
+import {getNewestToolchainVersion, getToolVersionFolders, getToolBasePath} from './extensionToolchainHelpers';
 
 import { GITHUB_ISSUES_URL } from '../Definitions';
 import axios from 'axios';
@@ -247,6 +248,25 @@ export function getNode(context: vscode.ExtensionContext): Promise<string> {
   });
 }
 
+export function removeOldTools(tool: BuildToolDefinition, context: vscode.ExtensionContext): Promise <void> {
+  return new Promise(async (resolve) => {
+    const newest = await getNewestToolchainVersion(tool, context.globalStoragePath);
+    const files = await getToolVersionFolders(tool, context.globalStoragePath);
+    if(files && newest) {
+      files.map(async (file) => {
+        console.log('found', file);
+        if(file[0] !== newest.fileName && file[1] === vscode.FileType.Directory) {
+          
+          const filePath = path.join(getToolBasePath(tool, context.globalStoragePath), file[0]);
+          console.log('deleting', filePath);
+          await vscode.workspace.fs.delete(vscode.Uri.file(filePath), {recursive: true});
+        }
+      });
+    }
+    resolve();
+  });
+}
+
 export function installAllTools(context: vscode.ExtensionContext): Promise<void | Error> {
   return new Promise(async (resolve, reject) => {
     let npxInstallation = shelljs.which('npx');
@@ -262,12 +282,19 @@ export function installAllTools(context: vscode.ExtensionContext): Promise<void 
       await installArmNonEabi(context, npxInstallation); 
       if(nodeInstallLocation) {
         // remove the node location
-        vscode.workspace.fs.delete(vscode.Uri.file(nodeInstallLocation));
-        vscode.workspace.fs.delete(vscode.Uri.file(path.join(context.globalStoragePath, 'tmp')));
+        vscode.workspace.fs.delete(vscode.Uri.file(nodeInstallLocation), {recursive: true});
+        vscode.workspace.fs.delete(vscode.Uri.file(path.join(context.globalStoragePath, 'tmp')), {recursive: true});
       }
+      await removeOldTools(openocdDefinition, context);
+      await removeOldTools(armNoneEabiDefinition, context);
+      if(platform === 'win32') {
+        await removeOldTools(makeDefinition, context);
+      }
+
       resolve();
     } catch (err) {
       reject(err);
     }
   });
 }
+

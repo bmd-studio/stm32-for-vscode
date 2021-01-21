@@ -29,7 +29,8 @@
     "onCommand:stm32-for-vscode.flash",
     "onCommand:stm32-for-vscode.cleanBuild",
     "onCommand:stm32-for-vscode.buildTest",
-    "workspaceContains:*.ioc"
+    "workspaceContains:*.ioc",
+    "onView:stm32ForVSCodeCommands"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -45,7 +46,8 @@
         {
           "id": "stm32-for-vscode-commands",
           "icon": "media/STM32-for-VSCode-logo.svg",
-          "title": "STM32 For VSCode"
+          "title": "STM32 For VSCode",
+          "when": "stm32ForVSCodeReady"
         }
       ]
     },
@@ -55,7 +57,7 @@
           "id": "stm32ForVSCodeCommands",
           "name": "STM32 For VSCode commands",
           "contextualTitle": "STM32 For VSCode commands",
-          "visibility": "visible"
+          "when": "stm32ForVSCodeReady"
         }
       ]
     },

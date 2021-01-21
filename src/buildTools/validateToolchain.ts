@@ -94,14 +94,14 @@ export async function checkAutomaticallyInstalledBuildTools(
       settingsToolchain.makePath = makePath;
     }
   }
-
+  // TODO: add this once I integrate testing
   // Cmake
-  if (!settingsToolchain.cMakePath) {
-    const cMakePath = await validateXPMToolchainPath(cMakeDefinition, context.globalStoragePath);
-    if (checkSettingsPathValidity(cMakePath)) {
-      settingsToolchain.cMakePath = cMakePath;
-    }
-  }
+  // if (!settingsToolchain.cMakePath) {
+  //   const cMakePath = await validateXPMToolchainPath(cMakeDefinition, context.globalStoragePath);
+  //   if (checkSettingsPathValidity(cMakePath)) {
+  //     settingsToolchain.cMakePath = cMakePath;
+  //   }
+  // }
 
   return Promise.resolve(settingsToolchain);
 }

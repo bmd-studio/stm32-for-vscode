@@ -72,16 +72,33 @@ export function compareVersions(version1: XPMToolVersion | null, version2: XPMTo
   return version1;
 }
 
-
-
-export function getNewestToolchainVersion(tool: BuildToolDefinition, xpmPath: string): Promise<XPMToolVersion | boolean> {
-  return new Promise((resolve, reject) => {
+/**
+ * return the xpm path for the specified tool e.g ...../bmd.stm32-for-vscode/@xpack-dev-tools/openocd
+ * @param tool The tool for which the paths needs to be found
+ * @param xpmPath The path to the xpm install location e.g. context.globalStoragePath
+ */
+export function getToolBasePath(tool: BuildToolDefinition, xpmPath: string): string {
+  return path.join(xpmPath, XPACKS_DEV_TOOL_PATH, tool.xpmName);
+}
+export function getToolVersionFolders(tool: BuildToolDefinition, xpmPath: string): Promise<[string, vscode.FileType][] | null> {
+  return new Promise((resolve) => {
     if (!tool.xpmName) {
-      reject(new Error('No xpm name found in definition file'));
+      resolve(null);
       return;
     }
-    const toolPath = vscode.Uri.file(path.join(xpmPath, XPACKS_DEV_TOOL_PATH, tool.xpmName));
+    const toolPath = vscode.Uri.file(getToolBasePath(tool, xpmPath));
     vscode.workspace.fs.readDirectory(toolPath).then((files) => {
+      resolve(files);
+    }, (error) => {
+      console.error(`Error on getToolVersionFolders: ${error}`, toolPath);
+      resolve(null);
+    });
+  });
+}
+
+export function getNewestToolchainVersion(tool: BuildToolDefinition, xpmPath: string): Promise<XPMToolVersion> {
+  return new Promise((resolve, reject) => {
+    getToolVersionFolders(tool, xpmPath).then((files) => {
       if (!files) {
         reject(new Error('No files found'));
         return;
@@ -98,8 +115,6 @@ export function getNewestToolchainVersion(tool: BuildToolDefinition, xpmPath: st
         return;
       }
       resolve(newest);
-    }, (error) => {
-      reject(error);
     });
   });
 }

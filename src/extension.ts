@@ -26,12 +26,12 @@
 
 import * as vscode from 'vscode';
 
-import { downloadLatestNode, extractFile, getLatestNodeLink, getNode } from './buildTools/installTools';
+import { downloadLatestNode, extractFile, getLatestNodeLink, getNode, installAllTools } from './buildTools/installTools';
 
 import buildSTM from './BuildTask';
 import { checkBuildTools } from './buildTools';
-
-// // this method is called when your extension is activated
+import addCommandMenu from './menu';
+// this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 
 /**
@@ -41,24 +41,35 @@ export function activate(context: vscode.ExtensionContext): void {
   // This line of code will only be executed once when your extension is
   // activated
 
-  // The command has been defined in the package.json file
-  // Now provide the implementation of the command with  registerCommand
-  // The commandId parameter must match the command field in package.json
   console.log('STM32 for vscode has started');
-  console.log('version', process.version);
-  console.log('release', process.release);
-  console.log('arch', process.arch);
-  checkBuildTools(context);
+  checkBuildTools(context).then((hasBuildTools) => {
+    if(hasBuildTools) {
+      // should continue with 
+      console.log('build tools present');
+      vscode.commands.getCommands().then((commands) => {
+        console.log('these commands are available', commands);
+      });
+      
+    }
+    addCommandMenu(context);
+    vscode.commands.executeCommand('setContext', 'stm32ForVSCodeReady', true);
+  });
+  
   const openSettingsCommand = vscode.commands.registerCommand('stm32-for-vscode.openSettings', () => {
     vscode.commands.executeCommand('workbench.action.openSettings', `@ext:bmd.stm32-for-vscode`);
   });
   const installBuildTools = vscode.commands.registerCommand('stm32-for-vscode.installBuildTools', () => {
-    console.log('starting getting node');
-    getNode(context).then((nodeFileName) => {
-      console.log('doanloading and extracting node was successfull, installation can be found at:', nodeFileName);
-    }).catch((err) => {
-      console.error('something went wrong with getting and installing latest nodeversion', err);
+    installAllTools(context).then(() => {
+      console.log('successfully installed the tools');
+    }).catch((error) => {
+      console.error('Something went wrong with getting the build tools. Look at the task output for more info', error);
+      vscode.window.showErrorMessage(`Something went wrong with getting the build tools. Error:${error}`);
     });
+    // getNode(context).then((nodeFileName) => {
+    //   console.log('doanloading and extracting node was successfull, installation can be found at:', nodeFileName);
+    // }).catch((err) => {
+    //   console.error('something went wrong with getting and installing latest nodeversion', err);
+    // });
 
   });
 
@@ -67,17 +78,17 @@ export function activate(context: vscode.ExtensionContext): void {
 
     // TODO: make this link back to the vscode commands panel.
   });
-  // const buildCmd = vscode.commands.registerCommand(
-  //   'stm32-for-vscode.build',
-  //   async () => new Promise(async (resolve, reject) => {
-  //     try {
-  //       await buildSTM({});
-  //       resolve();
-  //     } catch (err) {
-  //       reject(err);
-  //     }
-  //   }),
-  // );
+  const buildCmd = vscode.commands.registerCommand(
+    'stm32-for-vscode.build',
+    async () => new Promise(async (resolve, reject) => {
+      try {
+        await buildSTM({});
+        resolve();
+      } catch (err) {
+        reject(err);
+      }
+    }),
+  );
   // const flashCmd = vscode.commands.registerCommand(
   //   'stm32-for-vscode.flash',
   //   async () => new Promise(async (resolve, reject) => {
