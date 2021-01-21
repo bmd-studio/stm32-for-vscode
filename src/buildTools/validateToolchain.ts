@@ -16,7 +16,6 @@ import {
 
 import { ToolChain } from '../types/MakeInfo';
 import { getWorkspaceSettings } from '../getInfo/getSettings';
-import { set } from 'lodash';
 
 /*
  * The steps for validating the toolchain are as follows
@@ -73,7 +72,6 @@ export async function checkAutomaticallyInstalledBuildTools(
   // arm none eabi
   if (!settingsToolchain.armToolchainPath) {
     // TODO: should use the extensionToolChainHelpers and validateToolchain functions
-    console.log('globalStoragePath', context.globalStoragePath);
     // const result = await getNewestToolchainVersion(armNoneEabiDefinition, context.globalStoragePath);
     const armToolchainPath = await validateXPMToolchainPath(armNoneEabiDefinition, context.globalStoragePath);
     if ((checkSettingsPathValidity(armToolchainPath))) {

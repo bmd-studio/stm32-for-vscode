@@ -6,7 +6,6 @@ import * as vscode from 'vscode';
 import { BuildToolDefinition, INSTALLATION_PATH, TOOL_FOLDER_PATH, XPACKS_DEV_TOOL_PATH } from './toolChainDefinitions';
 
 import { armNoneEabiDefinition } from '../Requirements';
-import { standardOpenOCDInterface } from '../Definitions';
 
 export interface XPMToolVersion {
   toolVersion: number[];
@@ -100,8 +99,6 @@ export function getNewestToolchainVersion(tool: BuildToolDefinition, xpmPath: st
       }
       resolve(newest);
     }, (error) => {
-      // console.error(error);
-      // console.error('not fulfullid because path does not exist');
       reject(error);
     });
   });
@@ -109,7 +106,7 @@ export function getNewestToolchainVersion(tool: BuildToolDefinition, xpmPath: st
 
 export function validateXPMToolchainPath(tool: BuildToolDefinition, xpmPath: string): Promise<string | boolean> {
   return new Promise((resolve) => {
-    getNewestToolchainVersion(tool, xpmPath).then((value) => {
+    getNewestToolchainVersion(tool, xpmPath).then(async (value) => {
       if (!value || _.isBoolean(value)) {
         resolve(false);
         return;
@@ -118,12 +115,14 @@ export function validateXPMToolchainPath(tool: BuildToolDefinition, xpmPath: str
       const toolPath = path.join(versionPath, tool.xpmPath);
       const fullPath = path.join(toolPath, tool.standardCmd);
       const shellPath = shelljs.which(fullPath);
+      
       if (checkSettingsPathValidity(shellPath)) {
         if (tool.name === armNoneEabiDefinition.name) {
           resolve(toolPath);
           return;
         }
         resolve(shellPath);
+        return;
       }
       resolve(false);
     }).catch((error) => {

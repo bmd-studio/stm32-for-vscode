@@ -4,6 +4,7 @@ import * as path from 'path';
 import * as process from 'process';
 import * as unzipper from 'unzipper';
 import * as vscode from 'vscode';
+import * as shelljs from 'shelljs';
 
 import {
   BuildToolDefinition,
@@ -13,11 +14,10 @@ import {
   openocdDefinition
 } from './toolChainDefinitions';
 
-import { ExtensionContext } from 'vscode';
 import { GITHUB_ISSUES_URL } from '../Definitions';
 import axios from 'axios';
-import { checkBuildTools } from '.';
 import { exec } from 'child_process';
+import { platform } from 'process';
 
 type xpmInstallType = Promise<void>;
 
@@ -26,7 +26,7 @@ type xpmInstallType = Promise<void>;
  * @param context vscode context
  * @param definition definition of the build tool found in toolChainDefinitions.ts
  */
-export function xpmInstall(context: vscode.ExtensionContext, definition: BuildToolDefinition): xpmInstallType {
+export function xpmInstall(context: vscode.ExtensionContext, npx: string, definition: BuildToolDefinition): xpmInstallType {
   return new Promise((resolve, reject) => {
 
     if (!_.has(definition, 'installation.xpm')) {
@@ -40,12 +40,15 @@ export function xpmInstall(context: vscode.ExtensionContext, definition: BuildTo
     const execOptions = {
       env,
     };
-    exec(`npx xpm install --global ${definition.installation.xpm}`, execOptions, (error, _stdout, stderr) => {
-      console.log(`tool: ${definition.name}`);
-      if (stderr || error) {
-        reject(new Error(stderr));
+    exec(`"${npx}" xpm install --global ${definition.installation.xpm}`, execOptions, (error, stdout, stderr) => {
+      if (error) {
+        console.error('npx error', error);
+        reject(error);
         return;
       }
+      console.log(`stdout: ${stdout}`);
+      console.error(`stderr: ${stderr}`);
+      // console.log(`Installed to: ${pathToSaveTo}`);
       resolve();
     });
   });
@@ -55,29 +58,62 @@ export function xpmInstall(context: vscode.ExtensionContext, definition: BuildTo
  * Installs openocd using xpm
  * @param context vscode extension context
  */
-export function installOpenOcd(context: vscode.ExtensionContext): xpmInstallType {
-  return xpmInstall(context, openocdDefinition);
+export function installOpenOcd(context: vscode.ExtensionContext, npx: string): xpmInstallType {
+  return xpmInstall(context, npx, openocdDefinition);
 }
 /**
  * Installs make using xpm
+ * @note need to use something else then xpm 
  * @param context vscode extension context
  */
-export function installMake(context: vscode.ExtensionContext): xpmInstallType {
-  return xpmInstall(context, makeDefinition);
+export function installMake(context: vscode.ExtensionContext, npx: string): Promise<void> {
+  let executeCmd = '';
+  if(shelljs.which('make')) {
+    console.log('make is already there, skipping install');
+    return Promise.resolve();
+  }
+
+  switch(platform) {
+    case "darwin": {
+      executeCmd = makeDefinition.installation.darwin || '';
+    } break;
+    case "win32": {
+      const win32XPMMakeDefinition = _.cloneDeep(makeDefinition);
+      win32XPMMakeDefinition.installation.xpm = win32XPMMakeDefinition.installation.windows;
+      // executeCmd = makeDefinition.installation.windows || '';
+      return xpmInstall(context, npx, win32XPMMakeDefinition); 
+    } break;
+    case "linux": {
+      executeCmd = makeDefinition.installation.linux  || '';
+    } break;
+  }
+  return new Promise((resolve, reject) => {
+    exec(`${executeCmd}`, (error, stdout, stderr) => {
+      if (error) {
+        console.error('make installation error', error);
+        reject(error);
+        return;
+      }
+      console.log(`stdout: ${stdout}`);
+      console.error(`stderr: ${stderr}`);
+      resolve();
+    });
+  });
 }
+
 /**
  * Installs cmake using xpm
  * @param context vscode extension context
  */
-export function installCMake(context: vscode.ExtensionContext): xpmInstallType {
-  return xpmInstall(context, cMakeDefinition);
+export function installCMake(context: vscode.ExtensionContext, npx: string): xpmInstallType {
+  return xpmInstall(context, npx, cMakeDefinition);
 }
 /**
  * Installs arm-none-eabi tool chain using xpm
  * @param context vscode extension context
  */
-export function installArmNonEabi(context: vscode.ExtensionContext): xpmInstallType {
-  return xpmInstall(context, armNoneEabiDefinition);
+export function installArmNonEabi(context: vscode.ExtensionContext, npx: string): xpmInstallType {
+  return xpmInstall(context, npx, armNoneEabiDefinition);
 }
 
 const nodeRegex = {
@@ -129,7 +165,6 @@ export function getLatestNodeLink(): Promise<string> {
 
   return new Promise((resolve, reject) => {
     axios.get(nodeLatestURL).then((response) => {
-      // console.log('axios response', response.data);
       const latestLink = getPlatformSpecificNodeLink(response.data, process.platform, process.arch);
       if (latestLink) {
         resolve(`${latestLink}`);
@@ -208,6 +243,31 @@ export function getNode(context: vscode.ExtensionContext): Promise<string> {
     } catch (error) {
       vscode.window.showErrorMessage(`An error occurred during the node installation process, please try again or create an issue at: ${GITHUB_ISSUES_URL}, with stating error: ${error}`);
       reject(error);
+    }
+  });
+}
+
+export function installAllTools(context: vscode.ExtensionContext): Promise<void | Error> {
+  return new Promise(async (resolve, reject) => {
+    let npxInstallation = shelljs.which('npx');
+    let nodeInstallLocation = '';
+    try {
+      if(!npxInstallation) {
+        console.log('installing node because npx was not found', shelljs.which('npx'));
+        nodeInstallLocation = await getNode(context);
+        npxInstallation = path.join(nodeInstallLocation, 'npx');
+      }
+      await installOpenOcd(context, npxInstallation);
+      await installMake(context, npxInstallation); 
+      await installArmNonEabi(context, npxInstallation); 
+      if(nodeInstallLocation) {
+        // remove the node location
+        vscode.workspace.fs.delete(vscode.Uri.file(nodeInstallLocation));
+        vscode.workspace.fs.delete(vscode.Uri.file(path.join(context.globalStoragePath, 'tmp')));
+      }
+      resolve();
+    } catch (err) {
+      reject(err);
     }
   });
 }
