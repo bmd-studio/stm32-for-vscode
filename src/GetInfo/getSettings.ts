@@ -37,7 +37,6 @@ export function getWorkspaceSettings(): ToolChain {
   const armToolchainPath = settings.get('armToolchainPath');
   const openOCDPath = settings.get('openOCDPath');
   const makePath = settings.get('makePath');
-  const openOCDInterface = settings.get('openOCDInterface');
 
   if (!_.isEmpty(armToolchainPath) && _.isString(armToolchainPath)) {
     result.armToolchainPath = armToolchainPath;
@@ -47,9 +46,6 @@ export function getWorkspaceSettings(): ToolChain {
   }
   if (!_.isEmpty(makePath) && _.isString(makePath)) {
     result.makePath = makePath;
-  }
-  if (!_.isEmpty(openOCDInterface) && _.isString(openOCDInterface)) {
-    result.openOCDInterface = openOCDInterface;
   }
 
   return result;

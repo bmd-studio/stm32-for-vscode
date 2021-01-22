@@ -160,7 +160,7 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   return new Promise((resolve, reject) => {
     const makefileInfoPromise = getMakefileInfo(location);
     const listFilesInfoPromise = getFileList(location);
-    const requirementsInfoPromise = getRequirements();
+    const requirementsInfoPromise = getRequirements();  // TODO: this should be done at startup
 
     // TODO: also add a get config in here
     Promise.all([makefileInfoPromise, listFilesInfoPromise, requirementsInfoPromise]).then((values) => {

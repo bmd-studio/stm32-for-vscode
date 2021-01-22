@@ -30,7 +30,8 @@
     "onCommand:stm32-for-vscode.cleanBuild",
     "onCommand:stm32-for-vscode.buildTest",
     "workspaceContains:*.ioc",
-    "onView:stm32ForVSCodeCommands"
+    "onView:stm32ForVSCodeCommands",
+    "onCommand:stm32-for-vscode.openExtension",
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -82,15 +83,19 @@
       },
       {
         "command": "stm32-for-vscode.installBuildTools",
-        "title": "Installs all the build tools for the STM32 for VSCode extension"
+        "title": "Install all the build tools for the STM32 for VSCode extension"
       },
       {
         "command": "stm32-for-vscode.openSettings",
-        "title": "Opens the settings editor for STM32 for VSCode"
+        "title": "Open the settings editor for STM32 for VSCode"
       },
       {
         "command": "stm32-for-vscode.checkBuildTools",
-        "title": "Checks if the required build tools are present"
+        "title": "Check if the required build tools are present for STM32 for VSCode"
+      },
+      {
+        "command": "stm32-for-vscode.openExtension",
+        "title": "Open the STM32 for VSCode extension"
       }
     ],
     "configuration": {
@@ -111,11 +116,6 @@
           "type": "string",
           "default": "",
           "description": "Path to the GCC Arm Toolchain (prefix arm-none-eabi) to use, will use the one in PATH or the cortex-debug settings as default"
-        },
-        "stm32-for-vscode.openOCDInterface": {
-          "type": "string",
-          "default": "",
-          "description": "The standard programmer to be used for erasing, flashing and debugging. The standard for STM32 nucleo, discovery and eval boards is: interface/stlink.cfg"
         }
       }
     }
