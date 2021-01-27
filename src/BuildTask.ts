@@ -38,7 +38,7 @@ import {
 import {
   makefileName,
 } from './Definitions';
-import updateConfiguration from './workspaceConfiguration/WorkspaceConfigurations';
+import updateConfiguration from './configuration/WorkspaceConfigurations';
 import updateMakefile from './UpdateMakefile';
 import {fsPathToPosix} from './Helpers';
 

@@ -10,7 +10,7 @@ import { assert, expect, use } from 'chai';
 import updateConfiguration, {
   updateLaunch,
   updateTasks
-} from '../../../workspaceConfiguration/WorkspaceConfigurations';
+} from '../../../configuration/WorkspaceConfigurations';
 
 import BuildTasks from '../../fixtures/tasksFixture';
 import LaunchTestFile from '../../fixtures/launchTaskFixture';

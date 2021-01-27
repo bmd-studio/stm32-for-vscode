@@ -22,6 +22,10 @@ export function newMakeInfo(info: Partial<MakeInfo>): MakeInfo {
     libs: [],
     libDirs: [],
     language: 'C',
+    cFlags: [],
+    assemblyFlags: [],
+    ldFlags: [],
+    cxxFlags: [],
   };
   return _.assign(standard, info);
 }

@@ -1,4 +1,4 @@
-import * as CCCPConfig from '../../../workspaceConfiguration/CCCPConfig';
+import * as CCCPConfig from '../../../configuration/CCCPConfig';
 import * as Sinon from 'sinon';
 import * as _ from 'lodash';
 import * as chaiAsPromised from 'chai-as-promised';
@@ -63,7 +63,6 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
         openOCDPath: true,
         cMakePath: true,
         makePath: true,
-        openOCDInterface: standardOpenOCDInterface,
       },
     });
 

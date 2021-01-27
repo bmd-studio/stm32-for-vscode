@@ -36,7 +36,7 @@ import { Uri, env, window, workspace } from 'vscode';
 
 import { ToolChain } from './types/MakeInfo';
 import { fsPathToPosix } from './Helpers';
-import { getWorkspaceSettings } from './getInfo/getSettings';
+import { getExtensionSettings } from './getInfo/getSettings';
 
 // const path pre
 
@@ -417,15 +417,13 @@ export default function checkRequirements(): ToolChain {
   // FIXME: this flow should go differently.
   // geConfiguration -> alert for requirements
   // perhaps I should think more about error handling and overall program flow.
-  const settings = getWorkspaceSettings();
+  const settings = getExtensionSettings();
 
   return ({
     openOCDPath: hasOpenOCD,
     makePath: hasMake,
     cMakePath: hasCmake,
     armToolchainPath: hasArmToolchain,
-    // FIXME: this should not be here, split up once more separation between toolchain and settings occur
-    openOCDInterface: settings.openOCDInterface,
   });
 }
 

@@ -1,0 +1,105 @@
+# Configuration file for the STM32 for VSCode extension
+# This configuration is generated when the STM32 for VSCode extension is used for building a project.
+# This will only happen once and the contents will remain static unless changed by the user.
+
+# Arrays can be inputted in two ways. One is: [entry_1, entry_2, ..., entry_final]
+# or by adding an indented list below the variable name e.g.:
+# VARIABLE:
+# - entry_1
+# - entry_2
+
+# The project name
+target: test_firmware
+# Can be C or C++
+language: C
+
+# MCU settings
+targetMCU: stm32f7x
+cpu: -mcpu=cortex-m7
+fpu: -mfpu=fpv5-d16
+floatAbi: -mfloat-abi=hard
+mcu: -mthumb
+ldscript: STM32F769IITx_FLASH.ld
+
+# Compiler definitions. The -D prefix for the compiler will be automatically added.
+cDefinitions:
+  - STM32F769xx
+  - USE_HAL_DRIVER
+cxxDefinitions: []
+asDefinitions: []
+
+# Compiler flags
+cFlags:
+  - -Wall
+  - -fdata-sections
+  - -ffunction-sections
+cxxFlags: []
+assemblyFlags:
+  - -Wall
+  - -fdata-sections
+  - -ffunction-sections
+ldFlags:
+  - -specs=nosys.specs
+
+# libraries to be included. The -l prefix to the library will be automatically added.
+# Mind that non standard libraries should have a path to their respective directory.
+libraries:
+  - c
+  - m
+  - nosys
+libraryDirectories: []
+
+# Files or folders that will be excluded from compilation. Can be overwritten by including them in sourceFiles.
+# Glob patterns (https://www.wikiwand.com/en/Glob_(programming)) can be used. Do mind that double stars are reserved in yaml
+# these should be escaped with a: \ or the name should be in double quotes e.g. "**.test.**"
+excludes:
+  - Test/*
+  - "**.test.**"
+  - build
+  - Examples
+  - Drivers
+  - Middlewares
+
+# Include directories (directories containing .h or .hpp files)
+# If a CubeMX makefile is present it will automatically include the include directories from that makefile.
+includeDirectories: []
+
+# Files that should be included in the compilation.
+# If a CubeMX makefile is present it will automatically include the  c and cpp/cxx files from that makefile.
+# Glob patterns (https://www.wikiwand.com/en/Glob_(programming)) can be used. Do mind that double stars are reserved in yaml
+# these should be escaped with a: \ or the name should be in double quotes e.g. "HARDWARE_DRIVER*.c"
+sourceFiles:
+  - "Core/**"
+  - startup_stm32f769xx.s
+  - Src/main.c
+  - Src/stm32h7xx_it.c
+  - Src/stm32h7xx_hal_msp.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_cortex.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_eth.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_eth_ex.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim_ex.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart_ex.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pcd.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pcd_ex.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_usb.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc_ex.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_flash.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_flash_ex.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_gpio.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_hsem.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dma.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dma_ex.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_mdma.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pwr.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pwr_ex.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_i2c.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_i2c_ex.c
+  - Src/system_stm32h7xx.c
+
+# When no makefile is present it will show a warning pop-up.
+# However when compilation without the CubeMX Makefile is desired, this can be turned of.
+suppressMakefileWarning: false

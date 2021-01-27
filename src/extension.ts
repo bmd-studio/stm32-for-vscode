@@ -24,13 +24,20 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 
+import * as OpenOCDConfig from './configuration/openOCDConfig';
+import * as STM32Config from './configuration/stm32Config';
 import * as vscode from 'vscode';
 
 import { downloadLatestNode, extractFile, getLatestNodeLink, getNode, installAllTools } from './buildTools/installTools';
 
+import { OpenOCDConfiguration } from './types';
+import addCommandMenu from './menu';
 import buildSTM from './BuildTask';
 import { checkBuildTools } from './buildTools';
-import addCommandMenu from './menu';
+import { configurationFixture } from './test/fixtures/extensionConfigurationFixture';
+import { openOCDInterfaces } from './configuration/openOCDInterfaceFiles';
+import { writeConfigToLocation } from './getInfo/standardConfigFile';
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 
@@ -43,19 +50,41 @@ export function activate(context: vscode.ExtensionContext): void {
 
   console.log('STM32 for vscode has started');
   checkBuildTools(context).then((hasBuildTools) => {
-    if(hasBuildTools) {
+    if (hasBuildTools) {
       // should continue with 
       console.log('build tools present');
       vscode.commands.getCommands().then((commands) => {
         console.log('these commands are available', commands);
       });
-      
+      if (vscode.workspace?.workspaceFolders) {
+        // writeConfigToLocation(vscode.workspace.workspaceFolders[0].uri.fsPath);
+        STM32Config.writeConfigFile(configurationFixture);
+      }
     }
     addCommandMenu(context);
     vscode.commands.executeCommand('setContext', 'stm32ForVSCodeReady', true);
-  });  
+  });
+  const setProgrammerCommand = vscode.commands.registerCommand('stm32-for-vscode.setProgrammer', (programmer?: string) => {
+    if (programmer) {
+      OpenOCDConfig.changeProgrammer(programmer).then(() => {
+        console.log('set programmer to', programmer);
+      });
+      return;
+    }
+    vscode.window.showQuickPick(openOCDInterfaces, { placeHolder: 'Please select a programmer' }).then((value) => {
+      if (!value) { return; }
+      // OpenOCDConfig.readOrCreateConfigFile(new OpenOCDConfiguration(value)).then(() => {
+      OpenOCDConfig.changeProgrammer(value).then(() => {
+        console.log('set programmer to', value);
+      });
+      // });
+    });
+  });
   const openSettingsCommand = vscode.commands.registerCommand('stm32-for-vscode.openSettings', () => {
     vscode.commands.executeCommand('workbench.action.openSettings', `@ext:bmd.stm32-for-vscode`);
+  });
+  const openExtension = vscode.commands.registerCommand('stm32-for-vscode.openExtension', () => {
+    console.log('opening extension');
   });
   const installBuildTools = vscode.commands.registerCommand('stm32-for-vscode.installBuildTools', () => {
     installAllTools(context).then(() => {

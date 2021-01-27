@@ -266,6 +266,23 @@ export function removeOldTools(tool: BuildToolDefinition, context: vscode.Extens
     resolve();
   });
 }
+export async function addExtensionInstalledToolsToSettings(context: vscode.ExtensionContext): Promise<void> {
+  const extensionConfiguration = vscode.workspace.getConfiguration('stm32-for-vscode');
+  //openocd
+  const openocd = await getNewestToolchainVersion(openocdDefinition, context.globalStoragePath);
+  await extensionConfiguration.update('openOCDPath', openocd, vscode.ConfigurationTarget.Global);
+
+  // arm-none-eabi
+  const armEabi = await getNewestToolchainVersion(armNoneEabiDefinition, context.globalStoragePath);
+  await extensionConfiguration.update('armToolchainPath', armEabi, vscode.ConfigurationTarget.Global);
+
+  // make, currently we only install it for windows in the extension
+  if(platform === 'win32') {
+    const make = await getNewestToolchainVersion(armNoneEabiDefinition, context.globalStoragePath);
+    await extensionConfiguration.update( 'makePath', makeDefinition, vscode.ConfigurationTarget.Global);
+  }
+  return Promise.resolve();
+}
 
 export function installAllTools(context: vscode.ExtensionContext): Promise<void | Error> {
   return new Promise(async (resolve, reject) => {
@@ -290,11 +307,13 @@ export function installAllTools(context: vscode.ExtensionContext): Promise<void 
       if(platform === 'win32') {
         await removeOldTools(makeDefinition, context);
       }
-
+      await addExtensionInstalledToolsToSettings(context);
       resolve();
     } catch (err) {
       reject(err);
     }
   });
 }
+
+
 

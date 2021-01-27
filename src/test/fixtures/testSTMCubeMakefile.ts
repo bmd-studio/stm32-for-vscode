@@ -103,6 +103,10 @@ export const testMakefileInfo: MakeInfo = {
   libs,
   libDirs: [],
   language: 'C',
+  cFlags: [],
+  assemblyFlags: [],
+  ldFlags: [],
+  cxxFlags: [],
 };
 
 export const stm32ForVSCodeResult = `##########################################################################################################################
@@ -315,13 +319,13 @@ $(BUILD_DIR):
 # flash
 #######################################
 flash: $(BUILD_DIR)/$(TARGET).elf
-	openocd -f interface/stlink.cfg  -f target/stm32h7x.cfg -c "program $(BUILD_DIR)/$(TARGET).elf verify reset exit"
+	openocd -f ./openocd.cfg -c "program $(BUILD_DIR)/$(TARGET).elf verify reset exit"
 
 #######################################
 # erase
 #######################################
 erase: $(BUILD_DIR)/$(TARGET).elf
-	openocd -f interface/stlink.cfg -f target/stm32h7x.cfg -c "init; reset halt; stm32h7x mass_erase 0; exit"
+	openocd -f ./openocd.cfg -c "init; reset halt; stm32h7x mass_erase 0; exit"
 
 #######################################
 # clean up

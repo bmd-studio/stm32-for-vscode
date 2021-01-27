@@ -15,7 +15,8 @@ import {
 } from './extensionToolchainHelpers';
 
 import { ToolChain } from '../types/MakeInfo';
-import { getWorkspaceSettings } from '../getInfo/getSettings';
+import { getExtensionSettings } from '../getInfo/getSettings';
+import { add } from 'lodash';
 
 /*
  * The steps for validating the toolchain are as follows
@@ -28,7 +29,7 @@ import { getWorkspaceSettings } from '../getInfo/getSettings';
  */
 export function checkSettingsForBuildTools(): ToolChain {
   const settingsToolchain = new ToolChain();  // has standard all paths to false
-  const settings = getWorkspaceSettings();
+  const settings = getExtensionSettings();
   // arm none eabi
   if (checkSettingsPathValidity(settings.armToolchainPath)) {
     const armPath = validateArmToolchainPath(settings.armToolchainPath);
@@ -61,37 +62,43 @@ export function checkSettingsForBuildTools(): ToolChain {
   return settingsToolchain;
 }
 
+export function compareAndUpdateMissingBuildTools(startSettings: ToolChain, additionalSettings: ToolChain): ToolChain {
+  const newSettings = _.cloneDeep(startSettings);
+
+  _.forEach(startSettings, (setting, key) => {
+    if(!setting) {
+      _.set(newSettings, key, _.get(additionalSettings, key));
+    }
+  });
+  return newSettings;
+}
+
+
 /**
  * Checks if the setting is already there and if not tries to check pre installed locations
  * @param settingsToolchain 
  */
 export async function checkAutomaticallyInstalledBuildTools(
-  settingsToolchain: ToolChain,
   context: vscode.ExtensionContext
 ): Promise<ToolChain> {
+  const installedBuildTools = new ToolChain();
   // arm none eabi
-  if (!settingsToolchain.armToolchainPath) {
-    // TODO: should use the extensionToolChainHelpers and validateToolchain functions
-    // const result = await getNewestToolchainVersion(armNoneEabiDefinition, context.globalStoragePath);
-    const armToolchainPath = await validateXPMToolchainPath(armNoneEabiDefinition, context.globalStoragePath);
-    if ((checkSettingsPathValidity(armToolchainPath))) {
-      settingsToolchain.armToolchainPath = armToolchainPath;
-    }
+  const armToolchainPath = await validateXPMToolchainPath(armNoneEabiDefinition, context.globalStoragePath);
+  if ((checkSettingsPathValidity(armToolchainPath))) {
+    installedBuildTools.armToolchainPath = armToolchainPath;
   }
   // OpenOCD
-  if (!settingsToolchain.openOCDPath) {
-    const openOCDPath = await validateXPMToolchainPath(openocdDefinition, context.globalStoragePath);
-    if (checkSettingsPathValidity(openOCDPath)) {
-      settingsToolchain.openOCDPath = openOCDPath;
-    }
+  const openOCDPath = await validateXPMToolchainPath(openocdDefinition, context.globalStoragePath);
+  if (checkSettingsPathValidity(openOCDPath)) {
+    installedBuildTools.openOCDPath = openOCDPath;
   }
 
   // make should not be checked for now except for windows. The others ones should have it in PATH
   // only windows make can be installed through xpm
-  if (!settingsToolchain.makePath && process.platform === 'win32') {
+  if (process.platform === 'win32') {
     const makePath = await validateXPMToolchainPath(makeDefinition, context.globalStoragePath);
     if (checkSettingsPathValidity(makePath)) {
-      settingsToolchain.makePath = makePath;
+      installedBuildTools.makePath = makePath;
     }
   }
   // TODO: add this once I integrate testing
@@ -103,43 +110,37 @@ export async function checkAutomaticallyInstalledBuildTools(
   //   }
   // }
 
-  return Promise.resolve(settingsToolchain);
+  return Promise.resolve(installedBuildTools);
 }
 
 /**
  * Checks if missing buildTools in the settingsToolchain are in path
  * @param settingsToolchain toolchain to check when values are false it will check if the tools are in path
  */
-export function checkBuildToolsInPath(settingsToolchain: ToolChain): ToolChain {
-  if (!settingsToolchain.armToolchainPath) {
-    const shellPath = shelljs.which(armNoneEabiDefinition.standardCmd);
-    if (checkSettingsPathValidity(shellPath)) {
-      // for some weird reason the shellPath gets rejected when I do not toString() it
-      const armDirectory = path.dirname(shellPath.toString());
-      settingsToolchain.armToolchainPath = armDirectory;
-    }
+export function checkBuildToolsInPath(): ToolChain {
+  const  pathToolchain = new ToolChain();
+  const armShellPath = shelljs.which(armNoneEabiDefinition.standardCmd);
+  if (checkSettingsPathValidity(armShellPath)) {
+    // for some weird reason the shellPath gets rejected when I do not toString() it
+    const armDirectory = path.dirname(armShellPath.toString());
+    pathToolchain.armToolchainPath = armDirectory;
   }
   // OpenOCD
-  if (!settingsToolchain.openOCDPath) {
-    const shellPath = shelljs.which(openocdDefinition.standardCmd);
-    if (checkSettingsPathValidity(shellPath)) {
-      settingsToolchain.openOCDPath = shellPath;
-    }
+  const openocdShellPath = shelljs.which(openocdDefinition.standardCmd);
+  if (checkSettingsPathValidity(openocdShellPath)) {
+    pathToolchain.openOCDPath = openocdShellPath;
   }
-  if (!settingsToolchain.makePath) {
-    const shellPath = shelljs.which(makeDefinition.standardCmd);
-    if (checkSettingsPathValidity(shellPath)) {
-      settingsToolchain.makePath = shellPath;
-    }
+  // make
+  const makeShellPath = shelljs.which(makeDefinition.standardCmd);
+  if (checkSettingsPathValidity(makeShellPath)) {
+    pathToolchain.makePath = makeShellPath;
   }
-  if (!settingsToolchain.cMakePath) {
-    const shellPath = shelljs.which(cMakeDefinition.standardCmd);
-    if (checkSettingsPathValidity(shellPath)) {
-      settingsToolchain.cMakePath = shellPath;
-    }
+  // cmake
+  const cmakeShellPath = shelljs.which(cMakeDefinition.standardCmd);
+  if (checkSettingsPathValidity(cmakeShellPath)) {
+    pathToolchain.cMakePath = cmakeShellPath;
   }
-
-  return settingsToolchain;
+  return pathToolchain;
 }
 
 /**

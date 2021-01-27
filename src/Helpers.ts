@@ -30,7 +30,7 @@ export function convertToolPathToAbsolutePath(toolPath: string, dir?: boolean): 
  * @param file The file that needs to be written
  */
 export function writeFileInWorkspace(
-  workspacePathUri: Uri, filePath: string, file: string): Promise<void | Error> {
+  workspacePathUri: Uri, filePath: string, file: string): Promise<void> {
   const totalPath = path.resolve(fsPathToPosix(workspacePathUri.fsPath), filePath);
   const propertiesUri = Uri.file(totalPath);
   const encoder = new TextEncoder();
@@ -43,4 +43,12 @@ export function writeFileInWorkspace(
       reject(error);
     }
   });
+}
+
+export function getWorkspaceUri(): Uri | null {
+  const workspaces = workspace.workspaceFolders;
+  if(workspaces && workspaces.length > 0) {
+    return workspaces[0].uri;
+  }
+  return null;
 }

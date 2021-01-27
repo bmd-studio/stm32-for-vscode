@@ -5,7 +5,7 @@ import { Stm32SettingsInterface, ToolChain } from '../../types/MakeInfo';
 import { afterEach, suite, test } from 'mocha';
 
 import { expect } from 'chai';
-import { getWorkspaceSettings } from '../../getInfo/getSettings';
+import { getExtensionSettings } from '../../getInfo/getSettings';
 import { workspace } from 'vscode';
 
 // class MockConfig {
@@ -47,7 +47,7 @@ suite('get settings', () => {
   test('test default settings', () => {
     const getConfigurationFake = Sinon.fake.returns(MockConfig());
     Sinon.replace(workspace, 'getConfiguration', getConfigurationFake);
-    const settings = getWorkspaceSettings();
+    const settings = getExtensionSettings();
     expect(settings).to.deep.equal(new ToolChain());
     expect(getConfigurationFake.calledOnce).to.be.true;
   });
@@ -59,7 +59,7 @@ suite('get settings', () => {
 
     const getConfigurationFake = Sinon.fake.returns(MockConfig(emptySettings));
     Sinon.replace(workspace, 'getConfiguration', getConfigurationFake);
-    const settings = getWorkspaceSettings();
+    const settings = getExtensionSettings();
     expect(settings).to.deep.equal(new ToolChain());
     expect(getConfigurationFake.calledOnce).to.be.true;
   });
@@ -68,12 +68,12 @@ suite('get settings', () => {
     differentSettings.armToolchainPath = 'toArms!';
     differentSettings.makePath = 'bobTheBuilder';
     differentSettings.openOCDPath = 'perfect name for the more neurotic programmer';
-    differentSettings.openOCDInterface = 'I wanna program it with something else';
+
     const differentSettingsResult = MockConfig(differentSettings);
 
     const getConfigurationFake = Sinon.fake.returns(differentSettingsResult);
     Sinon.replace(workspace, 'getConfiguration', getConfigurationFake);
-    const settings = getWorkspaceSettings();
+    const settings = getExtensionSettings();
     expect(settings).to.deep.equal(differentSettings);
     expect(getConfigurationFake.calledOnce).to.be.true;
   });

@@ -15,8 +15,7 @@ export default function getLaunchTask(info: MakefileInfo): TaskDefinition {
     preLaunchTask: 'Build STM',
     device: 'stlink',
     configFiles: [
-      info.tools.openOCDInterface,
-      `target/${getOpenOCDTarget(info.targetMCU)}`,
+      'openocd.cfg',
     ],
   };
   return config;
