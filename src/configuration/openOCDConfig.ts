@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 
 import { OpenOCDConfigurationInterface } from '../types';
+import { openOCDInterfaces } from './openOCDInterfaceFiles';
 
 /**
  * Creates an openocd configuration file string. 
@@ -92,6 +93,34 @@ export function changeProgrammer(programmer: string): Promise<void> {
       );
       reject(error);
     });
+  });
+
+}
+
+/**
+ * Opens a dialogue to change the programmer in the openocd.cfg file. 
+ * @param programmer (optional) if given the programmer will be selected without a dialogue
+ */
+export function changeProgrammerDialogue(programmer?: string): Promise<void> {
+  return new Promise((resolve) => {
+    if (programmer) {
+      changeProgrammer(programmer).then(() => {
+        console.log('set programmer to', programmer);
+        resolve();
+      });
+    } else {
+      vscode.window.showQuickPick(openOCDInterfaces, { placeHolder: 'Please select a programmer' }).then((value) => {
+        if (!value) {
+          resolve();
+          return;
+        }
+        // OpenOCDConfig.readOrCreateConfigFile(new OpenOCDConfiguration(value)).then(() => {
+        changeProgrammer(value).then(() => {
+          console.log('set programmer to', value);
+          resolve();
+        });
+      });
+    }
   });
 
 }
