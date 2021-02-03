@@ -1,10 +1,14 @@
-import {ExtensionConfiguration} from '../types/MakeInfo';
-import * as YAML from 'yaml';
-import * as vscode from 'vscode';
-import * as path from 'path';
 import * as Helpers from '../Helpers';
-import {EXTENSION_CONFIG_NAME} from '../Definitions';
+import * as YAML from 'yaml';
 import * as _ from 'lodash';
+import * as path from 'path';
+import * as vscode from 'vscode';
+
+import { EXTENSION_CONFIG_NAME } from '../Definitions';
+import { ExtensionConfiguration } from '../types/MakeInfo';
+
+const DEFAULT_SOURCES = ['Src/**', 'Core/Src/**'];
+const DEFAULT_INCLUDES = ['Inc/**', 'Core/Src/**'];
 
 /**
  * Converts arrays of string into indented - value\n lists to adhere to YAML formatting
@@ -12,7 +16,7 @@ import * as _ from 'lodash';
  * @param info the array of string to be converted
  */
 export function createYamlArray(info: string[]): string {
-  if(info.length === 0) {
+  if (info.length === 0) {
     return '[]';
   }
   let output = '\n';
@@ -47,7 +51,6 @@ targetMCU: ${config.targetMCU}
 cpu: ${config.cpu}
 fpu: ${config.fpu}
 floatAbi: ${config.floatAbi}
-mcu: ${config.mcu}
 ldscript: ${config.ldscript} # linker script
 
 # Compiler definitions. The -D prefix for the compiler will be automatically added.
@@ -66,7 +69,7 @@ ldFlags: ${createYamlArray(config.ldFlags)}
 libraries: ${createYamlArray(config.libraries)}
 libraryDirectories: ${createYamlArray(config.libraryDirectories)}
 
-# Files or folders that will be excluded from compilation. Can be overwritten by including them in sourceFiles.
+# Files or folders that will be excluded from compilation.
 # Glob patterns (https://www.wikiwand.com/en/Glob_(programming)) can be used.
 # Do mind that double stars are reserved in yaml
 # these should be escaped with a: \\ or the name should be in double quotes e.g. "**.test.**"
@@ -90,38 +93,40 @@ suppressMakefileWarning: ${config.suppressMakefileWarning}
   );
 }
 
-
-
 /**
  * 
  * @param config The STM32 for VScode Extension configuration
  */
 export function writeConfigFile(config: ExtensionConfiguration): Promise<void> {
-  const configFile = createConfigFile(config);
-  const workspaceFolderUri =Helpers.getWorkspaceUri();
-  if(!workspaceFolderUri) { return Promise.reject(new Error('No workspace folder selected'));}
-  return  Helpers.writeFileInWorkspace(workspaceFolderUri, EXTENSION_CONFIG_NAME, configFile);
+  // default configFiles.
+  const configFileWithAddedDefaults = _.cloneDeep(config);
+  configFileWithAddedDefaults.sourceFiles = _.concat(configFileWithAddedDefaults.sourceFiles, DEFAULT_SOURCES);
+  configFileWithAddedDefaults.includeDirectories = _.concat(configFileWithAddedDefaults.includeDirectories, DEFAULT_INCLUDES);
+  const configFile = createConfigFile(configFileWithAddedDefaults);
+  const workspaceFolderUri = Helpers.getWorkspaceUri();
+  if (!workspaceFolderUri) { return Promise.reject(new Error('No workspace folder selected')); }
+  return Helpers.writeFileInWorkspace(workspaceFolderUri, EXTENSION_CONFIG_NAME, configFile);
 }
 
 const PARSE_YAML_ERROR_MESSAGE = 'Could not parse yaml configuration';
 
 export async function readConfigFile(): Promise<ExtensionConfiguration> {
   const workspaceFolderUri = Helpers.getWorkspaceUri();
-  if(!workspaceFolderUri) { return Promise.reject(new Error('No workspace folder selected'));}
+  if (!workspaceFolderUri) { return Promise.reject(new Error('No workspace folder selected')); }
   const configuration = new ExtensionConfiguration();
-  const configurationPath = path.resolve(workspaceFolderUri.fsPath,EXTENSION_CONFIG_NAME );
+  const configurationPath = path.resolve(workspaceFolderUri.fsPath, EXTENSION_CONFIG_NAME);
   try {
     const file = await vscode.workspace.fs.readFile(vscode.Uri.file(configurationPath));
-    if(!file) {return Promise.reject(new Error('No configuration file found'));}
+    if (!file) { return Promise.reject(new Error('No configuration file found')); }
     const yamlConfig = YAML.parse(Buffer.from(file).toString('utf-8'));
-    if(!yamlConfig) {return Promise.reject(new Error('Could not parse yaml configuration'));}
+    if (!yamlConfig) { return Promise.reject(new Error('Could not parse yaml configuration')); }
     _.forEach(yamlConfig, (entry, key) => {
-      if(_.has(yamlConfig, key)) {
+      if (_.has(yamlConfig, key)) {
         _.set(configuration, key, entry);
       }
     });
-  } catch(err) {
-    if(err) {
+  } catch (err) {
+    if (err) {
       return Promise.reject(err);
     }
   }
@@ -135,14 +140,14 @@ export async function readConfigFile(): Promise<ExtensionConfiguration> {
  */
 export async function readOrCreateConfigFile(config: ExtensionConfiguration): Promise<ExtensionConfiguration> {
   const workspaceFolderUri = Helpers.getWorkspaceUri();
-  if(!workspaceFolderUri) { return Promise.resolve(config); }
-  
+  if (!workspaceFolderUri) { return Promise.resolve(config); }
+
   return new Promise((resolve) => {
     readConfigFile().then((configuration) => {
       resolve(configuration);
     }).catch((err) => {
       // one should be created if none exists
-      if(err.message === PARSE_YAML_ERROR_MESSAGE) {
+      if (err.message === PARSE_YAML_ERROR_MESSAGE) {
         vscode.window.showErrorMessage(
           `Could not parse: ${EXTENSION_CONFIG_NAME}, please check for Errors or delete it so it can be regenerated`
         );
@@ -157,5 +162,5 @@ export async function readOrCreateConfigFile(config: ExtensionConfiguration): Pr
       });
     });
   });
- 
+
 }

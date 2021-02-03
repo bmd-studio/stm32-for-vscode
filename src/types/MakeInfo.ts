@@ -30,7 +30,7 @@ export interface TargetInfoInterface {
   cpu: string;
   fpu: string;
   floatAbi: string;
-  mcu: string;
+  // mcu: string;
   targetMCU: string;
   ldscript: string;
 }
@@ -40,7 +40,7 @@ export class TargetInfo implements TargetInfoInterface {
   public cpu = '';
   public fpu = '';
   public floatAbi = '';
-  public mcu = '';
+  // public mcu = '';
   public targetMCU = '';
   public ldscript = '';
 }
@@ -107,7 +107,7 @@ export class BuildFiles implements BuildFilesInterface {
   public libDirs: string[] = [];
 }
 
-export interface ExtensionConfigurationInterface extends  TargetInfoInterface, CompileInfoInterface, Libraries {
+export interface ExtensionConfigurationInterface extends TargetInfoInterface, CompileInfoInterface, Libraries {
   excludes: string[];
   includeDirectories: string[];
   sourceFiles: string[];
@@ -116,24 +116,22 @@ export interface ExtensionConfigurationInterface extends  TargetInfoInterface, C
 
 export class ExtensionConfiguration implements ExtensionConfigurationInterface {
   public excludes = [
-    `Test/*`,
-    `build`,
-    `Examples`,
-    `Drivers`,
-    'Middlewares',
+    `"**/Examples/**"`,
+    `"**/examples/**"`,
+    `"**/Example/**"`,
+    `"**/example/**"`,
+    `"**_template.*"`,
   ];
   public cDefinitions: string[] = [];
   public cxxDefinitions: string[] = [];
   public asDefinitions: string[] = [];
   public includeDirectories: string[] = [];
-  public libDirs: string[] = [];
-  public libs: string[] = ['c', 'm', 'nosys'];
-  public tools: ToolChain = new ToolChain();
+  // public libDirs: string[] = [];
+  // public libs: string[] = ['c', 'm', 'nosys'];
   public target = '';
   public cpu = '';
   public fpu = '';
   public floatAbi = '';
-  public mcu = '$(CPU) -mthumb $(FPU) $(FLOAT-ABI)';
   public ldscript = '';
   public targetMCU = '';
   public language = 'C' as STM32Languages;
@@ -152,9 +150,29 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
   ];
   public cxxFlags: string[] = [];
   public sourceFiles: string[] = [];
-  public libraries: string[] = [];
+  public libraries: string[] = ['c', 'm', 'nosys'];
   public libraryDirectories: string[] = [];
   public suppressMakefileWarning = false;
+
+  public importRelevantInfoFromMakefile(makeInfo: MakeInfo): void {
+    this.cDefinitions = makeInfo.cDefs;
+    this.cxxDefinitions = makeInfo.cxxDefs;
+    this.asDefinitions = makeInfo.asDefs;
+    // this.includeDirectories = makeInfo.
+    // this.libDirs = makeInfo.libDirs;
+    this.libraries = makeInfo.libs;
+    this.target = makeInfo.target;
+    this.cpu = makeInfo.cpu;
+    this.fpu = makeInfo.fpu;
+    this.floatAbi = makeInfo.floatAbi;
+    this.ldscript = makeInfo.ldscript;
+    this.targetMCU = makeInfo.targetMCU;
+    this.cFlags = makeInfo.cFlags;
+    this.assemblyFlags = makeInfo.assemblyFlags;
+    this.ldFlags = makeInfo.ldFlags;
+    this.cxxFlags = makeInfo.cxxFlags;
+    this.libraryDirectories = makeInfo.libDirs;
+  }
 }
 
 export default class MakeInfo implements MakeInfoInterface {
@@ -180,4 +198,5 @@ export default class MakeInfo implements MakeInfoInterface {
   public assemblyFlags: string[] = [];
   public ldFlags: string[] = [];
   public cxxFlags: string[] = [];
+
 }

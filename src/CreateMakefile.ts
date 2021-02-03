@@ -43,10 +43,13 @@ const { platform } = process;
  * @description formats an array of string into one string with line endings per array entry.
  * @param {string[]} arr
  */
-export function createStringList(arr: string[]): string {
+export function createStringList(arr: string[], prefix?: string): string {
   let output = '';
   const sortedArray = _.uniq(arr).sort();
   _.map(sortedArray, (entry: string, ind: number) => {
+    if (prefix) {
+      output += prefix;
+    }
     output += `${entry}`;
     if (ind < sortedArray.length - 1) {
       output += ' \\';
@@ -61,10 +64,13 @@ export function createStringList(arr: string[]): string {
  * @description formats an array of strings into one string with spaces between entries.
  * @param {string[]} arr
  */
-export function createSingleLineStringList(arr: string[]): string {
+export function createSingleLineStringList(arr: string[], prefix?: string): string {
   let output = '';
   const sortedArray = _.uniq(arr).sort();
   sortedArray.map((entry) => {
+    if (prefix) {
+      output += prefix;
+    }
     output += `${entry} `;
   });
   return output;
@@ -73,7 +79,7 @@ export function createSingleLineStringList(arr: string[]): string {
 export function createGCCPathOutput(makeInfo: MakeInfo): string {
   if (makeInfo.tools.armToolchainPath && _.isString(makeInfo.tools.armToolchainPath)) {
     if (!_.isEmpty(makeInfo.tools.armToolchainPath) && makeInfo.tools.armToolchainPath !== '.') {
-      return `GCC_PATH=${convertToolPathToAbsolutePath(makeInfo.tools.armToolchainPath + '/arm-none-eabi-gcc', true)}`;
+      return `GCC_PATH=${convertToolPathToAbsolutePath(makeInfo.tools.armToolchainPath, true)}`;
     }
   }
   return '';
@@ -173,14 +179,14 @@ AS_DEFS =
 
 # C defines
 C_DEFS =  ${'\\'}
-${createStringList(makeInfo.cDefs)}
+${createStringList(makeInfo.cDefs, '-D')}
 
 # AS includes
 AS_INCLUDES = ${'\\'}
 
 # C includes
 C_INCLUDES =  ${'\\'}
-${createStringList(makeInfo.cIncludes)}
+${createStringList(makeInfo.cIncludes, '-I')}
 
 
 # compile gcc flags
@@ -206,7 +212,7 @@ CXXFLAGS += -feliminate-unused-debug-types
 LDSCRIPT = ${makeInfo.ldscript}
 
 # libraries
-LIBS = ${createSingleLineStringList(makeInfo.libs)}
+LIBS = ${createSingleLineStringList(makeInfo.libs, '-l')}
 LIBDIR = ${'\\'}
 ${createStringList(makeInfo.libDirs)}
 
