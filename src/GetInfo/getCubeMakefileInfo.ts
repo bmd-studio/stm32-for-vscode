@@ -118,6 +118,18 @@ export function extractLibs(makefile: string): string[] {
 }
 
 /**
+ * Removes prefixes from an array.
+ * @param information the array on which prefixes need to be removed
+ * @param prefix the prefix to be removed e.g. -I
+ */
+export function removePrefixes(information: string[], prefix: string): string[] {
+  const output = information.map((entry) => {
+    return entry.replace(new RegExp("^" + prefix), '');
+  });
+  return output;
+}
+
+/**
  * @description Function for getting the target from the hal_msp.c file
  * e.g getting the target stm32l4x from: Src/stm32l4xx_hal_msp.c
  * @param {string[]} cFiles
@@ -164,8 +176,18 @@ export function extractMakefileInfo(makefile: string): MakeInfo {
     }
   });
 
+
+
   // get the targetSTM separately as we need the cSources
   output.targetMCU = getTargetSTM(output.cSources);
+
+  // remove prefixes.
+  output.libs = removePrefixes(output.libs, '-l');
+  output.cDefs = removePrefixes(output.cDefs, '-D');
+  output.cxxDefs = removePrefixes(output.cxxDefs, '-D');
+  output.asDefs = removePrefixes(output.asDefs, '-D');
+  output.cIncludes = removePrefixes(output.cIncludes, '-I');
+
   return output;
 }
 
@@ -199,3 +221,6 @@ export default async function getMakefileInfo(location: string): Promise<MakeInf
     resolve(extractMakefileInfo(makefile));
   });
 }
+
+
+// FIXME: all prefixes should be deleted in this stage.

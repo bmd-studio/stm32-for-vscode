@@ -69,20 +69,20 @@ const cSources = [
   'Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_i2c_ex.c',
   'Src/system_stm32h7xx.c',
 ];
-const cDefs = ['-DUSE_HAL_DRIVER', '-DSTM32H743xx', '-DUSE_HAL_DRIVER', '-DSTM32H743xx'];
+const cDefs = ['USE_HAL_DRIVER', 'STM32H743xx', 'USE_HAL_DRIVER', 'STM32H743xx'];
 const cIncludes = [
-  '-IInc',
-  '-IDrivers/STM32H7xx_HAL_Driver/Inc',
-  '-IDrivers/STM32H7xx_HAL_Driver/Inc/Legacy',
-  '-IDrivers/CMSIS/Device/ST/STM32H7xx/Include',
-  '-IDrivers/CMSIS/Include',
-  '-IDrivers/CMSIS/Include',
+  'Inc',
+  'Drivers/STM32H7xx_HAL_Driver/Inc',
+  'Drivers/STM32H7xx_HAL_Driver/Inc/Legacy',
+  'Drivers/CMSIS/Device/ST/STM32H7xx/Include',
+  'Drivers/CMSIS/Include',
+  'Drivers/CMSIS/Include',
 ];
 
 const asmSources = ['startup_stm32h743xx.s'];
 const floatAbi = '-mfloat-abi=hard';
 const fpu = '-mfpu=fpv5-d16';
-const libs = ['-lc', '-lm', '-lnosys'];
+const libs = ['c', 'm', 'nosys'];
 
 export const testMakefileInfo: MakeInfo = {
   cDefs,

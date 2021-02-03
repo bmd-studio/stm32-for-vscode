@@ -1,11 +1,10 @@
-import {ExtensionConfiguration} from '../../types/MakeInfo';
+import { ExtensionConfiguration } from '../../types/MakeInfo';
 
 export const configuration = new ExtensionConfiguration();
 configuration.target = 'test_firmware';
 configuration.cpu = '-mcpu=cortex-m7';
-configuration.fpu  = '-mfpu=fpv5-d16';
+configuration.fpu = '-mfpu=fpv5-d16';
 configuration.floatAbi = '-mfloat-abi=hard';
-configuration.mcu = '-mthumb';
 configuration.ldscript = 'STM32F769IITx_FLASH.ld';
 configuration.targetMCU = 'stm32f7x';
 configuration.cDefinitions = configuration.cDefinitions.concat(['STM32F769xx', 'USE_HAL_DRIVER']);
@@ -13,6 +12,7 @@ configuration.libraryDirectories = ['libdir_1', 'libdir_2', 'libdir_3'];
 configuration.libraries = ['c', 'cpp', 'something_lib'];
 configuration.includeDirectories = ['inc', 'Core/inc'];
 configuration.sourceFiles.push('startup_stm32f769xx.s');
+configuration.excludes = [];
 configuration.sourceFiles = configuration.sourceFiles.concat([
   'Src/main.c',
   'Src/stm32h7xx_it.c',
