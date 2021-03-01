@@ -124,7 +124,7 @@ export function extractLibs(makefile: string): string[] {
  */
 export function removePrefixes(information: string[], prefix: string): string[] {
   const output = information.map((entry) => {
-    return entry.replace(new RegExp("^" + prefix), '');
+    return entry.replace(new RegExp("^\\s*" + prefix), '');
   });
   return output;
 }
@@ -183,6 +183,7 @@ export function extractMakefileInfo(makefile: string): MakeInfo {
 
   // remove prefixes.
   output.libs = removePrefixes(output.libs, '-l');
+  output.libdir = removePrefixes(output.libdir, '-L');
   output.cDefs = removePrefixes(output.cDefs, '-D');
   output.cxxDefs = removePrefixes(output.cxxDefs, '-D');
   output.asDefs = removePrefixes(output.asDefs, '-D');

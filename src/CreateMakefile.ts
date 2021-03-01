@@ -214,7 +214,7 @@ LDSCRIPT = ${makeInfo.ldscript}
 # libraries
 LIBS = ${createSingleLineStringList(makeInfo.libs, '-l')}
 LIBDIR = ${'\\'}
-${createStringList(makeInfo.libDirs)}
+${createStringList(makeInfo.libdir, '-L')}
 
 LDFLAGS = $(MCU) -specs=nosys.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 

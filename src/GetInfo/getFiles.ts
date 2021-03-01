@@ -156,7 +156,7 @@ export function sortFiles(list: string[]): BuildFiles {
     } else if (extension === 's') {
       output.asmSources.push(entry);
     } else if (extension === 'a') {
-      output.libDirs.push(`-L${entry}`);
+      output.libdir.push(`-L${entry}`);
     }
   });
   output.cIncludes = getIncludes(output.cIncludes);

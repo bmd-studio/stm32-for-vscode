@@ -20,7 +20,7 @@ export function newMakeInfo(info: Partial<MakeInfo>): MakeInfo {
     targetMCU: '',
     tools: new ToolChain(),
     libs: [],
-    libDirs: [],
+    libdir: [],
     language: 'C',
     cFlags: [],
     assemblyFlags: [],

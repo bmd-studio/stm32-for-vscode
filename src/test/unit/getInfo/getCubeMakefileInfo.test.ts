@@ -83,7 +83,7 @@ suite('Get Cube makefile info', () => {
     assert.deepEqual(removePrefixes(output.cxxDefs, '-D'), testMakefileInfo.cxxDefs);
     assert.deepEqual(removePrefixes(output.cDefs, '-D'), testMakefileInfo.cDefs);
     assert.deepEqual(removePrefixes(output.libs, '-l'), testMakefileInfo.libs);
-    assert.deepEqual(output.libDirs, testMakefileInfo.libDirs);
+    assert.deepEqual(output.libdir, testMakefileInfo.libdir);
   });
   test('getMakefile while the makefile is present', async () => {
     const returnedMakefile = 'short makefile';

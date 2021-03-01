@@ -20,7 +20,7 @@ export interface BuildFilesInterface {
   cxxSources: string[];
   asmSources: string[];
   libs: string[];
-  libDirs: string[];
+  libdir: string[];
 }
 
 export type STM32Languages = 'C' | 'C++';
@@ -104,7 +104,7 @@ export class BuildFiles implements BuildFilesInterface {
   public cxxSources: string[] = [];
   public asmSources: string[] = [];
   public libs: string[] = [];
-  public libDirs: string[] = [];
+  public libdir: string[] = [];
 }
 
 export interface ExtensionConfigurationInterface extends TargetInfoInterface, CompileInfoInterface, Libraries {
@@ -126,8 +126,6 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
   public cxxDefinitions: string[] = [];
   public asDefinitions: string[] = [];
   public includeDirectories: string[] = [];
-  // public libDirs: string[] = [];
-  // public libs: string[] = ['c', 'm', 'nosys'];
   public target = '';
   public cpu = '';
   public fpu = '';
@@ -158,8 +156,6 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
     this.cDefinitions = makeInfo.cDefs;
     this.cxxDefinitions = makeInfo.cxxDefs;
     this.asDefinitions = makeInfo.asDefs;
-    // this.includeDirectories = makeInfo.
-    // this.libDirs = makeInfo.libDirs;
     this.libraries = makeInfo.libs;
     this.target = makeInfo.target;
     this.cpu = makeInfo.cpu;
@@ -171,7 +167,7 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
     this.assemblyFlags = makeInfo.assemblyFlags;
     this.ldFlags = makeInfo.ldFlags;
     this.cxxFlags = makeInfo.cxxFlags;
-    this.libraryDirectories = makeInfo.libDirs;
+    this.libraryDirectories = makeInfo.libdir;
   }
 }
 
@@ -183,7 +179,7 @@ export default class MakeInfo implements MakeInfoInterface {
   public cSources: string[] = [];
   public cxxSources: string[] = [];
   public asmSources: string[] = [];
-  public libDirs: string[] = [];
+  public libdir: string[] = [];
   public libs: string[] = [];
   public tools: ToolChain = new ToolChain();
   public target = '';
