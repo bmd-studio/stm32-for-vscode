@@ -32,6 +32,7 @@ import {
 
 import MakeInfo from './types/MakeInfo';
 import executeTask from './HandleTasks';
+import { fsPathToPosix } from './Helpers';
 import {
   getInfo,
 } from './Info';
@@ -40,43 +41,40 @@ import {
 } from './Definitions';
 import updateConfiguration from './configuration/WorkspaceConfigurations';
 import updateMakefile from './UpdateMakefile';
-import {fsPathToPosix} from './Helpers';
 
-export default async function buildSTM(options: { flash?: boolean; cleanBuild?: boolean }): Promise<void> {
+export default async function buildSTM(options?: { flash?: boolean; cleanBuild?: boolean }): Promise<void> {
   const {
     flash,
     cleanBuild,
   } = options || {};
-  return new Promise(async (resolve, reject) => {
-    let currentWorkspaceFolder;
-    let info = {} as MakeInfo;
-    if (!workspace.workspaceFolders) {
-      window.showErrorMessage('No workspace folder is open. Stopped build');
-      reject(Error('no workspace folder is open'));
-      return;
-    }
-    try {
-      currentWorkspaceFolder = fsPathToPosix(workspace.workspaceFolders[0].uri.fsPath);
-      info = await getInfo(currentWorkspaceFolder);
-      await updateMakefile(currentWorkspaceFolder, info);
-      if (cleanBuild) {
-        await executeTask('build', 'STM32 clean', `make -f ${makefileName} clean`);
-      }
-      await executeTask('build', 'STM32 build', `make -f ${makefileName}${flash ? ' flash' : ''}`);
-    } catch (err) {
-      const errMsg = `Something went wrong during the build process: ${err}`;
-      window.showErrorMessage(errMsg);
-      reject(errMsg);
-      return;
-    }
 
-    try {
-      await updateConfiguration(workspace.workspaceFolders[0].uri, info);
-    } catch (err) {
-      const errorMsg = `Something went wrong with configuring the workspace. ERROR: ${err}`;
-      window.showErrorMessage(errorMsg);
-      reject(errorMsg);
+
+  let currentWorkspaceFolder;
+  let info = {} as MakeInfo;
+  if (!workspace.workspaceFolders) {
+    window.showErrorMessage('No workspace folder is open. Stopped build');
+    return Promise.reject(Error('no workspace folder is open'));
+  }
+  try {
+    currentWorkspaceFolder = fsPathToPosix(workspace.workspaceFolders[0].uri.fsPath);
+    info = await getInfo(currentWorkspaceFolder);
+    await updateMakefile(currentWorkspaceFolder, info);
+    if (cleanBuild) {
+      await executeTask('build', 'STM32 clean', `make -f ${makefileName} clean`);
     }
-    resolve();
-  });
+    await executeTask('build', 'STM32 build', `make -f ${makefileName}${flash ? ' flash' : ''}`);
+  } catch (err) {
+    const errMsg = `Something went wrong during the build process: ${err}`;
+    window.showErrorMessage(errMsg);
+    throw new Error(errMsg);
+  }
+
+  try {
+    await updateConfiguration(workspace.workspaceFolders[0].uri, info);
+  } catch (err) {
+    const errorMsg = `Something went wrong with configuring the workspace. ERROR: ${err}`;
+    window.showErrorMessage(errorMsg);
+    throw new Error(errorMsg);
+  }
+  return Promise.resolve();
 }

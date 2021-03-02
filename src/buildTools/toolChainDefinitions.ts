@@ -67,7 +67,7 @@ export const cMakeDefinition: BuildToolDefinition = {
     url: "https://cmake.org/download/",
   },
   xpmName: 'cmake',
-  xpmPath: './.content/bin'  // TODO: check the actual tool path
+  xpmPath: './.content/bin'
 };
 
 export const armNoneEabiDefinition: BuildToolDefinition = {

@@ -78,7 +78,7 @@ export function createSingleLineStringList(arr: string[], prefix?: string): stri
 
 export function createGCCPathOutput(makeInfo: MakeInfo): string {
   if (makeInfo.tools.armToolchainPath && _.isString(makeInfo.tools.armToolchainPath)) {
-    if (!_.isEmpty(makeInfo.tools.armToolchainPath) && makeInfo.tools.armToolchainPath !== '.') {
+    if (makeInfo?.tools?.armToolchainPath && !_.isEmpty(makeInfo.tools.armToolchainPath) && makeInfo.tools.armToolchainPath !== '.') {
       return `GCC_PATH=${convertToolPathToAbsolutePath(makeInfo.tools.armToolchainPath, true)}`;
     }
   }

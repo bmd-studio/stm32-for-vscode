@@ -47,7 +47,7 @@ export function writeFileInWorkspace(
 
 export function getWorkspaceUri(): Uri | null {
   const workspaces = workspace.workspaceFolders;
-  if(workspaces && workspaces.length > 0) {
+  if (workspaces && workspaces.length > 0) {
     return workspaces[0].uri;
   }
   return null;

@@ -157,27 +157,29 @@ export function combineInfo(makefileInfo: MakeInfo, fileList: BuildFiles, requir
  * @param {string} location location of the workspace
  */
 export async function getInfo(location: string): Promise<MakeInfo> {
-  return new Promise((resolve, reject) => {
-    const makefileInfoPromise = getMakefileInfo(location);
-    const listFilesInfoPromise = getFileList(location);
-    const requirementsInfoPromise = getRequirements();  // TODO: this should be done at startup
+  // TODO: This needs to be refactored
+  // FIXME: aftor refactoring this is the first that is out of sync. Should update this functions.
+  const makefileInfoPromise = getMakefileInfo(location);
+  const listFilesInfoPromise = getFileList(location);
+  const requirementsInfoPromise = getRequirements();  // TODO: this should be done at startup
 
-    // TODO: also add a get config in here
-    Promise.all([makefileInfoPromise, listFilesInfoPromise, requirementsInfoPromise]).then((values) => {
-      const [makefileInfo, fileInfo, requirementInfo] = values;
-      let combinedInfo = combineInfo(makefileInfo, fileInfo, requirementInfo);
-      combinedInfo = checkAndConvertCpp(combinedInfo);
-      _.assignIn(info, combinedInfo);
-      if (!vscode.workspace.workspaceFolders) { throw Error('No workspace folder was selected'); }
-      getIgnores(vscode.workspace.workspaceFolders[0].uri).then((ignores: string[]) => {
-        info.cSources = stripIgnoredFiles(info.cSources, ignores);
-        info.cxxSources = stripIgnoredFiles(info.cxxSources, ignores);
-        info.asmSources = stripIgnoredFiles(info.asmSources, ignores);
-        resolve(info);
-      });
-    }).catch((err) => {
-      vscode.window.showErrorMessage('Something went wrong with scanning directories and reading files', err);
-      reject(err);
+  // TODO: also add a get config in here
+  Promise.all([makefileInfoPromise, listFilesInfoPromise, requirementsInfoPromise]).then((values) => {
+    const [makefileInfo, fileInfo, requirementInfo] = values;
+    console.log('aal the info')
+
+    let combinedInfo = combineInfo(makefileInfo, fileInfo, requirementInfo);
+    combinedInfo = checkAndConvertCpp(combinedInfo);
+    _.assignIn(info, combinedInfo);
+    if (!vscode.workspace.workspaceFolders) { throw Error('No workspace folder was selected'); }
+    getIgnores(vscode.workspace.workspaceFolders[0].uri).then((ignores: string[]) => {
+      info.cSources = stripIgnoredFiles(info.cSources, ignores);
+      info.cxxSources = stripIgnoredFiles(info.cxxSources, ignores);
+      info.asmSources = stripIgnoredFiles(info.asmSources, ignores);
+      resolve(info);
     });
+  }).catch((err) => {
+    vscode.window.showErrorMessage('Something went wrong with scanning directories and reading files', err);
+    throw err;
   });
 }
