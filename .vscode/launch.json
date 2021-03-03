@@ -23,7 +23,7 @@
       "outFiles": [
         "${workspaceFolder}/out/test/**/*.js"
       ],
-      "preLaunchTask": "${defaultBuildTask}"
+      "preLaunchTask": "compile tests"
     },
     {
       "showDevDebugOutput": true,

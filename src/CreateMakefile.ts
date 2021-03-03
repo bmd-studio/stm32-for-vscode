@@ -32,6 +32,7 @@
 import 'process';
 
 import * as _ from 'lodash';
+import * as path from 'path';
 
 import MakeInfo from './types/MakeInfo';
 import { convertToolPathToAbsolutePath } from './Helpers';
@@ -71,9 +72,10 @@ export function createSingleLineStringList(arr: string[]): string {
 }
 
 export function createGCCPathOutput(makeInfo: MakeInfo): string {
+  console.log('gcc path', makeInfo.tools.armToolchainPath);
   if (makeInfo.tools.armToolchainPath && _.isString(makeInfo.tools.armToolchainPath)) {
     if (!_.isEmpty(makeInfo.tools.armToolchainPath) && makeInfo.tools.armToolchainPath !== '.') {
-      return `GCC_PATH=${convertToolPathToAbsolutePath(makeInfo.tools.armToolchainPath + '/arm-none-eabi-gcc', true)}`;
+      return `GCC_PATH=${convertToolPathToAbsolutePath(path.join(makeInfo.tools.armToolchainPath, 'arm-none-eabi-gcc'), true)}`;
     }
   }
   return '';

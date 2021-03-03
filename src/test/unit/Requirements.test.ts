@@ -1,6 +1,7 @@
 import * as Sinon from 'sinon';
 import * as path from 'path';
 import * as shelljs from 'shelljs';
+import * as vscode from 'vscode';
 
 import { after, before, beforeEach, suite, test } from 'mocha';
 import {
@@ -10,6 +11,7 @@ import {
 } from '../../Requirements';
 
 import { expect } from 'chai';
+import { workspace } from 'vscode';
 
 suite('Requirements test', () => {
   let shellJSStub: Sinon.SinonStub;
@@ -61,16 +63,26 @@ suite('Requirements test', () => {
 
   // TODO: check folders, resolving the folder makes the whole thing have an absolute path;
   test('checkToolPath for folder definitions', () => {
+    const workspaceConfigFake = Sinon.fake.returns(null);
+    const replacementFunction = (_section?: string | undefined, _scope?: any): vscode.WorkspaceConfiguration => ({ get: workspaceConfigFake, has: workspaceConfigFake, inspect: workspaceConfigFake, update: workspaceConfigFake });
+    Sinon.replace(workspace, 'getConfiguration', replacementFunction);
     shellJSStub.returns(null);
-    const armNoneEabiPathGPP = path.resolve('usr/bin/arm-none-eabi/arm-none-eabi-g++');
+    const armNoneEabiPathGCC = path.resolve('usr/bin/arm-none-eabi/arm-none-eabi-gcc');
     const armNoneEabiPath = path.resolve('usr/bin/arm-none-eabi/');
-    shellJSStub.withArgs(armNoneEabiPathGPP).returns(armNoneEabiPathGPP);
-    expect(checkToolPath(armNoneEabiDefinition, './')).to.be.false;
-    expect(checkToolPath(armNoneEabiDefinition, './bin')).to.equal(false);
-    expect(checkToolPath(armNoneEabiDefinition, 'usr/more/slashes/to.test/')).to.be.false;
+    shellJSStub.withArgs(armNoneEabiPathGCC).returns(armNoneEabiPathGCC);
+    const singleSlashPathResult = checkToolPath(armNoneEabiDefinition, './');
+    const binPathResult = checkToolPath(armNoneEabiDefinition, './bin');
+    const randomLongerPathResult = checkToolPath(armNoneEabiDefinition, 'usr/more/slashes/to.test/');
 
-    expect(checkToolPath(armNoneEabiDefinition, armNoneEabiPath)).to.equal(armNoneEabiPath);
-    expect(checkToolPath(armNoneEabiDefinition, armNoneEabiPathGPP)).to.equal(armNoneEabiPath);
+    expect(singleSlashPathResult).to.be.false;
+    expect(binPathResult).to.equal(false);
+    expect(randomLongerPathResult).to.be.false;
+
+    const correctPathToGCC = checkToolPath(armNoneEabiDefinition, armNoneEabiPathGCC);
+    const correctPathToFolder = checkToolPath(armNoneEabiDefinition, armNoneEabiPath);
+
+    expect(correctPathToFolder).to.equal(armNoneEabiPath);
+    expect(correctPathToGCC).to.equal(armNoneEabiPath);
     shellJSStub.withArgs(armNoneEabiPath).returns(null);
   });
   // test('checkToolPath has standard cmd', () => {

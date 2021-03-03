@@ -121,7 +121,7 @@ const cmakeDefinition: BuildToolDefinition = {
 
 export const armNoneEabiDefinition: BuildToolDefinition = {
   name: 'Arm toolchain',
-  standardCmd: 'arm-none-eabi-g++',
+  standardCmd: 'arm-none-eabi-gcc',
   otherCmds: ['arm-none-eabi-g++', 'arm-none-eabi-gcc', 'arm-none-eabi-objcopy', 'arm-none-eabi-size'],
   folder: true,
   missingMessage:
@@ -256,7 +256,7 @@ function checkSingleRequirement(definition: BuildToolDefinition): boolean | stri
   const STMToolPath = _.get(stm32Config, definition.configName);
   const cortexDebugToolPath = _.get(cortexDebugConfig, definition.configName);
   const STMCheck = checkToolPath(definition, STMToolPath);
-
+  console.log('checking requirement', { definition, STMToolPath, cortexDebugToolPath, STMCheck });
   let cortexDebugCheck;
   if (definition.requiredByCortexDebug) {
     cortexDebugCheck = checkToolPath(definition, cortexDebugToolPath);
@@ -395,10 +395,24 @@ export default function checkRequirements(): ToolChain {
   cortexDebugConfig = workspace.getConfiguration('cortex-debug');
   stm32Config = workspace.getConfiguration('stm32-for-vscode');
   // checks each requirement in order
-  const hasOpenOCD = checkSingleRequirement(openocdDefinition);
-  const hasMake = checkSingleRequirement(makeDefinition);
+  let hasOpenOCD = checkSingleRequirement(openocdDefinition);
+  let hasMake = checkSingleRequirement(makeDefinition);
   const hasCmake = checkSingleRequirement(cmakeDefinition);
-  const hasArmToolchain = checkSingleRequirement(armNoneEabiDefinition);
+  let hasArmToolchain = checkSingleRequirement(armNoneEabiDefinition);
+
+  const openOCDSTM32Setting = stm32Config.get(openocdDefinition.configName) as string;
+  const makeSTM32Setting = stm32Config.get(makeDefinition.configName) as string;
+  const armSTM32Setting = stm32Config.get(armNoneEabiDefinition.configName) as string;
+
+  if (!hasOpenOCD && openOCDSTM32Setting && shelljs.which(openOCDSTM32Setting)) {
+    hasOpenOCD = openOCDSTM32Setting as string;
+  }
+  if (!hasMake && makeSTM32Setting && shelljs.which(makeSTM32Setting)) {
+    hasMake = makeSTM32Setting as string;
+  }
+  if (!hasArmToolchain && armSTM32Setting && shelljs.which(path.join(armSTM32Setting, armNoneEabiDefinition.standardCmd))) {
+    hasArmToolchain = armSTM32Setting;
+  }
 
   // if no path is present. We should give a warning.
   if (!_.isString(hasOpenOCD)) {
@@ -418,6 +432,16 @@ export default function checkRequirements(): ToolChain {
   // geConfiguration -> alert for requirements
   // perhaps I should think more about error handling and overall program flow.
   const settings = getSettingsFromWorkspace();
+  // const output = {
+  //   openOCDPath: hasOpenOCD,
+  //   makePath: hasMake,
+  //   cMakePath: hasCmake,
+  //   armToolchainPath: hasArmToolchain,
+  //   // FIXME: this should not be here, split up once more separation between toolchain and settings occur
+  //   openOCDInterface: settings.openOCDInterface,
+  // };
+
+
 
   return ({
     openOCDPath: hasOpenOCD,

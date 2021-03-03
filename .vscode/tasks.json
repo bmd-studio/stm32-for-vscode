@@ -12,6 +12,15 @@
         "kind": "build",
         "isDefault": true
       }
+    },
+    {
+      "label": "compile tests",
+      "type": "shell",
+      "command": "yarn pretest",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
     }
   ]
 }
