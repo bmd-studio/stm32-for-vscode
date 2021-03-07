@@ -27,18 +27,19 @@
  * Created by Jort Band - Bureau Moeilijke Dingen
 */
 
+import * as OpenOCDConfigFile from './configuration/openOCDConfig';
+import * as STM32ProjectConfiguration from './configuration/stm32Config';
 import * as _ from 'lodash';
 import * as vscode from 'vscode';
 
-import MakeInfo, { BuildFiles, ToolChain } from './types/MakeInfo';
+import MakeInfo, { BuildFiles, ExtensionConfiguration, ToolChain } from './types/MakeInfo';
+import getFileList, { getHeaderFiles, getSourceFiles, scanForFiles } from './GetBuildFilesFromWorkspace';
 import { getIgnores, stripIgnoredFiles } from './HandleIgnoredFiles';
 
-import getFileList from './GetBuildFilesFromWorkspace';
+import { OpenOCDConfiguration } from './types/OpenOCDConfig';
+import { getBuildToolsFromSettings } from './buildTools';
 import getMakefileInfo from './ExtractMakefileInfo';
-import getRequirements from './Requirements';
 
-const info = new MakeInfo();
-export default info;
 /**
  *
  * @param {string[] | object} arr1
@@ -96,7 +97,7 @@ export function checkAndConvertCpp(totalInfo: MakeInfo): MakeInfo {
     }
     return newInfo;
   }
-  if (!_.isEmpty(info.cxxSources)) {
+  if (!_.isEmpty(newInfo.cxxSources)) {
     vscode.window.showWarningMessage(
       'You have several cxx/cpp files, however no main.cpp file. Will ignore these files for now'
     );
@@ -148,6 +149,7 @@ export function combineInfo(makefileInfo: MakeInfo, fileList: BuildFiles, requir
 }
 
 
+
 // FIXME: do I really want to use a global info variable for this?
 /**
  * @description function for getting all the info combined. After this
@@ -159,27 +161,51 @@ export function combineInfo(makefileInfo: MakeInfo, fileList: BuildFiles, requir
 export async function getInfo(location: string): Promise<MakeInfo> {
   // TODO: This needs to be refactored
   // FIXME: aftor refactoring this is the first that is out of sync. Should update this functions.
-  const makefileInfoPromise = getMakefileInfo(location);
+  const makefileInfo = await getMakefileInfo(location);
+
+  const standardConfig: ExtensionConfiguration = new ExtensionConfiguration();
+  standardConfig.importRelevantInfoFromMakefile(makefileInfo);
+  const projectConfiguration = await STM32ProjectConfiguration.readOrCreateConfigFile(standardConfig);
+
+  const openOcdConfig = await OpenOCDConfigFile.readOrCreateConfigFile(new OpenOCDConfiguration(makefileInfo.targetMCU));
+
+  const combinedSourceFiles = _.concat(projectConfiguration.sourceFiles, makefileInfo.cxxSources, makefileInfo.cSources, makefileInfo.asmSources);
+  const combinedHeaderFiles = _.concat(projectConfiguration.includeDirectories, makefileInfo.cIncludes);
+
+  // TODO: put this into a function
+
+  const sourceFileExtensions = ['cpp', 'c', 'a', 's', 'cxx'];
+  const headerExtensions = ['h', 'hpp', 'hxx'];
+  const sourceFilePromise = getSourceFiles(combinedSourceFiles);
+  const headerFilePromise = getHeaderFiles(combinedHeaderFiles);
+  const [indiscriminateSourceFileList, indiscriminateHeaderFileList] = await Promise.all([sourceFilePromise, headerFilePromise]);
+  // TODO: LAST ENTRY: Do the ignored files over here.
+
+
+
   const listFilesInfoPromise = getFileList(location);
-  const requirementsInfoPromise = getRequirements();  // TODO: this should be done at startup
+  const buildTools = getBuildToolsFromSettings();
 
+  const allInfo = await Promise.all([listFilesInfoPromise]);
   // TODO: also add a get config in here
-  Promise.all([makefileInfoPromise, listFilesInfoPromise, requirementsInfoPromise]).then((values) => {
-    const [makefileInfo, fileInfo, requirementInfo] = values;
-    console.log('aal the info')
 
-    let combinedInfo = combineInfo(makefileInfo, fileInfo, requirementInfo);
-    combinedInfo = checkAndConvertCpp(combinedInfo);
-    _.assignIn(info, combinedInfo);
-    if (!vscode.workspace.workspaceFolders) { throw Error('No workspace folder was selected'); }
-    getIgnores(vscode.workspace.workspaceFolders[0].uri).then((ignores: string[]) => {
-      info.cSources = stripIgnoredFiles(info.cSources, ignores);
-      info.cxxSources = stripIgnoredFiles(info.cxxSources, ignores);
-      info.asmSources = stripIgnoredFiles(info.asmSources, ignores);
-      resolve(info);
-    });
-  }).catch((err) => {
-    vscode.window.showErrorMessage('Something went wrong with scanning directories and reading files', err);
-    throw err;
+  const [fileInfo] = allInfo;
+
+  // FIXME: handle file ignores
+
+
+
+  console.log('all info', allInfo, projectConfiguration, openOcdConfig);
+
+  let combinedInfo = combineInfo(makefileInfo, fileInfo, buildTools);
+  combinedInfo = checkAndConvertCpp(combinedInfo);
+  console.log('combined info', combineInfo);
+  if (!vscode.workspace.workspaceFolders) { throw Error('No workspace folder was selected'); }
+  // FIXME: remove the getIgnores.
+  getIgnores(vscode.workspace.workspaceFolders[0].uri).then((ignores: string[]) => {
+    combinedInfo.cSources = stripIgnoredFiles(combinedInfo.cSources, ignores);
+    combinedInfo.cxxSources = stripIgnoredFiles(combinedInfo.cxxSources, ignores);
+    combinedInfo.asmSources = stripIgnoredFiles(combinedInfo.asmSources, ignores);
   });
+  return combinedInfo;
 }

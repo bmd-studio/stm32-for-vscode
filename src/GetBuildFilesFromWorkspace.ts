@@ -23,6 +23,7 @@
 */
 import * as _ from 'lodash';
 import * as pth from 'path';
+import * as vscode from 'vscode';
 
 // import fsRecursive from 'recursive-readdir';
 import { Uri, window, workspace } from 'vscode';
@@ -177,6 +178,70 @@ export function convertToRelative(files: string[], loc: string): string[] {
     return relative;
   });
   return relativeFiles;
+}
+/**
+ * scans workspace for files
+ * @param includedFilesGlob Array of glob strings
+ * @returns array of posix file paths
+ */
+export async function scanForFiles(includedFilesGlob: string[]): Promise<string[]> {
+  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+  if (workspaceFolder === undefined) { return []; }
+  const filePromises = includedFilesGlob.map((fileGlob) => {
+    return vscode.workspace.findFiles(fileGlob);
+  });
+  const returnedFiles = await Promise.all(filePromises);
+  const allFiles = _.flatten(returnedFiles);
+  const resultingFiles: string[] = [];
+  const posixWorkspacePath = fsPathToPosix(workspaceFolder.uri.fsPath);
+  allFiles.forEach((fileUri) => {
+    if (vscode.workspace.getWorkspaceFolder(fileUri)?.uri.fsPath === workspaceFolder.uri.fsPath) {
+      const posixPath = fsPathToPosix(fileUri.fsPath);
+      resultingFiles.push(posixPath);
+    }
+  });
+  const allFilesConvertedToRelative = convertToRelative(resultingFiles, posixWorkspacePath);
+  return allFilesConvertedToRelative;
+}
+
+/**
+ * scans the current workspace for source files
+ * @param sourceFileGlobs glob string to search for source files
+ * @returns array of posix relative sourcefile paths
+ */
+export async function getSourceFiles(sourceFileGlobs: string[]): Promise<string[]> {
+  const sourceFileExtensions = ['cpp', 'c', 'a', 's', 'cxx'];
+  const files = await scanForFiles(sourceFileGlobs);
+  const sourceFiles = _.intersectionWith(
+    files,
+    sourceFileExtensions,
+    (file, extension) => {
+      if (_.last(file.split('.')) === extension) {
+        return true;
+      }
+      return false;
+    });
+  return sourceFiles;
+}
+
+/**
+ * scans the current workspace for header files
+ * @param headerFilesGlobs glob string to search for header files
+ * @returns array of posix relative header file paths
+ */
+export async function getHeaderFiles(headerFilesGlobs: string[]): Promise<string[]> {
+  const headerFileExtensions = ['h', 'hpp', 'hxx'];
+  const files = await scanForFiles(headerFilesGlobs);
+  const headerFiles = _.intersectionWith(
+    files,
+    headerFileExtensions,
+    (file, extension) => {
+      if (_.last(file.split('.')) === extension) {
+        return true;
+      }
+      return false;
+    });
+  return headerFiles;
 }
 
 

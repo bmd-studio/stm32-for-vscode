@@ -1,12 +1,10 @@
 import * as Helpers from '../Helpers';
 
+import MakeInfo from '../types/MakeInfo';
 import { getExtensionSettings } from './getSettings';
 import getFiles from './getFiles';
 import getMakefileInfo from './getCubeMakefileInfo';
 import { readConfigFile } from '../configuration/stm32Config';
-
-// import {MakeInfo} from '../types/MakeInfo';
-
 
 // TODO: should return all the information
 export default async function getInfo(): Promise<void> {

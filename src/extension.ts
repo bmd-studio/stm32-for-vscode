@@ -48,9 +48,9 @@ export function activate(context: vscode.ExtensionContext): void {
       vscode.commands.getCommands().then((commands) => {
         console.log('these commands are available', commands);
       });
-      if (vscode.workspace?.workspaceFolders) {
-        STM32Config.writeConfigFile(configurationFixture);
-      }
+      // if (vscode.workspace?.workspaceFolders) {
+      //   STM32Config.writeConfigFile(configurationFixture);
+      // }
     }
     addCommandMenu(context);
     vscode.commands.executeCommand('setContext', 'stm32ForVSCodeReady', true);
@@ -80,12 +80,11 @@ export function activate(context: vscode.ExtensionContext): void {
   });
   const buildCmd = vscode.commands.registerCommand(
     'stm32-for-vscode.build',
-    async () => new Promise(async (resolve, reject) => {
+    async () => new Promise(async () => {
       try {
         await buildSTM({});
-        resolve();
       } catch (err) {
-        reject(err);
+        throw err;
       }
     }),
   );
