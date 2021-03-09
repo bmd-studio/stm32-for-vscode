@@ -30,6 +30,8 @@ import { Uri, window, workspace } from 'vscode';
 
 import { BuildFiles } from './types/MakeInfo';
 import { fsPathToPosix } from './Helpers';
+import { extractMakefileInfo } from './ExtractMakefileInfo';
+import Glob from 'glob';
 
 const path = pth.posix; // did this so everything would be posix.
 // TODO: create tests for the advanced makefile structure.
@@ -179,26 +181,41 @@ export function convertToRelative(files: string[], loc: string): string[] {
   });
   return relativeFiles;
 }
+
+export async function globSearch(glob: string, sourceFolder: string): Promise<string[]> {
+  const globOptions = {
+    cwd: sourceFolder,
+  };
+  return new Promise((resolve, reject) => {
+    new Glob(glob, globOptions, (err: Error, files: string[]) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(files);
+      }
+    });
+  });
+}
+
 /**
- * scans workspace for files
+ * scans filesystem for files
  * @param includedFilesGlob Array of glob strings
  * @returns array of posix file paths
  */
 export async function scanForFiles(includedFilesGlob: string[]): Promise<string[]> {
   const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
   if (workspaceFolder === undefined) { return []; }
+
   const filePromises = includedFilesGlob.map((fileGlob) => {
-    return vscode.workspace.findFiles(fileGlob);
+    return globSearch(fileGlob, workspaceFolder.uri.fsPath);
   });
   const returnedFiles = await Promise.all(filePromises);
   const allFiles = _.flatten(returnedFiles);
   const resultingFiles: string[] = [];
   const posixWorkspacePath = fsPathToPosix(workspaceFolder.uri.fsPath);
   allFiles.forEach((fileUri) => {
-    if (vscode.workspace.getWorkspaceFolder(fileUri)?.uri.fsPath === workspaceFolder.uri.fsPath) {
-      const posixPath = fsPathToPosix(fileUri.fsPath);
-      resultingFiles.push(posixPath);
-    }
+    const posixPath = fsPathToPosix(fileUri);
+    resultingFiles.push(posixPath);
   });
   const allFilesConvertedToRelative = convertToRelative(resultingFiles, posixWorkspacePath);
   return allFilesConvertedToRelative;

@@ -173,17 +173,12 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   const combinedHeaderFiles = _.concat(projectConfiguration.includeDirectories, makefileInfo.cIncludes);
 
   // TODO: put this into a function
-
-  const sourceFileExtensions = ['cpp', 'c', 'a', 's', 'cxx'];
-  const headerExtensions = ['h', 'hpp', 'hxx'];
   const sourceFilePromise = getSourceFiles(combinedSourceFiles);
   const headerFilePromise = getHeaderFiles(combinedHeaderFiles);
   const [indiscriminateSourceFileList, indiscriminateHeaderFileList] = await Promise.all([sourceFilePromise, headerFilePromise]);
   // TODO: LAST ENTRY: Do the ignored files over here.
 
 
-
-  const listFilesInfoPromise = getFileList(location);
   const buildTools = getBuildToolsFromSettings();
 
   const allInfo = await Promise.all([listFilesInfoPromise]);
