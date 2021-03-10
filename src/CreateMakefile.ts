@@ -34,7 +34,7 @@ import 'process';
 import * as _ from 'lodash';
 
 import MakeInfo from './types/MakeInfo';
-import { convertToolPathToAbsolutePath } from './Helpers';
+import { convertToolPathToAbsolutePath, fsPathToPosix } from './Helpers';
 import getTargetConfig from './OpenOcdTargetFiles';
 
 const { platform } = process;
@@ -79,7 +79,7 @@ export function createSingleLineStringList(arr: string[], prefix?: string): stri
 export function createGCCPathOutput(makeInfo: MakeInfo): string {
   if (makeInfo.tools.armToolchainPath && _.isString(makeInfo.tools.armToolchainPath)) {
     if (makeInfo?.tools?.armToolchainPath && !_.isEmpty(makeInfo.tools.armToolchainPath) && makeInfo.tools.armToolchainPath !== '.') {
-      return `GCC_PATH=${convertToolPathToAbsolutePath(makeInfo.tools.armToolchainPath, true)}`;
+      return `GCC_PATH=${fsPathToPosix(makeInfo.tools.armToolchainPath)}`;
     }
   }
   return '';

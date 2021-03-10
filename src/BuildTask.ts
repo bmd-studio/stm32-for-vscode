@@ -35,7 +35,7 @@ import executeTask from './HandleTasks';
 import { fsPathToPosix } from './Helpers';
 import {
   getInfo,
-} from './Info';
+} from './getInfo';
 import {
   makefileName,
 } from './Definitions';

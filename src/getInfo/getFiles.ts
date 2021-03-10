@@ -21,20 +21,17 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 */
-
 import * as _ from 'lodash';
 import * as pth from 'path';
+import * as vscode from 'vscode';
 
+// import fsRecursive from 'recursive-readdir';
 import { Uri, window, workspace } from 'vscode';
 
 import { BuildFiles } from '../types/MakeInfo';
-import { fsPathToPosix } from '../Helpers';
-
-// import fsRecursive from 'recursive-readdir';
-
-
-
-
+import { convertToolPathToAbsolutePath, fsPathToPosix } from '../Helpers';
+import { extractMakefileInfo } from './getCubeMakefileInfo';
+import Glob = require('glob');
 
 const path = pth.posix; // did this so everything would be posix.
 // TODO: create tests for the advanced makefile structure.
@@ -63,19 +60,6 @@ export const REQUIRED_RESOURCES = [
 
 
 ];
-
-/**
- * Recursively finds files in a directory
- * @param dir directory to find files in
- */
-async function findFilesInDir(dir: string | null): Promise<Uri[]> {
-  if (!dir) { return new Promise((resolve) => { resolve([]); }); }
-  return new Promise((resolve) => {
-    workspace.findFiles(`${dir}/**/*.*`).then((files) => {
-      resolve(files);
-    });
-  });
-}
 
 
 /* When a standard project is initialized  this is the file structure:
@@ -122,18 +106,18 @@ export function checkForRequiredFiles(directoryFiles: string[]): boolean {
 }
 
 /**
- * @description takes found header files and generates a list of include directories with -I prepended
+ * @description takes found header files and generates a list of include directories
  * @param {string[]} headerList - list of headerfiles
  */
-export function getIncludes(headerList: string[]): string[] {
+export function getIncludeDirectoriesFromFileList(headerList: string[]): string[] {
   let incList: string[] = [];
   _.map(headerList, (entry) => {
     const incFolder = path.dirname(entry);
     incList.push(incFolder);
   });
   incList = _.uniq(incList);
-  // should prepend the -I
-  incList = _.map(incList, entry => `-I${entry}`);
+
+  incList = _.map(incList, entry => `${entry}`);
   incList.sort();
   return incList;
 }
@@ -152,14 +136,14 @@ export function sortFiles(list: string[]): BuildFiles {
     } else if (extension === 'c') {
       output.cSources.push(entry);
     } else if (extension === 'h' || extension === 'hpp') {
-      output.cIncludes.push(entry);
+      // output.cIncludes.push(path.dirname(entry));
+      // removed this as sourcefiles and include directories are split up
     } else if (extension === 's') {
       output.asmSources.push(entry);
     } else if (extension === 'a') {
-      output.libdir.push(`-L${entry}`);
+      output.libdir.push(path.dirname(entry));
     }
   });
-  output.cIncludes = getIncludes(output.cIncludes);
   // sort arrays and remove possible duplicates.
   _.forEach(output, (entry, key) => {
     if (_.isArray(entry)) {
@@ -172,72 +156,99 @@ export function sortFiles(list: string[]): BuildFiles {
 
 
 
-/**
- * Converts paths to a relative path for a given location
- * @param files array containing path strings
- * @param loc location to be used as the relative starting point
- */
-export function convertToRelative(files: string[], loc: string): string[] {
-  const relativeFiles = _.map(files, (file: string) => {
-    const relative = path.relative(loc, file);
-    return relative;
-  });
-  return relativeFiles;
-}
+// /**
+//  * Converts paths to a relative path for a given location
+//  * @param files array containing path strings
+//  * @param loc location to be used as the relative starting point
+//  */
+// export function convertToRelative(files: string[], loc: string): string[] {
+//   const relativeFiles = _.map(files, (file: string) => {
+//     const relative = path.relative(loc, file);
+//     return relative;
+//   });
+//   return relativeFiles;
+// }
 
-
-
-/**
- * @description Locates the files in the Src, Inc and Lib folder.
- * @param {string} location - the location of the project, in which it should search for files
- */
-export default async function getFileList(location: string): Promise<BuildFiles> {
-  const FileDirectories = ['Src', 'Lib', 'Inc', 'Core'];
-  if (!workspace.workspaceFolders) { throw Error('No workspace folder found'); }
-  return new Promise(async (resolve) => {
-    let loc = './';
-    if (location) {
-      loc = location;
-    }
-
-    const dirFiletypes = await workspace.fs.readDirectory(Uri.file(loc));
-    const dir = dirFiletypes.map((entry) => entry[0]); // strips the filetype. For now this is not relevant
-
-
-
-    // check for Advanced structure
-    let advancedStructure: string | boolean = _.indexOf(dir, 'Core') > -1 ? dir[_.indexOf(dir, 'Core')] : false;
-    if (!advancedStructure) {
-      advancedStructure = _.indexOf(dir, 'core') > -1 ? dir[_.indexOf(dir, 'core')] : false;
-    }
-    if (advancedStructure) {
-      // it has the advanced makefile structure
-      const coreDirFiletypes = await workspace.fs.readDirectory(Uri.file(path.join(loc, advancedStructure)));
-      coreDirFiletypes.map((entry) => {
-        dir.push(path.join(advancedStructure, entry[0]));
-      });
-    }
-    // search src, lib and inc directories for files
-    const fileUriProm = FileDirectories.map((dirname: string) => (
-      findFilesInDir(getDirCaseFree(dirname, dir)))
-    );
-    if (!checkForRequiredFiles(dir)) {
-      throw new Error('Does not have the required files, maybe the project is not properly initialized using CubeMX');
-    }
-
-    const fileUris = await Promise.all(fileUriProm);
-
-    // converts uris to filesystem paths
-    const filePaths = _.flatten(fileUris).map((fileUri) => {
-      // fsPath on windows gives a backward slash, using the below conversion
-      // uniform conversion can be achieved.
-      const posixPath = fsPathToPosix(fileUri.fsPath);
-      return posixPath;
+export async function globSearch(glob: string, sourceFolder: string): Promise<string[]> {
+  const globOptions = {
+    cwd: sourceFolder,
+  };
+  return new Promise((resolve, reject) => {
+    Glob(glob, globOptions, (err, files: string[]) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(files);
+      }
     });
-    const relativeFiles = convertToRelative(filePaths, loc);
-
-    // should sort files and add them to fileList.
-    const fileList = sortFiles(relativeFiles);
-    resolve(fileList);
   });
 }
+
+/**
+ * scans filesystem for files
+ * @param includedFilesGlob Array of glob strings
+ * @returns array of posix file paths
+ */
+export async function scanForFiles(includedFilesGlob: string[]): Promise<string[]> {
+  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+  if (workspaceFolder === undefined) { return []; }
+
+  const filePromises = includedFilesGlob.map((fileGlob) => {
+    return globSearch(fileGlob, workspaceFolder.uri.fsPath);
+  });
+  const returnedFiles = await Promise.all(filePromises);
+  const allFiles = _.flattenDeep(returnedFiles);
+  console.log('RETURNED FILES SCAN FOR FILES', allFiles);
+  return allFiles;
+}
+
+/**
+ * scans the current workspace for source files
+ * @param sourceFileGlobs glob string to search for source files
+ * @returns array of posix relative sourcefile paths
+ */
+export async function getSourceFiles(sourceFileGlobs: string[]): Promise<string[]> {
+  const sourceFileExtensions = ['cpp', 'c', 'a', 's', 'cxx'];
+  const files = await scanForFiles(sourceFileGlobs);
+  const sourceFiles = _.filter(files, (file) => {
+    const extension = _.last(file.split('.'));
+    if (_.intersection([extension], sourceFileExtensions).length > 0) {
+      return true;
+    }
+    return false;
+  });
+  console.log('finally returned source files', sourceFiles);
+  return sourceFiles;
+}
+
+export function getNonGlobIncludeDirectories(headerFilesGlobs: string[]): string[] {
+  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+  if (workspaceFolder === undefined) { return []; }
+  const nonGlobDirs = headerFilesGlobs.reduce((accumulator, filePath) => {
+    if (!Glob.hasMagic(filePath)) {
+      accumulator.push(filePath);
+    }
+    return accumulator;
+  }, [] as string[]);
+  return nonGlobDirs;
+}
+
+/**
+ * scans the current workspace for header files
+ * @param headerFilesGlobs glob string to search for header files
+ * @returns array of posix relative header file paths
+ */
+export async function getHeaderFiles(headerFilesGlobs: string[]): Promise<string[]> {
+  const headerFileExtensions = ['h', 'hpp', 'hxx'];
+  const files = await scanForFiles(headerFilesGlobs);
+
+  const headerFiles = _.filter(files, (file) => {
+    const extension = _.last(file.split('.'));
+    if (_.intersection([extension], headerFileExtensions).length > 0) {
+      return true;
+    }
+    return false;
+  });
+  return headerFiles;
+}
+
