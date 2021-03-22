@@ -68,7 +68,7 @@ export function activate(context: vscode.ExtensionContext): void {
       const hasBuildTools = await checkBuildTools(context);
       console.log('has build tools', hasBuildTools, commandMenu);
       if (hasBuildTools) {
-        console.log('refreshin commandMenu');
+        console.log('refreshing commandMenu');
         commandMenu.refresh();
       }
 

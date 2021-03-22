@@ -326,7 +326,6 @@ export function installAllTools(context: vscode.ExtensionContext): Promise<void 
         }
         await addExtensionInstalledToolsToSettings(context);
         progress.report({ increment: 20, message: 'done' });
-        return;
       } catch (err) {
         vscode.window.showErrorMessage(`Something has gone wrong while installing the build toold: ${err}`);
       }
