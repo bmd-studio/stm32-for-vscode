@@ -132,12 +132,13 @@
     "test": "node ./out/test/runTest.js",
     "coverage": "nyc --exclude=.vscode-test --exclude=src/test/**  yarn run test",
     "vscode:prepublish": "yarn webpack",
-    "compile": "tsc -p ./",
+    "compile": "tsc --alwaysStrict true -p ./",
+    "compile:test": "tsc --noImplicitUseStrict true -p ./ ",
     "webpack": "webpack --mode development",
     "lint": "eslint src --ext ts",
     "watch": "tsc -watch -p ./",
     "prewebpack": "yarn run lint",
-    "pretest": "rm -rf ./out/test && yarn run compile && yarn run lint",
+    "pretest": "rm -rf ./out/test && yarn run compile:test && yarn run lint",
     "watch:tests": "watch \"yarn test\" ./src --wait=10"
   },
   "devDependencies": {

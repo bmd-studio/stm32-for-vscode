@@ -29,30 +29,26 @@ import * as STM32Config from './configuration/stm32Config';
 import * as vscode from 'vscode';
 
 import addCommandMenu from './menu';
+import CommandMenu from './menu/CommandMenu';
 import buildSTM from './BuildTask';
 import { checkBuildTools } from './buildTools';
 import { configurationFixture } from './test/fixtures/extensionConfigurationFixture';
 import { installAllTools } from './buildTools/installTools';
+
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext): void {
   // This line of code will only be executed once when your extension is
   // activated
+  let commandMenu: CommandMenu | undefined = undefined;
 
   console.log('STM32 for vscode has started');
   checkBuildTools(context).then((hasBuildTools) => {
     if (hasBuildTools) {
       // should continue with 
-      console.log('build tools present');
-      vscode.commands.getCommands().then((commands) => {
-        console.log('these commands are available', commands);
-      });
-      // if (vscode.workspace?.workspaceFolders) {
-      //   STM32Config.writeConfigFile(configurationFixture);
-      // }
     }
-    addCommandMenu(context);
+    commandMenu = addCommandMenu(context);
     vscode.commands.executeCommand('setContext', 'stm32ForVSCodeReady', true);
   });
   const setProgrammerCommand = vscode.commands.registerCommand('stm32-for-vscode.setProgrammer', (programmer?: string) => {
@@ -64,13 +60,21 @@ export function activate(context: vscode.ExtensionContext): void {
   const openExtension = vscode.commands.registerCommand('stm32-for-vscode.openExtension', () => {
     console.log('opening extension');
   });
-  const installBuildTools = vscode.commands.registerCommand('stm32-for-vscode.installBuildTools', () => {
-    installAllTools(context).then(() => {
-      console.log('successfully installed the tools');
-    }).catch((error) => {
-      console.error('Something went wrong with getting the build tools. Look at the task output for more info', error);
-      vscode.window.showErrorMessage(`Something went wrong with getting the build tools. Error:${error}`);
-    });
+  const installBuildTools = vscode.commands.registerCommand('stm32-for-vscode.installBuildTools', async () => {
+    try {
+      console.log('STARTING TOOL INSTALL');
+      await installAllTools(context);
+      console.log('Tools installed');
+      const hasBuildTools = await checkBuildTools(context);
+      console.log('has build tools', hasBuildTools, commandMenu);
+      if (hasBuildTools) {
+        console.log('refreshin commandMenu');
+        commandMenu.refresh();
+      }
+
+    } catch (error) {
+      vscode.window.showErrorMessage(`Something went wrong with installing the build tools. Error:${error}`);
+    }
   });
 
   const buildToolsCommand = vscode.commands.registerCommand("stm32-for-vscode.checkBuildTools", () => {

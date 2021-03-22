@@ -96,56 +96,50 @@ export function getToolVersionFolders(tool: BuildToolDefinition, xpmPath: string
   });
 }
 
-export function getNewestToolchainVersion(tool: BuildToolDefinition, xpmPath: string): Promise<XPMToolVersion> {
-  return new Promise((resolve, reject) => {
-    getToolVersionFolders(tool, xpmPath).then((files) => {
-      if (!files) {
-        reject(new Error('No files found'));
-        return;
+export async function getNewestToolchainVersion(tool: BuildToolDefinition, xpmPath: string): Promise<XPMToolVersion> {
+  // FIXME: the error of this function is not handled in the top layer. Perhaps better to resolve to undefined.
+  // This seems to stop the code execution of the install tools.
+  try {
+    const files = await getToolVersionFolders(tool, xpmPath);
+    if (!files) {
+      throw new Error('No files found');
+    }
+    let newest: XPMToolVersion | null = null;
+    files.map((file) => {
+      const [fileName, fileType] = file;
+      if (fileType === vscode.FileType.Directory) {
+        newest = compareVersions(newest, parseXPMVersionNumbers(fileName));
       }
-      let newest: XPMToolVersion | null = null;
-      files.map((file) => {
-        const [fileName, fileType] = file;
-        if (fileType === vscode.FileType.Directory) {
-          newest = compareVersions(newest, parseXPMVersionNumbers(fileName));
-        }
-      });
-      if (!newest || !isVersionFile(newest)) {
-        reject(new Error('no tool found'));
-        return;
-      }
-      resolve(newest);
     });
-  });
+    if (!newest || !isVersionFile(newest)) {
+      throw new Error('no tool found');
+    }
+    return newest;
+  } catch (err) {
+    throw err;
+  }
 }
 
-export function validateXPMToolchainPath(tool: BuildToolDefinition, xpmPath: string): Promise<string | boolean> {
-  return new Promise((resolve) => {
-    getNewestToolchainVersion(tool, xpmPath).then(async (value) => {
-      if (!value || _.isBoolean(value)) {
-        resolve(false);
-        return;
+export async function validateXPMToolchainPath(tool: BuildToolDefinition, xpmPath: string): Promise<string | boolean> {
+  try {
+    const value = await getNewestToolchainVersion(tool, xpmPath);
+    if (!value || _.isBoolean(value)) {
+      return false;
+    }
+    const versionPath = path.join(xpmPath, XPACKS_DEV_TOOL_PATH, tool.xpmName, value.fileName);
+    const toolPath = path.join(versionPath, tool.xpmPath);
+    const fullPath = path.join(toolPath, tool.standardCmd);
+    const shellPath = shelljs.which(fullPath);
+    if (checkSettingsPathValidity(shellPath)) {
+      if (tool.name === armNoneEabiDefinition.name) {
+        return toolPath;
       }
-      const versionPath = path.join(xpmPath, XPACKS_DEV_TOOL_PATH, tool.xpmName, value.fileName);
-      const toolPath = path.join(versionPath, tool.xpmPath);
-      const fullPath = path.join(toolPath, tool.standardCmd);
-      const shellPath = shelljs.which(fullPath);
-      
-      if (checkSettingsPathValidity(shellPath)) {
-        if (tool.name === armNoneEabiDefinition.name) {
-          resolve(toolPath);
-          return;
-        }
-        resolve(shellPath);
-        return;
-      }
-      resolve(false);
-    }).catch((error) => {
-      console.error(error);
-      console.log('path of tool does not exits');
-      resolve(false);
-    });
-  });
+      return shellPath;
+    }
+    return false;
+  } catch (err) {
+    return false;
+  }
 }
 
 
@@ -164,7 +158,10 @@ export function validateArmToolchainPath(armToolChainPath: string | boolean): st
   return armPath;
 }
 
-export function checkToolchainPathForTool(toolPath: string | boolean, definition: BuildToolDefinition): string | boolean {
+export function checkToolchainPathForTool(
+  toolPath: string | boolean,
+  definition: BuildToolDefinition
+): string | boolean {
   if (!checkSettingsPathValidity(toolPath)) {
     return false;
   }
