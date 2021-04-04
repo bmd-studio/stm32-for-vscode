@@ -92,33 +92,33 @@ export function activate(context: vscode.ExtensionContext): void {
       }
     }),
   );
-  // const flashCmd = vscode.commands.registerCommand(
-  //   'stm32-for-vscode.flash',
-  //   async () => new Promise(async (resolve, reject) => {
-  //     try {
-  //       await buildSTM({
-  //         flash: true,
-  //       });
-  //       resolve();
-  //     } catch (err) {
-  //       reject(err);
-  //     }
-  //   }),
-  // );
-  // const cleanBuildCmd = vscode.commands.registerCommand(
-  //   'stm32-for-vscode.cleanBuild',
-  //   async (args, moreARgs) => new Promise(async (resolve, reject) => {
-  //     console.log('args', args, moreARgs);
-  //     try {
-  //       await buildSTM({
-  //         cleanBuild: true,
-  //       });
-  //       resolve();
-  //     } catch (err) {
-  //       reject(err);
-  //     }
-  //   }),
-  // );
+  const flashCmd = vscode.commands.registerCommand(
+    'stm32-for-vscode.flash',
+    async () => new Promise(async (resolve, reject) => {
+      try {
+        await buildSTM({
+          flash: true,
+        });
+        resolve();
+      } catch (err) {
+        reject(err);
+      }
+    }),
+  );
+  const cleanBuildCmd = vscode.commands.registerCommand(
+    'stm32-for-vscode.cleanBuild',
+    async (args, moreARgs) => new Promise(async (resolve, reject) => {
+      console.log('args', args, moreARgs);
+      try {
+        await buildSTM({
+          cleanBuild: true,
+        });
+        resolve();
+      } catch (err) {
+        reject(err);
+      }
+    }),
+  );
   // const buildTest = vscode.commands.registerCommand(
   //   'stm32-for-vscode.buildTest',
   //   async () => new Promise(async (resolve, reject) => {
