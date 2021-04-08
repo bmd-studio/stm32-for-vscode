@@ -133,8 +133,8 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   STM32MakeInfo.cxxSources = sortedSourceFiles.cxxSources;
   STM32MakeInfo.cSources = sortedSourceFiles.cSources;
   STM32MakeInfo.asmSources = sortedSourceFiles.asmSources;
-  STM32MakeInfo.libs = _.concat(projectConfiguration.libraries, cubeMakefileInfo.libs);
-  STM32MakeInfo.libs = _.uniq(cubeMakefileInfo.libs);
+  STM32MakeInfo.libs = _.uniq(_.concat(projectConfiguration.libraries, cubeMakefileInfo.libs));
+  STM32MakeInfo.libdir = _.uniq(_.concat(projectConfiguration.libraryDirectories, cubeMakefileInfo.libdir));
   STM32MakeInfo.asDefs = _.uniq(_.concat(cubeMakefileInfo.asDefs, projectConfiguration.asDefinitions));
   STM32MakeInfo.assemblyFlags = _.uniq(_.concat(cubeMakefileInfo.assemblyFlags, projectConfiguration.assemblyFlags));
   STM32MakeInfo.cDefs = _.uniq(_.concat(cubeMakefileInfo.cDefs, projectConfiguration.cDefinitions));
@@ -150,7 +150,6 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   STM32MakeInfo.mcu = cubeMakefileInfo.mcu;
   STM32MakeInfo.target = projectConfiguration.target;
   STM32MakeInfo.targetMCU = projectConfiguration.targetMCU;
-
   const buildTools = getBuildToolsFromSettings();
   STM32MakeInfo.tools = {
     ...STM32MakeInfo.tools,

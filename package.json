@@ -31,6 +31,7 @@
     "onCommand:stm32-for-vscode.buildTest",
     "onCommand:stm32-for-vscode.setProgrammer",
     "workspaceContains:*.ioc",
+    "workspaceContains:STM32-for-VSCode.config.yaml",
     "onView:stm32ForVSCodeCommands",
     "onCommand:stm32-for-vscode.openExtension"
   ],

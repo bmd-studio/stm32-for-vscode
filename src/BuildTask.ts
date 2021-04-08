@@ -77,5 +77,4 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
     window.showErrorMessage(errorMsg);
     throw new Error(errorMsg);
   }
-  return Promise.resolve();
 }

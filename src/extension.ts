@@ -32,7 +32,6 @@ import addCommandMenu from './menu';
 import CommandMenu from './menu/CommandMenu';
 import buildSTM from './BuildTask';
 import { checkBuildTools } from './buildTools';
-import { configurationFixture } from './test/fixtures/extensionConfigurationFixture';
 import { installAllTools } from './buildTools/installTools';
 
 
@@ -84,40 +83,38 @@ export function activate(context: vscode.ExtensionContext): void {
   });
   const buildCmd = vscode.commands.registerCommand(
     'stm32-for-vscode.build',
-    async () => new Promise(async () => {
+    async () => {
       try {
         await buildSTM({});
+        console.log('finished build task');
       } catch (err) {
         throw err;
       }
-    }),
+    }
   );
   const flashCmd = vscode.commands.registerCommand(
     'stm32-for-vscode.flash',
-    async () => new Promise(async (resolve, reject) => {
+    async () => {
       try {
         await buildSTM({
           flash: true,
         });
-        resolve();
       } catch (err) {
-        reject(err);
+        throw err;
       }
-    }),
+    }
   );
   const cleanBuildCmd = vscode.commands.registerCommand(
     'stm32-for-vscode.cleanBuild',
-    async (args, moreARgs) => new Promise(async (resolve, reject) => {
-      console.log('args', args, moreARgs);
+    async () => {
       try {
         await buildSTM({
           cleanBuild: true,
         });
-        resolve();
       } catch (err) {
-        reject(err);
+        throw err;
       }
-    }),
+    }
   );
   // const buildTest = vscode.commands.registerCommand(
   //   'stm32-for-vscode.buildTest',

@@ -26,9 +26,9 @@ export default function executeTask(
       if (e.execution.task.name === name) {
         if (e.exitCode === 0) {
           resolve();
-        } else {
-          reject(e.exitCode);
+          return;
         }
+        reject(e.exitCode);
       }
     });
   });
