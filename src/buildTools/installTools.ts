@@ -13,7 +13,12 @@ import {
   makeDefinition,
   openocdDefinition
 } from './toolChainDefinitions';
-import { getNewestToolchainVersion, getToolVersionFolders, getToolBasePath } from './extensionToolchainHelpers';
+import {
+  getNewestToolchainVersion,
+  getToolVersionFolders,
+  getToolBasePath,
+  validateXPMToolchainPath
+} from './extensionToolchainHelpers';
 
 import { GITHUB_ISSUES_URL } from '../Definitions';
 import axios from 'axios';
@@ -27,7 +32,9 @@ type xpmInstallType = Promise<void>;
  * @param context vscode context
  * @param definition definition of the build tool found in toolChainDefinitions.ts
  */
-export function xpmInstall(context: vscode.ExtensionContext, npx: string, definition: BuildToolDefinition): xpmInstallType {
+export function xpmInstall(
+  context: vscode.ExtensionContext, npx: string, definition: BuildToolDefinition
+): xpmInstallType {
   return new Promise((resolve, reject) => {
 
     if (!_.has(definition, 'installation.xpm')) {
@@ -41,15 +48,11 @@ export function xpmInstall(context: vscode.ExtensionContext, npx: string, defini
     const execOptions = {
       env,
     };
-    exec(`"${npx}" xpm install --global ${definition.installation.xpm}`, execOptions, (error, stdout, stderr) => {
+    exec(`"${npx}" xpm install --global ${definition.installation.xpm}`, execOptions, (error, /*stdout, stderr*/) => {
       if (error) {
-        console.error('npx error', error);
         reject(error);
         return;
       }
-      console.log(`stdout: ${stdout}`);
-      console.error(`stderr: ${stderr}`);
-      // console.log(`Installed to: ${pathToSaveTo}`);
       resolve();
     });
   });
@@ -70,7 +73,6 @@ export function installOpenOcd(context: vscode.ExtensionContext, npx: string): x
 export function installMake(context: vscode.ExtensionContext, npx: string): Promise<void> {
   let executeCmd = '';
   if (shelljs.which('make')) {
-    console.log('make is already there, skipping install');
     return Promise.resolve();
   }
 
@@ -89,14 +91,13 @@ export function installMake(context: vscode.ExtensionContext, npx: string): Prom
     } break;
   }
   return new Promise((resolve, reject) => {
-    exec(`${executeCmd}`, (error, stdout, stderr) => {
+    exec(`${executeCmd}`, (error, /*stdout, stderr*/) => {
       if (error) {
-        console.error('make installation error', error);
         reject(error);
         return;
       }
-      console.log(`stdout: ${stdout}`);
-      console.error(`stderr: ${stderr}`);
+      // console.log(`stdout: ${stdout}`);
+      // console.error(`stderr: ${stderr}`);
       resolve();
     });
   });
@@ -140,7 +141,9 @@ const nodeRegex = {
  * @param platform the platform for which to get the node version
  * @param arch the arch for which to get the node version
  */
-export function getPlatformSpecificNodeLink(latestNodeBody: string, platform: NodeJS.Platform, arch: string): string | null {
+export function getPlatformSpecificNodeLink(
+  latestNodeBody: string, platform: NodeJS.Platform, arch: string
+): string | null {
   const platformRegex = _.cloneDeep(_.get(nodeRegex, `${platform}.${arch}`, null));
   let link = null;
   if (platformRegex) {
@@ -172,7 +175,9 @@ export function getLatestNodeLink(): Promise<string> {
       } else {
         reject(
           new Error(
-            'No link found for this specific platform, please open a new issue to ask for support for your specific platform at: https://github.com/bmd-studio/stm32-for-vscode/issues'
+            'No link found for this specific platform, ' +
+            'please open a new issue to ask for support for your specific platform at: ' +
+            'https://github.com/bmd-studio/stm32-for-vscode/issues'
           )
         );
       }
@@ -233,7 +238,10 @@ export function getNode(context: vscode.ExtensionContext): Promise<string> {
     try {
       const latestNodeLink = await getLatestNodeLink();
       const latestNodeCompressed = await downloadLatestNode(context, latestNodeLink);
-      const extractedNodeFileLoc = await extractFile(latestNodeCompressed, path.join(context.globalStoragePath, 'node'));
+      const extractedNodeFileLoc = await extractFile(
+        latestNodeCompressed,
+        path.join(context.globalStoragePath, 'node')
+      );
       const dirContents = await vscode.workspace.fs.readDirectory(vscode.Uri.file(extractedNodeFileLoc));
       const nodeInstallationFilePath = _.find(dirContents, (file) => { return (file[0].indexOf('node') >= 0); });
       if (!nodeInstallationFilePath || !nodeInstallationFilePath[0]) {
@@ -242,7 +250,10 @@ export function getNode(context: vscode.ExtensionContext): Promise<string> {
       }
       resolve(path.join(extractedNodeFileLoc, nodeInstallationFilePath[0]));
     } catch (error) {
-      vscode.window.showErrorMessage(`An error occurred during the node installation process, please try again or create an issue at: ${GITHUB_ISSUES_URL}, with stating error: ${error}`);
+      vscode.window.showErrorMessage(
+        `An error occurred during the node installation process, 
+        please try again or create an issue at: ${GITHUB_ISSUES_URL}, with stating error: ${error}`
+      );
       reject(error);
     }
   });
@@ -254,11 +265,8 @@ export async function removeOldTools(tool: BuildToolDefinition, context: vscode.
     const files = await getToolVersionFolders(tool, context.globalStoragePath);
     if (files && newest) {
       files.map(async (file) => {
-        console.log('found', file);
         if (file[0] !== newest.fileName && file[1] === vscode.FileType.Directory) {
-
           const filePath = path.join(getToolBasePath(tool, context.globalStoragePath), file[0]);
-          console.log('deleting', filePath);
           await vscode.workspace.fs.delete(vscode.Uri.file(filePath), { recursive: true });
         }
       });
@@ -270,17 +278,25 @@ export async function removeOldTools(tool: BuildToolDefinition, context: vscode.
 export async function addExtensionInstalledToolsToSettings(context: vscode.ExtensionContext): Promise<void> {
   const extensionConfiguration = vscode.workspace.getConfiguration('stm32-for-vscode');
   //openocd
-  const openocd = await getNewestToolchainVersion(openocdDefinition, context.globalStoragePath);
-  await extensionConfiguration.update('openOCDPath', openocd, vscode.ConfigurationTarget.Global);
+  const openocd = await validateXPMToolchainPath(openocdDefinition, context.globalStoragePath);
+  if (openocd) {
+    await extensionConfiguration.update('openOCDPath', openocd, vscode.ConfigurationTarget.Global);
+  }
 
   // arm-none-eabi
-  const armEabi = await getNewestToolchainVersion(armNoneEabiDefinition, context.globalStoragePath);
-  await extensionConfiguration.update('armToolchainPath', armEabi, vscode.ConfigurationTarget.Global);
+  const armEabi = await validateXPMToolchainPath(armNoneEabiDefinition, context.globalStoragePath);
+  if (armEabi) {
+    await extensionConfiguration.update('armToolchainPath', armEabi, vscode.ConfigurationTarget.Global);
+  }
+
 
   // make, currently we only install it for windows in the extension
   if (platform === 'win32') {
-    const make = await getNewestToolchainVersion(armNoneEabiDefinition, context.globalStoragePath);
-    await extensionConfiguration.update('makePath', makeDefinition, vscode.ConfigurationTarget.Global);
+    const make = await validateXPMToolchainPath(makeDefinition, context.globalStoragePath);
+    if (make) {
+      await extensionConfiguration.update('makePath', make, vscode.ConfigurationTarget.Global);
+    }
+
   }
 }
 
@@ -296,7 +312,6 @@ export function installAllTools(context: vscode.ExtensionContext): Promise<void 
       progress.report({ increment: 0, message: 'Starting build tools installation' });
       try {
         if (!npxInstallation) {
-          console.log('installing node because npx was not found', shelljs.which('npx'));
           progress.report({ increment: 0, message: 'installing node because npx was not found' });
           nodeInstallLocation = await getNode(context);
           npxInstallation = path.join(nodeInstallLocation, 'npx');
@@ -321,7 +336,7 @@ export function installAllTools(context: vscode.ExtensionContext): Promise<void 
           try {
             await removeOldTools(makeDefinition, context);
           } catch (err) {
-            console.error(err);
+            // console.error(err);
           }
         }
         await addExtensionInstalledToolsToSettings(context);

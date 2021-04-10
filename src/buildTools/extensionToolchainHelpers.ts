@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as shelljs from 'shelljs';
 import * as vscode from 'vscode';
 
-import { BuildToolDefinition, INSTALLATION_PATH, TOOL_FOLDER_PATH, XPACKS_DEV_TOOL_PATH } from './toolChainDefinitions';
+import { BuildToolDefinition, XPACKS_DEV_TOOL_PATH } from './toolChainDefinitions';
 
 import { armNoneEabiDefinition } from '../Requirements';
 
@@ -80,7 +80,8 @@ export function compareVersions(version1: XPMToolVersion | null, version2: XPMTo
 export function getToolBasePath(tool: BuildToolDefinition, xpmPath: string): string {
   return path.join(xpmPath, XPACKS_DEV_TOOL_PATH, tool.xpmName);
 }
-export function getToolVersionFolders(tool: BuildToolDefinition, xpmPath: string): Promise<[string, vscode.FileType][] | null> {
+export function getToolVersionFolders(
+  tool: BuildToolDefinition, xpmPath: string): Promise<[string, vscode.FileType][] | null> {
   return new Promise((resolve) => {
     if (!tool.xpmName) {
       resolve(null);
@@ -89,20 +90,26 @@ export function getToolVersionFolders(tool: BuildToolDefinition, xpmPath: string
     const toolPath = vscode.Uri.file(getToolBasePath(tool, xpmPath));
     vscode.workspace.fs.readDirectory(toolPath).then((files) => {
       resolve(files);
-    }, (error) => {
-      console.error(`Error on getToolVersionFolders: ${error}`, toolPath);
+    }, () => {
+
       resolve(null);
     });
   });
 }
 
-export async function getNewestToolchainVersion(tool: BuildToolDefinition, xpmPath: string): Promise<XPMToolVersion> {
-  // FIXME: the error of this function is not handled in the top layer. Perhaps better to resolve to undefined.
-  // This seems to stop the code execution of the install tools.
+/**
+ * Function which returns 
+ * @param tool build tool defintion
+ * @param xpmPath the path to which the xpm install was performed.
+ * @returns 
+ */
+export async function getNewestToolchainVersion(
+  tool: BuildToolDefinition, xpmPath: string
+): Promise<XPMToolVersion | undefined> {
   try {
     const files = await getToolVersionFolders(tool, xpmPath);
     if (!files) {
-      throw new Error('No files found');
+      return undefined;
     }
     let newest: XPMToolVersion | null = null;
     files.map((file) => {
