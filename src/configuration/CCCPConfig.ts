@@ -4,7 +4,7 @@ import * as shelljs from 'shelljs';
 import { Uri, workspace, } from 'vscode';
 
 import MakeInfo from '../types/MakeInfo';
-import { fsPathToPosix, writeFileInWorkspace } from '../Helpers';
+import { writeFileInWorkspace } from '../Helpers';
 import * as path from 'path';
 
 export interface CCppConfig {
@@ -61,7 +61,6 @@ export function getAbsoluteCompilerPath(info: MakeInfo): string {
     armPath = '';
   }
   const relativeCompilerPath = path.join(armPath, compiler);
-  // const relativeCompilerPath = fsPathToPosix(`${info.tools.armToolchainPath || ''}${compiler}`);
   const compilerPath = shelljs.which(relativeCompilerPath);
   return compilerPath;
 }

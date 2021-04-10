@@ -79,7 +79,7 @@ export function createSingleLineStringList(arr: string[], prefix?: string): stri
 export function createGCCPathOutput(makeInfo: MakeInfo): string {
   if (makeInfo.tools.armToolchainPath && _.isString(makeInfo.tools.armToolchainPath)) {
     if (makeInfo?.tools?.armToolchainPath && !_.isEmpty(makeInfo.tools.armToolchainPath) && makeInfo.tools.armToolchainPath !== '.') {
-      return `GCC_PATH=${fsPathToPosix(makeInfo.tools.armToolchainPath)}`;
+      return `GCC_PATH=${fsPathToPosix(makeInfo.tools.armToolchainPath, true)}`;
     }
   }
   return '';
@@ -261,13 +261,13 @@ $(BUILD_DIR):
 # flash
 #######################################
 flash: $(BUILD_DIR)/$(TARGET).elf
-\t${makeInfo.tools.openOCDPath ? fsPathToPosix(`${makeInfo.tools.openOCDPath}`) : 'openocd'} -f ./openocd.cfg -c "program $(BUILD_DIR)/$(TARGET).elf verify reset exit"
+\t${makeInfo.tools.openOCDPath ? fsPathToPosix(`${makeInfo.tools.openOCDPath}`, true) : 'openocd'} -f ./openocd.cfg -c "program $(BUILD_DIR)/$(TARGET).elf verify reset exit"
 
 #######################################
 # erase
 #######################################
 erase: $(BUILD_DIR)/$(TARGET).elf
-\t${makeInfo.tools.openOCDPath ? fsPathToPosix(`${makeInfo.tools.openOCDPath}`) : 'openocd'} -f ./openocd.cfg -c "init; reset halt; ${makeInfo.targetMCU} mass_erase 0; exit"
+\t${makeInfo.tools.openOCDPath ? fsPathToPosix(`${makeInfo.tools.openOCDPath}`, true) : 'openocd'} -f ./openocd.cfg -c "init; reset halt; ${makeInfo.targetMCU} mass_erase 0; exit"
 
 #######################################
 # clean up

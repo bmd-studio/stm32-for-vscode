@@ -9,10 +9,12 @@ export function splitStringLines(input: string): string[] {
   return input.split(/\r\n|\r|\n/);
 }
 
-export function fsPathToPosix(fsPath: string): string {
-  const posixPath = fsPath.split(path.sep).join(path.posix.sep);
-  const sepPathWithEscapeChars = posixPath.split(' ').join('\\ ');
-  return sepPathWithEscapeChars;
+export function fsPathToPosix(fsPath: string, escapeSpaces?: boolean): string {
+  let posixPath = fsPath.split(path.sep).join(path.posix.sep);
+  if (escapeSpaces) {
+    posixPath = posixPath.split(' ').join('\\ ');
+  }
+  return posixPath;
 }
 
 export function convertToolPathToAbsolutePath(toolPath: string, dir?: boolean): string {
