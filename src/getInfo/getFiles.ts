@@ -26,11 +26,9 @@ import * as pth from 'path';
 import * as vscode from 'vscode';
 
 // import fsRecursive from 'recursive-readdir';
-import { Uri, window, workspace } from 'vscode';
+import { window } from 'vscode';
 
 import { BuildFiles } from '../types/MakeInfo';
-import { convertToolPathToAbsolutePath, fsPathToPosix } from '../Helpers';
-import { extractMakefileInfo } from './getCubeMakefileInfo';
 import Glob = require('glob');
 
 const path = pth.posix; // did this so everything would be posix.
@@ -198,7 +196,6 @@ export async function scanForFiles(includedFilesGlob: string[]): Promise<string[
   });
   const returnedFiles = await Promise.all(filePromises);
   const allFiles = _.flattenDeep(returnedFiles);
-  console.log('RETURNED FILES SCAN FOR FILES', allFiles);
   return allFiles;
 }
 
@@ -217,7 +214,6 @@ export async function getSourceFiles(sourceFileGlobs: string[]): Promise<string[
     }
     return false;
   });
-  console.log('finally returned source files', sourceFiles);
   return sourceFiles;
 }
 

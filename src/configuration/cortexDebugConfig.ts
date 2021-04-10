@@ -1,7 +1,5 @@
 import { workspace, ExtensionContext, ConfigurationTarget } from 'vscode';
-import * as vscode from 'vscode';
 import MakeInfo from '../types/MakeInfo';
-import { fsPathToPosix } from '../Helpers';
 import _ = require('lodash');
 
 export default function setCortexDebugWorkspaceConfiguration(info: MakeInfo): void {

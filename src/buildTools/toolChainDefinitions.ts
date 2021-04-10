@@ -5,7 +5,8 @@ import * as process from 'process';
 // const path pre
 export const INSTALLATION_PATH = process.platform === 'win32' ? '%HOMEPATH%' : '~/';
 export const STANDARD_XPM_PATH = './content/bin';
-export const TOOL_FOLDER_PATH = 'stm32-for-vscode/@xpack-dev-tools';// is installed as %globalstoragepath%/stm32-for-vscode/@xpack-dev-tools/PACKNAME/x.x.x-x.x/.content/bin
+// is installed as %globalstoragepath%/stm32-for-vscode/@xpack-dev-tools/PACKNAME/x.x.x-x.x/.content/bin
+export const TOOL_FOLDER_PATH = 'stm32-for-vscode/@xpack-dev-tools';
 export const XPACKS_DEV_TOOL_PATH = '@xpack-dev-tools';
 
 export interface BuildToolDefinition {

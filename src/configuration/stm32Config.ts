@@ -101,7 +101,10 @@ export function writeConfigFile(config: ExtensionConfiguration): Promise<void> {
   // default configFiles.
   const configFileWithAddedDefaults = _.cloneDeep(config);
   configFileWithAddedDefaults.sourceFiles = _.concat(configFileWithAddedDefaults.sourceFiles, DEFAULT_SOURCES);
-  configFileWithAddedDefaults.includeDirectories = _.concat(configFileWithAddedDefaults.includeDirectories, DEFAULT_INCLUDES);
+  configFileWithAddedDefaults.includeDirectories = _.concat(
+    configFileWithAddedDefaults.includeDirectories,
+    DEFAULT_INCLUDES
+  );
   const configFile = createConfigFile(configFileWithAddedDefaults);
   const workspaceFolderUri = Helpers.getWorkspaceUri();
   if (!workspaceFolderUri) { return Promise.reject(new Error('No workspace folder selected')); }

@@ -284,7 +284,3 @@ clean:
 
   return makeFile;
 }
-
-// export default function createMakefile(info: MakeInfo): string {
-//   return convertTemplate(info);
-// }

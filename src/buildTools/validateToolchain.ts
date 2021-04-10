@@ -1,5 +1,4 @@
 import * as _ from 'lodash';
-import * as definition from '../Definitions';
 import * as path from 'path';
 import * as process from 'process';
 import * as shelljs from 'shelljs';
@@ -9,14 +8,12 @@ import { armNoneEabiDefinition, cMakeDefinition, makeDefinition, openocdDefiniti
 import {
   checkSettingsPathValidity,
   checkToolchainPathForTool,
-  getNewestToolchainVersion,
   validateArmToolchainPath,
   validateXPMToolchainPath
 } from './extensionToolchainHelpers';
 
 import { ToolChain } from '../types/MakeInfo';
 import { getExtensionSettings } from '../getInfo/getSettings';
-import { add } from 'lodash';
 
 /*
  * The steps for validating the toolchain are as follows
@@ -66,7 +63,7 @@ export function compareAndUpdateMissingBuildTools(startSettings: ToolChain, addi
   const newSettings = _.cloneDeep(startSettings);
 
   _.forEach(startSettings, (setting, key) => {
-    if(!setting) {
+    if (!setting) {
       _.set(newSettings, key, _.get(additionalSettings, key));
     }
   });
@@ -118,7 +115,7 @@ export async function checkAutomaticallyInstalledBuildTools(
  * @param settingsToolchain toolchain to check when values are false it will check if the tools are in path
  */
 export function checkBuildToolsInPath(): ToolChain {
-  const  pathToolchain = new ToolChain();
+  const pathToolchain = new ToolChain();
   const armShellPath = shelljs.which(armNoneEabiDefinition.standardCmd);
   if (checkSettingsPathValidity(armShellPath)) {
     // for some weird reason the shellPath gets rejected when I do not toString() it
