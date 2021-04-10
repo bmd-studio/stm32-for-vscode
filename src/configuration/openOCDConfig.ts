@@ -80,14 +80,12 @@ export function changeProgrammer(programmer: string): Promise<void> {
       write(newConfig).then(() => {
         resolve();
       }).catch((error) => {
-        console.error('Something went wrong when writing the new openocd configuration file', error);
         vscode.window.showErrorMessage(
           `Something went wrong when writing the new openocd configuration file. Error: ${error}`
         );
         reject(error);
       });
     }).catch((error) => {
-      console.error('Something went wrong when reading the openocd config file for changing the programmer', error);
       vscode.window.showErrorMessage(
         `Something went wrong wen reading the openocd config file for changing the programmer. Error: ${error}`
       );
@@ -105,7 +103,7 @@ export function changeProgrammerDialogue(programmer?: string): Promise<void> {
   return new Promise((resolve) => {
     if (programmer) {
       changeProgrammer(programmer).then(() => {
-        console.log('set programmer to', programmer);
+        vscode.window.showInformationMessage(`Successfully set programmer to: ${programmer}`);
         resolve();
       });
     } else {
@@ -114,9 +112,8 @@ export function changeProgrammerDialogue(programmer?: string): Promise<void> {
           resolve();
           return;
         }
-        // OpenOCDConfig.readOrCreateConfigFile(new OpenOCDConfiguration(value)).then(() => {
         changeProgrammer(value).then(() => {
-          console.log('set programmer to', value);
+          vscode.window.showInformationMessage(`Successfully set programmer to: ${value}`);
           resolve();
         });
       });

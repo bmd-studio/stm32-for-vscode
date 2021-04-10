@@ -32,13 +32,17 @@ import * as STM32ProjectConfiguration from '../configuration/stm32Config';
 import * as _ from 'lodash';
 import * as vscode from 'vscode';
 import MakeInfo, { ExtensionConfiguration } from '../types/MakeInfo';
-import { getHeaderFiles, getSourceFiles, sortFiles, getIncludeDirectoriesFromFileList, getNonGlobIncludeDirectories } from './getFiles';
+import {
+  getHeaderFiles,
+  getSourceFiles,
+  sortFiles,
+  getIncludeDirectoriesFromFileList,
+  getNonGlobIncludeDirectories
+} from './getFiles';
 
 import { OpenOCDConfiguration } from '../types/OpenOCDConfig';
 import { getBuildToolsFromSettings } from '../buildTools';
 import getMakefileInfo from './getCubeMakefileInfo';
-import { fsPathToPosix } from '../Helpers';
-// import Micromatch = require('micromatch');
 import * as Micromatch from 'micromatch';
 
 /**
@@ -61,7 +65,10 @@ export function checkForFileNameInArray(name: string, array: string[], caseMatte
  * @description Check if the program is a c++ or c program and automatically converts.
  * @param {object} totalInfo combined info of the makefile and file list
  */
-export async function checkAndConvertCpp(totalInfo: MakeInfo, projectConfiguration: ExtensionConfiguration): Promise<MakeInfo> {
+export async function checkAndConvertCpp(
+  totalInfo: MakeInfo,
+  projectConfiguration: ExtensionConfiguration
+): Promise<MakeInfo> {
   const newInfo = _.cloneDeep(totalInfo);
 
   if (projectConfiguration.language === 'C++') {
@@ -78,10 +85,10 @@ export async function checkAndConvertCpp(totalInfo: MakeInfo, projectConfigurati
       newInfo.cxxDefs = [];
     }
   } else {
-    console.log('cxx sources', newInfo.cxxSources);
     if (checkForFileNameInArray('main.cpp', newInfo.cxxSources) !== -1) {
       const result = await vscode.window.showWarningMessage(
-        'We can see that you are trying to compile a C project with a main.cpp file. Do you want to convert this project to a C++ project?',
+        `We can see that you are trying to compile a C project with a main.cpp file. 
+        Do you want to convert this project to a C++ project?`,
         'yes', 'no');
       if (result === 'yes') {
         projectConfiguration.language = 'C++';
@@ -103,7 +110,6 @@ export async function checkAndConvertCpp(totalInfo: MakeInfo, projectConfigurati
 export async function getInfo(location: string): Promise<MakeInfo> {
   if (!vscode.workspace.workspaceFolders) { throw Error('No workspace folder was selected'); }
 
-  const posixWorkspaceFolder = fsPathToPosix(vscode.workspace.workspaceFolders[0].uri.fsPath);
   const cubeMakefileInfo = await getMakefileInfo(location);
   const STM32MakeInfo = new MakeInfo();
 
@@ -111,14 +117,24 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   standardConfig.importRelevantInfoFromMakefile(cubeMakefileInfo);
   const projectConfiguration = await STM32ProjectConfiguration.readOrCreateConfigFile(standardConfig);
 
-  const openOcdConfig = await OpenOCDConfigFile.readOrCreateConfigFile(new OpenOCDConfiguration(cubeMakefileInfo.targetMCU));
+  await OpenOCDConfigFile.readOrCreateConfigFile(
+    new OpenOCDConfiguration(cubeMakefileInfo.targetMCU)
+  );
 
-  const combinedSourceFiles = _.concat(projectConfiguration.sourceFiles, cubeMakefileInfo.cxxSources, cubeMakefileInfo.cSources, cubeMakefileInfo.asmSources);
+  const combinedSourceFiles = _.concat(
+    projectConfiguration.sourceFiles,
+    cubeMakefileInfo.cxxSources,
+    cubeMakefileInfo.cSources,
+    cubeMakefileInfo.asmSources
+  );
   const combinedHeaderFiles = _.concat(projectConfiguration.includeDirectories, cubeMakefileInfo.cIncludes);
 
   const sourceFilePromise = getSourceFiles(combinedSourceFiles);
   const headerFilePromise = getHeaderFiles(combinedHeaderFiles);
-  const [indiscriminateSourceFileList, indiscriminateHeaderFileList] = await Promise.all([sourceFilePromise, headerFilePromise]);
+  const [
+    indiscriminateSourceFileList,
+    indiscriminateHeaderFileList
+  ] = await Promise.all([sourceFilePromise, headerFilePromise]);
 
 
   const filteredSourceFiles = Micromatch.not(indiscriminateSourceFileList, projectConfiguration.excludes);
@@ -156,8 +172,6 @@ export async function getInfo(location: string): Promise<MakeInfo> {
     ...buildTools,
   };
 
-
-  console.log('all info', STM32MakeInfo, projectConfiguration, openOcdConfig);
   // check for CPP project
   const finalInfo = await checkAndConvertCpp(STM32MakeInfo, projectConfiguration);
 

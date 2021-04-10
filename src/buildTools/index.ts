@@ -27,7 +27,10 @@ export async function checkBuildTools(context: vscode.ExtensionContext): Promise
   const extensionInstalledTools = await toolChainValidation.checkAutomaticallyInstalledBuildTools(context);
 
 
-  let finalBuildTools = toolChainValidation.compareAndUpdateMissingBuildTools(settingBuildTools, extensionInstalledTools);
+  let finalBuildTools = toolChainValidation.compareAndUpdateMissingBuildTools(
+    settingBuildTools,
+    extensionInstalledTools
+  );
   finalBuildTools = toolChainValidation.compareAndUpdateMissingBuildTools(finalBuildTools, pathBuildTools);
 
 

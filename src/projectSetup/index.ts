@@ -9,7 +9,6 @@ import checkProjectFiles from './checkProjectFiles';
 import getMakefileInfo from '../getInfo/getCubeMakefileInfo';
 import { readOrCreateConfigFile } from '../configuration/stm32Config';
 
-// TODO: move this from the getInfo folder. Should be situated somewhere more appropriately 
 /**
  * Displays a pop up dialogue which asks if the users wants to create
  * a custom configuration file.
@@ -74,7 +73,6 @@ export async function checkProjectFilesAndCreate(): Promise<boolean> {
   // check for project files with guard
   const projectFiles = await checkProjectFiles();
   if (!projectFiles) { return Promise.resolve(false); }
-  console.log('project files are', projectFiles);
   if (!projectFiles.makefile && !projectFiles.config) {
     await noMakefileAndConfigFileDialogue();
     return Promise.resolve(false);
@@ -85,14 +83,16 @@ export async function checkProjectFilesAndCreate(): Promise<boolean> {
     const emptyConfig = new ExtensionConfiguration();
     const configFile = await readOrCreateConfigFile(emptyConfig);
     if (!configFile.suppressMakefileWarning) {
-      vscode.window.showWarningMessage("No CubeMX Makefile was found. Please configure your project to generate a Makefile project under Project Manager>Toolchain/IDE");
+      vscode.window.showWarningMessage(
+        // eslint-disable-next-line max-len
+        "No CubeMX Makefile was found. Please configure your project to generate a Makefile project under Project Manager>Toolchain/IDE"
+      );
       // return Promise.resolve(true); // should continue despite this, worst case scenario the compilation fails.
     }
   }
 
   if (projectFiles.makefile && !projectFiles.config) {
     // a new configuration file should be created based on the info from the makefile.
-    console.log('no config file found creating one');
     const newProjectFile = new ExtensionConfiguration();
     const makeInfo = await getMakefileInfo(workspaceFolder.fsPath);
     newProjectFile.importRelevantInfoFromMakefile(makeInfo);

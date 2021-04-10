@@ -1,14 +1,7 @@
 import * as Sinon from 'sinon';
-import * as path from 'path';
 import * as shelljs from 'shelljs';
 
-import { after, before, beforeEach, suite, test } from 'mocha';
-import {
-  armNoneEabiDefinition,
-  openocdDefinition,
-} from '../../Requirements';
-
-import { expect } from 'chai';
+import { after, before, beforeEach, suite } from 'mocha';
 
 suite('Requirements test', () => {
   let shellJSStub: Sinon.SinonStub;

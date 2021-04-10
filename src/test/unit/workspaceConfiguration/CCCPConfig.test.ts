@@ -12,7 +12,6 @@ import { expect, use } from 'chai';
 import MakeInfo from '../../../types/MakeInfo';
 import { TextEncoder } from 'util';
 import { newMakeInfo } from '../../fixtures/makeInfoFixture';
-import { standardOpenOCDInterface } from '../../../Definitions';
 import { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
 
 const {

@@ -3,9 +3,11 @@ import * as path from 'path';
 import * as shelljs from 'shelljs';
 import * as vscode from 'vscode';
 
-import { BuildToolDefinition, XPACKS_DEV_TOOL_PATH } from './toolChainDefinitions';
-
-import { armNoneEabiDefinition } from '../Requirements';
+import {
+  BuildToolDefinition,
+  XPACKS_DEV_TOOL_PATH,
+  armNoneEabiDefinition
+} from './toolChainDefinitions';
 
 export interface XPMToolVersion {
   toolVersion: number[];

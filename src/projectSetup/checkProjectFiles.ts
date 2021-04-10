@@ -1,5 +1,4 @@
 import * as Helpers from '../Helpers';
-import * as _ from 'lodash';
 import * as path from 'path';
 import * as vscode from 'vscode';
 
@@ -24,7 +23,7 @@ export default async function checkProjectFiles(): Promise<HasProjectFilesInterf
     }, () => {
       resolve(null);
     });
-  })
+  });
 
   const configPath = path.join(workspaceUri.fsPath, EXTENSION_CONFIG_NAME);
   const configStat = await new Promise((resolve) => {
@@ -33,7 +32,7 @@ export default async function checkProjectFiles(): Promise<HasProjectFilesInterf
     }, () => {
       resolve(null);
     });
-  })
+  });
 
   const openocdConfigPath = path.join(workspaceUri.fsPath, 'openocd.cfg');
   const openocdConfigStat = await new Promise((resolve) => {

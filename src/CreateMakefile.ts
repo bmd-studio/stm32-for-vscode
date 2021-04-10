@@ -34,8 +34,7 @@ import 'process';
 import * as _ from 'lodash';
 
 import MakeInfo from './types/MakeInfo';
-import { convertToolPathToAbsolutePath, fsPathToPosix } from './Helpers';
-import getTargetConfig from './OpenOcdTargetFiles';
+import { fsPathToPosix } from './Helpers';
 
 const { platform } = process;
 

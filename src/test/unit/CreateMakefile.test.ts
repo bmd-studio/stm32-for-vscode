@@ -1,7 +1,11 @@
 import * as Sinon from 'sinon';
 import * as shelljs from 'shelljs';
 
-import createMakefile, { createGCCPathOutput, createSingleLineStringList, createStringList } from '../../CreateMakefile';
+import createMakefile, {
+  createGCCPathOutput,
+  createSingleLineStringList,
+  createStringList
+} from '../../CreateMakefile';
 import { stm32ForVSCodeResult, testMakefileInfo } from '../fixtures/testSTMCubeMakefile';
 import { suite, test } from 'mocha';
 
@@ -39,7 +43,8 @@ suite('CreateMakefile', () => {
     const relativePath = platform === 'win32' ? '.\\somefolder\\arm-none-eabi' : './somefolder/arm-none-eabi';
     const posixOutputPath = '/usr/somefolder/arm-none-eabi';
     const fsOutputPath = platform === 'win32' ? '\\usr\\somefolder\\arm-none-eabi' : posixOutputPath;
-    const gccOutputPath = platform === 'win32' ? `${fsOutputPath}\\arm-none-eabi-gcc` : `${fsOutputPath}/arm-none-eabi-gcc`;
+    const gccOutputPath = platform === 'win32' ?
+      `${fsOutputPath}\\arm-none-eabi-gcc` : `${fsOutputPath}/arm-none-eabi-gcc`;
     const whichFake = Sinon.fake.returns(gccOutputPath);
     Sinon.replace(shelljs, 'which', whichFake);
 

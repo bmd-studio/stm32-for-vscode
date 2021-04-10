@@ -25,7 +25,6 @@
 // Import the module and reference it with the alias vscode in your code below
 
 import * as OpenOCDConfig from './configuration/openOCDConfig';
-import * as STM32Config from './configuration/stm32Config';
 import * as vscode from 'vscode';
 
 import addCommandMenu from './menu';
@@ -41,8 +40,6 @@ export function activate(context: vscode.ExtensionContext): void {
   // This line of code will only be executed once when your extension is
   // activated
   let commandMenu: CommandMenu | undefined = undefined;
-
-  console.log('STM32 for vscode has started');
   checkBuildTools(context).then((hasBuildTools) => {
     if (hasBuildTools) {
       // should continue with 
@@ -50,24 +47,26 @@ export function activate(context: vscode.ExtensionContext): void {
     commandMenu = addCommandMenu(context);
     vscode.commands.executeCommand('setContext', 'stm32ForVSCodeReady', true);
   });
-  const setProgrammerCommand = vscode.commands.registerCommand('stm32-for-vscode.setProgrammer', (programmer?: string) => {
-    OpenOCDConfig.changeProgrammerDialogue(programmer);
-  });
+  const setProgrammerCommand = vscode.commands.registerCommand(
+    'stm32-for-vscode.setProgrammer',
+    (programmer?: string
+    ) => {
+      OpenOCDConfig.changeProgrammerDialogue(programmer);
+    });
+  context.subscriptions.push(setProgrammerCommand);
   const openSettingsCommand = vscode.commands.registerCommand('stm32-for-vscode.openSettings', () => {
     vscode.commands.executeCommand('workbench.action.openSettings', `@ext:bmd.stm32-for-vscode`);
   });
-  const openExtension = vscode.commands.registerCommand('stm32-for-vscode.openExtension', () => {
-    console.log('opening extension');
+  context.subscriptions.push(openSettingsCommand);
+  const openExtension = vscode.commands.registerCommand('stm32-for-vscode.openExtension', async () => {
+    await checkBuildTools(context);
   });
+  context.subscriptions.push(openExtension);
   const installBuildTools = vscode.commands.registerCommand('stm32-for-vscode.installBuildTools', async () => {
     try {
-      console.log('STARTING TOOL INSTALL');
       await installAllTools(context);
-      console.log('Tools installed');
       const hasBuildTools = await checkBuildTools(context);
-      console.log('has build tools', hasBuildTools, commandMenu);
       if (hasBuildTools) {
-        console.log('refreshing commandMenu');
         commandMenu.refresh();
       }
 
@@ -75,23 +74,23 @@ export function activate(context: vscode.ExtensionContext): void {
       vscode.window.showErrorMessage(`Something went wrong with installing the build tools. Error:${error}`);
     }
   });
+  context.subscriptions.push(installBuildTools);
 
-  const buildToolsCommand = vscode.commands.registerCommand("stm32-for-vscode.checkBuildTools", () => {
-    const hasBuildTools = checkBuildTools(context);
-
-    // TODO: make this link back to the vscode commands panel.
+  const buildToolsCommand = vscode.commands.registerCommand("stm32-for-vscode.checkBuildTools", async () => {
+    await checkBuildTools(context);
   });
+  context.subscriptions.push(buildToolsCommand);
   const buildCmd = vscode.commands.registerCommand(
     'stm32-for-vscode.build',
     async () => {
       try {
         await buildSTM({});
-        console.log('finished build task');
       } catch (err) {
         throw err;
       }
     }
   );
+  context.subscriptions.push(buildCmd);
   const flashCmd = vscode.commands.registerCommand(
     'stm32-for-vscode.flash',
     async () => {
@@ -104,6 +103,8 @@ export function activate(context: vscode.ExtensionContext): void {
       }
     }
   );
+  context.subscriptions.push(flashCmd);
+
   const cleanBuildCmd = vscode.commands.registerCommand(
     'stm32-for-vscode.cleanBuild',
     async () => {
@@ -116,22 +117,8 @@ export function activate(context: vscode.ExtensionContext): void {
       }
     }
   );
-  // const buildTest = vscode.commands.registerCommand(
-  //   'stm32-for-vscode.buildTest',
-  //   async () => new Promise(async (resolve, reject) => {
-  //     try {
-  //       if (!vscode.workspace.workspaceFolders) { throw Error('no workspace folder is open'); }
-  //       await setupTestFiles(vscode.workspace.workspaceFolders[0].uri);
-  //       resolve();
-  //     } catch (err) {
-  //       reject(err);
-  //     }
-  //   }),
-  // );
-  // context.subscriptions.push(buildCmd);
-  // context.subscriptions.push(flashCmd);
-  // context.subscriptions.push(cleanBuildCmd);
-  // context.subscriptions.push(buildTest);
+  context.subscriptions.push(cleanBuildCmd);
+
 }
 
 // // this method is called when your extension is deactivated

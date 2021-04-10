@@ -1,7 +1,13 @@
 import * as Sinon from 'sinon';
 import * as vscode from 'vscode';
 
-import { XPMToolVersion, compareVersions, getNewestToolchainVersion, isVersionFile, parseXPMVersionNumbers } from '../../../buildTools/extensionToolchainHelpers';
+import {
+  XPMToolVersion,
+  compareVersions,
+  getNewestToolchainVersion,
+  isVersionFile,
+  parseXPMVersionNumbers
+} from '../../../buildTools/extensionToolchainHelpers';
 
 import { afterEach } from 'mocha';
 import { expect } from 'chai';

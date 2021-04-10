@@ -1,4 +1,4 @@
-import { workspace, ExtensionContext, ConfigurationTarget } from 'vscode';
+import { workspace, ConfigurationTarget } from 'vscode';
 import MakeInfo from '../types/MakeInfo';
 import _ = require('lodash');
 

@@ -2,7 +2,6 @@ import * as GetSettings from '../../../getInfo/getSettings';
 import * as Sinon from 'sinon';
 import * as path from 'path';
 import * as shelljs from 'shelljs';
-import * as vscode from 'vscode';
 
 import { ToolChain } from '../../../types/MakeInfo';
 import { afterEach } from 'mocha';
@@ -20,7 +19,7 @@ suite('validate Toolchain Functions', () => {
     fakeToolchainResult.makePath = 'makePath';
     const getSettingsFake = Sinon.fake.returns(fakeToolchainResult);
     Sinon.replace(GetSettings, 'getExtensionSettings', getSettingsFake);
-    const fakeShell = (toolPath: string | boolean): any => {
+    const fakeShell = (toolPath: string | boolean): string | boolean => {
       const validArmPath = path.join('armpath', 'arm-none-eabi-gcc');
       if (toolPath === validArmPath) {
         return validArmPath;

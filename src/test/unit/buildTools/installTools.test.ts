@@ -3,7 +3,6 @@ import * as process from 'process';
 
 import { getLatestNodeLink, getPlatformSpecificNodeLink } from '../../../buildTools/installTools';
 
-import { ToolChain } from '../../../types/MakeInfo';
 import { afterEach } from 'mocha';
 import axios from 'axios';
 import { expect } from 'chai';

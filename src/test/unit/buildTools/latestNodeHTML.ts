@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 export const latestNodeHTML = `<html>
 <head><title>Index of /dist/latest/</title></head>
 <body bgcolor="white">

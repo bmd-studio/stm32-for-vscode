@@ -5,7 +5,7 @@ export interface BuildCommandDefinition {
   label: string;
   command: string;
   explanation: string;
-  arguments?: any[];
+  arguments?: string[];
 }
 
 const buildCommand: BuildCommandDefinition = {
@@ -25,12 +25,12 @@ const flashCommand: BuildCommandDefinition = {
 };
 const debugCommand: BuildCommandDefinition = {
   label: 'Debug STM32',
-  command: 'workbench.action.debug.start', 
+  command: 'workbench.action.debug.start',
   arguments: ['Debug STM32'],
   explanation: 'Starts a debugging session for the STM32 MCU',
 };
 
-const COMMANDS: {[key: string]: BuildCommandDefinition} = {
+const COMMANDS: { [key: string]: BuildCommandDefinition } = {
   buildCommand,
   cleanBuildCommand,
   flashCommand,
@@ -43,7 +43,7 @@ class BuildCommand extends vscode.TreeItem {
     explanation: string,
     command: string,
     collapsibleState: vscode.TreeItemCollapsibleState,
-    args?: any[],
+    args?: string[],
   ) {
     super(label, collapsibleState);
     // this.id = id;
@@ -53,7 +53,7 @@ class BuildCommand extends vscode.TreeItem {
       command,
       arguments: args,
       title: label,
-    };    
+    };
   }
 }
 
@@ -66,9 +66,9 @@ export default class CommandMenuProvider implements vscode.TreeDataProvider<Buil
   public getTreeItem(element: BuildCommand): vscode.TreeItem {
     return element;
   }
-  public getChildren(_element?: BuildCommand): BuildCommand[] {
+  public getChildren(): BuildCommand[] {
     const hasBuildTools = this.context.globalState.get('hasBuildTools');
-    if(!hasBuildTools) {
+    if (!hasBuildTools) {
       setTimeout(() => {
         this.refresh();
       }, 1000);
@@ -89,6 +89,7 @@ export default class CommandMenuProvider implements vscode.TreeDataProvider<Buil
     });
     return commands;
   }
+  // eslint-disable-next-line max-len
   private _onDidChangeTreeData: vscode.EventEmitter<BuildCommand | undefined> = new vscode.EventEmitter<BuildCommand | undefined>();
   public readonly onDidChangeTreeData: vscode.Event<BuildCommand | undefined> = this._onDidChangeTreeData.event;
 

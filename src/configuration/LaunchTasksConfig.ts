@@ -1,6 +1,5 @@
 import MakefileInfo from '../types/MakeInfo';
 import { TaskDefinition } from 'vscode';
-import getOpenOCDTarget from '../OpenOcdTargetFiles';
 
 export default function getLaunchTask(info: MakefileInfo): TaskDefinition {
   const config = {
