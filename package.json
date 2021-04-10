@@ -2,7 +2,7 @@
   "name": "stm32-for-vscode",
   "displayName": "stm32-for-vscode",
   "description": "An extension for: setting up, compiling, uploading and debugging STM32 applications",
-  "version": "2.2.4",
+  "version": "3.0.0",
   "engines": {
     "vscode": "^1.44.0"
   },
@@ -12,7 +12,7 @@
     "email": "bureau@moeilijkedingen.nl",
     "url": "https://bmd.studio"
   },
-  "icon": "media/icon.png",
+  "icon": "media/STM32-for-VSCode-logo.png",
   "keywords": [
     "STM32",
     "stm",
