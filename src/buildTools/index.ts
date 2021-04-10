@@ -1,6 +1,8 @@
 import * as _ from 'lodash';
 import * as toolChainValidation from './validateToolchain';
 import * as vscode from 'vscode';
+import { which } from 'shelljs';
+import * as path from 'path';
 
 import { ToolChain } from '../types/MakeInfo';
 
@@ -38,6 +40,29 @@ export async function checkBuildTools(context: vscode.ExtensionContext): Promise
       extensionSettings.update(key, toolPath, vscode.ConfigurationTarget.Global);
     }
   });
+
+  // check if there is a local settings file and update if neccessary.
+  // NOTE: settings should not be added or editted in the workspace for STM32 for vscode,
+  // however old version of STM32 for VSCode did put it in the workspace folder
+  const localUpdatePromises = [];
+  if (vscode.workspace.workspaceFolders[0]) {
+    const localExtensionSettings =
+      vscode.workspace.getConfiguration('stm32-for-vscode', vscode.workspace.workspaceFolders[0].uri);
+    _.forEach(finalBuildTools, (toolPath, key) => {
+      const localPath = localExtensionSettings.get(key);
+      if (localPath === undefined) { return; }
+      let localWhichPath = which(localPath);
+      if (key === 'armToolchainPath') {
+        localWhichPath = which(path.join(`${localPath}`, 'arm-none-eabi-gcc'));
+      }
+      if ((!_.isEqual(toolPath, localPath) && !localWhichPath) || !localPath) {
+        localUpdatePromises.push(localExtensionSettings.update(key, toolPath, vscode.ConfigurationTarget.Workspace));
+      }
+    });
+  }
+
+  await Promise.all(localUpdatePromises);
+
 
   // check if all relevant build tools are present. If not a menu should be shown, where the user
   // has the option to install the build tools automatically
