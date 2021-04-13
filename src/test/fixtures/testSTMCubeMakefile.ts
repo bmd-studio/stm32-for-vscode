@@ -108,6 +108,7 @@ export const testMakefileInfo: MakeInfo = {
   assemblyFlags: [],
   ldFlags: [],
   cxxFlags: [],
+  optimization: 'Og',
 };
 
 export const stm32ForVSCodeResult = `##########################################################################################################################

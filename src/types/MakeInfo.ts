@@ -47,6 +47,7 @@ export class TargetInfo implements TargetInfoInterface {
 
 export interface CompileInfoInterface {
   language: STM32Languages;
+  optimization: string;
   cFlags: string[];
   assemblyFlags: string[];
   ldFlags: string[];
@@ -58,6 +59,7 @@ export interface CompileInfoInterface {
 
 export class CompileInfo implements CompileInfoInterface {
   public language = 'C' as STM32Languages;
+  public optimization = 'Og';
   public cFlags: string[] = [];
   public assemblyFlags: string[] = [];
   public ldFlags: string[] = [];
@@ -82,6 +84,7 @@ export class Libraries implements LibrariesInterface {
 // when merging the two information sources.
 export interface MakeInfoInterface extends BuildFilesInterface, TargetInfoInterface {
   language: STM32Languages;
+  optimization: string;
   cFlags: string[];
   assemblyFlags: string[];
   ldFlags: string[];
@@ -133,6 +136,7 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
   public ldscript = '';
   public targetMCU = '';
   public language = 'C' as STM32Languages;
+  public optimization = 'Og';
   // be aware that more flags are present in the Makefile. However these seem to be mandatory
   public cFlags: string[] = [
     '-Wall', '-fdata-sections', '-ffunction-sections',
@@ -190,6 +194,7 @@ export default class MakeInfo implements MakeInfoInterface {
   public ldscript = '';
   public targetMCU = '';
   public language = 'C' as STM32Languages;
+  public optimization = 'Og';
   public cFlags: string[] = [];
   public assemblyFlags: string[] = [];
   public ldFlags: string[] = [];

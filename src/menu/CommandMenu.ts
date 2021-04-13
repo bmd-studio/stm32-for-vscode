@@ -29,12 +29,19 @@ const debugCommand: BuildCommandDefinition = {
   arguments: ['Debug STM32'],
   explanation: 'Starts a debugging session for the STM32 MCU',
 };
+const changeProgrammerCommand: BuildCommandDefinition = {
+  label: 'Change programmer',
+  command: 'stm32-for-vscode.setProgrammer',
+  explanation: `Changes the programming interface in the openocd.cfg file. 
+  A list with available programmers will be provided`,
+};
 
 const COMMANDS: { [key: string]: BuildCommandDefinition } = {
   buildCommand,
   cleanBuildCommand,
   flashCommand,
   debugCommand,
+  changeProgrammerCommand,
 };
 
 class BuildCommand extends vscode.TreeItem {

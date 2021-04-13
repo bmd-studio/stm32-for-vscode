@@ -39,7 +39,7 @@ export async function getCurrentMakefile(makefilePath: string): Promise<Error | 
   return new Promise(async (resolve, reject) => {
     try {
       const currentMakefile = await workspace.fs.readFile(Uri.file(makefilePath));
-      if(currentMakefile.length === 0) {
+      if (currentMakefile.length === 0) {
         reject(new Error('The makefile was not found'));
         return;
       }
@@ -70,18 +70,19 @@ export async function writeMakefile(makefilePath: string, makefile: string): Pro
  * necessary for compilation
  */
 export default async function updateMakefile(workspaceLocation: string, info: MakeInfo): Promise<Error | string> {
-  return new Promise(async (resolve) => {
-    const makefilePath = path.posix.join(workspaceLocation, makefileName);
-    let oldMakefile;
-    try {
-      oldMakefile = await getCurrentMakefile(makefilePath);
-    } catch (err) {
-      oldMakefile = null;
-    }
-    const newMakefile = createMakefile(info);
-    if (newMakefile !== oldMakefile) {
-      await writeMakefile(makefilePath, newMakefile);
-    }
-    resolve(newMakefile);
-  });
+  const makefilePath = path.posix.join(workspaceLocation, makefileName);
+  let oldMakefile;
+  try {
+    oldMakefile = await getCurrentMakefile(makefilePath);
+  } catch (err) {
+    oldMakefile = null;
+  }
+  const newMakefile = createMakefile(info);
+  console.log('newMakefile/oldMakefile');
+  console.log(newMakefile);
+  console.log(oldMakefile);
+  if (newMakefile !== oldMakefile) {
+    await writeMakefile(makefilePath, newMakefile);
+  }
+  return newMakefile;
 }

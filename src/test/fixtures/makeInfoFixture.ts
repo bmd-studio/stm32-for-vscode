@@ -22,6 +22,7 @@ export function newMakeInfo(info: Partial<MakeInfo>): MakeInfo {
     libs: [],
     libdir: [],
     language: 'C',
+    optimization: 'Og',
     cFlags: [],
     assemblyFlags: [],
     ldFlags: [],

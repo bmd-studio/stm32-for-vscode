@@ -46,6 +46,8 @@ target: test_firmware
 # Can be C or C++
 language: ${config.language}
 
+optimization: ${config.optimization}
+
 # MCU settings
 targetMCU: ${config.targetMCU}
 cpu: ${config.cpu}

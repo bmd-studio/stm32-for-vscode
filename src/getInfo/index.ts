@@ -161,6 +161,7 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   STM32MakeInfo.floatAbi = projectConfiguration.floatAbi;
   STM32MakeInfo.fpu = projectConfiguration.fpu;
   STM32MakeInfo.language = projectConfiguration.language;
+  STM32MakeInfo.optimization = projectConfiguration.optimization;
   STM32MakeInfo.ldFlags = _.uniq(_.concat(cubeMakefileInfo.ldFlags, projectConfiguration.ldFlags));
   STM32MakeInfo.ldscript = projectConfiguration.ldscript;
   STM32MakeInfo.mcu = cubeMakefileInfo.mcu;
