@@ -20,7 +20,7 @@ On top of this a lot of the internal structure has changes so it should be more 
  - Issue #29 added support for static library inclusion in the config file.
 
 ### Changes
- - Openocd is now configured using and openocd.cfg file, which gives the user more freedom to change settings.
+ - Openocd is now configured using and openocd.cfg file, which gives the user more freedom to change settings. (Issue #37)
 
 ### Fixed
  - A lot of minor fixes that went a long with refactoring most of the code base
