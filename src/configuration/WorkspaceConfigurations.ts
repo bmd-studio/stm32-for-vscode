@@ -36,6 +36,7 @@ import MakeInfo from '../types/MakeInfo';
 import buildTasks from './BuildTasksConfig';
 import getLaunchTask from './LaunchTasksConfig';
 import updateCProperties from './CCCPConfig';
+import setCortexDebugWorkspaceConfiguration from './cortexDebugConfig';
 
 // import getOpenOCDTarget from './OpenOcdTargetFiles';
 
@@ -131,6 +132,7 @@ export default async function updateConfiguration(
   tasks.push(updateLaunch(workspaceRoot, info));
   tasks.push(updateTasks(workspaceRoot));
   tasks.push(updateCProperties(workspaceRoot, info));
+  setCortexDebugWorkspaceConfiguration(info);
   return new Promise((resolve) => {
     Promise.all(tasks).then(() => {
       resolve();

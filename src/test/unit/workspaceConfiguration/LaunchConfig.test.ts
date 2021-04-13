@@ -1,7 +1,7 @@
 
 import { expect } from 'chai';
 import { test, suite } from 'mocha';
-import getLaunchTask from '../../../workspaceConfiguration/LaunchTasksConfig';
+import getLaunchTask from '../../../configuration/LaunchTasksConfig';
 import { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
 import LaunchTestFile from '../../fixtures/launchTaskFixture';
 

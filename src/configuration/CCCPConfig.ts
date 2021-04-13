@@ -5,6 +5,7 @@ import { Uri, workspace, } from 'vscode';
 
 import MakeInfo from '../types/MakeInfo';
 import { writeFileInWorkspace } from '../Helpers';
+import * as path from 'path';
 
 export interface CCppConfig {
   name: string;
@@ -18,18 +19,6 @@ export interface CCppConfig {
 export interface CCppProperties {
   configurations: CCppConfig[];
   version: number;
-}
-
-/**
- * Extracts the include paths from the MakeInfo and strips the -I
- * @param info MakeInfo containing all the info required for building the
- *     project
- */
-export function getIncludePaths(info: MakeInfo): string[] {
-  // TODO: rethink if -I should be included only in the makefile generation
-  // process.
-  const cIncludes = _.map(info.cIncludes, entry => _.replace(entry, '-I', ''));
-  return cIncludes;
 }
 
 /**
@@ -55,7 +44,11 @@ export function getDefinitions(
  */
 export function getAbsoluteCompilerPath(info: MakeInfo): string {
   const compiler = info.language === 'C' ? 'arm-none-eabi-gcc' : 'arm-none-eabi-g++';
-  const relativeCompilerPath = (info.tools.armToolchainPath || '') + compiler;
+  let armPath = info.tools.armToolchainPath;
+  if (!_.isString(armPath)) {
+    armPath = '';
+  }
+  const relativeCompilerPath = path.join(armPath, compiler);
   const compilerPath = shelljs.which(relativeCompilerPath);
   return compilerPath;
 }
@@ -69,7 +62,7 @@ export function getAbsoluteCompilerPath(info: MakeInfo): string {
 export function getCPropertiesConfig(info: MakeInfo): CCppConfig {
   const config = {
     name: 'STM32',
-    includePath: getIncludePaths(info),
+    includePath: info.cIncludes,
     defines: getDefinitions(info),
     compilerPath: getAbsoluteCompilerPath(info),
   };
@@ -134,7 +127,7 @@ export async function updateCProperties(workspacePathUri: Uri, info: MakeInfo): 
       configFile.configurations.push(stmConfiguration);
       needsUpdating = true;
     }
-    const includes = getIncludePaths(info);
+    const includes = info.cIncludes;
     const definitions = getDefinitions(info);
     const oldConfig = _.cloneDeep(stmConfiguration);
 

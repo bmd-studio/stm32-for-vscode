@@ -1,6 +1,5 @@
 import MakefileInfo from '../types/MakeInfo';
 import { TaskDefinition } from 'vscode';
-import getOpenOCDTarget from '../OpenOcdTargetFiles';
 
 export default function getLaunchTask(info: MakefileInfo): TaskDefinition {
   const config = {
@@ -15,8 +14,7 @@ export default function getLaunchTask(info: MakefileInfo): TaskDefinition {
     preLaunchTask: 'Build STM',
     device: 'stlink',
     configFiles: [
-      info.tools.openOCDInterface,
-      `target/${getOpenOCDTarget(info.targetMCU)}`,
+      'openocd.cfg',
     ],
   };
   return config;

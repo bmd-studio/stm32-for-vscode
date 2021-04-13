@@ -2,7 +2,7 @@
   "name": "stm32-for-vscode",
   "displayName": "stm32-for-vscode",
   "description": "An extension for: setting up, compiling, uploading and debugging STM32 applications",
-  "version": "2.2.4",
+  "version": "3.0.0",
   "engines": {
     "vscode": "^1.44.0"
   },
@@ -12,7 +12,7 @@
     "email": "bureau@moeilijkedingen.nl",
     "url": "https://bmd.studio"
   },
-  "icon": "icon.png",
+  "icon": "media/STM32-for-VSCode-logo.png",
   "keywords": [
     "STM32",
     "stm",
@@ -28,7 +28,12 @@
     "onCommand:stm32-for-vscode.build",
     "onCommand:stm32-for-vscode.flash",
     "onCommand:stm32-for-vscode.cleanBuild",
-    "onCommand:stm32-for-vscode.buildTest"
+    "onCommand:stm32-for-vscode.buildTest",
+    "onCommand:stm32-for-vscode.setProgrammer",
+    "workspaceContains:*.ioc",
+    "workspaceContains:STM32-for-VSCode.config.yaml",
+    "onView:stm32ForVSCodeCommands",
+    "onCommand:stm32-for-vscode.openExtension"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -37,6 +42,32 @@
         "type": "STM32",
         "required": [],
         "properties": {}
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "stm32-for-vscode-commands",
+          "icon": "media/STM32-for-VSCode-logo.svg",
+          "title": "STM32 For VSCode",
+          "when": "stm32ForVSCodeReady"
+        }
+      ]
+    },
+    "views": {
+      "stm32-for-vscode-commands": [
+        {
+          "id": "stm32ForVSCodeCommands",
+          "name": "STM32 For VSCode commands",
+          "contextualTitle": "STM32 For VSCode commands",
+          "when": "stm32ForVSCodeReady"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "stm32ForVSCodeCommands",
+        "contents": "One or more build tools have not been found. Either let them be installed automatically or manually enter the path to these build tools\n[Enter path to build tools](command:stm32-for-vscode.openSettings)\n[Install Build tools](command:stm32-for-vscode.installBuildTools)\n[Check Build tools](command:stm32-for-vscode.checkBuildTools)"
       }
     ],
     "commands": [
@@ -51,6 +82,26 @@
       {
         "command": "stm32-for-vscode.cleanBuild",
         "title": "Build clean STM32 project"
+      },
+      {
+        "command": "stm32-for-vscode.installBuildTools",
+        "title": "Install all the build tools for the STM32 for VSCode extension"
+      },
+      {
+        "command": "stm32-for-vscode.openSettings",
+        "title": "Open the settings editor for STM32 for VSCode"
+      },
+      {
+        "command": "stm32-for-vscode.checkBuildTools",
+        "title": "Check if the required build tools are present for STM32 for VSCode"
+      },
+      {
+        "command": "stm32-for-vscode.openExtension",
+        "title": "Open the STM32 for VSCode extension"
+      },
+      {
+        "command": "stm32-for-vscode.setProgrammer",
+        "title": "Set programmer for the STM32 chip"
       }
     ],
     "configuration": {
@@ -65,17 +116,12 @@
         "stm32-for-vscode.makePath": {
           "type": "string",
           "default": "",
-          "description": "Path to make, will use the one in PATH as standard."
+          "description": "Path to the make executable (e.g. make or ~/usr/bin/make), will use the one in PATH as standard."
         },
         "stm32-for-vscode.armToolchainPath": {
           "type": "string",
           "default": "",
           "description": "Path to the GCC Arm Toolchain (prefix arm-none-eabi) to use, will use the one in PATH or the cortex-debug settings as default"
-        },
-        "stm32-for-vscode.openOCDInterface": {
-          "type": "string",
-          "default": "interface/stlink.cfg",
-          "description": "The standard programmer to be used for erasing, flashing and debugging. The standard for STM32 nucleo, discovery and eval boards is: interface/stlink.cfg"
         }
       }
     }
@@ -87,12 +133,14 @@
     "test": "node ./out/test/runTest.js",
     "coverage": "nyc --exclude=.vscode-test --exclude=src/test/**  yarn run test",
     "vscode:prepublish": "yarn webpack",
-    "compile": "tsc -p ./",
+    "compile": "tsc --alwaysStrict true -p ./",
+    "compile:test": "tsc --noImplicitUseStrict true -p ./ ",
     "webpack": "webpack --mode development",
     "lint": "eslint src --ext ts",
     "watch": "tsc -watch -p ./",
     "prewebpack": "yarn run lint",
-    "pretest": "yarn run compile && yarn run lint"
+    "pretest": "rm -rf ./out/test && yarn run compile:test && yarn run lint",
+    "watch:tests": "watch \"yarn test\" ./src --wait=10"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.0",
@@ -101,12 +149,14 @@
     "@types/chai": "^4.2.11",
     "@types/chai-as-promised": "^7.1.2",
     "@types/glob": "^7.1.1",
+    "@types/micromatch": "^4.0.1",
     "@types/mocha": "^5.2.6",
     "@types/node": "^10.12.21",
     "@types/sinon": "^9.0.1",
     "@types/vscode": "1.38",
     "@typescript-eslint/eslint-plugin": "^2.34.0",
     "@typescript-eslint/parser": "^2.34.0",
+    "@xpack-dev-tools/openocd": "0.10.0-14.3",
     "babel-core": "^6.26.3",
     "babel-loader": "^8.0.6",
     "babel-polyfill": "^6.26.0",
@@ -116,25 +166,32 @@
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.17.2",
-    "glob": "^7.1.4",
+    "glob": "^7.1.6",
     "mocha": "^7.1.2",
     "nyc": "^15.1.0",
     "sinon": "^7.4.2",
     "ts-loader": "^6.2.1",
     "typescript": "^3.9.7",
     "vscode-test": "^1.5.1",
+    "watch": "^1.0.2",
     "webpack": "^4.39.3",
     "webpack-cli": "^3.3.2"
   },
   "dependencies": {
+    "@types/axios": "^0.14.0",
     "@types/lodash": "^4.14.149",
+    "@types/unzipper": "^0.10.3",
+    "axios": "^0.21.0",
     "cpp-include": "^1.1.1",
-    "ignore": "^5.1.4",
     "json5": "^2.1.0",
     "lodash": "^4.17.20",
+    "micromatch": "^4.0.2",
+    "node-gzip": "^1.1.2",
     "recursive-readdir": "^2.2.2",
     "shelljs": "^0.8.4",
-    "strip-comments": "^2.0.1"
+    "strip-comments": "^2.0.1",
+    "unzipper": "^0.10.11",
+    "yaml": "^1.10.0"
   },
   "taskDefinitions": {}
 }

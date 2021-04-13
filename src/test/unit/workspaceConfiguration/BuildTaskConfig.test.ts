@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import { test, suite} from 'mocha';
-import {getBuildTask, getCleanBuildTask, getFlashTask} from '../../../workspaceConfiguration/BuildTasksConfig';
+import {getBuildTask, getCleanBuildTask, getFlashTask} from '../../../configuration/BuildTasksConfig';
 
 suite('BuildTaskConfiguration', () => {
   test('check if getters return true', () => {

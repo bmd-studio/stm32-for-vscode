@@ -24,20 +24,19 @@
 
 import * as _ from 'lodash';
 
-import { ToolChain } from './types/MakeInfo';
+import { ToolChain } from '../types/MakeInfo';
 import { workspace } from 'vscode';
 
 /**
  * @description returns workspace settings
  * @returns {ToolChain} the settings from the workspace
  */
-export default function getWorkspaceSettings(): ToolChain {
+export function getExtensionSettings(): ToolChain {
   const settings = workspace.getConfiguration('stm32-for-vscode');
   const result = new ToolChain();
   const armToolchainPath = settings.get('armToolchainPath');
   const openOCDPath = settings.get('openOCDPath');
   const makePath = settings.get('makePath');
-  const openOCDInterface = settings.get('openOCDInterface');
 
   if (!_.isEmpty(armToolchainPath) && _.isString(armToolchainPath)) {
     result.armToolchainPath = armToolchainPath;
@@ -47,9 +46,6 @@ export default function getWorkspaceSettings(): ToolChain {
   }
   if (!_.isEmpty(makePath) && _.isString(makePath)) {
     result.makePath = makePath;
-  }
-  if (!_.isEmpty(openOCDInterface) && _.isString(openOCDInterface)) {
-    result.openOCDInterface = openOCDInterface;
   }
 
   return result;

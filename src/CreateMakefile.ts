@@ -35,8 +35,7 @@ import * as _ from 'lodash';
 import * as path from 'path';
 
 import MakeInfo from './types/MakeInfo';
-import { convertToolPathToAbsolutePath } from './Helpers';
-import getTargetConfig from './OpenOcdTargetFiles';
+import { fsPathToPosix } from './Helpers';
 
 const { platform } = process;
 
@@ -44,10 +43,13 @@ const { platform } = process;
  * @description formats an array of string into one string with line endings per array entry.
  * @param {string[]} arr
  */
-export function createStringList(arr: string[]): string {
+export function createStringList(arr: string[], prefix?: string): string {
   let output = '';
   const sortedArray = _.uniq(arr).sort();
   _.map(sortedArray, (entry: string, ind: number) => {
+    if (prefix) {
+      output += prefix;
+    }
     output += `${entry}`;
     if (ind < sortedArray.length - 1) {
       output += ' \\';
@@ -62,10 +64,13 @@ export function createStringList(arr: string[]): string {
  * @description formats an array of strings into one string with spaces between entries.
  * @param {string[]} arr
  */
-export function createSingleLineStringList(arr: string[]): string {
+export function createSingleLineStringList(arr: string[], prefix?: string): string {
   let output = '';
   const sortedArray = _.uniq(arr).sort();
   sortedArray.map((entry) => {
+    if (prefix) {
+      output += prefix;
+    }
     output += `${entry} `;
   });
   return output;
@@ -74,8 +79,8 @@ export function createSingleLineStringList(arr: string[]): string {
 export function createGCCPathOutput(makeInfo: MakeInfo): string {
   console.log('gcc path', makeInfo.tools.armToolchainPath);
   if (makeInfo.tools.armToolchainPath && _.isString(makeInfo.tools.armToolchainPath)) {
-    if (!_.isEmpty(makeInfo.tools.armToolchainPath) && makeInfo.tools.armToolchainPath !== '.') {
-      return `GCC_PATH=${convertToolPathToAbsolutePath(path.join(makeInfo.tools.armToolchainPath, 'arm-none-eabi-gcc'), true)}`;
+    if (makeInfo?.tools?.armToolchainPath && !_.isEmpty(makeInfo.tools.armToolchainPath) && makeInfo.tools.armToolchainPath !== '.') {
+      return `GCC_PATH=${fsPathToPosix(makeInfo.tools.armToolchainPath, true)}`;
     }
   }
   return '';
@@ -107,7 +112,7 @@ TARGET = ${makeInfo.target}
 # debug build?
 DEBUG = 1
 # optimization
-OPT = -Og
+OPT = -${makeInfo.optimization}
 
 
 #######################################
@@ -175,14 +180,14 @@ AS_DEFS =
 
 # C defines
 C_DEFS =  ${'\\'}
-${createStringList(makeInfo.cDefs)}
+${createStringList(makeInfo.cDefs, '-D')}
 
 # AS includes
 AS_INCLUDES = ${'\\'}
 
 # C includes
 C_INCLUDES =  ${'\\'}
-${createStringList(makeInfo.cIncludes)}
+${createStringList(makeInfo.cIncludes, '-I')}
 
 
 # compile gcc flags
@@ -208,9 +213,9 @@ CXXFLAGS += -feliminate-unused-debug-types
 LDSCRIPT = ${makeInfo.ldscript}
 
 # libraries
-LIBS = ${createSingleLineStringList(makeInfo.libs)}
+LIBS = ${createSingleLineStringList(makeInfo.libs, '-l')}
 LIBDIR = ${'\\'}
-${createStringList(makeInfo.libDirs)}
+${createStringList(makeInfo.libdir, '-L')}
 
 LDFLAGS = $(MCU) -specs=nosys.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
@@ -257,13 +262,13 @@ $(BUILD_DIR):
 # flash
 #######################################
 flash: $(BUILD_DIR)/$(TARGET).elf
-\t${makeInfo.tools.openOCDPath ? makeInfo.tools.openOCDPath : 'openocd'} -f ${makeInfo.tools.openOCDInterface}  -f target/${getTargetConfig(makeInfo.targetMCU)} -c "program $(BUILD_DIR)/$(TARGET).elf verify reset exit"
+\t${makeInfo.tools.openOCDPath ? fsPathToPosix(`${makeInfo.tools.openOCDPath}`, true) : 'openocd'} -f ./openocd.cfg -c "program $(BUILD_DIR)/$(TARGET).elf verify reset exit"
 
 #######################################
 # erase
 #######################################
 erase: $(BUILD_DIR)/$(TARGET).elf
-\t${makeInfo.tools.openOCDPath ? makeInfo.tools.openOCDPath : 'openocd'} -f ${makeInfo.tools.openOCDInterface} -f target/${getTargetConfig(makeInfo.targetMCU)} -c "init; reset halt; ${makeInfo.targetMCU} mass_erase 0; exit"
+\t${makeInfo.tools.openOCDPath ? fsPathToPosix(`${makeInfo.tools.openOCDPath}`, true) : 'openocd'} -f ./openocd.cfg -c "init; reset halt; ${makeInfo.targetMCU} mass_erase 0; exit"
 
 #######################################
 # clean up
@@ -280,7 +285,3 @@ clean:
 
   return makeFile;
 }
-
-// export default function createMakefile(info: MakeInfo): string {
-//   return convertTemplate(info);
-// }

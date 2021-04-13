@@ -4,18 +4,38 @@
 ### Added
   - Add support to use different project types (EWARM, STM32CubeIDE, etc.).
   - Add ability to introduce generated changes from the main.c file into the main.cpp file.
-  - Add a separate file for config options, like compiler flags.
   - Add support for unit testing using Google Test and Google Mock.
-  - Add support for windows with xpm install.
-  - Add dual bank support
-  - Added debug info for chips not working.
-  - Switch to xpm for all platforms to install missing packages.
-  - Include dfu programming.
-  - 
-## [2.2.4] - 2020-09-16
+  - Add option to add files.
+## [3.3.0] - 2021-10-04
+Major upgrade from the previous version. The major changes are that a config file is added, so a project does not need a Makefile to work.
+On top of this a new menu is introduced, which has build, clean build, flash, debug and change programmer commands.
+On top of this a lot of the internal structure has changes so it should be more robust.
+### Added
+ - Added a separate file for config options of the whole project
+ - Added a way to install all the build tools at once for STM32 for VSCode (Issue #26)
+ - Added an initial start-up check for Build tools
+ - Added a way to switch programmer using a quick pick.
+ - Added a side menu for STM32 for VSCode which activates when an .ioc file or an STM32-for-VSCode.config.yaml file is present.
+ - Issue #21 Added optimization arguments to the project configuration file.
+ - Issue #29 added support for static library inclusion in the config file.
+ - Issue #39 custom file locations can be added using the project configuration file.
+
+### Changes
+ - Openocd is now configured using and openocd.cfg file, which gives the user more freedom to change settings. (Issue #37)
+
 ### Fixed
- - Issue #36: rm command is not found on windows. Used suggested fix by bw1faeh0
-  
+ - A lot of minor fixes that went a long with refactoring most of the code base
+ - Added support for space escaping in the openocd and arm toolchain path in the makefile.
+ - Issue where it did not include libraries from the makefile (Issue #29)
+ - Fixed issue #41 by using a posix path in the makefile and adding space escaping.
+ - Fixed Issue #44 where the build task could not be tracked. The cause seemed to be an unresolved Promise.
+ - Fixed issue #47 compiler path was not added to c_cpp_properties.
+ - Fixed and issue where non floating point MCUs would not compile.
+
+## [2.2.4] - 2020-09-09
+### Fixed
+ - Issue #35 when adding the stdc++ library to the original makefile it did not take the ++ part
+
 ## [2.2.3] - 2020-09-08
 ### Fixed
  - Fixed issue where the makefile did not respond well to relative paths for the gcc compiler.

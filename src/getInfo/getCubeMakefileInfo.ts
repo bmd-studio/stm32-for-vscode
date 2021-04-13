@@ -37,20 +37,13 @@
  *   LDSCRIPT
  * Created by Jort Band- Bureau Moeilijke Dingen
  */
-/* eslint no-param-reassign: ["error", {
-  "props": true, "ignorePropertyModificationsFor": ["infoDef"] }] */
-// const fs = require('fs'); // TODO: Rewrite this to use native Vscode implementation
 
 import * as _ from 'lodash';
 import * as path from 'path';
 
 import { Uri, window, workspace } from 'vscode';
 
-import MakeInfo from './types/MakeInfo';
-
-// FIXME: global variable. Perhaps not the best idea.
-export const makefileInfo = {} as MakeInfo;
-
+import MakeInfo from '../types/MakeInfo';
 
 /**
  * @description
@@ -125,6 +118,18 @@ export function extractLibs(makefile: string): string[] {
 }
 
 /**
+ * Removes prefixes from an array.
+ * @param information the array on which prefixes need to be removed
+ * @param prefix the prefix to be removed e.g. -I
+ */
+export function removePrefixes(information: string[], prefix: string): string[] {
+  const output = information.map((entry) => {
+    return entry.replace(new RegExp("^\\s*" + prefix), '');
+  });
+  return output;
+}
+
+/**
  * @description Function for getting the target from the hal_msp.c file
  * e.g getting the target stm32l4x from: Src/stm32l4xx_hal_msp.c
  * @param {string[]} cFiles
@@ -162,15 +167,6 @@ export function extractMakefileInfo(makefile: string): MakeInfo {
     if (!info || info.length === 0) { return; }
 
     if (info.indexOf('\\') !== -1) {
-      // TODO: check if this is unnecessary, as it would automatically add the correct formatting.
-      // However it is added by seancsi so he would probably know why the extra formatting step is necessary
-
-      // if (key == "libs") {
-      //   // Put a colon after each -l
-      //   infoDef[key].forEach((line, index) => {infoDef[key][index] = "-l:" + line.slice(2)});
-      //   // There are -l flags on the first line of libs as well, add them back in
-      //   infoDef[key].unshift(info.replace(/(\s\\$)|(\s.$)/gim, '').trim());
-      // }
       _.set(output, key, extractMultiLineInfo(makeFileKey, makefile));
     } else {
       _.set(output, key, info);
@@ -180,8 +176,19 @@ export function extractMakefileInfo(makefile: string): MakeInfo {
     }
   });
 
+
+
   // get the targetSTM separately as we need the cSources
   output.targetMCU = getTargetSTM(output.cSources);
+
+  // remove prefixes.
+  output.libs = removePrefixes(output.libs, '-l');
+  output.libdir = removePrefixes(_.isArray(output.libdir) ? output.libdir : [output.libdir], '-L');
+  output.cDefs = removePrefixes(output.cDefs, '-D');
+  output.cxxDefs = removePrefixes(output.cxxDefs, '-D');
+  output.asDefs = removePrefixes(output.asDefs, '-D');
+  output.cIncludes = removePrefixes(output.cIncludes, '-I');
+
   return output;
 }
 

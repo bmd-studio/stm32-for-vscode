@@ -16,11 +16,15 @@
     {
       "label": "compile tests",
       "type": "shell",
-      "command": "yarn pretest",
+      // "script": " echo",
+      "command": "echo && yarn pretest",
+      "options": {
+        // "cwd": "${workspaceRoot}",
+      },
       "group": {
         "kind": "build",
         "isDefault": true
       }
-    }
+    },
   ]
 }

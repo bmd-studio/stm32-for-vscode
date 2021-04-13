@@ -11,6 +11,7 @@ import updateMakefile, { getCurrentMakefile, writeMakefile } from '../../UpdateM
 
 import { TextEncoder } from 'util';
 import { makefileName } from '../../Definitions';
+import _ = require('lodash');
 
 const fs = workspace.fs;
 use(chaiAsPromised);
@@ -30,10 +31,14 @@ suite('Update makefile', () => {
   test('get current makefile without existing file', () => {
     const testUInt8Arr = new Uint8Array(0);
     const workspaceFSReadFileFake = Sinon.fake.returns(new Promise((resolve) => { resolve(testUInt8Arr); }));
-    Sinon.replace(fs, 'readFile', workspaceFSReadFileFake);
+    const fsReadFile = _.get(workspace, 'fs.readFile');
+    _.set(workspace, 'fs.readFile', workspaceFSReadFileFake);
+    // Sinon.replace(fs, 'readFile', workspaceFSReadFileFake);
     const makefilePath = './Makefile';
     expect(getCurrentMakefile(makefilePath)).to.eventually.be.rejected;
+    expect(workspaceFSReadFileFake.calledOnce).to.be.true;
     expect(workspaceFSReadFileFake.calledOnceWith(Uri.file(makefilePath))).to.be.true;
+    _.set(workspace, 'fs.readFile', fsReadFile);
   });
   test('write makefile successfully in utf-8 format', async () => {
     const writeFileFake = Sinon.fake.returns(new Promise((resolve) => { resolve(); }));
@@ -51,8 +56,6 @@ suite('Update makefile', () => {
     ).to.be.true;
   });
   test('to not update makefile when same makefile is present', async () => {
-    // TODO: use standard makefiles and makefile info to tests this.
-
     const fakeMakefileReadFile = Sinon.fake.returns(new Promise(
       (resolve) => {
         resolve(new TextEncoder().encode(stm32ForVSCodeResult));

@@ -1,4 +1,4 @@
-// import {LaunchTask} from '../../workspaceConfiguration/LaunchTasksConfig';
+
 import {TaskDefinition} from 'vscode';
 
 const expectedResult: TaskDefinition = {
@@ -12,8 +12,7 @@ const expectedResult: TaskDefinition = {
   preLaunchTask: 'Build STM',
   device: 'stlink',
   configFiles: [
-    'interface/stlink.cfg',
-    `target/stm32h7x.cfg`,
+    'openocd.cfg',
   ],
 };
 export default expectedResult;

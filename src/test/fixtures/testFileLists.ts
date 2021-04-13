@@ -128,12 +128,12 @@ export const cxxFiles = [
   'Src/randomCXXFile.cxx'
 ];
 export const cIncludes = [
-  '-IDrivers/STM32H7xx_HAL_Driver/Inc',
-  '-IInc',
-  '-ISrc',
+  'Drivers/STM32H7xx_HAL_Driver/Inc',
+  'Inc',
+  'Src',
 ];
 
-export const libDirs = [];
+export const libdir = [];
 export const libs = [];  // ['-lc', '-lm', '-lnosys']
 
 export const FileListWithRandomFiles = [
@@ -147,6 +147,6 @@ export const SortedBuildFiles: BuildFiles = {
   cIncludes: cIncludes.sort(),
   cSources: cFiles.sort(),
   cxxSources: cxxFiles.sort(),
-  libDirs: libDirs.sort(),
+  libdir: libdir.sort(),
   libs: libs.sort(),
 };

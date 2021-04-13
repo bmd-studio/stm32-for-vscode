@@ -1,0 +1,90 @@
+import * as _ from 'lodash';
+import * as toolChainValidation from './validateToolchain';
+import * as vscode from 'vscode';
+import { which } from 'shelljs';
+import * as path from 'path';
+
+import { ToolChain } from '../types/MakeInfo';
+
+export function setCortexDebugSettingsInWorkspace(tools: ToolChain): void {
+  const cortexDebugSetting = vscode.workspace.getConfiguration('cortex-debug');
+  cortexDebugSetting.update('armToolchainPath', tools.armToolchainPath, vscode.ConfigurationTarget.Workspace);
+  cortexDebugSetting.update('openocdPath', tools.openOCDPath, vscode.ConfigurationTarget.Workspace);
+}
+
+/**
+ * Checks build tools and updates settings accordingly. Priority of assignment is: 
+ * highest: build tools in setting,
+ * mid: build tools installed by the extension
+ * low: build tools in path
+ * @param context vscode extension context
+ */
+export async function checkBuildTools(context: vscode.ExtensionContext): Promise<boolean> {
+  // const hasBuildTools = context.globalState.get('hasBuildTools');
+
+  const settingBuildTools = toolChainValidation.checkSettingsForBuildTools();
+  const pathBuildTools = toolChainValidation.checkBuildToolsInPath();
+  const extensionInstalledTools = await toolChainValidation.checkAutomaticallyInstalledBuildTools(context);
+
+
+  let finalBuildTools = toolChainValidation.compareAndUpdateMissingBuildTools(
+    settingBuildTools,
+    extensionInstalledTools
+  );
+  finalBuildTools = toolChainValidation.compareAndUpdateMissingBuildTools(finalBuildTools, pathBuildTools);
+
+
+  // update settings when they are not in the settings e.g. after a deletion or an update.
+  // Check will be performed at start-up and then for the rest of the extension lifetime
+  // these settings will be used for compilation.
+  const extensionSettings = vscode.workspace.getConfiguration('stm32-for-vscode');
+  _.forEach(finalBuildTools, (toolPath, key) => {
+    if (!_.isEqual(toolPath, _.get(settingBuildTools, key))) {
+      extensionSettings.update(key, toolPath, vscode.ConfigurationTarget.Global);
+    }
+  });
+
+  // check if there is a local settings file and update if neccessary.
+  // NOTE: settings should not be added or editted in the workspace for STM32 for vscode,
+  // however old version of STM32 for VSCode did put it in the workspace folder
+  const localUpdatePromises = [];
+  if (vscode.workspace.workspaceFolders[0]) {
+    const localExtensionSettings =
+      vscode.workspace.getConfiguration('stm32-for-vscode', vscode.workspace.workspaceFolders[0].uri);
+    _.forEach(finalBuildTools, (toolPath, key) => {
+      const localPath = localExtensionSettings.get(key);
+      if (localPath === undefined) { return; }
+      let localWhichPath = which(localPath);
+      if (key === 'armToolchainPath') {
+        localWhichPath = which(path.join(`${localPath}`, 'arm-none-eabi-gcc'));
+      }
+      if ((!_.isEqual(toolPath, localPath) && !localWhichPath) || !localPath) {
+        localUpdatePromises.push(localExtensionSettings.update(key, toolPath, vscode.ConfigurationTarget.Workspace));
+      }
+    });
+  }
+
+  await Promise.all(localUpdatePromises);
+
+
+  // check if all relevant build tools are present. If not a menu should be shown, where the user
+  // has the option to install the build tools automatically
+  const hasBuildTools = toolChainValidation.hasRelevantBuildTools(finalBuildTools);
+
+  context.globalState.update('hasBuildTools', hasBuildTools);
+  if (hasBuildTools) {
+    setCortexDebugSettingsInWorkspace(finalBuildTools);
+  }
+  return Promise.resolve(hasBuildTools);
+}
+
+
+export function getBuildToolsFromSettings(): ToolChain {
+  const extensionSettings = vscode.workspace.getConfiguration('stm32-for-vscode');
+  const toolChain = new ToolChain();
+  _.forEach(toolChain, (_value, key) => {
+    _.set(toolChain, key, extensionSettings.get(key));
+  });
+  return toolChain;
+}
+
