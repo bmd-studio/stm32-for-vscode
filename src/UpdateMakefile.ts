@@ -78,9 +78,6 @@ export default async function updateMakefile(workspaceLocation: string, info: Ma
     oldMakefile = null;
   }
   const newMakefile = createMakefile(info);
-  console.log('newMakefile/oldMakefile');
-  console.log(newMakefile);
-  console.log(oldMakefile);
   if (newMakefile !== oldMakefile) {
     await writeMakefile(makefilePath, newMakefile);
   }

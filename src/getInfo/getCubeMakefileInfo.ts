@@ -183,7 +183,7 @@ export function extractMakefileInfo(makefile: string): MakeInfo {
 
   // remove prefixes.
   output.libs = removePrefixes(output.libs, '-l');
-  output.libdir = removePrefixes(output.libdir, '-L');
+  output.libdir = removePrefixes(_.isArray(output.libdir) ? output.libdir : [output.libdir], '-L');
   output.cDefs = removePrefixes(output.cDefs, '-D');
   output.cxxDefs = removePrefixes(output.cxxDefs, '-D');
   output.asDefs = removePrefixes(output.asDefs, '-D');

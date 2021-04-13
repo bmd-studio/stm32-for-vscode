@@ -17,6 +17,7 @@ On top of this a lot of the internal structure has changes so it should be more 
  - Added a way to switch programmer using a quick pick.
  - Added a side menu for STM32 for VSCode which activates when an .ioc file or an STM32-for-VSCode.config.yaml file is present.
  - Issue #21 Added optimization arguments to the project configuration file.
+ - Issue #29 added support for static library inclusion in the config file.
 
 ### Changes
  - Openocd is now configured using and openocd.cfg file, which gives the user more freedom to change settings.
@@ -24,7 +25,7 @@ On top of this a lot of the internal structure has changes so it should be more 
 ### Fixed
  - A lot of minor fixes that went a long with refactoring most of the code base
  - Added support for space escaping in the openocd and arm toolchain path in the makefile.
- - 
+ - Issue where it did not include libraries from the makefile (Issue #29)
 
 ## [2.2.4] - 2020-09-09
 ### Fixed
