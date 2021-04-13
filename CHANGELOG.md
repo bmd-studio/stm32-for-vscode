@@ -18,6 +18,7 @@ On top of this a lot of the internal structure has changes so it should be more 
  - Added a side menu for STM32 for VSCode which activates when an .ioc file or an STM32-for-VSCode.config.yaml file is present.
  - Issue #21 Added optimization arguments to the project configuration file.
  - Issue #29 added support for static library inclusion in the config file.
+ - Issue #39 custom file locations can be added using the project configuration file.
 
 ### Changes
  - Openocd is now configured using and openocd.cfg file, which gives the user more freedom to change settings. (Issue #37)
