@@ -32,7 +32,6 @@
 import 'process';
 
 import * as _ from 'lodash';
-import * as path from 'path';
 
 import MakeInfo from './types/MakeInfo';
 import { fsPathToPosix } from './Helpers';
@@ -77,7 +76,6 @@ export function createSingleLineStringList(arr: string[], prefix?: string): stri
 }
 
 export function createGCCPathOutput(makeInfo: MakeInfo): string {
-  console.log('gcc path', makeInfo.tools.armToolchainPath);
   if (makeInfo.tools.armToolchainPath && _.isString(makeInfo.tools.armToolchainPath)) {
     if (makeInfo?.tools?.armToolchainPath && !_.isEmpty(makeInfo.tools.armToolchainPath) && makeInfo.tools.armToolchainPath !== '.') {
       return `GCC_PATH=${fsPathToPosix(makeInfo.tools.armToolchainPath, true)}`;

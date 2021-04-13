@@ -1,5 +1,3 @@
-import * as Sinon from 'sinon';
-import * as shelljs from 'shelljs';
 
 import createMakefile, {
   createGCCPathOutput,
@@ -11,7 +9,6 @@ import { suite, test } from 'mocha';
 
 import MakeInfo from '../../types/MakeInfo';
 import { expect } from 'chai';
-import { platform } from 'process';
 
 // TODO: add library testing in the mix. 
 suite('CreateMakefile', () => {
