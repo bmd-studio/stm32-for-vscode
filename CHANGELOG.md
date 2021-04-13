@@ -12,7 +12,7 @@ On top of this a new menu is introduced, which has build, clean build, flash, de
 On top of this a lot of the internal structure has changes so it should be more robust.
 ### Added
  - Added a separate file for config options of the whole project
- - Added a way to install all the build tools at once for STM32 for VSCode
+ - Added a way to install all the build tools at once for STM32 for VSCode (Issue #26)
  - Added an initial start-up check for Build tools
  - Added a way to switch programmer using a quick pick.
  - Added a side menu for STM32 for VSCode which activates when an .ioc file or an STM32-for-VSCode.config.yaml file is present.
