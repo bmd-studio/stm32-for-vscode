@@ -27,6 +27,7 @@ On top of this a lot of the internal structure has changes so it should be more 
  - A lot of minor fixes that went a long with refactoring most of the code base
  - Added support for space escaping in the openocd and arm toolchain path in the makefile.
  - Issue where it did not include libraries from the makefile (Issue #29)
+ - Fixed issue #41 by using a posix path in the makefile and adding space escaping.
 
 ## [2.2.4] - 2020-09-09
 ### Fixed
