@@ -29,7 +29,8 @@ On top of this a lot of the internal structure has changes so it should be more 
  - Issue where it did not include libraries from the makefile (Issue #29)
  - Fixed issue #41 by using a posix path in the makefile and adding space escaping.
  - Fixed Issue #44 where the build task could not be tracked. The cause seemed to be an unresolved Promise.
- - Fixed issue #47 compiler path was not added to c_cpp_properties. 
+ - Fixed issue #47 compiler path was not added to c_cpp_properties.
+ - Fixed and issue where non floating point MCUs would not compile.
 
 ## [2.2.4] - 2020-09-09
 ### Fixed

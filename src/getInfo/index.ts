@@ -173,6 +173,13 @@ export async function getInfo(location: string): Promise<MakeInfo> {
     ...buildTools,
   };
 
+  // set empty string, as sometimes float-abi or FPU are not included in the STM Makefile
+  _.forEach(STM32MakeInfo, (entry, key) => {
+    if (entry === null) {
+      _.set(STM32MakeInfo, key, '');
+    }
+  });
+
   // check for CPP project
   const finalInfo = await checkAndConvertCpp(STM32MakeInfo, projectConfiguration);
 
