@@ -28,6 +28,7 @@ On top of this a lot of the internal structure has changes so it should be more 
  - Added support for space escaping in the openocd and arm toolchain path in the makefile.
  - Issue where it did not include libraries from the makefile (Issue #29)
  - Fixed issue #41 by using a posix path in the makefile and adding space escaping.
+ - Fixed Issue #44 where the build task could not be tracked. The cause seemed to be an unresolved Promise.
 
 ## [2.2.4] - 2020-09-09
 ### Fixed
