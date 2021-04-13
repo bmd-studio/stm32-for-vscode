@@ -17,7 +17,6 @@ import { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
 const {
   getCPropertiesConfig,
   getDefinitions,
-  getIncludePaths,
   getWorkspaceConfigFile,
   updateCProperties,
   // getAbsoluteCompilerPath,
@@ -34,13 +33,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     Sinon.replace(shelljs, 'which', Sinon.fake.returns('arm-none-eabi-gcc'));
     Sinon.replace(CCCPConfig, 'getAbsoluteCompilerPath', Sinon.fake.returns('arm-none-eabi-gcc'));
   });
-  test('includePath conversion', () => {
-    // as include paths start with -I for the makefile, these should be converted back to regular paths
-    const testIncludes = ['-IsomeInclude/Path', '-ISome/other/1nclud3p@th/w1th5omeW135DCh@r$'];
-    const finalIncludes = ['someInclude/Path', 'Some/other/1nclud3p@th/w1th5omeW135DCh@r$'];
-    const info: Partial<MakeInfo> = { cIncludes: testIncludes };
-    expect(getIncludePaths(info as MakeInfo)).to.deep.equal(finalIncludes);
-  });
+
   test('definitionConversion', () => {
     const testDefs: { cDefs: string[]; cxxDefs: string[]; asDefs: string[] } = {
       cDefs: ['-DdefSomeC', '-DdefSomeD'],
@@ -53,12 +46,12 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
   test('getCProperties', () => {
 
     const ingoing: MakeInfo = newMakeInfo({
-      cDefs: ['-DdefSomeC', '-DdefSomeD'],
-      cxxDefs: ['-DefineThis', '-Definethat'],
-      asDefs: ['-DasDefinition', '-DescriptiveDef'],
-      cIncludes: ['-IsomeInclude/Path', '-ISome/other/1nclud3p@th/w1th5omeW135DCh@r$'],
+      cDefs: ['defSomeC', 'defSomeD'],
+      cxxDefs: ['efineThis', 'efinethat'],
+      asDefs: ['asDefinition', 'escriptiveDef'],
+      cIncludes: ['someInclude/Path', 'Some/other/1nclud3p@th/w1th5omeW135DCh@r$'],
       tools: {
-        armToolchainPath: 'start/somelocation/',  //TODO: check if the slash is always added
+        armToolchainPath: 'start/somelocation/',
         openOCDPath: true,
         cMakePath: true,
         makePath: true,
@@ -86,7 +79,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     const expectedResult = JSON.stringify({
       configurations: [{
         name: 'STM32',
-        includePath: _.uniq(getIncludePaths(testMakefileInfo)).sort(),
+        includePath: _.uniq(testMakefileInfo.cIncludes).sort(),
         defines: _.uniq(getDefinitions(testMakefileInfo)).sort(),
         compilerPath: 'arm-none-eabi-gcc',
       }
@@ -142,7 +135,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
         },
         {
           name: 'STM32',
-          includePath: _.uniq(getIncludePaths(testMakefileInfo)).sort(),
+          includePath: _.uniq(testMakefileInfo.cIncludes).sort(),
           defines: _.uniq(getDefinitions(testMakefileInfo)).sort(),
           compilerPath: "arm-none-eabi-gcc",
         }
@@ -165,7 +158,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     const expectedResult = JSON.stringify({
       configurations: [{
         name: 'STM32',
-        includePath: _.uniq(getIncludePaths(testMakefileInfo)).sort(),
+        includePath: _.uniq(testMakefileInfo.cIncludes).sort(),
         defines: _.uniq(getDefinitions(testMakefileInfo)).sort(),
         compilerPath: 'arm-none-eabi-gcc',
       }
@@ -229,7 +222,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     expectedCallResult.configurations[0].includePath =
       _.uniq(
         expectedCallResult.configurations[0].includePath.concat(
-          getIncludePaths(testMakefileInfo)
+          testMakefileInfo.cIncludes
         )).sort();
     expectedCallResult.configurations[0].defines =
       _.uniq(

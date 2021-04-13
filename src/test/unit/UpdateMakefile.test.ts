@@ -56,8 +56,6 @@ suite('Update makefile', () => {
     ).to.be.true;
   });
   test('to not update makefile when same makefile is present', async () => {
-    // TODO: use standard makefiles and makefile info to tests this.
-
     const fakeMakefileReadFile = Sinon.fake.returns(new Promise(
       (resolve) => {
         resolve(new TextEncoder().encode(stm32ForVSCodeResult));

@@ -32,7 +32,6 @@ import { BuildFiles } from '../types/MakeInfo';
 import Glob = require('glob');
 
 const path = pth.posix; // did this so everything would be posix.
-// TODO: create tests for the advanced makefile structure.
 
 export const REQUIRED_RESOURCES = [
   {

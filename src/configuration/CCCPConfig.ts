@@ -22,18 +22,6 @@ export interface CCppProperties {
 }
 
 /**
- * Extracts the include paths from the MakeInfo and strips the -I
- * @param info MakeInfo containing all the info required for building the
- *     project
- */
-export function getIncludePaths(info: MakeInfo): string[] {
-  // TODO: rethink if -I should be included only in the makefile generation
-  // process.
-  const cIncludes = _.map(info.cIncludes, entry => _.replace(entry, '-I', ''));
-  return cIncludes;
-}
-
-/**
  * Extracts the definitions from te makefile and strips the -D
  * @param info MakeInfo containing all the info required for building the
  *     project
@@ -74,7 +62,7 @@ export function getAbsoluteCompilerPath(info: MakeInfo): string {
 export function getCPropertiesConfig(info: MakeInfo): CCppConfig {
   const config = {
     name: 'STM32',
-    includePath: getIncludePaths(info),
+    includePath: info.cIncludes,
     defines: getDefinitions(info),
     compilerPath: getAbsoluteCompilerPath(info),
   };
@@ -139,7 +127,7 @@ export async function updateCProperties(workspacePathUri: Uri, info: MakeInfo): 
       configFile.configurations.push(stmConfiguration);
       needsUpdating = true;
     }
-    const includes = getIncludePaths(info);
+    const includes = info.cIncludes;
     const definitions = getDefinitions(info);
     const oldConfig = _.cloneDeep(stmConfiguration);
 

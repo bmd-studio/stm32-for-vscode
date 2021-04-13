@@ -222,6 +222,3 @@ export default async function getMakefileInfo(location: string): Promise<MakeInf
     resolve(extractMakefileInfo(makefile));
   });
 }
-
-
-// FIXME: all prefixes should be deleted in this stage.

@@ -227,7 +227,6 @@ export function extractFile(filePath: string, outPath: string): Promise<string> 
   });
 }
 
-// TODO: create a clean-up function
 // TODO: create an integration test for downloading node.
 /**
  * Function for downloading and extracting a new latest node version

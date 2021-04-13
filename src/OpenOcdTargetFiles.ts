@@ -57,6 +57,3 @@ export default function getTargetConfig(target: string): string | boolean {
   }
   return false;
 }
-
-// TODO: add config path to opencod.
-// TODO: add STM32G0 stuff to assets dir

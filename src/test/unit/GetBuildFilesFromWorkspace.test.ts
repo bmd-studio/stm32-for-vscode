@@ -33,7 +33,7 @@ suite('GetBuildFilesFromWorkspaceTest', () => {
       // eslint-disable-next-line max-len
       'c:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/Src/someawesomfolder/thefile.h'];
     // eslint-disable-next-line max-len
-    const expectedTestoutput = ['-Ic:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/Src/someawesomfolder', '-Isomething'];
+    const expectedTestoutput = ['c:someReally/dr@wnout/l0ngp4ath/using_various-intermittent/char$ters/workspace/Src/someawesomfolder', 'something'];
     expect(getIncludeDirectoriesFromFileList(testArr)).to.deep.equal(expectedTestoutput);
 
     const output = getIncludeDirectoriesFromFileList(HeaderFiles);
@@ -43,12 +43,12 @@ suite('GetBuildFilesFromWorkspaceTest', () => {
   });
   test('sortFiles', () => {
     const output = sortFiles(FileListWithRandomFiles);
-    // assert.deepEqual(SortedBuildFiles.cIncludes, output.cIncludes);
-    expect(SortedBuildFiles.cIncludes).to.deep.equal(output.cIncludes);
+    // this is done as cIncludes are not handled in the build files anymore.
+    SortedBuildFiles.cIncludes = [];
+    expect([]).to.deep.equal(output.cIncludes);
     expect(SortedBuildFiles.cSources).to.deep.equal(output.cSources);
     expect(SortedBuildFiles.cxxSources).to.deep.equal(output.cxxSources);
     expect(SortedBuildFiles.asmSources).to.deep.equal(output.asmSources);
-    expect(SortedBuildFiles.cIncludes).to.deep.equal(output.cIncludes);
     expect(SortedBuildFiles).to.deep.equal(output);
   });
 });

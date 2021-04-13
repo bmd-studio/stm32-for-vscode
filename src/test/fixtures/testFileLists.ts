@@ -128,9 +128,9 @@ export const cxxFiles = [
   'Src/randomCXXFile.cxx'
 ];
 export const cIncludes = [
-  '-IDrivers/STM32H7xx_HAL_Driver/Inc',
-  '-IInc',
-  '-ISrc',
+  'Drivers/STM32H7xx_HAL_Driver/Inc',
+  'Inc',
+  'Src',
 ];
 
 export const libdir = [];

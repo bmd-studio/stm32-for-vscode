@@ -14,7 +14,6 @@ import { expect } from 'chai';
 import { platform } from 'process';
 
 // TODO: add library testing in the mix. 
-// TODO: add test for different programmer inclusions
 suite('CreateMakefile', () => {
   test('check for proper line endings on string list', () => {
     const testEntries = ['hi', 'hello', 'some/filename.txt'];
@@ -38,22 +37,6 @@ suite('CreateMakefile', () => {
     const makeInfo = new MakeInfo();
     makeInfo.tools.armToolchainPath = '.';
     expect(createGCCPathOutput(makeInfo)).to.equal('');
-  });
-  test('if absolute gcc path is added when not a bin path', () => {
-    const relativePath = platform === 'win32' ? '.\\somefolder\\arm-none-eabi' : './somefolder/arm-none-eabi';
-    const posixOutputPath = '/usr/somefolder/arm-none-eabi';
-    const fsOutputPath = platform === 'win32' ? '\\usr\\somefolder\\arm-none-eabi' : posixOutputPath;
-    const gccOutputPath = platform === 'win32' ?
-      `${fsOutputPath}\\arm-none-eabi-gcc` : `${fsOutputPath}/arm-none-eabi-gcc`;
-    const whichFake = Sinon.fake.returns(gccOutputPath);
-    Sinon.replace(shelljs, 'which', whichFake);
-
-    const makeInfo = new MakeInfo();
-    makeInfo.tools.armToolchainPath = relativePath;
-    const output = createGCCPathOutput(makeInfo);
-    expect(output).to.equal(`GCC_PATH=${posixOutputPath}`);
-    expect(whichFake.calledOnce).to.be.true;
-    Sinon.restore();
   });
   test('Create makefile matches template', () => {
     const result = createMakefile(testMakefileInfo);
