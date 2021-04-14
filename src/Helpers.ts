@@ -9,10 +9,14 @@ export function splitStringLines(input: string): string[] {
   return input.split(/\r\n|\r|\n/);
 }
 
+export function escapeSpacesInPath(fsPath: string): string {
+  return fsPath.split(' ').join('\\ ');
+}
+
 export function fsPathToPosix(fsPath: string, escapeSpaces?: boolean): string {
   let posixPath = fsPath.split(path.sep).join(path.posix.sep);
   if (escapeSpaces) {
-    posixPath = posixPath.split(' ').join('\\ ');
+    posixPath = escapeSpacesInPath(posixPath);
   }
   return posixPath;
 }

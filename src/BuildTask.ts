@@ -60,9 +60,16 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
     info = await getInfo(currentWorkspaceFolder);
     await updateMakefile(currentWorkspaceFolder, info);
     if (cleanBuild) {
-      await executeTask('build', 'STM32 clean', `make -f ${makefileName} clean`);
+      await executeTask(
+        'build',
+        'STM32 clean',
+        `"${info.tools.makePath}" -f ${makefileName} clean`);
     }
-    await executeTask('build', 'STM32 build', `make -f ${makefileName}${flash ? ' flash' : ''}`);
+    await executeTask(
+      'build',
+      'STM32 build',
+      `"${info.tools.makePath}" -f ${makefileName}${flash ? ' flash' : ''}`
+    );
   } catch (err) {
     const errMsg = `Something went wrong during the build process: ${err}`;
     window.showErrorMessage(errMsg);
