@@ -5,7 +5,12 @@
   - Add support to use different project types (EWARM, STM32CubeIDE, etc.).
   - Add ability to introduce generated changes from the main.c file into the main.cpp file.
   - Add support for unit testing using Google Test and Google Mock.
-  - Add option to add files.
+
+## [3.3.1] - 2021-14-04
+### Fixed
+ - Issue #55 escaped path for make did not work. Fixed this on top of this the full path is always used with make.
+ - Issue #56 Old versions of node gave issues upon installation. Now the newest version is always used.
+ - Issue #57 There was an issue where it would not update the global settings, but instead update settings.json.
 ## [3.3.0] - 2021-10-04
 Major upgrade from the previous version. The major changes are that a config file is added, so a project does not need a Makefile to work.
 On top of this a new menu is introduced, which has build, clean build, flash, debug and change programmer commands.
