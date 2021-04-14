@@ -300,8 +300,6 @@ export async function addExtensionInstalledToolsToSettings(context: vscode.Exten
 }
 
 export function installAllTools(context: vscode.ExtensionContext): Promise<void | Error> {
-  let npxInstallation = shelljs.which('npx');
-  let nodeInstallLocation = '';
   return new Promise((resolve) => {
     vscode.window.withProgress({
       location: vscode.ProgressLocation.Notification,
@@ -310,13 +308,13 @@ export function installAllTools(context: vscode.ExtensionContext): Promise<void 
     }, async (progress) => {
       progress.report({ increment: 0, message: 'Starting build tools installation' });
       try {
-        if (!npxInstallation) {
-          progress.report({ increment: 0, message: 'installing node because npx was not found' });
-          nodeInstallLocation = await getNode(context);
-          npxInstallation = path.join(nodeInstallLocation, 'npx');
-          progress.report({ increment: 20, message: 'Node installed' });
-        }
-        progress.report({ increment: 20, message: 'installing openOCD' });
+
+        progress.report({ increment: 0, message: 'installing local copy of node' });
+        const nodeInstallLocation = await getNode(context);
+        const npxInstallation = path.join(nodeInstallLocation, 'npx');
+        progress.report({ increment: 10, message: 'Node installed' });
+
+        progress.report({ increment: 10, message: 'installing openOCD' });
         await installOpenOcd(context, npxInstallation);
         progress.report({ increment: 20, message: 'installing make' });
         await installMake(context, npxInstallation);
