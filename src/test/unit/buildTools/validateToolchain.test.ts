@@ -15,7 +15,6 @@ suite('validate Toolchain Functions', () => {
   test('checkSettingsForBuildTools with all build tools present', () => {
     const fakeToolchainResult = new ToolChain();
     fakeToolchainResult.armToolchainPath = 'armpath';
-    fakeToolchainResult.cMakePath = 'cmakePath/cmake';
     fakeToolchainResult.makePath = 'makePath';
     const getSettingsFake = Sinon.fake.returns(fakeToolchainResult);
     Sinon.replace(GetSettings, 'getExtensionSettings', getSettingsFake);
@@ -36,7 +35,6 @@ suite('validate Toolchain Functions', () => {
     Sinon.replace(shelljs, 'which', fakeShell);
     const result = checkSettingsForBuildTools();
     expect(result.armToolchainPath).to.equal(fakeToolchainResult.armToolchainPath);
-    expect(result.cMakePath).to.equal(fakeToolchainResult.cMakePath);
     expect(result.makePath).to.equal(path.join(fakeToolchainResult.makePath, 'make'));
   });
 

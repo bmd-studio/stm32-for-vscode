@@ -53,7 +53,6 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
       tools: {
         armToolchainPath: 'start/somelocation/',
         openOCDPath: true,
-        cMakePath: true,
         makePath: true,
       },
     });

@@ -50,12 +50,6 @@ export function checkSettingsForBuildTools(): ToolChain {
       settingsToolchain.openOCDPath = openOCDPath;
     }
   }
-  if (checkSettingsPathValidity(settings.cMakePath)) {
-    const cMakePath: string | boolean = checkToolchainPathForTool(settings.cMakePath, cMakeDefinition);
-    if (checkSettingsPathValidity(cMakePath)) {
-      settingsToolchain.cMakePath = cMakePath;
-    }
-  }
   return settingsToolchain;
 }
 
@@ -98,14 +92,6 @@ export async function checkAutomaticallyInstalledBuildTools(
       installedBuildTools.makePath = makePath;
     }
   }
-  // TODO: add this once I integrate testing
-  // Cmake
-  // if (!settingsToolchain.cMakePath) {
-  //   const cMakePath = await validateXPMToolchainPath(cMakeDefinition, context.globalStoragePath);
-  //   if (checkSettingsPathValidity(cMakePath)) {
-  //     settingsToolchain.cMakePath = cMakePath;
-  //   }
-  // }
 
   return Promise.resolve(installedBuildTools);
 }
@@ -131,11 +117,6 @@ export function checkBuildToolsInPath(): ToolChain {
   const makeShellPath = shelljs.which(makeDefinition.standardCmd);
   if (checkSettingsPathValidity(makeShellPath)) {
     pathToolchain.makePath = makeShellPath;
-  }
-  // cmake
-  const cmakeShellPath = shelljs.which(cMakeDefinition.standardCmd);
-  if (checkSettingsPathValidity(cmakeShellPath)) {
-    pathToolchain.cMakePath = cmakeShellPath;
   }
   return pathToolchain;
 }

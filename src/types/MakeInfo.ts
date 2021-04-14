@@ -10,7 +10,6 @@ export interface Stm32SettingsInterface {
 export interface ToolChainInterface {
   openOCDPath: string | boolean;
   makePath: string | boolean;
-  cMakePath: string | boolean;
   armToolchainPath: string | boolean;
 }
 
@@ -30,7 +29,6 @@ export interface TargetInfoInterface {
   cpu: string;
   fpu: string;
   floatAbi: string;
-  // mcu: string;
   targetMCU: string;
   ldscript: string;
 }
@@ -40,7 +38,6 @@ export class TargetInfo implements TargetInfoInterface {
   public cpu = '';
   public fpu = '';
   public floatAbi = '';
-  // public mcu = '';
   public targetMCU = '';
   public ldscript = '';
 }
@@ -98,7 +95,6 @@ export interface MakeInfoInterface extends BuildFilesInterface, TargetInfoInterf
 export class ToolChain implements ToolChainInterface {
   public openOCDPath: string | boolean = false;
   public makePath: string | boolean = false;
-  public cMakePath: string | boolean = false;
   public armToolchainPath: string | boolean = false;
 }
 export class BuildFiles implements BuildFilesInterface {
