@@ -46,26 +46,23 @@ export async function read(): Promise<string> {
   }
 }
 
-export function readOrCreateConfigFile(config: OpenOCDConfigurationInterface): Promise<void> {
+export async function readOrCreateConfigFile(config: OpenOCDConfigurationInterface): Promise<void> {
   const workspaceFolder = Helpers.getWorkspaceUri();
-  if (!workspaceFolder) { return Promise.resolve(); }
-  return (new Promise((resolve, reject) => {
-    read().then(() => {
-      // do nothing
-      resolve();
-    }).catch(() => {
-      // no config is present. Create one.
-      const configuration = create(config);
-      write(configuration).then(() => {
-        resolve();
-      }).catch((error) => {
-        vscode.window.showErrorMessage(
-          `Something went wrong while creating the openocd configuration file. Error: ${error}`
-        );
-        reject(error);
-      });
-    });
-  }));
+  if (!workspaceFolder) { return; }
+  try {
+    await read();
+    return;
+    // eslint-disable-next-line no-empty
+  } catch (err) { }
+  const configuration = create(config);
+  try {
+    await write(configuration);
+  } catch (error) {
+    vscode.window.showErrorMessage(
+      `Something went wrong while creating the openocd configuration file. Error: ${error}`
+    );
+    throw error;
+  }
 }
 
 /**
