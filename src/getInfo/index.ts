@@ -109,8 +109,13 @@ export async function checkAndConvertCpp(
  */
 export async function getInfo(location: string): Promise<MakeInfo> {
   if (!vscode.workspace.workspaceFolders) { throw Error('No workspace folder was selected'); }
+  let cubeMakefileInfo = new MakeInfo();
+  try {
+    cubeMakefileInfo = await getMakefileInfo(location);
+  } catch (e) {
+    // do not need to catch anything
+  }
 
-  const cubeMakefileInfo = await getMakefileInfo(location);
   const STM32MakeInfo = new MakeInfo();
 
   const standardConfig: ExtensionConfiguration = new ExtensionConfiguration();
@@ -145,6 +150,7 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   const regularIncludeDirectories = getNonGlobIncludeDirectories(combinedHeaderFiles);
   const filteredIncludeDirectories = Micromatch.not(regularIncludeDirectories, projectConfiguration.excludes);
 
+  STM32MakeInfo.target = projectConfiguration.target;
   STM32MakeInfo.cIncludes = _.uniq(_.concat(includeDirectories, filteredIncludeDirectories));
   STM32MakeInfo.cxxSources = sortedSourceFiles.cxxSources;
   STM32MakeInfo.cSources = sortedSourceFiles.cSources;

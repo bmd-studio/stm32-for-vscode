@@ -68,7 +68,7 @@ export function noMakefileAndConfigFileDialogue(): Promise<boolean> {
 export async function checkProjectFilesAndCreate(): Promise<boolean> {
   // workspace folder guard
   const workspaceFolder = Helpers.getWorkspaceUri();
-  if (!workspaceFolder) { return Promise.resolve(false); }
+  if (!workspaceFolder) { return false; }
 
   // check for project files with guard
   const projectFiles = await checkProjectFiles();
@@ -108,5 +108,5 @@ export async function checkProjectFilesAndCreate(): Promise<boolean> {
     OpenOCDConfig.changeProgrammerDialogue();
   }
 
-  return Promise.resolve(true);
+  return true;
 }

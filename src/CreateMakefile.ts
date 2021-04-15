@@ -35,6 +35,7 @@ import * as _ from 'lodash';
 
 import MakeInfo from './types/MakeInfo';
 import { fsPathToPosix } from './Helpers';
+import { makefileName } from './Definitions';
 
 const { platform } = process;
 
@@ -170,7 +171,7 @@ FPU = ${makeInfo.fpu}
 FLOAT-ABI = ${makeInfo.floatAbi}
 
 # mcu
-MCU = ${makeInfo.mcu}
+MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
 
 # macros for gcc
 # AS defines
@@ -234,16 +235,16 @@ vpath %.c $(sort $(dir $(C_SOURCES)))
 OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
 vpath %.s $(sort $(dir $(ASM_SOURCES)))
 
-$(BUILD_DIR)/%.o: %.cpp Makefile | $(BUILD_DIR) 
+$(BUILD_DIR)/%.o: %.cpp ${makefileName} | $(BUILD_DIR) 
 \t$(CXX) -c $(CXXFLAGS) $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.cpp=.lst)) $< -o $@
 
-$(BUILD_DIR)/%.o: %.c Makefile | $(BUILD_DIR) 
+$(BUILD_DIR)/%.o: %.c ${makefileName} | $(BUILD_DIR) 
 \t$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
 
-$(BUILD_DIR)/%.o: %.s Makefile | $(BUILD_DIR)
+$(BUILD_DIR)/%.o: %.s ${makefileName} | $(BUILD_DIR)
 \t$(AS) -c $(CFLAGS) $< -o $@
 
-$(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) Makefile
+$(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) ${makefileName}
 \t$(${makeInfo.language === 'C' ? 'CC' : 'CXX'}) $(OBJECTS) $(LDFLAGS) -o $@
 \t$(SZ) $@
 

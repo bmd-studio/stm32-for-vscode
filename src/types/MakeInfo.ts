@@ -168,6 +168,7 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
     this.ldFlags = makeInfo.ldFlags;
     this.cxxFlags = makeInfo.cxxFlags;
     this.libraryDirectories = makeInfo.libdir;
+    this.sourceFiles.concat(makeInfo.asmSources);
   }
 }
 

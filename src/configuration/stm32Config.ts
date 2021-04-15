@@ -42,7 +42,7 @@ export function createConfigFile(config: ExtensionConfiguration): string {
 # - entry_2
 
 # The project name
-target: test_firmware
+target: ${config.target}
 # Can be C or C++
 language: ${config.language}
 
@@ -122,7 +122,7 @@ export async function readConfigFile(): Promise<ExtensionConfiguration> {
   const configurationPath = path.resolve(workspaceFolderUri.fsPath, EXTENSION_CONFIG_NAME);
   try {
     const file = await vscode.workspace.fs.readFile(vscode.Uri.file(configurationPath));
-    if (!file) { return Promise.reject(new Error('No configuration file found')); }
+    if (!file) { throw new Error('No configuration file found'); }
     const yamlConfig = YAML.parse(Buffer.from(file).toString('utf-8'));
     if (!yamlConfig) { return Promise.reject(new Error('Could not parse yaml configuration')); }
     _.forEach(yamlConfig, (entry, key) => {
@@ -132,10 +132,10 @@ export async function readConfigFile(): Promise<ExtensionConfiguration> {
     });
   } catch (err) {
     if (err) {
-      return Promise.reject(err);
+      throw err;
     }
   }
-  return Promise.resolve(configuration);
+  return configuration;
 }
 
 /**
@@ -145,27 +145,26 @@ export async function readConfigFile(): Promise<ExtensionConfiguration> {
  */
 export async function readOrCreateConfigFile(config: ExtensionConfiguration): Promise<ExtensionConfiguration> {
   const workspaceFolderUri = Helpers.getWorkspaceUri();
-  if (!workspaceFolderUri) { return Promise.resolve(config); }
+  if (!workspaceFolderUri) { return config; }
+  try {
+    const configFile = await readConfigFile();
+    return configFile;
+  } catch (err) {
+    // no config file present
+    if (err.message === PARSE_YAML_ERROR_MESSAGE) {
+      vscode.window.showErrorMessage(
+        `Could not parse: ${EXTENSION_CONFIG_NAME}, please check for Errors or delete it so it can be regenerated`
+      );
+      return config; // returns the standard configuration
+    }
+  }
 
-  return new Promise((resolve) => {
-    readConfigFile().then((configuration) => {
-      resolve(configuration);
-    }).catch((err) => {
-      // one should be created if none exists
-      if (err.message === PARSE_YAML_ERROR_MESSAGE) {
-        vscode.window.showErrorMessage(
-          `Could not parse: ${EXTENSION_CONFIG_NAME}, please check for Errors or delete it so it can be regenerated`
-        );
-        resolve(config); // returns the standard configuration
-      }
-      // no file is present, so one needs to be created
-      writeConfigFile(config).then(() => {
-        resolve(config);
-      }).catch((writeError) => {
-        vscode.window.showErrorMessage(`Something went wrong with writing the configuration file: ${writeError}`);
-        resolve(config);
-      });
-    });
-  });
+  // if no config file is present. Create a new one.
+  try {
+    await writeConfigFile(config);
+  } catch (err) {
+    vscode.window.showErrorMessage(`Something went wrong with writing the configuration file: ${err}`);
+  }
+  return config;
 
 }

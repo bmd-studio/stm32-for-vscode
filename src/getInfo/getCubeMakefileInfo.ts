@@ -41,7 +41,7 @@
 import * as _ from 'lodash';
 import * as path from 'path';
 
-import { Uri, window, workspace } from 'vscode';
+import { Uri, workspace } from 'vscode';
 
 import MakeInfo from '../types/MakeInfo';
 
@@ -197,28 +197,25 @@ export function extractMakefileInfo(makefile: string): MakeInfo {
  * @param {string} location - location of the makefile
  */
 export default async function getMakefileInfo(location: string): Promise<MakeInfo> {
-  return new Promise(async (resolve, reject) => {
-    let loc = './Makefile';
-    if (location) {
-      loc = location;
-    }
+  let loc = './Makefile';
+  if (location) {
+    loc = location;
+  }
 
-    // Guard for checking if the makefile name is actually appended to the location
-    if (path.posix.basename(location) !== 'Makefile') {
-      loc = path.posix.join(loc, 'Makefile');
-    }
+  // Guard for checking if the makefile name is actually appended to the location
+  if (path.posix.basename(location) !== 'Makefile') {
+    loc = path.posix.join(loc, 'Makefile');
+  }
 
-    // try getting the makefile
-    let makefile = '' as string;
-    try {
-      makefile = await getMakefile(loc);
-    } catch (err) {
-      // eslint-disable-next-line max-len
-      window.showErrorMessage('Something went wrong with getting the information from the makefile. Please make sure there is a makefile and that the project is initialized through STM32CubeMX.', err);
-      reject(err);
-      return;
-    }
-    // when the makefile is found, extract the information according to the makefileInfo fields
-    resolve(extractMakefileInfo(makefile));
-  });
+  // try getting the makefile
+  let makefile = '' as string;
+  try {
+    makefile = await getMakefile(loc);
+  } catch (err) {
+    // eslint-disable-next-line max-len
+    // window.showErrorMessage('Something went wrong with getting the information from the makefile. Please make sure there is a makefile and that the project is initialized through STM32CubeMX.', err);
+    throw err;
+  }
+  // when the makefile is found, extract the information according to the makefileInfo fields
+  return extractMakefileInfo(makefile);
 }
