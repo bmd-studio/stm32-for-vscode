@@ -4,7 +4,7 @@ import * as process from 'process';
 import * as shelljs from 'shelljs';
 import * as vscode from 'vscode';
 
-import { armNoneEabiDefinition, cMakeDefinition, makeDefinition, openocdDefinition } from './toolChainDefinitions';
+import { armNoneEabiDefinition, makeDefinition, openocdDefinition } from './toolChainDefinitions';
 import {
   checkSettingsPathValidity,
   checkToolchainPathForTool,

@@ -5,6 +5,11 @@
   - Add support to use different project types (EWARM, STM32CubeIDE, etc.).
   - Add ability to introduce generated changes from the main.c file into the main.cpp file.
   - Add support for unit testing using Google Test and Google Mock.
+## [3.3.2] - 2021-15-04
+### Fixed
+ - Issue #55 (revisited) powershell was still giving issue due to path escaping not working. Solved this by switching to CMD when available.
+### Added
+ - Issue #59 Added -j flag to make so it will compile in parallel and in turn compile faster.
 
 ## [3.3.1] - 2021-14-04
 ### Fixed
