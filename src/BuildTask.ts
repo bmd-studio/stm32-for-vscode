@@ -60,7 +60,7 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
     currentWorkspaceFolder = fsPathToPosix(workspace.workspaceFolders[0].uri.fsPath);
     info = await getInfo(currentWorkspaceFolder);
     await updateMakefile(currentWorkspaceFolder, info);
-    const baseMakePath = `"${info.tools.makePath}" -j -f ${makefileName}`;
+    const baseMakePath = `"${info.tools.makePath}" -j16 -f ${makefileName}`;
 
     if (cleanBuild) {
       await executeTask(
