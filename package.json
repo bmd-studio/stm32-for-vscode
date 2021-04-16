@@ -2,7 +2,7 @@
   "name": "stm32-for-vscode",
   "displayName": "stm32-for-vscode",
   "description": "An extension for: setting up, compiling, uploading and debugging STM32 applications",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "engines": {
     "vscode": "^1.44.0"
   },
@@ -183,6 +183,7 @@
     "@types/unzipper": "^0.10.3",
     "axios": "^0.21.0",
     "cpp-include": "^1.1.1",
+    "decompress": "^4.2.1",
     "json5": "^2.1.0",
     "lodash": "^4.17.20",
     "micromatch": "^4.0.2",
@@ -190,7 +191,6 @@
     "recursive-readdir": "^2.2.2",
     "shelljs": "^0.8.4",
     "strip-comments": "^2.0.1",
-    "unzipper": "^0.10.11",
     "yaml": "^1.10.0"
   },
   "taskDefinitions": {}

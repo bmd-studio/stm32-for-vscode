@@ -1,8 +1,7 @@
 import * as _ from 'lodash';
-import * as fs from 'fs';
 import * as path from 'path';
 import * as process from 'process';
-import * as unzipper from 'unzipper';
+import * as decompress from 'decompress';
 import * as vscode from 'vscode';
 import * as shelljs from 'shelljs';
 
@@ -216,15 +215,18 @@ export function downloadLatestNode(context: vscode.ExtensionContext, fileDownloa
  * @param filePath path to the file to be extracted
  * @param outPath path to the output directory
  */
-export function extractFile(filePath: string, outPath: string): Promise<string> {
-  return new Promise((resolve, reject) => {
-    fs.createReadStream(filePath)
-      .pipe(unzipper.Extract({ path: outPath })).on('close', () => {
-        resolve(outPath);
-      }).on('error', (error) => {
-        reject(error);
-      });
-  });
+export async function extractFile(filePath: string, outPath: string): Promise<string> {
+  try {
+    await decompress(filePath, outPath);
+  } catch (err) {
+    vscode.window.showWarningMessage(err);
+    if(err.message.includes('EEXIST')) {
+      await vscode.workspace.fs.delete(vscode.Uri.file(outPath), { recursive: true });
+      return extractFile(filePath, outPath);
+    }
+    throw err;
+  }
+  return outPath;
 }
 
 // TODO: create an integration test for downloading node.
@@ -311,7 +313,8 @@ export function installAllTools(context: vscode.ExtensionContext): Promise<void 
 
         progress.report({ increment: 0, message: 'installing local copy of node' });
         const nodeInstallLocation = await getNode(context);
-        const npxInstallation = path.join(nodeInstallLocation, 'npx');
+        const nodeBinLocation = platform === 'win32' ? nodeInstallLocation : path.join(nodeInstallLocation, 'bin');
+        const npxInstallation = path.join(nodeBinLocation, 'npx');
         progress.report({ increment: 10, message: 'Node installed' });
 
         progress.report({ increment: 10, message: 'installing openOCD' });
