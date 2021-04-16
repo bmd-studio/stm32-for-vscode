@@ -64,7 +64,6 @@ asDefinitions: ${createYamlArray(config.asDefinitions)}
 cFlags: ${createYamlArray(config.cFlags)}
 cxxFlags: ${createYamlArray(config.cxxFlags)}
 assemblyFlags: ${createYamlArray(config.assemblyFlags)}
-ldFlags: ${createYamlArray(config.ldFlags)}
 
 # libraries to be included. The -l prefix to the library will be automatically added.
 # Mind that non standard libraries should have a path to their respective directory.
@@ -95,11 +94,24 @@ suppressMakefileWarning: ${config.suppressMakefileWarning}
   );
 }
 
+
+
+export async function writeConfigFile(config: ExtensionConfiguration): Promise<void> {
+  const configFile = createConfigFile(config);
+  const workspaceFolderUri = Helpers.getWorkspaceUri();
+  if (!workspaceFolderUri) { throw new Error('No workspace folder selected'); }
+  try {
+    await Helpers.writeFileInWorkspace(workspaceFolderUri, EXTENSION_CONFIG_NAME, configFile);
+  } catch(err) {
+    throw err;
+  }
+}
+
 /**
  * 
  * @param config The STM32 for VScode Extension configuration
  */
-export function writeConfigFile(config: ExtensionConfiguration): Promise<void> {
+export async function writeDefaultConfigFile(config: ExtensionConfiguration): Promise<ExtensionConfiguration> {
   // default configFiles.
   const configFileWithAddedDefaults = _.cloneDeep(config);
   configFileWithAddedDefaults.sourceFiles = _.concat(configFileWithAddedDefaults.sourceFiles, DEFAULT_SOURCES);
@@ -107,10 +119,17 @@ export function writeConfigFile(config: ExtensionConfiguration): Promise<void> {
     configFileWithAddedDefaults.includeDirectories,
     DEFAULT_INCLUDES
   );
-  const configFile = createConfigFile(configFileWithAddedDefaults);
-  const workspaceFolderUri = Helpers.getWorkspaceUri();
-  if (!workspaceFolderUri) { return Promise.reject(new Error('No workspace folder selected')); }
-  return Helpers.writeFileInWorkspace(workspaceFolderUri, EXTENSION_CONFIG_NAME, configFile);
+  configFileWithAddedDefaults.assemblyFlags = _.concat(
+    configFileWithAddedDefaults.assemblyFlags,
+    ['-specs=nosys.specs']
+  );
+
+  try {
+    await writeConfigFile(configFileWithAddedDefaults);
+  } catch(error) {
+    throw error;
+  }
+  return configFileWithAddedDefaults;
 }
 
 const PARSE_YAML_ERROR_MESSAGE = 'Could not parse yaml configuration';
@@ -161,7 +180,8 @@ export async function readOrCreateConfigFile(config: ExtensionConfiguration): Pr
 
   // if no config file is present. Create a new one.
   try {
-    await writeConfigFile(config);
+    const newConfig = await writeDefaultConfigFile(config);
+    return newConfig;
   } catch (err) {
     vscode.window.showErrorMessage(`Something went wrong with writing the configuration file: ${err}`);
   }

@@ -47,7 +47,6 @@ export interface CompileInfoInterface {
   optimization: string;
   cFlags: string[];
   assemblyFlags: string[];
-  ldFlags: string[];
   cxxFlags: string[];
   cDefinitions: string[];
   cxxDefinitions: string[];
@@ -59,7 +58,6 @@ export class CompileInfo implements CompileInfoInterface {
   public optimization = 'Og';
   public cFlags: string[] = [];
   public assemblyFlags: string[] = [];
-  public ldFlags: string[] = [];
   public cxxFlags: string[] = [];
   public cDefinitions: string[] = [];
   public cxxDefinitions: string[] = [];
@@ -84,7 +82,6 @@ export interface MakeInfoInterface extends BuildFilesInterface, TargetInfoInterf
   optimization: string;
   cFlags: string[];
   assemblyFlags: string[];
-  ldFlags: string[];
   cxxFlags: string[];
   cDefs: string[];
   cxxDefs: string[];
@@ -142,10 +139,6 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
     '-fdata-sections',
     '-ffunction-sections'
   ];
-  public ldFlags: string[] = [
-    '-specs=nosys.specs',
-
-  ];
   public cxxFlags: string[] = [];
   public sourceFiles: string[] = [];
   public libraries: string[] = ['c', 'm', 'nosys'];
@@ -165,7 +158,6 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
     this.targetMCU = makeInfo.targetMCU;
     this.cFlags = makeInfo.cFlags;
     this.assemblyFlags = makeInfo.assemblyFlags;
-    this.ldFlags = makeInfo.ldFlags;
     this.cxxFlags = makeInfo.cxxFlags;
     this.libraryDirectories = makeInfo.libdir;
     this.sourceFiles.concat(makeInfo.asmSources);

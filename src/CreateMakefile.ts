@@ -216,7 +216,10 @@ LIBS = ${createSingleLineStringList(makeInfo.libs, '-l')}
 LIBDIR = ${'\\'}
 ${createStringList(makeInfo.libdir, '-L')}
 
-LDFLAGS = $(MCU) -specs=nosys.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+# Additional LD Flags from config file
+ADDITIONALLDFLAGS = ${createSingleLineStringList(makeInfo.assemblyFlags)}
+
+LDFLAGS = $(MCU) $(ADDITIONALLDFLAGS) -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin

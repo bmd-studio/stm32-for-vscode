@@ -40,7 +40,7 @@ export default async function setupTestFiles(workspacePathUri: Uri): Promise<voi
   if (!foundGoogleTestFolder) {
     // not found should clone the googletest folder
     executeTask(
-      'get requirements', 'cloning googletest', `git clone ${googletestRepo}`,
+      'get requirements', 'cloning googletest', [`git clone ${googletestRepo}`],
       path.resolve(fsPathToPosix(workspacePathUri.fsPath), './Test'));
   }
   // after this the required includes need to be found
