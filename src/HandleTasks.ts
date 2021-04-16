@@ -2,6 +2,7 @@ import 'process';
 
 import { ShellExecution, Task, TaskProcessEndEvent, tasks, workspace, ShellExecutionOptions } from 'vscode';
 const { platform } = process;
+const { arch } = process;
 /**
  *
  * @param type type of process to execute e.g. build
@@ -12,7 +13,7 @@ export default function executeTask(
   type: string, name: string, cmd: string, cwd?: string): Promise<void | number> {
   return new Promise((resolve, reject) => {
     const shellOptions: ShellExecutionOptions = {};
-    if (platform === 'win32') {
+    if (platform === 'win32' && arch !== 'x64') {
       shellOptions.shellArgs = [
         'cmd',
         '/c'
@@ -23,6 +24,7 @@ export default function executeTask(
       shellOptions.cwd = cwd;
     }
     const processExec = new ShellExecution(cmd, shellOptions);
+
     if (!workspace.workspaceFolders) {
       reject(Error('no workspace folder is selected'));
       return;
