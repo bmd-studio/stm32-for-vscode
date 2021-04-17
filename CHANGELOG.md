@@ -6,6 +6,13 @@
   - Add ability to introduce generated changes from the main.c file into the main.cpp file.
   - Add support for unit testing using Google Test and Google Mock.
 
+## [3.0.4] - 2021-17-04
+### Fixed
+ - Issue #55 persisted. Now there is an explicit check on powershell and it adapts the command specifically for powershell.
+ - Issue #62 and issue #63 Assembly flags were not passed along to the final makefile. They now are
+ - There was an issue where some additional default values were not passed along when building for the first time.
+ - Installation of node on Linux and darwin failed due to decompression issues. This has been fixed by using a different package.
+ - Could not find npx after installation, due to windows having npx in the root folder of the node download and osx and linux have them in the bin folder.
 ## [3.0.3] - 2021-15-04
 ### Fixed
  - Issue #61 makefile was always required. Fix this so compilation is possible with only using the config file.
