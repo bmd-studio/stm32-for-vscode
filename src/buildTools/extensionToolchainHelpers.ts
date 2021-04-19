@@ -82,21 +82,18 @@ export function compareVersions(version1: XPMToolVersion | null, version2: XPMTo
 export function getToolBasePath(tool: BuildToolDefinition, xpmPath: string): string {
   return path.join(xpmPath, XPACKS_DEV_TOOL_PATH, tool.xpmName);
 }
-export function getToolVersionFolders(
+export async function getToolVersionFolders(
   tool: BuildToolDefinition, xpmPath: string): Promise<[string, vscode.FileType][] | null> {
-  return new Promise((resolve) => {
-    if (!tool.xpmName) {
-      resolve(null);
-      return;
-    }
-    const toolPath = vscode.Uri.file(getToolBasePath(tool, xpmPath));
-    vscode.workspace.fs.readDirectory(toolPath).then((files) => {
-      resolve(files);
-    }, () => {
-
-      resolve(null);
-    });
-  });
+  if (!tool.xpmName) {
+    return null;
+  }
+  const toolPath = vscode.Uri.file(getToolBasePath(tool, xpmPath));
+  try {
+    const files = await vscode.workspace.fs.readDirectory(toolPath);
+    return files;
+  } catch (err) {
+    return null;
+  }
 }
 
 /**
