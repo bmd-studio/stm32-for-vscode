@@ -79,7 +79,7 @@ export function createSingleLineStringList(arr: string[], prefix?: string): stri
 export function createGCCPathOutput(makeInfo: MakeInfo): string {
   if (makeInfo.tools.armToolchainPath && _.isString(makeInfo.tools.armToolchainPath)) {
     if (makeInfo?.tools?.armToolchainPath && !_.isEmpty(makeInfo.tools.armToolchainPath) && makeInfo.tools.armToolchainPath !== '.') {
-      return `GCC_PATH=${fsPathToPosix(makeInfo.tools.armToolchainPath, true)}`;
+      return `GCC_PATH="${fsPathToPosix(makeInfo.tools.armToolchainPath)}`;
     }
   }
   return '';
@@ -139,15 +139,16 @@ ${createStringList(makeInfo.asmSources)}
 # binaries
 #######################################
 PREFIX = arm-none-eabi-
+POSTFIX = "
 # The gcc compiler bin path can be either defined in make command via GCC_PATH variable (> make GCC_PATH=xxx)
 # either it can be added to the PATH environment variable.
 ${createGCCPathOutput(makeInfo)}
 ifdef GCC_PATH
-CXX = $(GCC_PATH)/$(PREFIX)g++
-CC = $(GCC_PATH)/$(PREFIX)gcc
-AS = $(GCC_PATH)/$(PREFIX)gcc -x assembler-with-cpp
-CP = $(GCC_PATH)/$(PREFIX)objcopy
-SZ = $(GCC_PATH)/$(PREFIX)size
+CXX = $(GCC_PATH)/$(PREFIX)g++$(POSTFIX)
+CC = $(GCC_PATH)/$(PREFIX)gcc$(POSTFIX)
+AS = $(GCC_PATH)/$(PREFIX)gcc$(POSTFIX) -x assembler-with-cpp
+CP = $(GCC_PATH)/$(PREFIX)objcopy$(POSTFIX)
+SZ = $(GCC_PATH)/$(PREFIX)size$(POSTFIX)
 else
 CXX = $(PREFIX)g++
 CC = $(PREFIX)gcc
@@ -264,13 +265,13 @@ $(BUILD_DIR):
 # flash
 #######################################
 flash: $(BUILD_DIR)/$(TARGET).elf
-\t${makeInfo.tools.openOCDPath ? fsPathToPosix(`${makeInfo.tools.openOCDPath}`, true) : 'openocd'} -f ./openocd.cfg -c "program $(BUILD_DIR)/$(TARGET).elf verify reset exit"
+\t${makeInfo.tools.openOCDPath ? `"${fsPathToPosix(`${makeInfo.tools.openOCDPath}`)}"` : 'openocd'} -f ./openocd.cfg -c "program $(BUILD_DIR)/$(TARGET).elf verify reset exit"
 
 #######################################
 # erase
 #######################################
 erase: $(BUILD_DIR)/$(TARGET).elf
-\t${makeInfo.tools.openOCDPath ? fsPathToPosix(`${makeInfo.tools.openOCDPath}`, true) : 'openocd'} -f ./openocd.cfg -c "init; reset halt; ${makeInfo.targetMCU} mass_erase 0; exit"
+\t${makeInfo.tools.openOCDPath ? `"${fsPathToPosix(`${makeInfo.tools.openOCDPath}`)}"` : 'openocd'} -f ./openocd.cfg -c "init; reset halt; ${makeInfo.targetMCU} mass_erase 0; exit"
 
 #######################################
 # clean up

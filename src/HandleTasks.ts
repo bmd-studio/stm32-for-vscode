@@ -1,42 +1,14 @@
 import 'process';
 
-import { 
+import {
   ShellExecution,
   Task,
-  TaskProcessEndEvent, 
-  tasks, 
-  workspace, 
-  ShellExecutionOptions, 
-  env
+  TaskProcessEndEvent,
+  tasks,
+  workspace,
+  ShellExecutionOptions,
 } from 'vscode';
-const { platform } = process;
-
-function getAutomationShell(): string {
-  let automationShell = env.shell;
-  const shellSettings = workspace.getConfiguration('terminal.integrated.automationShell');
-  switch(platform) {
-    case 'win32': {
-      const winShellSetting = shellSettings.get('windows');
-      if(winShellSetting && typeof winShellSetting === 'string' && winShellSetting.length > 0 ) {
-        automationShell = winShellSetting;
-      }
-    } break;
-    case 'darwin': {
-      const osxShellSetting = shellSettings.get('osx');
-      if(osxShellSetting && typeof osxShellSetting === 'string' && osxShellSetting.length > 0 ) {
-        automationShell = osxShellSetting;
-      }
-    } break;
-    default: {
-      // assume the rest is a version of linux
-      const linuxShellSetting = shellSettings.get('linux');
-      if(linuxShellSetting && typeof linuxShellSetting === 'string' && linuxShellSetting.length > 0 ) {
-        automationShell = linuxShellSetting;
-      }
-    }
-  }
-  return automationShell;
-}
+import { getAutomationShell } from './Helpers';
 
 /**
  *
@@ -54,7 +26,7 @@ export default function executeTask(
     const automationShell = getAutomationShell();
 
     const shellOptions: ShellExecutionOptions = {};
-    if(cwd) {
+    if (cwd) {
       shellOptions.cwd;
     }
     const shellSpecificToolPath = automationShell.includes('powershell') ? `& \\"${cmd[0]}\\"` : `"${cmd[0]}"`;

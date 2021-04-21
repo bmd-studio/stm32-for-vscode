@@ -1,7 +1,8 @@
 import * as path from 'path';
 import * as shelljs from 'shelljs';
+const { platform } = process;
 
-import { Uri, workspace, } from 'vscode';
+import { Uri, workspace, env } from 'vscode';
 
 import { TextEncoder } from 'util';
 
@@ -59,4 +60,31 @@ export function getWorkspaceUri(): Uri | null {
     return workspaces[0].uri;
   }
   return null;
+}
+
+export function getAutomationShell(): string {
+  let automationShell = env.shell;
+  const shellSettings = workspace.getConfiguration('terminal.integrated.automationShell');
+  switch (platform) {
+    case 'win32': {
+      const winShellSetting = shellSettings.get('windows');
+      if (winShellSetting && typeof winShellSetting === 'string' && winShellSetting.length > 0) {
+        automationShell = winShellSetting;
+      }
+    } break;
+    case 'darwin': {
+      const osxShellSetting = shellSettings.get('osx');
+      if (osxShellSetting && typeof osxShellSetting === 'string' && osxShellSetting.length > 0) {
+        automationShell = osxShellSetting;
+      }
+    } break;
+    default: {
+      // assume the rest is a version of linux
+      const linuxShellSetting = shellSettings.get('linux');
+      if (linuxShellSetting && typeof linuxShellSetting === 'string' && linuxShellSetting.length > 0) {
+        automationShell = linuxShellSetting;
+      }
+    }
+  }
+  return automationShell;
 }

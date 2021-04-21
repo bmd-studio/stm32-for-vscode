@@ -33,7 +33,6 @@ export async function checkBuildTools(context: vscode.ExtensionContext): Promise
   );
   finalBuildTools = toolChainValidation.compareAndUpdateMissingBuildTools(finalBuildTools, pathBuildTools);
 
-
   // update settings when they are not in the settings e.g. after a deletion or an update.
   // Check will be performed at start-up and then for the rest of the extension lifetime
   // these settings will be used for compilation.
