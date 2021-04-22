@@ -17,7 +17,7 @@ import { getAutomationShell } from './Helpers';
  * @param cmd The command to execute within a shell.
  */
 export default function executeTask(
-  type: string, name: string, cmd: string[], cwd?: string): Promise<void | number> {
+  type: string, name: string, cmd: string[], shellExecOptions: ShellExecutionOptions, problemMatcher?: string): Promise<void | number> {
   return new Promise((resolve, reject) => {
     if (!workspace.workspaceFolders) {
       reject(Error('no workspace folder is selected'));
@@ -26,8 +26,8 @@ export default function executeTask(
     const automationShell = getAutomationShell();
 
     const shellOptions: ShellExecutionOptions = {};
-    if (cwd) {
-      shellOptions.cwd;
+    if (shellExecOptions.cwd) {
+      shellOptions.cwd = shellExecOptions.cwd;
     }
     const shellSpecificToolPath = automationShell.includes('powershell') ? `& \\"${cmd[0]}\\"` : `"${cmd[0]}"`;
     cmd.shift();
@@ -39,7 +39,8 @@ export default function executeTask(
       { type },
       workspace.workspaceFolders[0],
       name, 'STM32 for VSCode',
-      processExec
+      processExec,
+      problemMatcher
     );
     tasks.executeTask(processTask);
     tasks.onDidEndTaskProcess((e: TaskProcessEndEvent) => {

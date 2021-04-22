@@ -41,7 +41,7 @@ export default async function setupTestFiles(workspacePathUri: Uri): Promise<voi
     // not found should clone the googletest folder
     executeTask(
       'get requirements', 'cloning googletest', [`git clone ${googletestRepo}`],
-      path.resolve(fsPathToPosix(workspacePathUri.fsPath), './Test'));
+      { cwd: path.resolve(fsPathToPosix(workspacePathUri.fsPath), './Test') });
   }
   // after this the required includes need to be found
   const testCxxFiles = await workspace.findFiles('**/Test/*.c*');

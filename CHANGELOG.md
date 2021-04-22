@@ -5,7 +5,11 @@
   - Add support to use different project types (EWARM, STM32CubeIDE, etc.).
   - Add ability to introduce generated changes from the main.c file into the main.cpp file.
   - Add support for unit testing using Google Test and Google Mock.
-
+## [3.0.5] - 2021-22-04
+### Fixed
+ - Issue #55 persisted. Due to not implementing a fix besides the make command. The pathing issues were also present when using makefile commands like flash and clean.
+ - Issue #64: Compile errors and warning were not added to the problem window. Fixed this using a problem matcher in the intermediate task.
+ - Issue where the extension would not startup due to an internal error which originated from searching for available build tools.
 ## [3.0.4] - 2021-17-04
 ### Fixed
  - Issue #55 persisted. Now there is an explicit check on powershell and it adapts the command specifically for powershell.

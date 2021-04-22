@@ -70,7 +70,10 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
           `${info.tools.makePath}`,
           makeArguments,
           `clean`
-        ]);
+        ],
+        {},
+        "$gcc"
+      );
     }
     await executeTask(
       'build',
@@ -79,7 +82,9 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
         `${info.tools.makePath}`,
         makeArguments,
         `${flash ? ' flash' : ''}`
-      ]
+      ],
+      {},
+      "$gcc"
     );
   } catch (err) {
     const errMsg = `Something went wrong during the build process: ${err}`;
