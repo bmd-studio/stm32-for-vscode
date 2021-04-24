@@ -39,7 +39,7 @@ export async function xpmInstall(
     throw new Error('Could not install using xpm');
   }
   const pathToSaveTo = context.globalStoragePath;
-  const env = process.env;
+  const env: { [key: string]: string } = process.env as { [key: string]: string };
   _.set(env, 'XPACKS_SYSTEM_FOLDER', pathToSaveTo);
   _.set(env, 'XPACKS_REPO_FOLDER', pathToSaveTo);
   const execOptions = {

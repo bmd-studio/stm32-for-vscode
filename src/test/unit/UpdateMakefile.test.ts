@@ -41,7 +41,7 @@ suite('Update makefile', () => {
     _.set(workspace, 'fs.readFile', fsReadFile);
   });
   test('write makefile successfully in utf-8 format', async () => {
-    const writeFileFake = Sinon.fake.returns(new Promise((resolve) => { resolve(); }));
+    const writeFileFake = Sinon.fake.returns(Promise.resolve());
     Sinon.replace(fs, 'writeFile', writeFileFake);
     const makefilePath = 'AwesomeSTM32Makefile';
     const makefileString = 'a nice looking makefile';

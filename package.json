@@ -148,6 +148,7 @@
     "@babel/preset-env": "^7.6.0",
     "@types/chai": "^4.2.11",
     "@types/chai-as-promised": "^7.1.2",
+    "@types/decompress": "^4.2.3",
     "@types/glob": "^7.1.1",
     "@types/micromatch": "^4.0.1",
     "@types/mocha": "^5.2.6",

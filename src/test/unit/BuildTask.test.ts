@@ -15,7 +15,7 @@ suite('MakefileInfoTest', () => {
   test('errorOnNoWorkspace', () => {
     let workspaceFoldersToReAdd: WorkspaceFolder[] | null = null;
     if (workspace.workspaceFolders) {
-      workspaceFoldersToReAdd = workspace.workspaceFolders;
+      workspaceFoldersToReAdd = workspace.workspaceFolders.map((entry) => (entry));
       workspace.updateWorkspaceFolders(0, workspace.workspaceFolders.length);
     }
     const errorMsg = Sinon.fake();

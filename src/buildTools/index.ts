@@ -37,7 +37,7 @@ export async function checkBuildTools(context: vscode.ExtensionContext): Promise
   // Check will be performed at start-up and then for the rest of the extension lifetime
   // these settings will be used for compilation.
   const extensionSettings = vscode.workspace.getConfiguration('stm32-for-vscode');
-  const globalSettingsUpdatePromises = [];
+  const globalSettingsUpdatePromises: Thenable<void>[] = [];
   _.forEach(finalBuildTools, (toolPath, key) => {
     if (!_.isEqual(toolPath, extensionSettings.get(key))) {
       globalSettingsUpdatePromises.push(extensionSettings.update(key, toolPath, vscode.ConfigurationTarget.Global));
@@ -47,8 +47,8 @@ export async function checkBuildTools(context: vscode.ExtensionContext): Promise
   // check if there is a local settings file and update if neccessary.
   // NOTE: settings should not be added or editted in the workspace for STM32 for vscode,
   // however old version of STM32 for VSCode did put it in the workspace folder
-  const localUpdatePromises = [];
-  if (vscode.workspace.workspaceFolders[0]) {
+  const localUpdatePromises: Thenable<void>[] = [];
+  if (vscode?.workspace?.workspaceFolders?.[0]) {
     const localSettingsPath = path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, '.vscode', 'settings.json');
 
     const localExtensionSettings =

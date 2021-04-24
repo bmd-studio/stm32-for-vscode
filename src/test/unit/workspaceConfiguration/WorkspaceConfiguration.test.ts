@@ -26,7 +26,7 @@ suite('WorkspaceConfiguration', () => {
     getConfigInWorkspaceFake: Sinon.SinonSpy;
   } = {
     getWorkspaceConfigFake: Sinon.fake(),
-    updateConfigFake: Sinon.fake.returns(new Promise((resolve) => { resolve(); })),
+    updateConfigFake: Sinon.fake.returns(Promise.resolve()),
     getConfigInWorkspaceFake: Sinon.fake(),
   };
   const setWorkspaceConfigFakeOutput = (output?: TaskDefinition[]): void => {
@@ -46,7 +46,7 @@ suite('WorkspaceConfiguration', () => {
 
   beforeEach(() => {
     launchFixtures.getWorkspaceConfigFake = Sinon.fake.returns([LaunchTestFile]);
-    launchFixtures.updateConfigFake = Sinon.fake.returns(new Promise((resolve) => { resolve(); }));
+    launchFixtures.updateConfigFake = Sinon.fake.returns(Promise.resolve());
   });
   afterEach(() => {
     Sinon.restore();
