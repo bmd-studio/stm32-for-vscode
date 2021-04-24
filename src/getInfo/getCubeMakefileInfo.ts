@@ -50,15 +50,9 @@ import MakeInfo from '../types/MakeInfo';
  * @param {string} location - location of the makefile e.g. /filepath/Makefile
  */
 export async function getMakefile(location: string): Promise<string> {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const makefileFile = await workspace.fs.readFile(Uri.file(location));
-      const makefile = Buffer.from(makefileFile).toString('utf-8');
-      resolve(makefile);
-    } catch (err) {
-      reject(err);
-    }
-  });
+  const makefileFile = await workspace.fs.readFile(Uri.file(location));
+  const makefile = Buffer.from(makefileFile).toString('utf-8');
+  return makefile;
 }
 /**
  * @description Extracts single line info from a makefile
@@ -209,13 +203,8 @@ export default async function getMakefileInfo(location: string): Promise<MakeInf
 
   // try getting the makefile
   let makefile = '' as string;
-  try {
-    makefile = await getMakefile(loc);
-  } catch (err) {
-    // eslint-disable-next-line max-len
-    // window.showErrorMessage('Something went wrong with getting the information from the makefile. Please make sure there is a makefile and that the project is initialized through STM32CubeMX.', err);
-    throw err;
-  }
+  makefile = await getMakefile(loc);
+
   // when the makefile is found, extract the information according to the makefileInfo fields
   return extractMakefileInfo(makefile);
 }

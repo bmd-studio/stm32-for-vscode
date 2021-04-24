@@ -75,17 +75,14 @@ export function getCPropertiesConfig(info: MakeInfo): CCppConfig {
  * @Note This cannot be done by workpace.getConfiguration as it is not a standard .vscode configuration.
  */
 export async function getWorkspaceConfigFile(): Promise<null | CCppProperties> {
-  return new Promise(async (resolve) => {
-    const cCppWorkspaceConfigFiles =
-      await workspace.findFiles('**/c_cpp_properties.json');
-    if (cCppWorkspaceConfigFiles[0]) {
-      const file = (await workspace.fs.readFile(cCppWorkspaceConfigFiles[0]));
-      const parsedJSON = JSON.parse(Buffer.from(file).toString());
-      resolve(parsedJSON);
-      return;
-    }
-    resolve(null);
-  });
+  const cCppWorkspaceConfigFiles =
+    await workspace.findFiles('**/c_cpp_properties.json');
+  if (cCppWorkspaceConfigFiles[0]) {
+    const file = (await workspace.fs.readFile(cCppWorkspaceConfigFiles[0]));
+    const parsedJSON = JSON.parse(Buffer.from(file).toString());
+    return parsedJSON;
+  }
+  return null;
 }
 
 /**
@@ -97,61 +94,57 @@ export async function getWorkspaceConfigFile(): Promise<null | CCppProperties> {
  *     project
  */
 export async function updateCProperties(workspacePathUri: Uri, info: MakeInfo): Promise<void> {
-  return new Promise(async (resolve) => {
-    let configFile: CCppProperties = { configurations: [], version: 4 };
-    let stmConfiguration = getCPropertiesConfig(info);
-    let stmConfigIndex = 0;
-    let needsUpdating = false;
-    // check for the stm32 configuration and if not there add it.
-    const currentConfigFile = await getWorkspaceConfigFile();
-    if (currentConfigFile) {
-      // configFile = defaultCCPPProperties;
-      configFile = currentConfigFile;
-      const index = _.findIndex(
-        currentConfigFile.configurations, { name: stmConfiguration.name }
-      );
+  let configFile: CCppProperties = { configurations: [], version: 4 };
+  let stmConfiguration = getCPropertiesConfig(info);
+  let stmConfigIndex = 0;
+  let needsUpdating = false;
+  // check for the stm32 configuration and if not there add it.
+  const currentConfigFile = await getWorkspaceConfigFile();
+  if (currentConfigFile) {
+    // configFile = defaultCCPPProperties;
+    configFile = currentConfigFile;
+    const index = _.findIndex(
+      currentConfigFile.configurations, { name: stmConfiguration.name }
+    );
 
-      if (index >= 0) {
-        stmConfigIndex = index;
-        stmConfiguration = currentConfigFile.configurations[index];
-      } else {
-        // no file has been found and should be added to the configurations
-        configFile.configurations.push(stmConfiguration);  // push default
-        // config
-        stmConfigIndex = configFile.configurations.length - 1;
-        needsUpdating = true;
-      }
+    if (index >= 0) {
+      stmConfigIndex = index;
+      stmConfiguration = currentConfigFile.configurations[index];
     } else {
-      stmConfigIndex = 0;
-      // pushes the default define in the upper scope
-      configFile.configurations.push(stmConfiguration);
+      // no file has been found and should be added to the configurations
+      configFile.configurations.push(stmConfiguration);  // push default
+      // config
+      stmConfigIndex = configFile.configurations.length - 1;
       needsUpdating = true;
     }
-    const includes = info.cIncludes;
-    const definitions = getDefinitions(info);
-    const oldConfig = _.cloneDeep(stmConfiguration);
+  } else {
+    stmConfigIndex = 0;
+    // pushes the default define in the upper scope
+    configFile.configurations.push(stmConfiguration);
+    needsUpdating = true;
+  }
+  const includes = info.cIncludes;
+  const definitions = getDefinitions(info);
+  const oldConfig = _.cloneDeep(stmConfiguration);
 
-    stmConfiguration.defines =
-      _.uniq(stmConfiguration.defines.concat(definitions)).sort();
-    stmConfiguration.includePath =
-      _.uniq(stmConfiguration.includePath.concat(includes)).sort();
-    stmConfiguration.compilerPath = getAbsoluteCompilerPath(info);
-    configFile.configurations[stmConfigIndex] = stmConfiguration;
+  stmConfiguration.defines =
+    _.uniq(stmConfiguration.defines.concat(definitions)).sort();
+  stmConfiguration.includePath =
+    _.uniq(stmConfiguration.includePath.concat(includes)).sort();
+  stmConfiguration.compilerPath = getAbsoluteCompilerPath(info);
+  configFile.configurations[stmConfigIndex] = stmConfiguration;
 
-    if (!_.isEqual(stmConfiguration.defines, oldConfig.defines) ||
-      !_.isEqual(stmConfiguration.includePath, oldConfig.includePath)
-      || !_.isEqual(stmConfiguration.compilerPath, oldConfig.compilerPath)) {
-      needsUpdating = true;
-    }
-    if (!needsUpdating) {
-      resolve();
-      return;
-    }
-    await writeFileInWorkspace(
-      workspacePathUri, '.vscode/c_cpp_properties.json',
-      JSON.stringify(configFile, null, 2));
-    resolve();
-  });
+  if (!_.isEqual(stmConfiguration.defines, oldConfig.defines) ||
+    !_.isEqual(stmConfiguration.includePath, oldConfig.includePath)
+    || !_.isEqual(stmConfiguration.compilerPath, oldConfig.compilerPath)) {
+    needsUpdating = true;
+  }
+  if (!needsUpdating) {
+    return;
+  }
+  await writeFileInWorkspace(
+    workspacePathUri, '.vscode/c_cpp_properties.json',
+    JSON.stringify(configFile, null, 2));
 }
 
 

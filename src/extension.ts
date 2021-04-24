@@ -83,24 +83,17 @@ export function activate(context: vscode.ExtensionContext): void {
   const buildCmd = vscode.commands.registerCommand(
     'stm32-for-vscode.build',
     async () => {
-      try {
-        await buildSTM({});
-      } catch (err) {
-        throw err;
-      }
+      await buildSTM({});
+
     }
   );
   context.subscriptions.push(buildCmd);
   const flashCmd = vscode.commands.registerCommand(
     'stm32-for-vscode.flash',
     async () => {
-      try {
-        await buildSTM({
-          flash: true,
-        });
-      } catch (err) {
-        throw err;
-      }
+      await buildSTM({
+        flash: true,
+      });
     }
   );
   context.subscriptions.push(flashCmd);
@@ -108,13 +101,9 @@ export function activate(context: vscode.ExtensionContext): void {
   const cleanBuildCmd = vscode.commands.registerCommand(
     'stm32-for-vscode.cleanBuild',
     async () => {
-      try {
-        await buildSTM({
-          cleanBuild: true,
-        });
-      } catch (err) {
-        throw err;
-      }
+      await buildSTM({
+        cleanBuild: true,
+      });
     }
   );
   context.subscriptions.push(cleanBuildCmd);

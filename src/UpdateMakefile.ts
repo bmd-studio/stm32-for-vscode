@@ -36,18 +36,12 @@ import { makefileName } from './Definitions';
  * @param makefilePath path to the makefile, usually it is ./Makefile
  */
 export async function getCurrentMakefile(makefilePath: string): Promise<Error | string> {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const currentMakefile = await workspace.fs.readFile(Uri.file(makefilePath));
-      if (currentMakefile.length === 0) {
-        reject(new Error('The makefile was not found'));
-        return;
-      }
-      resolve(Buffer.from(currentMakefile).toString('utf8'));
-    } catch (error) {
-      reject(error);
-    }
-  });
+
+  const currentMakefile = await workspace.fs.readFile(Uri.file(makefilePath));
+  if (currentMakefile.length === 0) {
+    throw new Error('The makefile was not found');
+  }
+  return Buffer.from(currentMakefile).toString('utf8');
 }
 
 /**

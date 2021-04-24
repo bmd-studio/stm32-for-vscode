@@ -100,11 +100,7 @@ export async function writeConfigFile(config: ExtensionConfiguration): Promise<v
   const configFile = createConfigFile(config);
   const workspaceFolderUri = Helpers.getWorkspaceUri();
   if (!workspaceFolderUri) { throw new Error('No workspace folder selected'); }
-  try {
-    await Helpers.writeFileInWorkspace(workspaceFolderUri, EXTENSION_CONFIG_NAME, configFile);
-  } catch(err) {
-    throw err;
-  }
+  await Helpers.writeFileInWorkspace(workspaceFolderUri, EXTENSION_CONFIG_NAME, configFile);
 }
 
 /**
@@ -124,11 +120,7 @@ export async function writeDefaultConfigFile(config: ExtensionConfiguration): Pr
     ['-specs=nosys.specs']
   );
 
-  try {
-    await writeConfigFile(configFileWithAddedDefaults);
-  } catch(error) {
-    throw error;
-  }
+  await writeConfigFile(configFileWithAddedDefaults);
   return configFileWithAddedDefaults;
 }
 

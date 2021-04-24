@@ -45,16 +45,12 @@ export async function xpmInstall(
   const execOptions = {
     env,
   };
-  try {
-    await executeTask(
-      'installation',
-      `installing: ${definition.name}`,
-      [`${npx}`, `xpm install --global ${definition.installation.xpm}`],
-      execOptions
-    );
-  } catch (err) {
-    throw err;
-  }
+  await executeTask(
+    'installation',
+    `installing: ${definition.name}`,
+    [`${npx}`, `xpm install --global ${definition.installation.xpm}`],
+    execOptions
+  );
 }
 
 /**
@@ -234,30 +230,27 @@ export async function extractFile(filePath: string, outPath: string): Promise<st
  * Function for downloading and extracting a new latest node version
  * @param context vscode context
  */
-export function getNode(context: vscode.ExtensionContext): Promise<string> {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const latestNodeLink = await getLatestNodeLink();
-      const latestNodeCompressed = await downloadLatestNode(context, latestNodeLink);
-      const extractedNodeFileLoc = await extractFile(
-        latestNodeCompressed,
-        path.join(context.globalStoragePath, 'node')
-      );
-      const dirContents = await vscode.workspace.fs.readDirectory(vscode.Uri.file(extractedNodeFileLoc));
-      const nodeInstallationFilePath = _.find(dirContents, (file) => { return (file[0].indexOf('node') >= 0); });
-      if (!nodeInstallationFilePath || !nodeInstallationFilePath[0]) {
-        reject(new Error('No node installation could be found after download and extraction'));
-        return;
-      }
-      resolve(path.join(extractedNodeFileLoc, nodeInstallationFilePath[0]));
-    } catch (error) {
-      vscode.window.showErrorMessage(
-        `An error occurred during the node installation process, 
-        please try again or create an issue at: ${GITHUB_ISSUES_URL}, with stating error: ${error}`
-      );
-      reject(error);
+export async function getNode(context: vscode.ExtensionContext): Promise<string> {
+  try {
+    const latestNodeLink = await getLatestNodeLink();
+    const latestNodeCompressed = await downloadLatestNode(context, latestNodeLink);
+    const extractedNodeFileLoc = await extractFile(
+      latestNodeCompressed,
+      path.join(context.globalStoragePath, 'node')
+    );
+    const dirContents = await vscode.workspace.fs.readDirectory(vscode.Uri.file(extractedNodeFileLoc));
+    const nodeInstallationFilePath = _.find(dirContents, (file) => { return (file[0].indexOf('node') >= 0); });
+    if (!nodeInstallationFilePath || !nodeInstallationFilePath[0]) {
+      throw new Error('No node installation could be found after download and extraction');
     }
-  });
+    return path.join(extractedNodeFileLoc, nodeInstallationFilePath[0]);
+  } catch (error) {
+    vscode.window.showErrorMessage(
+      `An error occurred during the node installation process, 
+        please try again or create an issue at: ${GITHUB_ISSUES_URL}, with stating error: ${error}`
+    );
+    throw error;
+  }
 }
 
 export async function removeOldTools(tool: BuildToolDefinition, context: vscode.ExtensionContext): Promise<void> {

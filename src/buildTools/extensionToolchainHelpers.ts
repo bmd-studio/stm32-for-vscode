@@ -1,7 +1,7 @@
-import * as _ from 'lodash';
 import * as path from 'path';
 import * as shelljs from 'shelljs';
 import * as vscode from 'vscode';
+import * as _ from 'lodash';
 
 import {
   BuildToolDefinition,
@@ -105,25 +105,22 @@ export async function getToolVersionFolders(
 export async function getNewestToolchainVersion(
   tool: BuildToolDefinition, xpmPath: string
 ): Promise<XPMToolVersion | undefined> {
-  try {
-    const files = await getToolVersionFolders(tool, xpmPath);
-    if (!files) {
-      return undefined;
-    }
-    let newest: XPMToolVersion | null = null;
-    files.map((file) => {
-      const [fileName, fileType] = file;
-      if (fileType === vscode.FileType.Directory) {
-        newest = compareVersions(newest, parseXPMVersionNumbers(fileName));
-      }
-    });
-    if (!newest || !isVersionFile(newest)) {
-      throw new Error('no tool found');
-    }
-    return newest;
-  } catch (err) {
-    throw err;
+
+  const files = await getToolVersionFolders(tool, xpmPath);
+  if (!files) {
+    return undefined;
   }
+  let newest: XPMToolVersion | null = null;
+  files.map((file) => {
+    const [fileName, fileType] = file;
+    if (fileType === vscode.FileType.Directory) {
+      newest = compareVersions(newest, parseXPMVersionNumbers(fileName));
+    }
+  });
+  if (!newest || !isVersionFile(newest)) {
+    throw new Error('no tool found');
+  }
+  return newest;
 }
 
 export async function validateXPMToolchainPath(tool: BuildToolDefinition, xpmPath: string): Promise<string | boolean> {
