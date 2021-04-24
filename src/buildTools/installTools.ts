@@ -4,6 +4,7 @@ import * as process from 'process';
 import * as decompress from 'decompress';
 import * as vscode from 'vscode';
 import * as shelljs from 'shelljs';
+import executeTask from '../HandleTasks';
 
 import {
   BuildToolDefinition,
@@ -31,30 +32,29 @@ type xpmInstallType = Promise<void>;
  * @param context vscode context
  * @param definition definition of the build tool found in toolChainDefinitions.ts
  */
-export function xpmInstall(
+export async function xpmInstall(
   context: vscode.ExtensionContext, npx: string, definition: BuildToolDefinition
 ): xpmInstallType {
-  return new Promise((resolve, reject) => {
-
-    if (!_.has(definition, 'installation.xpm')) {
-      reject(new Error('Could not install using xpm'));
-      return;
-    }
-    const pathToSaveTo = context.globalStoragePath;
-    const env = process.env;
-    _.set(env, 'XPACKS_SYSTEM_FOLDER', pathToSaveTo);
-    _.set(env, 'XPACKS_REPO_FOLDER', pathToSaveTo);
-    const execOptions = {
-      env,
-    };
-    exec(`"${npx}" xpm install --global ${definition.installation.xpm}`, execOptions, (error, /*stdout, stderr*/) => {
-      if (error) {
-        reject(error);
-        return;
-      }
-      resolve();
-    });
-  });
+  if (!_.has(definition, 'installation.xpm')) {
+    throw new Error('Could not install using xpm');
+  }
+  const pathToSaveTo = context.globalStoragePath;
+  const env = process.env;
+  _.set(env, 'XPACKS_SYSTEM_FOLDER', pathToSaveTo);
+  _.set(env, 'XPACKS_REPO_FOLDER', pathToSaveTo);
+  const execOptions = {
+    env,
+  };
+  try {
+    await executeTask(
+      'installation',
+      `installing: ${definition.name}`,
+      [`${npx}`, `xpm install --global ${definition.installation.xpm}`],
+      execOptions
+    );
+  } catch (err) {
+    throw err;
+  }
 }
 
 /**
@@ -220,7 +220,7 @@ export async function extractFile(filePath: string, outPath: string): Promise<st
     await decompress(filePath, outPath);
   } catch (err) {
     vscode.window.showWarningMessage(err);
-    if(err.message.includes('EEXIST')) {
+    if (err.message.includes('EEXIST')) {
       await vscode.workspace.fs.delete(vscode.Uri.file(outPath), { recursive: true });
       return extractFile(filePath, outPath);
     }

@@ -48,7 +48,7 @@ export const makeDefinition: BuildToolDefinition = {
   folder: false,
   requiredByCortexDebug: false,
   installation: {
-    windows: 'npx xpm install --global @xpack-dev-tools/windows-build-tools@latest',
+    windows: '@xpack-dev-tools/windows-build-tools@latest',
     darwin: 'xcode-select --install',
     linux: 'sudo apt-get install build-essential',
     // xpm: '@xpack-dev-tools/openocd@latest',

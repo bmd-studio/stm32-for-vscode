@@ -24,16 +24,11 @@ export default function executeTask(
       return;
     }
     const automationShell = getAutomationShell();
-
-    const shellOptions: ShellExecutionOptions = {};
-    if (shellExecOptions.cwd) {
-      shellOptions.cwd = shellExecOptions.cwd;
-    }
     const shellSpecificToolPath = automationShell.includes('powershell') ? `& \\"${cmd[0]}\\"` : `"${cmd[0]}"`;
     cmd.shift();
     const options = cmd.reduce((accumulator, option) => `${accumulator} ${option}`, '');
     const totalPath = `${shellSpecificToolPath}${options}`;
-    const processExec = new ShellExecution(totalPath, shellOptions);
+    const processExec = new ShellExecution(totalPath, shellExecOptions);
 
     const processTask = new Task(
       { type },
