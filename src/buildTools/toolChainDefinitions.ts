@@ -20,7 +20,7 @@ export interface BuildToolDefinition {
     url?: string;
     windows?: string;
     darwin?: string;
-    linux?: string;
+    linux?: string | string[];
   };
   xpmPath: string;
   xpmName: string;
@@ -50,8 +50,7 @@ export const makeDefinition: BuildToolDefinition = {
   installation: {
     windows: '@xpack-dev-tools/windows-build-tools@latest',
     darwin: 'xcode-select --install',
-    linux: 'sudo apt-get install build-essential',
-    // xpm: '@xpack-dev-tools/openocd@latest',
+    linux: ['sudo', '-S apt-get install build-essential'],
   },
   xpmPath: './.content/bin',
   xpmName: 'windows-build-tools'

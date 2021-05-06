@@ -5,6 +5,10 @@
   - Add support to use different project types (EWARM, STM32CubeIDE, etc.).
   - Add ability to introduce generated changes from the main.c file into the main.cpp file.
   - Add support for unit testing using Google Test and Google Mock.
+
+## [3.0.6] - 2021-06-05
+### Fixed
+  - Issue #65: There were issue with building on linux due to pathing, sudo when installing make. This has been fixed with this update.
 ## [3.0.5] - 2021-22-04
 ### Fixed
  - Issue #55 persisted. Due to not implementing a fix besides the make command. The pathing issues were also present when using makefile commands like flash and clean.

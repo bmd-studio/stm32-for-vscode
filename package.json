@@ -2,7 +2,7 @@
   "name": "stm32-for-vscode",
   "displayName": "stm32-for-vscode",
   "description": "An extension for: setting up, compiling, uploading and debugging STM32 applications",
-  "version": "3.0.5",
+  "version": "3.0.6",
   "engines": {
     "vscode": "^1.44.0"
   },
@@ -30,6 +30,7 @@
     "onCommand:stm32-for-vscode.cleanBuild",
     "onCommand:stm32-for-vscode.buildTest",
     "onCommand:stm32-for-vscode.setProgrammer",
+    "stm32-for-vscode.installBuildTools",
     "workspaceContains:*.ioc",
     "workspaceContains:STM32-for-VSCode.config.yaml",
     "onView:stm32ForVSCodeCommands",
@@ -154,7 +155,7 @@
     "@types/mocha": "^5.2.6",
     "@types/node": "^10.12.21",
     "@types/sinon": "^9.0.1",
-    "@types/vscode": "1.46",
+    "@types/vscode": "^1.44",
     "@typescript-eslint/eslint-plugin": "^4.1.1",
     "@typescript-eslint/parser": "^4.1.1",
     "@xpack-dev-tools/openocd": "0.10.0-14.3",

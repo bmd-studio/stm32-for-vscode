@@ -27,7 +27,7 @@ interface MockWorkspaceConfig extends Stm32SettingsInterface {
 
 
 
-function MockConfig(options?: object): MockWorkspaceConfig {
+function mockConfig(options?: object): MockWorkspaceConfig {
   const defaultToolchain = new ToolChain();
   const configuration: MockWorkspaceConfig = {} as MockWorkspaceConfig;
   _.assign(configuration, defaultToolchain);
@@ -45,7 +45,7 @@ suite('get settings', () => {
     Sinon.restore();
   });
   test('test default settings', () => {
-    const getConfigurationFake = Sinon.fake.returns(MockConfig());
+    const getConfigurationFake = Sinon.fake.returns(mockConfig());
     Sinon.replace(workspace, 'getConfiguration', getConfigurationFake);
     const settings = getExtensionSettings();
     expect(settings).to.deep.equal(new ToolChain());
@@ -57,7 +57,7 @@ suite('get settings', () => {
       _.set(emptySettings, key, '');
     });
 
-    const getConfigurationFake = Sinon.fake.returns(MockConfig(emptySettings));
+    const getConfigurationFake = Sinon.fake.returns(mockConfig(emptySettings));
     Sinon.replace(workspace, 'getConfiguration', getConfigurationFake);
     const settings = getExtensionSettings();
     expect(settings).to.deep.equal(new ToolChain());
@@ -69,7 +69,7 @@ suite('get settings', () => {
     differentSettings.makePath = 'bobTheBuilder';
     differentSettings.openOCDPath = 'perfect name for the more neurotic programmer';
 
-    const differentSettingsResult = MockConfig(differentSettings);
+    const differentSettingsResult = mockConfig(differentSettings);
 
     const getConfigurationFake = Sinon.fake.returns(differentSettingsResult);
     Sinon.replace(workspace, 'getConfiguration', getConfigurationFake);

@@ -1,4 +1,4 @@
-import {TaskDefinition} from 'vscode';
+import { TaskDefinition } from 'vscode';
 
 export const buildSTMTask: TaskDefinition = {
   label: 'Build STM',
@@ -48,5 +48,6 @@ export const flashSTMTask: TaskDefinition = {
   ],
 };
 
+// eslint-disable-next-line @typescript-eslint/naming-convention
 const STMTasks: TaskDefinition[] = [buildSTMTask, buildCleanSTMTask, flashSTMTask];
 export default STMTasks;

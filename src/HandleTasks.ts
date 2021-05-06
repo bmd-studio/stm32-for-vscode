@@ -17,7 +17,12 @@ import { getAutomationShell } from './Helpers';
  * @param cmd The command to execute within a shell.
  */
 export default function executeTask(
-  type: string, name: string, cmd: string[], shellExecOptions: ShellExecutionOptions, problemMatcher?: string): Promise<void | number> {
+  type: string,
+  name: string,
+  cmd: string[],
+  shellExecOptions: ShellExecutionOptions,
+  problemMatcher?: string
+): Promise<void | number> {
   return new Promise((resolve, reject) => {
     if (!workspace.workspaceFolders) {
       reject(Error('no workspace folder is selected'));

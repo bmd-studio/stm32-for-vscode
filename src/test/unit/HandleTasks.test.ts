@@ -31,7 +31,9 @@ suite("Handle Tasks", () => {
       name: 'test workspace',
       index: 0,
     }]);
-    expect(executeTask('shell', 'test task', ['echo test task && exit 1337'], {})).to.eventually.be.rejectedWith('1337');
+    expect(
+      executeTask('shell', 'test task', ['echo test task && exit 1337'], {})
+    ).to.eventually.be.rejectedWith('1337');
     Sinon.restore();
   });
 });

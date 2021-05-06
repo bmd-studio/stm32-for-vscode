@@ -25,7 +25,7 @@ import axios from 'axios';
 import { exec } from 'child_process';
 import { platform } from 'process';
 
-type xpmInstallType = Promise<void>;
+type XpmInstallType = Promise<void>;
 
 /**
  * Function for installing a build dependency through npm using the buildToolDefinition
@@ -34,7 +34,7 @@ type xpmInstallType = Promise<void>;
  */
 export async function xpmInstall(
   context: vscode.ExtensionContext, npx: string, definition: BuildToolDefinition
-): xpmInstallType {
+): XpmInstallType {
   if (!_.has(definition, 'installation.xpm')) {
     throw new Error('Could not install using xpm');
   }
@@ -42,13 +42,15 @@ export async function xpmInstall(
   const env: { [key: string]: string } = process.env as { [key: string]: string };
   _.set(env, 'XPACKS_SYSTEM_FOLDER', pathToSaveTo);
   _.set(env, 'XPACKS_REPO_FOLDER', pathToSaveTo);
+
   const execOptions = {
     env,
+    cwd: path.join(npx, '../'),
   };
   await executeTask(
     'installation',
     `installing: ${definition.name}`,
-    [`${npx}`, `xpm install --global ${definition.installation.xpm}`],
+    ['npx', `xpm install --global ${definition.installation.xpm}`],
     execOptions
   );
 }
@@ -57,7 +59,7 @@ export async function xpmInstall(
  * Installs openocd using xpm
  * @param context vscode extension context
  */
-export function installOpenOcd(context: vscode.ExtensionContext, npx: string): xpmInstallType {
+export function installOpenOcd(context: vscode.ExtensionContext, npx: string): XpmInstallType {
   return xpmInstall(context, npx, openocdDefinition);
 }
 /**
@@ -65,7 +67,7 @@ export function installOpenOcd(context: vscode.ExtensionContext, npx: string): x
  * @note need to use something else then xpm 
  * @param context vscode extension context
  */
-export function installMake(context: vscode.ExtensionContext, npx: string): Promise<void> {
+export async function installMake(context: vscode.ExtensionContext, npx: string): Promise<void> {
   let executeCmd = '';
   if (shelljs.which('make')) {
     return Promise.resolve();
@@ -82,7 +84,13 @@ export function installMake(context: vscode.ExtensionContext, npx: string): Prom
       return xpmInstall(context, npx, win32XPMMakeDefinition);
     } break;
     case "linux": {
-      executeCmd = makeDefinition.installation.linux || '';
+      let cmd = makeDefinition.installation.linux;
+      let linuxExecutable = [''];
+      if (cmd && !Array.isArray(cmd)) {
+        linuxExecutable = [cmd];
+      }
+      await executeTask('shell', 'install make', linuxExecutable, {});
+      return;
     } break;
   }
   return new Promise((resolve, reject) => {
@@ -102,14 +110,14 @@ export function installMake(context: vscode.ExtensionContext, npx: string): Prom
  * Installs cmake using xpm
  * @param context vscode extension context
  */
-export function installCMake(context: vscode.ExtensionContext, npx: string): xpmInstallType {
+export function installCMake(context: vscode.ExtensionContext, npx: string): XpmInstallType {
   return xpmInstall(context, npx, cMakeDefinition);
 }
 /**
  * Installs arm-none-eabi tool chain using xpm
  * @param context vscode extension context
  */
-export function installArmNonEabi(context: vscode.ExtensionContext, npx: string): xpmInstallType {
+export function installArmNonEabi(context: vscode.ExtensionContext, npx: string): XpmInstallType {
   return xpmInstall(context, npx, armNoneEabiDefinition);
 }
 

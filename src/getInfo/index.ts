@@ -116,6 +116,7 @@ export async function getInfo(location: string): Promise<MakeInfo> {
     // do not need to catch anything
   }
 
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   const STM32MakeInfo = new MakeInfo();
 
   const standardConfig: ExtensionConfiguration = new ExtensionConfiguration();

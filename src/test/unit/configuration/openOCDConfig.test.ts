@@ -17,10 +17,10 @@ suite('OpenOCD Configuration', () => {
       throw vscode.FileSystemError.FileNotFound();
     }));
     const writeFake = Sinon.fake.returns(Promise.resolve());
-    const WorkspaceFake = Sinon.fake.returns(vscode.Uri.file('local'));
+    const workspaceFake = Sinon.fake.returns(vscode.Uri.file('local'));
     Sinon.replace(vscode.workspace.fs, 'readFile', readFake);
     Sinon.replace(Helpers, 'writeFileInWorkspace', writeFake);
-    Sinon.replace(Helpers, 'getWorkspaceUri', WorkspaceFake);
+    Sinon.replace(Helpers, 'getWorkspaceUri', workspaceFake);
     const config = new OpenOCDConfiguration('STM32LTest');
     await OpenOCDConfig.readOrCreateConfigFile(config);
     expect(readFake.calledOnce).to.be.true;
@@ -31,10 +31,10 @@ suite('OpenOCD Configuration', () => {
   test('do nothing when config exists', () => {
     const readFake = Sinon.fake.returns(Promise.resolve('somefile'));
     const writeFake = Sinon.fake.returns(Promise.resolve());
-    const WorkspaceFake = Sinon.fake.returns(vscode.Uri.file('local'));
+    const workspaceFake = Sinon.fake.returns(vscode.Uri.file('local'));
     Sinon.replace(vscode.workspace.fs, 'readFile', readFake);
     Sinon.replace(vscode.workspace.fs, 'writeFile', writeFake);
-    Sinon.replace(Helpers, 'getWorkspaceUri', WorkspaceFake);
+    Sinon.replace(Helpers, 'getWorkspaceUri', workspaceFake);
     const config = new OpenOCDConfiguration('STM32LTest');
     OpenOCDConfig.readOrCreateConfigFile(config);
     expect(readFake.calledOnce).to.be.true;
@@ -52,10 +52,10 @@ suite('OpenOCD Configuration', () => {
       )
     );
     const writeFake = Sinon.fake.returns(Promise.resolve());
-    const WorkspaceFake = Sinon.fake.returns(vscode.Uri.file('local'));
+    const workspaceFake = Sinon.fake.returns(vscode.Uri.file('local'));
     Sinon.replace(vscode.workspace.fs, 'readFile', readFake);
     Sinon.replace(Helpers, 'writeFileInWorkspace', writeFake);
-    Sinon.replace(Helpers, 'getWorkspaceUri', WorkspaceFake);
+    Sinon.replace(Helpers, 'getWorkspaceUri', workspaceFake);
     await OpenOCDConfig.changeProgrammer('testProgrammer');
 
     const testProgrammerConfig = new OpenOCDConfiguration('STM32LTest');
