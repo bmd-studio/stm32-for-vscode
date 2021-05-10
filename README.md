@@ -2,7 +2,7 @@
 
 An extension to compile, debug and flash STM32 projects. This extension is build to work in conjunction with STM32CubeMX and will install the required toolchain when desired. It will automatically startup when it finds a CubeMX file or an STM32 for VSCode configuration file.
 
-This extension also supports using cpp files, however for this main.c has to ben manually renamed to main.cpp for it to work.
+This extension also supports using cpp files, however for this main.c has to be manually renamed to main.cpp for it to work.
 
 NOTE: Your CubeMX project needs to be generated as a makefile project under project manager->project->Toolchain/IDE
 
