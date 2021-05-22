@@ -151,7 +151,8 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   const regularIncludeDirectories = getNonGlobIncludeDirectories(combinedHeaderFiles);
   const filteredIncludeDirectories = Micromatch.not(regularIncludeDirectories, projectConfiguration.excludes);
 
-  STM32MakeInfo.target = projectConfiguration.target;
+  // replace spaces with underscores, to prevent spaces in path issues.
+  STM32MakeInfo.target = projectConfiguration.target.split(' ').join('_');
   STM32MakeInfo.cIncludes = _.uniq(_.concat(includeDirectories, filteredIncludeDirectories));
   STM32MakeInfo.cxxSources = sortedSourceFiles.cxxSources;
   STM32MakeInfo.cSources = sortedSourceFiles.cSources;
@@ -172,7 +173,6 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   STM32MakeInfo.ldFlags = cubeMakefileInfo.ldFlags;
   STM32MakeInfo.ldscript = projectConfiguration.ldscript;
   STM32MakeInfo.mcu = cubeMakefileInfo.mcu;
-  STM32MakeInfo.target = projectConfiguration.target;
   STM32MakeInfo.targetMCU = projectConfiguration.targetMCU;
   const buildTools = getBuildToolsFromSettings();
   STM32MakeInfo.tools = {

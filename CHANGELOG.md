@@ -5,8 +5,11 @@
   - Add support to use different project types (EWARM, STM32CubeIDE, etc.).
   - Add ability to introduce generated changes from the main.c file into the main.cpp file.
   - Add support for unit testing using Google Test and Google Mock.
-
-## [3.0.6] - 2021-06-05
+## [3.0.7] - 2021-05-22
+### Fixed
+ - Issue #69: replaced space with underscore when spaces are present in a target.
+ - Issue #70: Launch and tasks configurations are not overwritten anymore when present. 
+## [3.0.6] - 2021-05-06
 ### Fixed
   - Issue #65: There were issue with building on linux due to pathing, sudo when installing make. This has been fixed with this update.
 ## [3.0.5] - 2021-22-04

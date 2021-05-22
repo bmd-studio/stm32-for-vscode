@@ -30,7 +30,7 @@
 
 import * as _ from 'lodash';
 
-import { DebugConfiguration, Uri, workspace } from 'vscode';
+import { DebugConfiguration, TaskDefinition, Uri, workspace } from 'vscode';
 
 import MakeInfo from '../types/MakeInfo';
 import buildTasks from './BuildTasksConfig';
@@ -38,48 +38,32 @@ import getLaunchTask from './LaunchTasksConfig';
 import updateCProperties from './CCCPConfig';
 import setCortexDebugWorkspaceConfiguration from './cortexDebugConfig';
 
-// import getOpenOCDTarget from './OpenOcdTargetFiles';
-
-
-
 
 /**
  * Function for updating the launch.json file to include debugging information.
  * @param workspacePathUri Path to the active workspace
  * @param info info gained from the makefile.
  */
-export function updateLaunch(
+export async function updateLaunch(
   workspacePathUri: Uri, info: MakeInfo): Promise<void> {
   const launchFile = workspace.getConfiguration('launch', workspacePathUri);
-  const launchConfig: object[] = launchFile.get('configurations', []);
+  const launchConfig: TaskDefinition[] = launchFile.get('configurations', []);
   const config = getLaunchTask(info);
-  let hasConfig = false;
   let configWithSameNameIndex = -1;
   if (launchConfig && !_.isEmpty(launchConfig)) {
     _.map(launchConfig, (entry: DebugConfiguration, index) => {
-      if (_.isEqual(config, entry)) {
-        hasConfig = true;
-      }
       if (entry.name === config.name) {
         configWithSameNameIndex = index;
       }
     });
   }
-  if (!hasConfig) {
-    if (configWithSameNameIndex >= 0) {
-      launchConfig[configWithSameNameIndex] = config;
-    } else {
-      launchConfig.push(config);
-    }
-    // if not update the launchJSON
-    return new Promise((resolve) => {
-      launchFile.update('configurations', launchConfig).then(() => {
-        resolve();
-      });
-    });
+  // only change the launch configuration when none is present
+  if (configWithSameNameIndex < 0) {
+    launchConfig.push(config);
+    await launchFile.update('configurations', launchConfig);
   }
-  return new Promise((resolve) => { resolve(); });
 }
+
 
 /**
    *
@@ -87,19 +71,19 @@ export function updateLaunch(
    */
 export function updateTasks(workspacePathUri: Uri): Promise<void> {
   const taskFile = workspace.getConfiguration('tasks', workspacePathUri);
-  const tasksConfig: object[] = taskFile.get('tasks', []);
+  const tasksConfig: TaskDefinition[] = taskFile.get('tasks', []);
   let hasBuildConfig = false;
   let hasCleanBuildConfig = false;
   let hasFlashConfig = false;
   if (tasksConfig && !_.isEmpty(tasksConfig)) {
-    _.map(tasksConfig, (entry: object) => {
-      if (_.isEqual(buildTasks.buildTask, entry)) {
+    _.map(tasksConfig, (entry) => {
+      if (_.isEqual(buildTasks.buildTask.label, entry.label)) {
         hasBuildConfig = true;
       }
-      if (_.isEqual(buildTasks.cleanBuild, entry)) {
+      if (_.isEqual(buildTasks.cleanBuild.label, entry.label)) {
         hasCleanBuildConfig = true;
       }
-      if (_.isEqual(buildTasks.flashTask, entry)) {
+      if (_.isEqual(buildTasks.flashTask.label, entry.label)) {
         hasFlashConfig = true;
       }
     });
