@@ -44,6 +44,7 @@ import { OpenOCDConfiguration } from '../types/OpenOCDConfig';
 import { getBuildToolsFromSettings } from '../buildTools';
 import getMakefileInfo from './getCubeMakefileInfo';
 import * as Micromatch from 'micromatch';
+import { getDefinitionsandDefinitionsFromFile } from './getDotDefinitions';
 
 /**
  * @description returns the location of a specific file in an array
@@ -150,6 +151,16 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   const includeDirectories = getIncludeDirectoriesFromFileList(filteredHeaderFiles);
   const regularIncludeDirectories = getNonGlobIncludeDirectories(combinedHeaderFiles);
   const filteredIncludeDirectories = Micromatch.not(regularIncludeDirectories, projectConfiguration.excludes);
+
+  // allow for definition definitions in separate files if a definition is preceded by a dot it will mark this 
+  // as a file and search for it in the root of the workspace. If it has found it is read 
+  // and the strings in that file are included
+  projectConfiguration.asDefinitions =
+    await getDefinitionsandDefinitionsFromFile(projectConfiguration.asDefinitions, location);
+  projectConfiguration.cDefinitions =
+    await getDefinitionsandDefinitionsFromFile(projectConfiguration.cDefinitions, location);
+  projectConfiguration.cxxDefinitions =
+    await getDefinitionsandDefinitionsFromFile(projectConfiguration.cxxDefinitions, location);
 
   // replace spaces with underscores, to prevent spaces in path issues.
   STM32MakeInfo.target = projectConfiguration.target.split(' ').join('_');

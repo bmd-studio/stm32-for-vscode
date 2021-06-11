@@ -56,6 +56,8 @@ floatAbi: ${config.floatAbi}
 ldscript: ${config.ldscript} # linker script
 
 # Compiler definitions. The -D prefix for the compiler will be automatically added.
+# A path to files with a definition per line in them can be included here.
+# For these files it is assumed that they are prefixed with a dot e.g. a ".definitions".
 cDefinitions: ${createYamlArray(config.cDefinitions)}
 cxxDefinitions: ${createYamlArray(config.cxxDefinitions)}
 asDefinitions: ${createYamlArray(config.asDefinitions)}
