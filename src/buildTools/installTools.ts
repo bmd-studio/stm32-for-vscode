@@ -1,10 +1,9 @@
 import * as _ from 'lodash';
+import * as decompress from 'decompress';
 import * as path from 'path';
 import * as process from 'process';
-import * as decompress from 'decompress';
-import * as vscode from 'vscode';
 import * as shelljs from 'shelljs';
-import executeTask from '../HandleTasks';
+import * as vscode from 'vscode';
 
 import {
   BuildToolDefinition,
@@ -15,14 +14,15 @@ import {
 } from './toolChainDefinitions';
 import {
   getNewestToolchainVersion,
-  getToolVersionFolders,
   getToolBasePath,
+  getToolVersionFolders,
   validateXPMToolchainPath
 } from './extensionToolchainHelpers';
 
 import { GITHUB_ISSUES_URL } from '../Definitions';
 import axios from 'axios';
 import { exec } from 'child_process';
+import executeTask from '../HandleTasks';
 import { platform } from 'process';
 
 type XpmInstallType = Promise<void>;
@@ -39,18 +39,21 @@ export async function xpmInstall(
     throw new Error('Could not install using xpm');
   }
   const pathToSaveTo = context.globalStoragePath;
+  const nodePath = path.join(npx, '../');
   const env: { [key: string]: string } = process.env as { [key: string]: string };
   _.set(env, 'XPACKS_SYSTEM_FOLDER', pathToSaveTo);
   _.set(env, 'XPACKS_REPO_FOLDER', pathToSaveTo);
   _.set(env, 'npm_config_yes', true);
+  _.set(env, 'PATH', `${env.PATH}${platform === 'win32' ? ';' : ':'}${nodePath}`);
   const execOptions = {
     env,
     cwd: path.join(npx, '../'),
   };
+
   await executeTask(
     'installation',
     `installing: ${definition.name}`,
-    ['./npx', `xpm install --global ${definition.installation.xpm}`],
+    [`${npx}`, `xpm install --global ${definition.installation.xpm}`],
     execOptions
   );
 }
