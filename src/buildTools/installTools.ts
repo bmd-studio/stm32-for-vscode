@@ -42,7 +42,7 @@ export async function xpmInstall(
   const env: { [key: string]: string } = process.env as { [key: string]: string };
   _.set(env, 'XPACKS_SYSTEM_FOLDER', pathToSaveTo);
   _.set(env, 'XPACKS_REPO_FOLDER', pathToSaveTo);
-
+  _.set(env, 'npm_config_yes', true);
   const execOptions = {
     env,
     cwd: path.join(npx, '../'),
@@ -50,7 +50,7 @@ export async function xpmInstall(
   await executeTask(
     'installation',
     `installing: ${definition.name}`,
-    ['npx', `xpm install --global ${definition.installation.xpm}`],
+    ['./npx', `xpm install --global ${definition.installation.xpm}`],
     execOptions
   );
 }
