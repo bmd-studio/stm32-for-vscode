@@ -5,6 +5,11 @@
   - Add support to use different project types (EWARM, STM32CubeIDE, etc.).
   - Add ability to introduce generated changes from the main.c file into the main.cpp file.
   - Add support for unit testing using Google Test and Google Mock.
+## [3.1.0] - 2021-06-16
+### Added
+  - Issue #73: Added support for a separate input definition file in the config file.
+### Changes
+ - Added the STM32: prefix to all the STM32 for VSCode commands.
 ## [3.0.7] - 2021-05-22
 ### Fixed
  - Issue #69: replaced space with underscore when spaces are present in a target.

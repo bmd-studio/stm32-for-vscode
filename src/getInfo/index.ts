@@ -44,7 +44,7 @@ import { OpenOCDConfiguration } from '../types/OpenOCDConfig';
 import { getBuildToolsFromSettings } from '../buildTools';
 import getMakefileInfo from './getCubeMakefileInfo';
 import * as Micromatch from 'micromatch';
-import { getDefinitionsandDefinitionsFromFile } from './getDotDefinitions';
+import getDefinitionsFromFiles from './getDotDefinitions';
 
 /**
  * @description returns the location of a specific file in an array
@@ -152,15 +152,16 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   const regularIncludeDirectories = getNonGlobIncludeDirectories(combinedHeaderFiles);
   const filteredIncludeDirectories = Micromatch.not(regularIncludeDirectories, projectConfiguration.excludes);
 
-  // allow for definition definitions in separate files if a definition is preceded by a dot it will mark this 
-  // as a file and search for it in the root of the workspace. If it has found it is read 
-  // and the strings in that file are included
-  projectConfiguration.asDefinitions =
-    await getDefinitionsandDefinitionsFromFile(projectConfiguration.asDefinitions, location);
-  projectConfiguration.cDefinitions =
-    await getDefinitionsandDefinitionsFromFile(projectConfiguration.cDefinitions, location);
-  projectConfiguration.cxxDefinitions =
-    await getDefinitionsandDefinitionsFromFile(projectConfiguration.cxxDefinitions, location);
+  let cDefinitionsFromFile: string[] = [];
+  let cxxDefinitionsFromFile: string[] = [];
+  let asDefinitionsFromFile: string[] = [];
+  try {
+    cDefinitionsFromFile = await getDefinitionsFromFiles(location, projectConfiguration.cDefinitionsFile);
+    cxxDefinitionsFromFile = await getDefinitionsFromFiles(location, projectConfiguration.cxxDefinitionsFile);
+    asDefinitionsFromFile = await getDefinitionsFromFiles(location, projectConfiguration.asDefinitionsFile);
+  } catch (err) {
+
+  }
 
   // replace spaces with underscores, to prevent spaces in path issues.
   STM32MakeInfo.target = projectConfiguration.target.split(' ').join('_');
@@ -170,12 +171,24 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   STM32MakeInfo.asmSources = sortedSourceFiles.asmSources;
   STM32MakeInfo.libs = _.uniq(_.concat(projectConfiguration.libraries, cubeMakefileInfo.libs));
   STM32MakeInfo.libdir = _.uniq(_.concat(projectConfiguration.libraryDirectories, cubeMakefileInfo.libdir));
-  STM32MakeInfo.asDefs = _.uniq(_.concat(cubeMakefileInfo.asDefs, projectConfiguration.asDefinitions));
+  STM32MakeInfo.asDefs = _.uniq(_.concat(
+    cubeMakefileInfo.asDefs,
+    projectConfiguration.asDefinitions,
+    asDefinitionsFromFile
+  ));
   STM32MakeInfo.assemblyFlags = _.uniq(_.concat(cubeMakefileInfo.assemblyFlags, projectConfiguration.assemblyFlags));
-  STM32MakeInfo.cDefs = _.uniq(_.concat(cubeMakefileInfo.cDefs, projectConfiguration.cDefinitions));
+  STM32MakeInfo.cDefs = _.uniq(_.concat(
+    cubeMakefileInfo.cDefs,
+    projectConfiguration.cDefinitions,
+    cDefinitionsFromFile
+  ));
   STM32MakeInfo.cFlags = _.uniq(_.concat(cubeMakefileInfo.cFlags, projectConfiguration.cFlags));
   STM32MakeInfo.cpu = projectConfiguration.cpu;
-  STM32MakeInfo.cxxDefs = _.uniq(_.concat(cubeMakefileInfo.cxxDefs, projectConfiguration.cxxDefinitions));
+  STM32MakeInfo.cxxDefs = _.uniq(_.concat(
+    cubeMakefileInfo.cxxDefs,
+    projectConfiguration.cxxDefinitions,
+    cxxDefinitionsFromFile
+  ));
   STM32MakeInfo.cxxFlags = _.uniq(_.concat(cubeMakefileInfo.cxxFlags, projectConfiguration.cxxFlags));
   STM32MakeInfo.floatAbi = projectConfiguration.floatAbi;
   STM32MakeInfo.fpu = projectConfiguration.fpu;

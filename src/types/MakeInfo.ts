@@ -51,6 +51,9 @@ export interface CompileInfoInterface {
   cDefinitions: string[];
   cxxDefinitions: string[];
   asDefinitions: string[];
+  cDefinitionsFile?: string | string[];
+  cxxDefinitionsFile?: string | string[];
+  asDefinitionsFile?: string | string[];
 }
 
 export class CompileInfo implements CompileInfoInterface {
@@ -62,6 +65,9 @@ export class CompileInfo implements CompileInfoInterface {
   public cDefinitions: string[] = [];
   public cxxDefinitions: string[] = [];
   public asDefinitions: string[] = [];
+  public cDefinitionsFile?: string | string[];
+  public cxxDefinitionsFile?: string | string[];
+  public asDefinitionsFile?: string | string[];
 }
 
 export interface LibrariesInterface {
@@ -121,6 +127,9 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
   public cDefinitions: string[] = [];
   public cxxDefinitions: string[] = [];
   public asDefinitions: string[] = [];
+  public cDefinitionsFile?: string | string[] = [];
+  public cxxDefinitionsFile?: string | string[] = [];
+  public asDefinitionsFile?: string | string[] = [];
   public includeDirectories: string[] = [];
   public target = '';
   public cpu = '';

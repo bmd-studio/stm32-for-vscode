@@ -2,7 +2,7 @@
   "name": "stm32-for-vscode",
   "displayName": "stm32-for-vscode",
   "description": "An extension for: setting up, compiling, uploading and debugging STM32 applications",
-  "version": "3.0.7",
+  "version": "3.1.0",
   "engines": {
     "vscode": "^1.44.0"
   },
@@ -74,35 +74,35 @@
     "commands": [
       {
         "command": "stm32-for-vscode.build",
-        "title": "Build STM32 project"
+        "title": "STM32: Build STM32 project"
       },
       {
         "command": "stm32-for-vscode.flash",
-        "title": "Build and flash to an STM32 platform"
+        "title": "STM32: Build and flash to an STM32 platform"
       },
       {
         "command": "stm32-for-vscode.cleanBuild",
-        "title": "Build clean STM32 project"
+        "title": "STM32: Build clean STM32 project"
       },
       {
         "command": "stm32-for-vscode.installBuildTools",
-        "title": "Install all the build tools for the STM32 for VSCode extension"
+        "title": "STM32: Install all the build tools for the STM32 for VSCode extension"
       },
       {
         "command": "stm32-for-vscode.openSettings",
-        "title": "Open the settings editor for STM32 for VSCode"
+        "title": "STM32: Open the settings editor for STM32 for VSCode"
       },
       {
         "command": "stm32-for-vscode.checkBuildTools",
-        "title": "Check if the required build tools are present for STM32 for VSCode"
+        "title": "STM32: Check if the required build tools are present for STM32 for VSCode"
       },
       {
         "command": "stm32-for-vscode.openExtension",
-        "title": "Open the STM32 for VSCode extension"
+        "title": "STM32: Open the STM32 for VSCode extension"
       },
       {
         "command": "stm32-for-vscode.setProgrammer",
-        "title": "Set programmer for the STM32 chip"
+        "title": "STM32: Set programmer for the STM32 chip"
       }
     ],
     "configuration": {
