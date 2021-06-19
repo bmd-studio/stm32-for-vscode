@@ -24,6 +24,7 @@ import axios from 'axios';
 import { exec } from 'child_process';
 import executeTask from '../HandleTasks';
 import { platform } from 'process';
+import { checkBuildTools } from '.';
 
 type XpmInstallType = Promise<void>;
 
@@ -49,11 +50,18 @@ export async function xpmInstall(
     env,
     cwd: path.join(npx, '../'),
   };
+  try {
+    await vscode.workspace.fs.createDirectory(vscode.Uri.joinPath(context.globalStorageUri, 'cache'));
+  } catch (_err) { }
 
   await executeTask(
     'installation',
     `installing: ${definition.name}`,
-    [`${npx}`, `xpm install --global ${definition.installation.xpm}`],
+    [
+      `${npx}`,
+      `--cache "${path.join(context.globalStorageUri.fsPath, 'cache')}"`,
+      `xpm install --global ${definition.installation.xpm}`
+    ],
     execOptions
   );
 }
@@ -344,7 +352,14 @@ export function installAllTools(context: vscode.ExtensionContext): Promise<void 
           }
         }
         await addExtensionInstalledToolsToSettings(context);
-        progress.report({ increment: 20, message: 'done' });
+        progress.report({ increment: 10, message: 'awaiting for all to be installed' });
+        // check if build tool installation is finished
+        const startTime = Date.now();
+        let hasBuildToolsInstalled = false;
+        while (Date.now() - startTime < 60000 && !hasBuildToolsInstalled) {
+          hasBuildToolsInstalled = await checkBuildTools(context);
+        }
+
       } catch (err) {
         vscode.window.showErrorMessage(`Something has gone wrong while installing the build toold: ${err}`);
       }

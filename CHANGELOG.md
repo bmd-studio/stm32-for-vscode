@@ -5,6 +5,10 @@
   - Add support to use different project types (EWARM, STM32CubeIDE, etc.).
   - Add ability to introduce generated changes from the main.c file into the main.cpp file.
   - Add support for unit testing using Google Test and Google Mock.
+
+## [3.1.1] - 2021-06-19
+### Fixed
+ - There was an issue with the npx/npm cache which did not have read/write permissions when no earlier version of node was installed. This has been fixed.
 ## [3.1.0] - 2021-06-16
 ### Added
   - Issue #73: Added support for a separate input definition file in the config file.
