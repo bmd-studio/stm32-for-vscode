@@ -11,6 +11,7 @@ import MakeInfo from '../../types/MakeInfo';
 import { expect } from 'chai';
 
 // TODO: add library testing in the mix. 
+// TODO: add a test for adding flags.
 suite('CreateMakefile', () => {
   test('check for proper line endings on string list', () => {
     const testEntries = ['hi', 'hello', 'some/filename.txt'];

@@ -199,12 +199,14 @@ ifeq ($(DEBUG), 1)
 CFLAGS += -g -gdwarf-2
 endif
 
+# Add additional flags
+CFLAGS += ${createSingleLineStringList(makeInfo.cFlags)}
+ASFLAGS += ${createSingleLineStringList(makeInfo.assemblyFlags)}
+CXXFLAGS = ${createSingleLineStringList(makeInfo.cxxFlags)}
+CXXFLAGS += -feliminate-unused-debug-types
 
 # Generate dependency information
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
-
-CXXFLAGS?=
-CXXFLAGS += -feliminate-unused-debug-types
 
 #######################################
 # LDFLAGS
