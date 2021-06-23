@@ -8,7 +8,7 @@
 ## [3.1.2] - 2021-06-23
 ### Changes
 - Reverted to standard node/npx cache, as this worked for powershell but not for command addressing.
--  - Issue #74: Additional c/cxx/assembly flags from the configuration file were not included in the final makefile. This has been fixed.
+- Issue #74: Additional c/cxx/assembly flags from the configuration file were not included in the final makefile. This has been fixed.
 ## [3.1.1] - 2021-06-19
 ### Fixed
  - There was an issue with the npx/npm cache which did not have read/write permissions when no earlier version of node was installed. This has been fixed.
