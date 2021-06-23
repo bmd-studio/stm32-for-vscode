@@ -54,12 +54,13 @@ export async function xpmInstall(
     await vscode.workspace.fs.createDirectory(vscode.Uri.joinPath(context.globalStorageUri, 'cache'));
   } catch (_err) { }
 
+
   await executeTask(
     'installation',
     `installing: ${definition.name}`,
     [
       `${npx}`,
-      `--cache "${path.join(context.globalStorageUri.fsPath, 'cache')}"`,
+      // `--cache "${path.join(context.globalStorageUri.fsPath, 'cache')}"`,
       `xpm install --global ${definition.installation.xpm}`
     ],
     execOptions

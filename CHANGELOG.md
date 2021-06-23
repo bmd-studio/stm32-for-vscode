@@ -5,7 +5,9 @@
   - Add support to use different project types (EWARM, STM32CubeIDE, etc.).
   - Add ability to introduce generated changes from the main.c file into the main.cpp file.
   - Add support for unit testing using Google Test and Google Mock.
-
+## [3.1.2] - 2021-06-23
+### Changes
+- Reverted to standard node/npx cache, as this workded for powershell but not for command addressing.
 ## [3.1.1] - 2021-06-19
 ### Fixed
  - There was an issue with the npx/npm cache which did not have read/write permissions when no earlier version of node was installed. This has been fixed.
