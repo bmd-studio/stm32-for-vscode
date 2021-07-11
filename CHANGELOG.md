@@ -5,10 +5,18 @@
   - Add support to use different project types (EWARM, STM32CubeIDE, etc.).
   - Add ability to introduce generated changes from the main.c file into the main.cpp file.
   - Add support for unit testing using Google Test and Google Mock.
+  - 
+## [3.1.3] - 2021-07-11
+### Added
+ - Issue #76: Added support for installation of tools on the Apple M1 macs
+ - Default search paths for include directories in the source directories, as this is often standard practice to embed folders with additional code in there.
+
+### Fixed
+ - Fixed configuration not updating or generating when the build failed.
 ## [3.1.2] - 2021-06-23
 ### Changes
-- Reverted to standard node/npx cache, as this worked for powershell but not for command addressing.
-- Issue #74: Additional c/cxx/assembly flags from the configuration file were not included in the final makefile. This has been fixed.
+ - Reverted to standard node/npx cache, as this worked for powershell but not for command addressing.
+ - Issue #74: Additional c/cxx/assembly flags from the configuration file were not included in the final makefile. This has been fixed.
 ## [3.1.1] - 2021-06-19
 ### Fixed
  - There was an issue with the npx/npm cache which did not have read/write permissions when no earlier version of node was installed. This has been fixed.
