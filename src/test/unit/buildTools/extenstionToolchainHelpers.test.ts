@@ -13,7 +13,9 @@ import { afterEach, beforeEach } from 'mocha';
 import { expect } from 'chai';
 import { openocdDefinition } from '../../../buildTools/toolChainDefinitions';
 
-const fs = vscode.workspace.fs;
+import { makeFSOverWritable } from '../../helpers/fsOverwriteFunctions';
+
+// const fs = vscode.workspace.fs;
 
 const standardVersionFile: XPMToolVersion = {
   xpmVersion: [5, 2, 0],
@@ -22,14 +24,12 @@ const standardVersionFile: XPMToolVersion = {
 };
 
 suite('Extension Toolchain Helpers', () => {
-  const fsOg = { ...vscode.workspace.fs };
+  // const fsOg = { ...vscode.workspace.fs };
   beforeEach(() => {
-    Object.defineProperty(vscode.workspace.fs, 'readDirectory', () => { return Promise.resolve([]); });
-    // Object.defineProperty(fs, 'readDirectory', () => { return Promise.resolve([]); });
+    makeFSOverWritable(vscode);
   });
   afterEach(() => {
     Sinon.restore();
-    Object.defineProperty(vscode.workspace.fs, 'readDirectory', fsOg.readDirectory);
   });
   test('parse XPM version number', () => {
     const versionFileName = '1.2.333-5.2';
@@ -104,7 +104,7 @@ suite('Extension Toolchain Helpers', () => {
 
   test('get newest xpm version when none are present', async () => {
     const fakeReadDirectory = Sinon.fake.returns(Promise.resolve(undefined));
-    Sinon.replace(fs, 'readDirectory', fakeReadDirectory);
+    Sinon.replace(vscode.workspace.fs, 'readDirectory', fakeReadDirectory);
 
     return expect(getNewestToolchainVersion(openocdDefinition, 'pathIsNotRead')).to.be.rejected;
   });

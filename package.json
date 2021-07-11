@@ -135,7 +135,7 @@
     "coverage": "nyc --exclude=.vscode-test --exclude=src/test/**  yarn run test",
     "vscode:prepublish": "yarn webpack",
     "compile": "tsc --alwaysStrict true -p ./",
-    "compile:test": "tsc --noImplicitUseStrict true -p ./ ",
+    "compile:test": "tsc -p ./ ",
     "webpack": "webpack --mode development",
     "lint": "eslint src --ext ts",
     "watch": "tsc -watch -p ./",
