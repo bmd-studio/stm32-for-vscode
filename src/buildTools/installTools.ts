@@ -139,7 +139,8 @@ const nodeRegex = {
     x64: /href="(node-v\d*.\d*.\d*-win-x64.zip)/gm
   },
   darwin: {
-    x64: /href="(node-v\d*.\d*.\d*.-darwin-x64.tar.gz)/gm
+    x64: /href="(node-v\d*.\d*.\d*.-darwin-x64.tar.gz)/gm,
+    arm64: /href="(node-v\d*.\d*.\d*.-darwin-arm64.tar.gz)/gm
   },
   linux: {
     arm: /href="(node-v\d*.\d*.\d*.-linux-armv7l.tar.gz)/gm,
@@ -256,7 +257,7 @@ export async function getNode(context: vscode.ExtensionContext): Promise<string>
     const latestNodeCompressed = await downloadLatestNode(context, latestNodeLink);
     const extractedNodeFileLoc = await extractFile(
       latestNodeCompressed,
-      path.join(context.globalStoragePath, 'node')
+      path.join(context.globalStorageUri.fsPath, 'node')
     );
     const dirContents = await vscode.workspace.fs.readDirectory(vscode.Uri.file(extractedNodeFileLoc));
     const nodeInstallationFilePath = _.find(dirContents, (file) => { return (file[0].indexOf('node') >= 0); });

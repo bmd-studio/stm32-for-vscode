@@ -60,6 +60,15 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
     currentWorkspaceFolder = fsPathToPosix(workspace.workspaceFolders[0].uri.fsPath);
     info = await getInfo(currentWorkspaceFolder);
     await updateMakefile(currentWorkspaceFolder, info);
+
+    try {
+      await updateConfiguration(workspace.workspaceFolders[0].uri, info);
+    } catch (err) {
+      const errorMsg = `Something went wrong with configuring the workspace. ERROR: ${err}`;
+      window.showErrorMessage(errorMsg);
+      throw new Error(errorMsg);
+    }
+
     const makeArguments = `-j16 -f ${makefileName}`;
 
     if (cleanBuild) {
@@ -90,13 +99,5 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
     const errMsg = `Something went wrong during the build process: ${err}`;
     window.showErrorMessage(errMsg);
     throw new Error(errMsg);
-  }
-
-  try {
-    await updateConfiguration(workspace.workspaceFolders[0].uri, info);
-  } catch (err) {
-    const errorMsg = `Something went wrong with configuring the workspace. ERROR: ${err}`;
-    window.showErrorMessage(errorMsg);
-    throw new Error(errorMsg);
   }
 }

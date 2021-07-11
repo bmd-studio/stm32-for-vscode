@@ -216,6 +216,11 @@ export async function getSourceFiles(sourceFileGlobs: string[]): Promise<string[
   return sourceFiles;
 }
 
+/**
+ * Gets the regular non glob like filepaths from a file list including glob patterns. 
+ * @param headerFilesGlobs list of file paths including glob like filepaths
+ * @returns regular filenames
+ */
 export function getNonGlobIncludeDirectories(headerFilesGlobs: string[]): string[] {
   const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
   if (workspaceFolder === undefined) { return []; }

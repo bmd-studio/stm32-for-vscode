@@ -8,7 +8,7 @@ import { EXTENSION_CONFIG_NAME } from '../Definitions';
 import { ExtensionConfiguration } from '../types/MakeInfo';
 
 const DEFAULT_SOURCES = ['Src/**', 'Core/Src/**', 'Core/Lib/**'];
-const DEFAULT_INCLUDES = ['Inc/**', 'Core/Inc/**', 'Core/Lib/**'];
+const DEFAULT_INCLUDES = ['Inc/**', 'Core/Inc/**', 'Core/Lib/**'].concat(DEFAULT_SOURCES);
 
 /**
  * Converts arrays of string into indented - value\n lists to adhere to YAML formatting
