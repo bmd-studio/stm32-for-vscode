@@ -3,12 +3,16 @@ import * as STM32Config from '../../../configuration/stm32Config';
 import * as Sinon from 'sinon';
 import * as vscode from 'vscode';
 
-import { suite, test } from 'mocha';
+import { suite, test, beforeEach } from 'mocha';
 
 import { configurationFixture } from '../../fixtures/extensionConfigurationFixture';
 import { expect } from 'chai';
-
+import { makeFSOverWritable } from '../../helpers/fsOverwriteFunctions';
 suite('STM32Config', () => {
+  beforeEach(() => {
+    makeFSOverWritable(vscode);
+  });
+
   test('test file conversion and parsing', async () => {
     const testConfig = STM32Config.createConfigFile(configurationFixture);
     const readFileFake = Sinon.fake.returns(Promise.resolve(testConfig));

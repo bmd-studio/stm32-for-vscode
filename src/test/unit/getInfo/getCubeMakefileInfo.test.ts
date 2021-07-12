@@ -1,8 +1,8 @@
 import * as Sinon from 'sinon';
 import * as assert from 'assert';
 
-import { FileSystemError, Uri, workspace } from 'vscode';
-import { afterEach, suite, test } from 'mocha';
+import * as vscode from 'vscode';
+import { afterEach, suite, test, beforeEach } from 'mocha';
 import getMakefileInfo, {
   extractLibs,
   extractMakefileInfo,
@@ -17,10 +17,12 @@ import testMakefile, { testMakefileInfo } from '../../fixtures/testSTMCubeMakefi
 import { TextEncoder } from 'util';
 import { ToolChain } from '../../../types/MakeInfo';
 import { expect } from 'chai';
-
-const fs = workspace.fs;
+import { makeFSOverWritable } from '../../helpers/fsOverwriteFunctions';
 
 suite('Get Cube makefile info', () => {
+  beforeEach(() => {
+    makeFSOverWritable(vscode);
+  });
   afterEach(() => {
     Sinon.restore();
   });
@@ -90,10 +92,10 @@ suite('Get Cube makefile info', () => {
     const fakeReadFile = Sinon.fake.returns(new Promise((resolve) => {
       resolve(new TextEncoder().encode(returnedMakefile));
     }));
-    Sinon.replace(fs, 'readFile', fakeReadFile);
+    Sinon.replace(vscode.workspace.fs, 'readFile', fakeReadFile);
     try {
       const makefile = await getMakefile('./Makefile');
-      expect(fakeReadFile.calledOnceWith(Uri.file('./Makefile'))).to.be.true;
+      expect(fakeReadFile.calledOnceWith(vscode.Uri.file('./Makefile'))).to.be.true;
       expect(makefile).to.equal(returnedMakefile);
     } catch (err) {
       assert(err);
@@ -101,22 +103,22 @@ suite('Get Cube makefile info', () => {
 
   });
   test('getMakefile when not present', async () => {
-    const makefileUri = Uri.file('./Makefile');
+    const makefileUri = vscode.Uri.file('./Makefile');
     const fakeReadFile = Sinon.fake.returns(new Promise((_resolve, reject) => {
-      reject(FileSystemError.FileNotFound(makefileUri));
+      reject(vscode.FileSystemError.FileNotFound(makefileUri));
     }));
-    Sinon.replace(fs, 'readFile', fakeReadFile);
-    expect(getMakefile('./Makefile')).to.be.rejectedWith(FileSystemError.FileNotFound(makefileUri));
-    expect(fakeReadFile.calledOnceWith(Uri.file('./Makefile'))).to.be.true;
+    Sinon.replace(vscode.workspace.fs, 'readFile', fakeReadFile);
+    expect(getMakefile('./Makefile')).to.be.rejectedWith(vscode.FileSystemError.FileNotFound(makefileUri));
+    expect(fakeReadFile.calledOnceWith(vscode.Uri.file('./Makefile'))).to.be.true;
   });
   test('getMakefileInfo', async () => {
     const makefilePath = 'someRelevant/path';
     const fakeReadFile = Sinon.fake.returns(new Promise((resolve) => {
       resolve(new TextEncoder().encode(testMakefile));
     }));
-    Sinon.replace(fs, 'readFile', fakeReadFile);
+    Sinon.replace(vscode.workspace.fs, 'readFile', fakeReadFile);
     const makefileInfo = await getMakefileInfo(makefilePath);
-    expect(fakeReadFile.calledOnceWith(Uri.file('someRelevant/path/Makefile'))).to.be.true;
+    expect(fakeReadFile.calledOnceWith(vscode.Uri.file('someRelevant/path/Makefile'))).to.be.true;
     const outputInfo = testMakefileInfo;
     outputInfo.tools = new ToolChain();
     expect(makefileInfo).to.deep.equal(testMakefileInfo);

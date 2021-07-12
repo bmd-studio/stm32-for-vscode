@@ -5,7 +5,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 
 import { EXTENSION_CONFIG_NAME } from '../Definitions';
-import { ExtensionConfiguration } from '../types/MakeInfo';
+import { ExtensionConfiguration, ExtensionConfigurationInterface } from '../types/MakeInfo';
 
 const DEFAULT_SOURCES = ['Src/**', 'Core/Src/**', 'Core/Lib/**'];
 const DEFAULT_INCLUDES = ['Inc/**', 'Core/Inc/**', 'Core/Lib/**'].concat(DEFAULT_SOURCES);
@@ -142,10 +142,10 @@ export async function readConfigFile(): Promise<ExtensionConfiguration> {
   try {
     const file = await vscode.workspace.fs.readFile(vscode.Uri.file(configurationPath));
     if (!file) { throw new Error('No configuration file found'); }
-    const yamlConfig = YAML.parse(Buffer.from(file).toString('utf-8'));
+    const yamlConfig: ExtensionConfigurationInterface = YAML.parse(Buffer.from(file).toString('utf-8'));
     if (!yamlConfig) { return Promise.reject(new Error('Could not parse yaml configuration')); }
     _.forEach(yamlConfig, (entry, key) => {
-      if (_.has(yamlConfig, key)) {
+      if (_.has(yamlConfig, key) && _.get(yamlConfig, key) !== null) {
         _.set(configuration, key, entry);
       }
     });

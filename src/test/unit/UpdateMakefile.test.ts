@@ -2,20 +2,23 @@ import * as Sinon from 'sinon';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as makefileFunctions from '../../CreateMakefile';
 import * as path from 'path';
-
-import { Uri, workspace } from 'vscode';
-import { afterEach, suite, test } from 'mocha';
+import * as vscode from 'vscode';
+import { Uri } from 'vscode';
+import { afterEach, suite, test, beforeEach } from 'mocha';
 import { expect, use } from 'chai';
 import { stm32ForVSCodeResult, testMakefileInfo } from '../fixtures/testSTMCubeMakefile';
 import updateMakefile, { getCurrentMakefile, writeMakefile } from '../../UpdateMakefile';
+import createMakefile from '../../CreateMakefile';
 
 import { TextEncoder } from 'util';
 import { makefileName } from '../../Definitions';
-import _ = require('lodash');
+import { makeFSOverWritable } from '../helpers/fsOverwriteFunctions';
 
-const fs = workspace.fs;
 use(chaiAsPromised);
 suite('Update makefile', () => {
+  beforeEach(() => {
+    makeFSOverWritable(vscode);
+  });
   afterEach(() => {
     Sinon.restore();
   });
@@ -23,7 +26,7 @@ suite('Update makefile', () => {
     const testString = 'hello';
     const testUInt8Arr = Uint8Array.from(Buffer.from(testString));
     const workspaceFSReadFileFake = Sinon.fake.returns(Promise.resolve(testUInt8Arr));
-    Sinon.replace(fs, 'readFile', workspaceFSReadFileFake);
+    Sinon.replace(vscode.workspace.fs, 'readFile', workspaceFSReadFileFake);
     const makefilePath = './Makefile';
     expect(getCurrentMakefile(makefilePath)).to.eventually.equal(testString);
     expect(workspaceFSReadFileFake.calledOnceWith(Uri.file(makefilePath))).to.be.true;
@@ -31,18 +34,16 @@ suite('Update makefile', () => {
   test('get current makefile without existing file', () => {
     const testUInt8Arr = new Uint8Array(0);
     const workspaceFSReadFileFake = Sinon.fake.returns(new Promise((resolve) => { resolve(testUInt8Arr); }));
-    const fsReadFile = _.get(workspace, 'fs.readFile');
-    _.set(workspace, 'fs.readFile', workspaceFSReadFileFake);
-    // Sinon.replace(fs, 'readFile', workspaceFSReadFileFake);
+    Sinon.replace(vscode.workspace.fs, 'readFile', workspaceFSReadFileFake);
+
     const makefilePath = './Makefile';
     expect(getCurrentMakefile(makefilePath)).to.eventually.be.rejected;
     expect(workspaceFSReadFileFake.calledOnce).to.be.true;
     expect(workspaceFSReadFileFake.calledOnceWith(Uri.file(makefilePath))).to.be.true;
-    _.set(workspace, 'fs.readFile', fsReadFile);
   });
   test('write makefile successfully in utf-8 format', async () => {
     const writeFileFake = Sinon.fake.returns(Promise.resolve());
-    Sinon.replace(fs, 'writeFile', writeFileFake);
+    Sinon.replace(vscode.workspace.fs, 'writeFile', writeFileFake);
     const makefilePath = 'AwesomeSTM32Makefile';
     const makefileString = 'a nice looking makefile';
     const fileToWriteTo = Uri.file(makefilePath);
@@ -64,8 +65,8 @@ suite('Update makefile', () => {
     const fakeMakefileWriteFile = Sinon.fake.returns(Promise.resolve());
     const fakeMakefileCreate = Sinon.fake.returns(stm32ForVSCodeResult);
     Sinon.replace(makefileFunctions, 'default', fakeMakefileCreate);
-    Sinon.replace(fs, 'writeFile', fakeMakefileWriteFile);
-    Sinon.replace(fs, 'readFile', fakeMakefileReadFile);
+    Sinon.replace(vscode.workspace.fs, 'writeFile', fakeMakefileWriteFile);
+    Sinon.replace(vscode.workspace.fs, 'readFile', fakeMakefileReadFile);
 
     await updateMakefile('local', testMakefileInfo);
     expect(fakeMakefileReadFile.calledOnce).to.be.true;
@@ -79,8 +80,8 @@ suite('Update makefile', () => {
       })
     );
     const fakeMakefileWriteFile = Sinon.fake.returns(Promise.resolve());
-    Sinon.replace(fs, 'readFile', fakeMakefileReadFile);
-    Sinon.replace(fs, 'writeFile', fakeMakefileWriteFile);
+    Sinon.replace(vscode.workspace.fs, 'readFile', fakeMakefileReadFile);
+    Sinon.replace(vscode.workspace.fs, 'writeFile', fakeMakefileWriteFile);
     await updateMakefile('local', testMakefileInfo);
     // await expect(updateMakefile('local', testMakefileInfo)).to.eventually.be.fulfilled;
     expect(fakeMakefileReadFile.calledOnce).to.be.true;
@@ -88,7 +89,7 @@ suite('Update makefile', () => {
     expect(
       fakeMakefileWriteFile.calledOnceWith(
         Uri.file(path.posix.join('local', makefileName)),
-        Buffer.from(stm32ForVSCodeResult, 'utf8')
+        Buffer.from(createMakefile(testMakefileInfo), 'utf8')
       )
     ).to.be.true;
   });
@@ -100,15 +101,15 @@ suite('Update makefile', () => {
       })
     );
     const fakeMakefileWriteFile = Sinon.fake.returns(Promise.resolve());
-    Sinon.replace(fs, 'readFile', fakeMakefileReadFile);
-    Sinon.replace(fs, 'writeFile', fakeMakefileWriteFile);
+    Sinon.replace(vscode.workspace.fs, 'readFile', fakeMakefileReadFile);
+    Sinon.replace(vscode.workspace.fs, 'writeFile', fakeMakefileWriteFile);
     await updateMakefile('local', testMakefileInfo);
     expect(fakeMakefileReadFile.calledOnce).to.be.true;
     expect(fakeMakefileWriteFile.calledOnce).to.be.true;
     expect(
       fakeMakefileWriteFile.calledOnceWith(
         Uri.file(path.posix.join('local', makefileName)),
-        Buffer.from(stm32ForVSCodeResult, 'utf8')
+        Buffer.from(createMakefile(testMakefileInfo), 'utf8')
       )
     ).to.be.true;
   });

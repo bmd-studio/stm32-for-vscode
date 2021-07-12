@@ -1,5 +1,4 @@
 import * as Sinon from 'sinon';
-import * as _ from 'lodash';
 // import { workspace, Uri, WorkspaceFolder, window } from 'vscode';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as helpers from '../../../Helpers';
@@ -68,7 +67,7 @@ suite('WorkspaceConfiguration', () => {
     expect(updateConfigFake.notCalled).to.be.true;
     Sinon.restore();
   });
-  test('overwrite launch config with the same name', async () => {
+  test('do not overwrite launch config with the same name', async () => {
     setWorkspaceConfigFakeOutput();
     const { getWorkspaceConfigFake, getConfigInWorkspaceFake, updateConfigFake } = launchFixtures;
     const testUri = Uri.file('local');
@@ -76,12 +75,7 @@ suite('WorkspaceConfiguration', () => {
     await updateLaunch(Uri.file('local'), { ...testMakefileInfo, target: 'othertesttarget' });
     expect(getWorkspaceConfigFake.calledOnce).to.be.true;
     expect(getConfigInWorkspaceFake.calledOnceWith('launch', testUri)).to.be.true;
-    const configurations = [
-      // LaunchTestFile,
-      { ...LaunchTestFile, executable: "./build/othertesttarget.elf" },
-    ];
-    expect(updateConfigFake.calledOnce).to.be.true;
-    expect(updateConfigFake.getCall(0).args[1]).to.deep.equal(configurations);
+    expect(updateConfigFake.calledOnce).to.be.false;
   });
   test('add launch config on empty config', async () => {
     setWorkspaceConfigFakeOutput([]);
@@ -120,7 +114,7 @@ suite('WorkspaceConfiguration', () => {
     expect(updateConfigFake.calledOnce).to.be.true;
     expect(updateConfigFake.getCall(0).args[1]).to.deep.equal(BuildTasks);
   });
-  test('add task when similar task is present', async () => {
+  test('do not add task when similar task is present', async () => {
     const similarTask = { ...BuildTasks[0], device: 'someRandoDevice' };
     setWorkspaceConfigFakeOutput([similarTask, BuildTasks[1], BuildTasks[2]]);
     const { getWorkspaceConfigFake, getConfigInWorkspaceFake, updateConfigFake } = launchFixtures;
@@ -128,16 +122,7 @@ suite('WorkspaceConfiguration', () => {
     await updateTasks(testUri);
     expect(getWorkspaceConfigFake.calledOnce).to.be.true;
     expect(getConfigInWorkspaceFake.calledOnceWith('tasks', testUri)).to.be.true;
-    expect(updateConfigFake.calledOnce).to.be.true;
-    expect(
-      _.sortBy(
-        updateConfigFake.getCall(0).args[1],
-        ['command', 'device']
-      )
-    ).to.deep.equal(_.sortBy(
-      [similarTask, BuildTasks[0], BuildTasks[1], BuildTasks[2]],
-      ['command', 'device']
-    ));
+    expect(updateConfigFake.calledOnce).to.be.false;
   });
   test('does nothing when all tasks are present', async () => {
     setWorkspaceConfigFakeOutput([BuildTasks[0], BuildTasks[1], BuildTasks[2]]);
