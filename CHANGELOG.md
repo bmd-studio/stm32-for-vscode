@@ -5,7 +5,10 @@
   - Add support to use different project types (EWARM, STM32CubeIDE, etc.).
   - Add ability to introduce generated changes from the main.c file into the main.cpp file.
   - Add support for unit testing using Google Test and Google Mock.
-  - 
+## [3.1.4] - 2021-07-27
+### Added
+ - Issue #77: Added .cc extension inclusion for c++ build files.
+
 ## [3.1.3] - 2021-07-11
 ### Added
  - Issue #76: Added support for installation of tools on the Apple M1 macs

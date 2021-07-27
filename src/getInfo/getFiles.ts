@@ -128,7 +128,7 @@ export function sortFiles(list: string[]): BuildFiles {
   const output = new BuildFiles();
   _.map(list, (entry) => {
     const extension = _.toLower(entry.split('.').pop());
-    if (extension === 'cpp' || extension === 'cxx') {
+    if (extension === 'cpp' || extension === 'cxx' || extension === 'cc') {
       output.cxxSources.push(entry);
     } else if (extension === 'c') {
       output.cSources.push(entry);
@@ -204,7 +204,7 @@ export async function scanForFiles(includedFilesGlob: string[]): Promise<string[
  * @returns array of posix relative sourcefile paths
  */
 export async function getSourceFiles(sourceFileGlobs: string[]): Promise<string[]> {
-  const sourceFileExtensions = ['cpp', 'c', 'a', 's', 'cxx'];
+  const sourceFileExtensions = ['cpp', 'c', 'a', 's', 'cxx', 'cc'];
   const files = await scanForFiles(sourceFileGlobs);
   const sourceFiles = _.filter(files, (file) => {
     const extension = _.last(file.split('.'));
