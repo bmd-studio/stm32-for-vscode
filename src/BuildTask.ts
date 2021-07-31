@@ -30,17 +30,21 @@ import {
   workspace,
 } from 'vscode';
 
-import MakeInfo from './types/MakeInfo';
+import MakeInfo, { ExtensionConfiguration } from './types/MakeInfo';
 import executeTask from './HandleTasks';
 import { fsPathToPosix } from './Helpers';
 import {
   getInfo,
 } from './getInfo';
 import {
+  EXTENSION_CONFIG_NAME,
   makefileName,
 } from './Definitions';
 import updateConfiguration from './configuration/WorkspaceConfigurations';
 import updateMakefile from './UpdateMakefile';
+import { checkForRequiredFiles } from './getInfo/getFiles';
+import { targetsMCUs, cpus } from './configuration/ConfigInfo';
+import { writeConfigFile } from './configuration/stm32Config';
 
 
 export default async function buildSTM(options?: { flash?: boolean; cleanBuild?: boolean }): Promise<void> {
@@ -56,6 +60,56 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
     window.showErrorMessage('No workspace folder is open. Stopped build');
     return Promise.reject(Error('no workspace folder is open'));
   }
+  // check for makefiles
+  const rootFileList = await workspace.fs.readDirectory(workspace.workspaceFolders[0].uri);
+  const filesInDir: string[] = rootFileList.map((entry) => {
+    return entry[0];
+  });
+  const requiredFilesInDir = checkForRequiredFiles(filesInDir);
+  let hasConfigAndMakefileMissing = false;
+  let makefileIsPresent = false;
+  let configFileIsPresent = false;
+  requiredFilesInDir.forEach((file) => {
+    if (file.file === 'Makefile') {
+      makefileIsPresent = file.isPresent;
+    }
+    if (file.file === EXTENSION_CONFIG_NAME) {
+      configFileIsPresent = file.isPresent;
+    }
+  });
+  if (!makefileIsPresent && !configFileIsPresent) {
+    const response = await window.showInformationMessage(
+      // eslint-disable-next-line max-len
+      'Makefile was not found. If using CubeMX please select generate makefile under:Project Manager>Project/Toolchain IDE. Or do you want to generate a blank stm32-config-yaml file, so a custom project can be configured?', 'Cancel', 'Generate config file'
+    );
+    if (response === 'Generate config file') {
+      console.log('Should generate config file');
+      const targetMCU = await window.showQuickPick(targetsMCUs, {
+        title: 'Pick a target MCU',
+      });
+      const targetCPU = await window.showQuickPick(cpus, {
+        title: 'pick a target cpu architecture',
+      });
+      const ldScript = await window.showInputBox({
+        title: 'linker script',
+        prompt: 'please enter the name/path to the linker script'
+      });
+      const standardConfig: ExtensionConfiguration = new ExtensionConfiguration();
+      if (targetMCU) {
+        standardConfig.targetMCU = targetMCU;
+      }
+      if (targetCPU) {
+        standardConfig.cpu = targetCPU;
+      }
+      if (ldScript) {
+        standardConfig.ldscript = ldScript;
+      }
+      await writeConfigFile(standardConfig);
+    } else {
+      return;
+    }
+  }
+
   try {
     currentWorkspaceFolder = fsPathToPosix(workspace.workspaceFolders[0].uri.fsPath);
     info = await getInfo(currentWorkspaceFolder);

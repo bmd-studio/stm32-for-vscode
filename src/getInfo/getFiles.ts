@@ -30,32 +30,20 @@ import { window } from 'vscode';
 
 import { BuildFiles } from '../types/MakeInfo';
 import Glob = require('glob');
+import { EXTENSION_CONFIG_NAME } from '../Definitions';
 
 const path = pth.posix; // did this so everything would be posix.
 
 export const REQUIRED_RESOURCES = [
   {
-    file: 'makefile',
+    file: 'Makefile',
     // eslint-disable-next-line max-len
     warning: 'No Makefile is present, please initialize your project using CubeMX, with the toolchain set to Makefile under the project manager'
   },
   {
-    file: 'src',
-    // eslint-disable-next-line max-len
-    warning: 'No Src directory is present, please initialize your project using CubeMX, with the toolchain set to Makefile under the project manager'
-  },
-  {
-    file: 'inc',
-    // eslint-disable-next-line max-len
-    warning: 'No Inc directory is present, please initialize your project using CubeMX, with the toolchain set to Makefile under the project manager'
-  },
-  {
-    file: 'drivers',
-    // eslint-disable-next-line max-len
-    warning: 'No Drivers directory is present, please initialize your project using CubeMX, and under Code Generator make sure that the "Copy all user libraries into the project folder" option is selected.'
-  },
-
-
+    file: EXTENSION_CONFIG_NAME,
+    warning: '',
+  }
 ];
 
 
@@ -89,17 +77,22 @@ export function getDirCaseFree(dirName: string, directories: string[]): string |
  * @description Checks if the Makefile, Src, Inc and Drivers directories/files are present.
  * @param {string[] | ArrayLike<string>} directoryFiles
  */
-export function checkForRequiredFiles(directoryFiles: string[]): boolean {
+export function checkForRequiredFiles(directoryFiles: string[]): { file: string, isPresent: boolean }[] {
   // required files/directories are: makefile, Src, Inc and Drivers
-  let check = true;
-  REQUIRED_RESOURCES.forEach((entry: { file: string; warning: string }) => {
+  const files = REQUIRED_RESOURCES.map((entry: { file: string; warning: string }) => {
+    let hasFile = true;
     if (getDirCaseFree(entry.file, directoryFiles) === null) {
-      window.showWarningMessage(entry.warning);
+      hasFile = false;
+      // window.showWarningMessage(entry.warning);
       // const res = getDirCaseFree(entry.file, directoryFiles);
-      check = false;
+      // check = false;
     }
+    return {
+      file: entry.file,
+      isPresent: hasFile,
+    };
   });
-  return check;
+  return files;
 }
 
 /**
