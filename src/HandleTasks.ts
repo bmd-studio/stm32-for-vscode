@@ -7,6 +7,8 @@ import {
   tasks,
   workspace,
   ShellExecutionOptions,
+  TaskScope,
+  WorkspaceFolder,
 } from 'vscode';
 import { getAutomationShell } from './Helpers';
 
@@ -21,29 +23,39 @@ export default function executeTask(
   name: string,
   cmd: string[],
   shellExecOptions: ShellExecutionOptions,
-  problemMatcher?: string
+  problemMatcher?: string,
+  taskScope?: TaskScope,
 ): Promise<void | number> {
   return new Promise((resolve, reject) => {
-    if (!workspace.workspaceFolders) {
+    if (!workspace.workspaceFolders && taskScope !== TaskScope.Global) {
       reject(Error('no workspace folder is selected'));
       return;
+    }
+    let currentTaskScope: TaskScope | WorkspaceFolder = TaskScope.Workspace;
+    if (taskScope) {
+      currentTaskScope = taskScope;
+    } else {
+      if (workspace?.workspaceFolders?.[0]) {
+        currentTaskScope = workspace.workspaceFolders[0];
+      }
+
     }
     const automationShell = getAutomationShell();
     const shellSpecificToolPath = automationShell.includes('powershell') ? `& \\"${cmd[0]}\\"` : `"${cmd[0]}"`;
     cmd.shift();
     const options = cmd.reduce((accumulator, option) => `${accumulator} ${option}`, '');
-    const totalPath = `${shellSpecificToolPath}${options}`;
+    let totalPath = `${shellSpecificToolPath}${options}`;
     const processExec = new ShellExecution(totalPath, shellExecOptions);
-
     const processTask = new Task(
       { type },
-      workspace.workspaceFolders[0],
+      currentTaskScope,
       name, 'STM32 for VSCode',
       processExec,
       problemMatcher
     );
     tasks.executeTask(processTask);
     tasks.onDidEndTaskProcess((e: TaskProcessEndEvent) => {
+      console.log('task errors', e.execution.task.name, e.exitCode);
       if (e.execution.task.name === name) {
         if (e.exitCode === 0) {
           resolve();

@@ -59,7 +59,8 @@ export async function xpmInstall(
     'installation',
     `installing: ${definition.name}`,
     [
-      `${npx}`,
+      // adding the .cmd for windows, otherwise it will open in a different window for powershell.
+      `${platform === 'win32' ? `${npx}.cmd` : npx}`,
       // `--cache "${path.join(context.globalStorageUri.fsPath, 'cache')}"`,
       `xpm install --global ${definition.installation.xpm}`
     ],
