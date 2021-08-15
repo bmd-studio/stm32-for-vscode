@@ -32,6 +32,11 @@ import CommandMenu from './menu/CommandMenu';
 import buildSTM from './BuildTask';
 import { checkBuildTools } from './buildTools';
 import { installAllTools } from './buildTools/installTools';
+import { parseString } from 'xml2js';
+import * as path from 'path';
+import * as util from 'util';
+import * as CubeIDEImport from './getInfo/STM32CubeIDE';
+import { fsPathToPosix } from './Helpers';
 
 
 // this method is called when your extension is activated
@@ -47,6 +52,88 @@ export function activate(context: vscode.ExtensionContext): void {
     commandMenu = addCommandMenu(context);
     vscode.commands.executeCommand('setContext', 'stm32ForVSCodeReady', true);
   });
+  vscode.commands.registerCommand(
+    'stm32-for-vscode.testXMLParsing',
+    () => {
+      if (vscode.workspace.workspaceFolders?.[0]) {
+        vscode.workspace.fs.readFile(
+          vscode.Uri.file(
+            path.join(
+              vscode.workspace.workspaceFolders[0].uri.fsPath, 'LwIP_UDP_Echo_Server\\STM32CubeIDE\\.project'))
+        ).then((response) => {
+          const file = Buffer.from(response).toString('utf8');
+          // console.log('raw file', file);
+          parseString(file, (err, result) => {
+            console.log(err);
+            console.log('result project');
+            console.log(result);
+            if (!vscode.workspace.workspaceFolders?.[0]) {
+              return;
+            }
+            vscode.workspace.fs.writeFile(
+              vscode.Uri.file(
+                path.join(
+                  vscode.workspace.workspaceFolders[0].uri.fsPath, 'testXMLToJSONProject.json')
+              ),
+              Buffer.from(JSON.stringify(result, null, 2), 'utf8')
+            );
+          });
+        });
+        vscode.workspace.fs.readFile(
+          vscode.Uri.file(
+            path.join(
+              vscode.workspace.workspaceFolders[0].uri.fsPath, 'LwIP_UDP_Echo_Server\\STM32CubeIDE\\.cproject'))
+        ).then((response) => {
+          const file = Buffer.from(response).toString('utf8');
+          // console.log('raw file', file);
+          parseString(file, (err, result) => {
+            console.log(err);
+            console.log('result cproject');
+            console.log(result);
+            if (!vscode.workspace.workspaceFolders?.[0]) {
+              return;
+            }
+            vscode.workspace.fs.writeFile(
+              vscode.Uri.file(
+                path.join(
+                  vscode.workspace.workspaceFolders[0].uri.fsPath, 'testXMLToJSONcProject.json')
+              ),
+              Buffer.from(JSON.stringify(result, null, 2), 'utf8')
+            );
+            console.log(JSON.stringify(result, null, 2));
+            console.log(util.inspect(result, false, null));
+          });
+        });
+      }
+
+    }
+  );
+  vscode.commands.registerCommand('stm32-for-vscode.importCubeIDEProject',
+    async () => {
+      try {
+        await CubeIDEImport.getCubeIDEProjectFileInfo();
+        const cProjectFile = await CubeIDEImport.getCProjectFile();
+        if (!vscode.workspace.workspaceFolders?.[0]?.uri?.fsPath) {
+          return;
+        }
+        vscode.workspace.fs.writeFile(
+          vscode.Uri.file(
+            path.join(
+              vscode.workspace.workspaceFolders[0].uri.fsPath, 'cProjectJson.json')
+          ),
+          Buffer.from(JSON.stringify(cProjectFile, null, 2))
+        );
+        console.log('project file');
+        console.log(cProjectFile);
+        if (cProjectFile) {
+          const projectInfo = CubeIDEImport.getInfoFromCProjectFile(cProjectFile);
+          console.log({ projectInfo });
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  );
   const setProgrammerCommand = vscode.commands.registerCommand(
     'stm32-for-vscode.setProgrammer',
     (programmer?: string

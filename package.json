@@ -2,7 +2,7 @@
   "name": "stm32-for-vscode",
   "displayName": "stm32-for-vscode",
   "description": "An extension for: setting up, compiling, uploading and debugging STM32 applications",
-  "version": "3.1.4",
+  "version": "3.1.5",
   "engines": {
     "vscode": "^1.44.0"
   },
@@ -73,6 +73,14 @@
     ],
     "commands": [
       {
+        "command": "stm32-for-vscode.testXMLParsing",
+        "title": "STM32: Test XML Parsing"
+      },
+      {
+        "command": "stm32-for-vscode.importCubeIDEProject",
+        "title": "STM32: Import CubeIDEProject"
+      },
+      {
         "command": "stm32-for-vscode.build",
         "title": "STM32: Build STM32 project"
       },
@@ -141,7 +149,8 @@
     "watch": "tsc -watch -p ./",
     "prewebpack": "yarn run lint",
     "pretest": "rm -rf ./out/test && yarn run compile:test && yarn run lint",
-    "watch:tests": "watch \"yarn test\" ./src --wait=10"
+    "watch:tests": "watch \"yarn test\" ./src --wait=10",
+    "generate-docs": "typedoc --out docs src"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.0",
@@ -160,6 +169,7 @@
     "@types/strip-comments": "^2.0.0",
     "@types/unzipper": "^0.10.3",
     "@types/vscode": "^1.44",
+    "@types/xml2js": "^0.4.9",
     "@typescript-eslint/eslint-plugin": "^4.1.1",
     "@typescript-eslint/parser": "^4.1.1",
     "babel-core": "^6.26.3",
@@ -176,6 +186,7 @@
     "nyc": "^15.1.0",
     "sinon": "^11.1.1",
     "ts-loader": "^9.2.3",
+    "typedoc": "^0.21.5",
     "typescript": "^4.0.2",
     "vscode-test": "^1.5.1",
     "watch": "^1.0.2",
@@ -193,6 +204,7 @@
     "recursive-readdir": "^2.2.2",
     "shelljs": "^0.8.4",
     "strip-comments": "^2.0.1",
+    "xml2js": "^0.4.23",
     "yaml": "^1.10.0"
   },
   "taskDefinitions": {}
