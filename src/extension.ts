@@ -126,7 +126,7 @@ export function activate(context: vscode.ExtensionContext): void {
         console.log('project file');
         console.log(cProjectFile);
         if (cProjectFile) {
-          const projectInfo = CubeIDEImport.getInfoFromCProjectFile(cProjectFile);
+          const projectInfo = await CubeIDEImport.getInfoFromCProjectFile(cProjectFile);
           console.log({ projectInfo });
         }
       } catch (error) {
