@@ -177,3 +177,38 @@ export function getInfoFromCProjectFile(cProjectFile: any): CprojectInfo {
     cDefs: definitions
   } as CprojectInfo;
 }
+
+async function getLDScriptPathFromCProjectEntry(projectInfo: CprojectInfo): Promise<string | undefined> {
+  const ldRegex = /[\w\d_]+.ld/;
+  const regexSearchResult = ldRegex.exec(projectInfo.ldscript);
+  if (regexSearchResult) {
+    const ldScriptName = regexSearchResult[0];
+    console.log({ ldScriptName, regexSearchResult });
+    const ldFiles = await scanForFiles([`**/${ldScriptName}`]);
+    if (ldFiles[0]) {
+      return ldFiles[0];
+    }
+  }
+  return undefined;
+}
+
+export default async function getCubeIDECProjectFileInfo(): Promise<CprojectInfo> {
+  try {
+    const cProjectFile = await getCProjectFile();
+    if (!cProjectFile) {
+      throw new Error('Could not find cProjectFile');
+    }
+    const projectInfo = getInfoFromCProjectFile(cProjectFile);
+    // search for the ld script
+    const ldScriptPath = await getLDScriptPathFromCProjectEntry(projectInfo);
+    console.log({ ldScriptPath });
+    if (ldScriptPath) {
+      projectInfo.ldscript = ldScriptPath;
+    }
+
+
+    return projectInfo;
+  } catch (e) {
+    throw e;
+  }
+}
