@@ -16,7 +16,7 @@ export default async function getCubeIDEProjectInfo(): Promise<MakeInfo> {
     const result = new MakeInfo();
     result.cSources = projectFiles.sourceFiles;
     result.target = projectFiles.target;
-    const targetMCU = getTargetMCUFromFullName(cProjectInfo.targetMCU)
+    const targetMCU = getTargetMCUFromFullName(cProjectInfo.targetMCU);
     if (targetMCU) {
       result.targetMCU = targetMCU;
     }

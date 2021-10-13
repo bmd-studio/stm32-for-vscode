@@ -32,7 +32,7 @@ import CommandMenu from './menu/CommandMenu';
 import buildSTM from './BuildTask';
 import { checkBuildTools } from './buildTools';
 import { installAllTools } from './buildTools/installTools';
-import CubeIDEProject from './getInfo/STM32CubeIDE';
+import importAndSetupCubeIDEProject from './import';
 
 
 // this method is called when your extension is activated
@@ -51,8 +51,7 @@ export function activate(context: vscode.ExtensionContext): void {
   vscode.commands.registerCommand('stm32-for-vscode.importCubeIDEProject',
     async () => {
       try {
-        const projectFile = await CubeIDEProject();
-        console.log({ projectFile });
+        await importAndSetupCubeIDEProject();
       } catch (error) {
         console.error(error);
       }

@@ -169,7 +169,8 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
     this.assemblyFlags = makeInfo.assemblyFlags;
     this.cxxFlags = makeInfo.cxxFlags;
     this.libraryDirectories = makeInfo.libdir;
-    this.sourceFiles.concat(makeInfo.asmSources);
+    this.sourceFiles = this.sourceFiles.concat(makeInfo.asmSources, makeInfo.cSources, makeInfo.cxxSources);
+    this.includeDirectories = this.includeDirectories.concat(makeInfo.cIncludes);
   }
 }
 
