@@ -2,7 +2,8 @@ import { Uri, workspace } from 'vscode';
 import * as path from 'path';
 import { scanForFiles } from "../getFiles";
 import { parseStringPromise } from "xml2js";
-import { deepFind } from './helpers';
+import { deepFind, projectFilePathsToWorkspacePaths } from './helpers';
+
 import MakeInfo from "../../types/MakeInfo";
 
 /**
@@ -26,8 +27,6 @@ export async function getCProjectFile(): Promise<any | undefined> {
       cProjectXML, { ignoreAttrs: false, mergeAttrs: true, explicitArray: false }
     );
     cProjectJSON.location = projectFile[0];
-    console.log(cProjectJSON);
-
     return cProjectJSON;
   }
   return undefined;
@@ -148,17 +147,21 @@ export function getInfoFromCProjectFile(cProjectFile: any): CprojectInfo {
     const value = convertCProjectTypeToValue(parentValue, definition.type);
     cProjectInfo[definition.name] = value || '';
   });
-  console.log('cProject information', cProjectInfo);
   let includePaths: string[] = [];
   if (Array.isArray(cProjectInfo.cIncludePaths)) {
     includePaths = includePaths.concat(cProjectInfo.cIncludePaths);
-  } else {
+  } else if (cProjectInfo.cIncludePaths) {
     includePaths.push(cProjectInfo.cIncludePaths);
   }
+  if (cProjectFile.location) {
+    includePaths = projectFilePathsToWorkspacePaths(cProjectFile.location, includePaths);
+  }
+
+
 
   if (Array.isArray(cProjectInfo.assemblyIncludePaths)) {
     includePaths = includePaths.concat(cProjectInfo.assemblyIncludePaths);
-  } else {
+  } else if (cProjectInfo.assemblyIncludePaths) {
     includePaths.push(cProjectInfo.assemblyIncludePaths);
   }
 
@@ -183,7 +186,6 @@ async function getLDScriptPathFromCProjectEntry(projectInfo: CprojectInfo): Prom
   const regexSearchResult = ldRegex.exec(projectInfo.ldscript);
   if (regexSearchResult) {
     const ldScriptName = regexSearchResult[0];
-    console.log({ ldScriptName, regexSearchResult });
     const ldFiles = await scanForFiles([`**/${ldScriptName}`]);
     if (ldFiles[0]) {
       return ldFiles[0];
@@ -201,7 +203,6 @@ export default async function getCubeIDECProjectFileInfo(): Promise<CprojectInfo
     const projectInfo = getInfoFromCProjectFile(cProjectFile);
     // search for the ld script
     const ldScriptPath = await getLDScriptPathFromCProjectEntry(projectInfo);
-    console.log({ ldScriptPath });
     if (ldScriptPath) {
       projectInfo.ldscript = ldScriptPath;
     }

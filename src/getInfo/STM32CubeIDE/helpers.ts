@@ -1,3 +1,5 @@
+import * as path from 'path';
+
 /**
  * Finds a deeply nested key value pair inside an object or array and returns the parent
  * @param object The object to search in
@@ -20,4 +22,18 @@ export function deepFind(object: any, key: string, value: string): undefined | a
     }
   }
   return undefined;
+}
+
+/**
+ * 
+ * @param projectFilePath filepath to the project files, can be relative from the workspace or absolute.
+ * @param projectFilePaths The relative filepaths given by the project file.
+ * @returns 
+ */
+export function projectFilePathsToWorkspacePaths(
+  projectFilePath: string,
+  projectFilePaths: string[]
+): string[] {
+  return projectFilePaths.map((filePath) =>
+    path.posix.join(projectFilePath, filePath));
 }

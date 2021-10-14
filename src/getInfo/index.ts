@@ -148,6 +148,7 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   const filteredHeaderFiles = Micromatch.not(indiscriminateHeaderFileList, projectConfiguration.excludes);
 
   const sortedSourceFiles = sortFiles(filteredSourceFiles);
+  console.log({ indiscriminateSourceFileList, filteredSourceFiles, sortedSourceFiles, projectConfiguration });
   const includeDirectories = getIncludeDirectoriesFromFileList(filteredHeaderFiles);
   const regularIncludeDirectories = getNonGlobIncludeDirectories(combinedHeaderFiles);
   const filteredIncludeDirectories = Micromatch.not(regularIncludeDirectories, projectConfiguration.excludes);

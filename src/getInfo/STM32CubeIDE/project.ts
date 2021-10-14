@@ -154,7 +154,9 @@ import { workspace, Uri } from "vscode";
 import { parseStringPromise } from "xml2js";
 import { scanForFiles } from "../getFiles";
 import * as path from 'path';
+import { projectFilePathsToWorkspacePaths } from './helpers';
 export { getCProjectFile, getInfoFromCProjectFile } from './cProject';
+
 
 interface CubeIDEProjectLink {
   name: string;
@@ -217,19 +219,7 @@ export async function getProjectFile(): Promise<CubeIDEProject | undefined> {
   return undefined;
 }
 
-/**
- * 
- * @param projectFilePath filepath to the project files, can be relative from the workspace or absolute.
- * @param projectFilePaths The relative filepaths given by the project file.
- * @returns 
- */
-export function projectFilePathsToWorkspacePaths(
-  projectFilePath: string,
-  projectFilePaths: string[]
-): string[] {
-  return projectFilePaths.map((filePath) =>
-    path.posix.join(projectFilePath, filePath));
-}
+
 
 /**
  * Get sources files from a CubeIDEProject file
@@ -237,7 +227,6 @@ export function projectFilePathsToWorkspacePaths(
  * @returns array of strings with all the source files, might include non c files
  */
 export function getSourceFilesFromCubeProjectJSON(projectJSON: CubeIDEProject): string[] {
-  console.log('project JSON', projectJSON);
   if (projectJSON && projectJSON?.projectDescription?.linkedResources?.link) {
     const linkFiles: CubeIDEProjectLink[] = projectJSON?.projectDescription?.linkedResources?.link;
 
@@ -257,8 +246,9 @@ export function getSourceFilesFromCubeProjectJSON(projectJSON: CubeIDEProject): 
       }
       return location;
     }));
-    console.log({ linkFiles, currentFiles });
-    return projectFilePathsToWorkspacePaths(projectJSON.location, currentFiles);
+    // need to do this  to get the appropriate  location
+    let dirRoot = path.dirname(projectJSON.location);
+    return projectFilePathsToWorkspacePaths(dirRoot, currentFiles);
   }
   return [];
 }
@@ -274,7 +264,6 @@ export default async function getCubeIDEProjectFileInfo(): Promise<CubeIDEProjec
     throw new Error('Could not find CubeIDEProject');
   }
   const sourceFiles = getSourceFilesFromCubeProjectJSON(cubeIDEProjectFile);
-  console.log({ sourceFiles, cubeIDEProjectFile });
   return {
     sourceFiles,
     target: cubeIDEProjectFile.projectDescription?.name ? cubeIDEProjectFile.projectDescription?.name : 'firmware',
