@@ -112,6 +112,20 @@ export function extractLibs(makefile: string): string[] {
 }
 
 /**
+ * @description - Extracts the build specification from the makefile e.g nosys.specs  
+ * @param makefile  - A string representation of the Makefile
+ * @returns 
+ */
+export function extractBuildSpecification(makefile: string): string {
+  const specRegex = /(?:\s-specs=)(\w+\.\w+)/;
+  const result = specRegex.exec(makefile);
+  if (result && result[1]) {
+    return result[1];
+  }
+  return '';
+}
+
+/**
  * Removes prefixes from an array.
  * @param information the array on which prefixes need to be removed
  * @param prefix the prefix to be removed e.g. -I
@@ -170,12 +184,16 @@ export function extractMakefileInfo(makefile: string): MakeInfo {
     }
   });
 
-
+  output.specification = extractBuildSpecification(makefile);
 
   // get the targetSTM separately as we need the cSources
   output.targetMCU = getTargetSTM(output.cSources);
 
+
   // remove prefixes.
+  output.floatAbi = removePrefixes([output.floatAbi], '--mfloat-abi=')[0];
+  output.fpu = removePrefixes([output.fpu], '-mfpu=')[0];
+  output.cpu = removePrefixes([output.cpu], '-mcpu=')[0];
   output.libs = removePrefixes(output.libs, '-l');
   output.libdir = removePrefixes(_.isArray(output.libdir) ? output.libdir : [output.libdir], '-L');
   output.cDefs = removePrefixes(output.cDefs, '-D');

@@ -36,6 +36,7 @@ import * as _ from 'lodash';
 import MakeInfo from './types/MakeInfo';
 import { fsPathToPosix } from './Helpers';
 import { makefileName } from './Definitions';
+import { InputType } from 'zlib';
 
 const { platform } = process;
 
@@ -83,6 +84,13 @@ export function createGCCPathOutput(makeInfo: MakeInfo): string {
     }
   }
   return '';
+}
+
+function createPrefixWhenNoneExists(input: string, prefix: string): string {
+  if (input.indexOf(prefix) >= 0) {
+    return input;
+  }
+  return `${prefix}${input}`;
 }
 
 export default function createMakefile(makeInfo: MakeInfo): string {
@@ -163,13 +171,13 @@ BIN = $(CP) -O binary -S
 # CFLAGS
 #######################################
 # cpu
-CPU = ${makeInfo.cpu}
+CPU = ${createPrefixWhenNoneExists(makeInfo.cpu, '-mcpu=')}
 
 # fpu
-FPU = ${makeInfo.fpu}
+FPU = ${makeInfo.fpu && makeInfo.fpu != '' ? createPrefixWhenNoneExists(makeInfo.fpu, '-mfpu=') : ''}
 
 # float-abi
-FLOAT-ABI = ${makeInfo.floatAbi}
+FLOAT-ABI = ${createPrefixWhenNoneExists(makeInfo.floatAbi, '-mfloat-abi=')}
 
 # mcu
 MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
@@ -222,7 +230,7 @@ ${createStringList(makeInfo.libdir, '-L')}
 # Additional LD Flags from config file
 ADDITIONALLDFLAGS = ${createSingleLineStringList(makeInfo.assemblyFlags)}
 
-LDFLAGS = $(MCU) $(ADDITIONALLDFLAGS) -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+LDFLAGS = $(MCU) ${createPrefixWhenNoneExists(makeInfo.specification, '-specs=')} $(ADDITIONALLDFLAGS) -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin

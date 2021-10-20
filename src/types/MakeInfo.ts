@@ -45,6 +45,7 @@ export class TargetInfo implements TargetInfoInterface {
 export interface CompileInfoInterface {
   language: STM32Languages;
   optimization: string;
+  specification: string;
   cFlags: string[];
   assemblyFlags: string[];
   cxxFlags: string[];
@@ -59,6 +60,7 @@ export interface CompileInfoInterface {
 export class CompileInfo implements CompileInfoInterface {
   public language = 'C' as STM32Languages;
   public optimization = 'Og';
+  public specification = 'nano';
   public cFlags: string[] = [];
   public assemblyFlags: string[] = [];
   public cxxFlags: string[] = [];
@@ -88,6 +90,7 @@ export interface MakeInfoInterface extends BuildFilesInterface, TargetInfoInterf
   optimization: string;
   cFlags: string[];
   assemblyFlags: string[];
+  specification: string;
   cxxFlags: string[];
   cDefs: string[];
   cxxDefs: string[];
@@ -134,11 +137,12 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
   public target = '';
   public cpu = '';
   public fpu = '';
-  public floatAbi = '';
+  public floatAbi = 'soft';
   public ldscript = '';
   public targetMCU = '';
   public language = 'C' as STM32Languages;
   public optimization = 'Og';
+  public specification = 'nano';
   // be aware that more flags are present in the Makefile. However these seem to be mandatory
   public cFlags: string[] = [
     '-Wall', '-fdata-sections', '-ffunction-sections',
@@ -150,7 +154,7 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
   ];
   public cxxFlags: string[] = [];
   public sourceFiles: string[] = [];
-  public libraries: string[] = ['c', 'm', 'nosys'];
+  public libraries: string[] = ['c', 'm'];
   public libraryDirectories: string[] = [];
   public suppressMakefileWarning = false;
 
@@ -187,7 +191,7 @@ export default class MakeInfo implements MakeInfoInterface {
   public tools: ToolChain = new ToolChain();
   public target = '';
   public cpu = '';
-  public fpu = '';
+  public fpu = 'soft';
   public floatAbi = '';
   public mcu = '';
   public ldscript = '';
@@ -198,5 +202,6 @@ export default class MakeInfo implements MakeInfoInterface {
   public assemblyFlags: string[] = [];
   public ldFlags: string[] = [];
   public cxxFlags: string[] = [];
+  public specification: string = 'nano.specs';
 
 }

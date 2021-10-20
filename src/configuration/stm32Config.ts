@@ -50,10 +50,11 @@ optimization: ${config.optimization}
 
 # MCU settings
 targetMCU: ${config.targetMCU}
-cpu: ${config.cpu}
-fpu: ${config.fpu}
+cpu: ${config.cpu} # type of cpu e.g. cortex-m4
+fpu: ${config.fpu} # Defines how floating points are defined. Can be left empty.
 floatAbi: ${config.floatAbi}
 ldscript: ${config.ldscript} # linker script
+specification: ${config.specification} # specification, can be nano, nosys or rdimon
 
 # Compiler definitions. The -D prefix for the compiler will be automatically added.
 cDefinitions: ${createYamlArray(config.cDefinitions)}
@@ -123,11 +124,6 @@ export async function writeDefaultConfigFile(config: ExtensionConfiguration): Pr
     configFileWithAddedDefaults.includeDirectories,
     DEFAULT_INCLUDES
   );
-  configFileWithAddedDefaults.assemblyFlags = _.concat(
-    configFileWithAddedDefaults.assemblyFlags,
-    ['-specs=nosys.specs']
-  );
-
   await writeConfigFile(configFileWithAddedDefaults);
   return configFileWithAddedDefaults;
 }

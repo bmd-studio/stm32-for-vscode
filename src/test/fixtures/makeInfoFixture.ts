@@ -27,6 +27,7 @@ export function newMakeInfo(info: Partial<MakeInfo>): MakeInfo {
     assemblyFlags: [],
     ldFlags: [],
     cxxFlags: [],
+    specification: '',
   };
   return _.assign(standard, info);
 }

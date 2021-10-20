@@ -3,8 +3,7 @@ import _ = require('lodash');
 import MakeInfo from '../types/MakeInfo';
 
 const defaults: Partial<MakeInfo> = {
-  libs: ['c', 'm', 'nosys'],
-  assemblyFlags: ['-specs=nosys.specs'],
+  libs: ['c', 'm'],
   cxxFlags: ['-feliminate-unused-debug-types']
 };
 
