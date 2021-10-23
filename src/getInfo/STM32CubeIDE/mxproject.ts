@@ -50,6 +50,27 @@ function extractCubEIDESourceFilesFromMXProject(projectFile: string): string[] {
 
   return resultArray;
 }
+
+function extractCubeIDELibFilesFromMXPRoject(projectFile: string): string[] {
+  let resultArray: string[] = [];
+  const cubeIdeFileRegex = /\[PreviousLibFiles\]\s*[\r\n]LibFiles=(([\w_\d\-\\\/]+.(?:(c)|(cpp)|(cxx)|a);+)+)$/gim;
+  const cubeSourceFileRegex = /([\w_\d\-\\\/]+.(?:(c)|(cpp)|(cxx)|a);+)/g;
+  // const result = cubeIdeFileRegex.exec(projectFile);
+  const result = projectFile.match(cubeIdeFileRegex); //cubeIdeFileRegex.exec(projectFile);
+  if (result && result[0]) {
+    const fileResult = result[0].match(cubeSourceFileRegex);
+    if (fileResult) {
+      resultArray = fileResult?.map((value: string) => {
+        return value.replaceAll(path.sep, '/').replace(';', '');
+      });
+    }
+    console.log({ fileResult });
+  }
+  console.log({ result, projectFile, resultArray });
+
+  return resultArray;
+}
+
 export async function getCubeIDEMXProjectInfo(): Promise<{ sourceFiles: string[], headerPaths: string[] }> {
   const defaultOutput = { sourceFiles: [], headerPaths: [] };
   const currentWorkspaceFolder = workspace.workspaceFolders?.[0];
@@ -65,6 +86,7 @@ export async function getCubeIDEMXProjectInfo(): Promise<{ sourceFiles: string[]
     );
     const projectFile = Buffer.from(projectFileBuffer).toString('utf8');
     const cubeFiles = extractCubEIDESourceFilesFromMXProject(projectFile);
+    const cubeLibFiles = extractCubeIDELibFilesFromMXPRoject(projectFile);
     if (projectFile) {
       return {
         sourceFiles: extractSourceFilesFromMXProject(projectFile, currentWorkspaceFolder.uri.fsPath).concat(cubeFiles),
