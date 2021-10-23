@@ -92,6 +92,61 @@ const infoFromCProjectDefinition: CProjectInfoDefinition[] = [
     type: 'path'
   }
 ];
+const infoFromCProjectac6Definition: CProjectInfoDefinition[] = [
+  {
+    name: 'targetMCU',
+    superClass: 'fr.ac6.managedbuild.option.gnu.cross.mcu',
+    type: 'string'
+  },
+  // {
+  //   name: 'cpuid',
+  //   superClass: 'com.st.stm32cube.ide.mcu.gnu.managedbuild.option.target_cpuid',
+  //   type: 'string'
+  // },
+  // {
+  //   name: 'coreid',
+  //   superClass: 'com.st.stm32cube.ide.mcu.gnu.managedbuild.option.target_coreid',
+  //   type: 'string'
+  // },
+  {
+    name: 'fpu',
+    superClass: 'fr.ac6.managedbuild.option.gnu.cross.fpu',
+    type: 'dotNotation'
+  },
+  {
+    name: 'floatAbi',
+    superClass: 'fr.ac6.managedbuild.option.gnu.cross.floatabi',
+    type: 'dotNotation'
+  },
+  {
+    name: 'targetBoard',
+    superClass: 'fr.ac6.managedbuild.option.gnu.cross.board',
+    type: 'string'
+  },
+  {
+    name: 'assemblyIncludePaths',
+    superClass: 'gnu.both.asm.option.include.paths',
+    type: 'includes'
+  },
+  {
+    name: 'cDefinitions',
+    superClass: 'gnu.c.compiler.option.preprocessor.def.symbols',
+    type: 'definitions'
+  },
+  {
+    name: 'cIncludePaths',
+    superClass: 'gnu.c.compiler.option.include.paths',
+    type: 'includes'
+  },
+  {
+    name: 'ldscript',
+    superClass: 'fr.ac6.managedbuild.tool.gnu.cross.c.linker.script',
+    type: 'path'
+  }
+];
+
+
+
 
 /**
  * converts the cProjectFile parent value into a single array or value with the appropriate type and value
@@ -147,6 +202,15 @@ export function getInfoFromCProjectFile(cProjectFile: any): CprojectInfo {
     const value = convertCProjectTypeToValue(parentValue, definition.type);
     cProjectInfo[definition.name] = value || '';
   });
+
+  infoFromCProjectac6Definition.forEach((definition) => {
+    const parentValue = deepFind(cProjectFile, 'superClass', definition.superClass);
+    const value = convertCProjectTypeToValue(parentValue, definition.type);
+    if (value !== undefined) {
+      cProjectInfo[definition.name] = value || '';
+    }
+  });
+
   let includePaths: string[] = [];
   if (Array.isArray(cProjectInfo.cIncludePaths)) {
     includePaths = includePaths.concat(cProjectInfo.cIncludePaths);

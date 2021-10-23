@@ -161,7 +161,8 @@ export { getCProjectFile, getInfoFromCProjectFile } from './cProject';
 interface CubeIDEProjectLink {
   name: string;
   type: string;
-  locationURI: string;
+  locationURI?: string;
+  location?: string;
 }
 
 interface CubeIDEProject {
@@ -232,9 +233,9 @@ export function getSourceFilesFromCubeProjectJSON(projectJSON: CubeIDEProject): 
 
     // Loop to retrieve the relative location to the parent.
     const currentFiles = linkFiles.map((entry => {
-      let location = entry.locationURI;
-      const nestingRegex = /^\$%7BPARENT-(\d)-PROJECT_LOC%7D\//;
-      const numberSearch = nestingRegex.exec(entry.locationURI);
+      let location = entry.locationURI || entry.location || '';
+      const nestingRegex = /^(?:\$%\dB)?PARENT-(\d)-PROJECT_LOC(?:%\dD)?\//;
+      const numberSearch = nestingRegex.exec(location);
 
       if (numberSearch?.[0] && numberSearch?.[1] && !isNaN(parseInt(numberSearch[1]))) {
         location = location.replace(numberSearch[0], '');
@@ -246,9 +247,10 @@ export function getSourceFilesFromCubeProjectJSON(projectJSON: CubeIDEProject): 
       }
       return location;
     }));
+    const filteredFiles = currentFiles.filter((entry) => !!entry);
     // need to do this  to get the appropriate  location
     let dirRoot = path.dirname(projectJSON.location);
-    return projectFilePathsToWorkspacePaths(dirRoot, currentFiles);
+    return projectFilePathsToWorkspacePaths(dirRoot, filteredFiles);
   }
   return [];
 }

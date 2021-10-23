@@ -3,7 +3,6 @@ import getCubeIDECProjectFileInfo from "./cProject";
 import getCubeIDEProjectFileInfo from "./project";
 import getStartupFileInfo from "./startupScripts";
 import { getTargetMCUFromFullName } from '../../OpenOcdTargetFiles';
-import { getCubeIDEMXProjectInfo } from './mxproject';
 import { targetsMCUs } from "../../configuration/ConfigInfo";
 
 
@@ -14,10 +13,9 @@ export default async function getCubeIDEProjectInfo(): Promise<MakeInfo> {
     const projectFiles = await getCubeIDEProjectFileInfo();
     const cProjectInfo = await getCubeIDECProjectFileInfo();
     const startupFileInfo = await getStartupFileInfo();
-    const mxProjectFiles = await getCubeIDEMXProjectInfo();
 
     const result = new MakeInfo();
-    result.cSources = result.cSources.concat(projectFiles.sourceFiles, mxProjectFiles.sourceFiles);
+    result.cSources = result.cSources.concat(projectFiles.sourceFiles);
     if (startupFileInfo) {
       result.asmSources.push(startupFileInfo.path);
     }
@@ -26,7 +24,7 @@ export default async function getCubeIDEProjectInfo(): Promise<MakeInfo> {
     if (targetMCU) {
       result.targetMCU = targetMCU;
     }
-    result.cIncludes = result.cIncludes.concat(cProjectInfo.cIncludes, mxProjectFiles.headerPaths);
+    result.cIncludes = result.cIncludes.concat(cProjectInfo.cIncludes);
     result.floatAbi = cProjectInfo.floatAbi ? `${cProjectInfo.floatAbi}` : '';
     result.fpu = `${cProjectInfo.fpu}`;
     result.ldscript = cProjectInfo.ldscript;
