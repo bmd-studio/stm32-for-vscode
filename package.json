@@ -183,7 +183,7 @@
     "webpack-cli": "^4.7.2"
   },
   "dependencies": {
-    "axios": "^0.21.0",
+    "axios": "^0.21.2",
     "cpp-include": "^1.1.1",
     "decompress": "^4.2.1",
     "json5": "^2.1.0",
