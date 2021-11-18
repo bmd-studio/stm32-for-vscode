@@ -5,6 +5,11 @@
   - Add support to use different project types (EWARM, STM32CubeIDE, etc.).
   - Add ability to introduce generated changes from the main.c file into the main.cpp file.
   - Add support for unit testing using Google Test and Google Mock.
+
+## [3.1.5] - 2021-11-18
+### Fixed
+ - Issue #81: added extra check to see if the openocd paths are correctly setup, however the settings should not be added anyhow when the extension does not start.
+ - 
 ## [3.1.4] - 2021-07-27
 ### Added
  - Issue #77: Added .cc extension inclusion for c++ build files.

@@ -6,10 +6,18 @@ import * as path from 'path';
 
 import { ToolChain } from '../types/MakeInfo';
 
+/**
+ * Sets up cortex debug to work with the paths STM32 for VSCode is given in the settings.
+ * @param tools object containing toolchain paths
+ */
 export function setCortexDebugSettingsInWorkspace(tools: ToolChain): void {
   const cortexDebugSetting = vscode.workspace.getConfiguration('cortex-debug');
-  cortexDebugSetting.update('armToolchainPath', tools.armToolchainPath, vscode.ConfigurationTarget.Workspace);
-  cortexDebugSetting.update('openocdPath', tools.openOCDPath, vscode.ConfigurationTarget.Workspace);
+  if (cortexDebugSetting.get('armToolchainPath') && cortexDebugSetting.get('armToolchainPath') !== tools.armToolchainPath) {
+    cortexDebugSetting.update('armToolchainPath', tools.armToolchainPath, vscode.ConfigurationTarget.Workspace);
+  }
+  if (cortexDebugSetting.get('openocdPath') && cortexDebugSetting.get('openocdPath') !== tools.openOCDPath) {
+    cortexDebugSetting.update('openocdPath', tools.openOCDPath, vscode.ConfigurationTarget.Workspace);
+  }
 }
 
 /**
@@ -20,8 +28,6 @@ export function setCortexDebugSettingsInWorkspace(tools: ToolChain): void {
  * @param context vscode extension context
  */
 export async function checkBuildTools(context: vscode.ExtensionContext): Promise<boolean> {
-  // const hasBuildTools = context.globalState.get('hasBuildTools');
-
   const settingBuildTools = toolChainValidation.checkSettingsForBuildTools();
   const pathBuildTools = toolChainValidation.checkBuildToolsInPath();
   const extensionInstalledTools = await toolChainValidation.checkAutomaticallyInstalledBuildTools(context);
@@ -75,6 +81,7 @@ export async function checkBuildTools(context: vscode.ExtensionContext): Promise
 
   context.globalState.update('hasBuildTools', hasBuildTools);
   if (hasBuildTools) {
+
     setCortexDebugSettingsInWorkspace(finalBuildTools);
   }
   return Promise.resolve(hasBuildTools);
