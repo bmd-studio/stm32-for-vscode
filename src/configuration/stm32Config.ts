@@ -74,8 +74,8 @@ cxxFlags: ${createYamlArray(config.cxxFlags)}
 assemblyFlags: ${createYamlArray(config.assemblyFlags)}
 
 # libraries to be included. The -l prefix to the library will be automatically added.
-# Mind that non standard libraries should have a path to their respective directory.
 libraries: ${createYamlArray(config.libraries)}
+# Library directories. Folders can be added here that contain custom libraries.
 libraryDirectories: ${createYamlArray(config.libraryDirectories)}
 
 # Files or folders that will be excluded from compilation.
