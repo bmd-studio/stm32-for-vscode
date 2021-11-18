@@ -7,9 +7,11 @@
   - Add support for unit testing using Google Test and Google Mock.
 
 ## [3.1.5] - 2021-11-18
+### Added
+- Issue #89: Added automatic main.cpp generation with a main.c file, if the language is set to .cpp
 ### Fixed
  - Issue #81: added extra check to see if the openocd paths are correctly setup, however the settings should not be added anyhow when the extension does not start.
- - 
+ - Issue #88: separated c and cpp flags, however upon getting information from the makefile it does add the c Definitions to the cpp definitions.
 ## [3.1.4] - 2021-07-27
 ### Added
  - Issue #77: Added .cc extension inclusion for c++ build files.
