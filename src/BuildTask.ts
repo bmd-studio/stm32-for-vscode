@@ -28,6 +28,7 @@
 import {
   window,
   workspace,
+  Uri
 } from 'vscode';
 
 import MakeInfo, { ExtensionConfiguration } from './types/MakeInfo';
@@ -45,7 +46,41 @@ import updateMakefile from './UpdateMakefile';
 import { checkForRequiredFiles } from './getInfo/getFiles';
 import { targetsMCUs, cpus } from './configuration/ConfigInfo';
 import { writeConfigFile } from './configuration/stm32Config';
+import * as path from 'path';
 
+/**
+ * Checks if the language is C++ and that there is no main.cpp present. 
+ * If so it will output the main.cpp in the build folder, so it can be used for compilation.
+ * @param info makefile info
+ */
+async function checkForMainCPPOrAddWhenNecessary(info: MakeInfo): Promise<MakeInfo> {
+  if (!workspace.workspaceFolders) {
+    window.showErrorMessage('No workspace folder is open. Stopped build');
+    return Promise.reject(Error('no workspace folder is open'));
+  }
+  // if language is C++ and the main.c file is not converted to a main.cpp file
+  if (info.language === 'C++') {
+    const cMainIndex = info.cSources.findIndex((file) => (file.includes('main.c')));
+    const hasCMain = (cMainIndex >= 0);
+    const hasCXXMain = (info.cxxSources.findIndex(
+      (file) => (
+        file.includes('main.cpp') || file.includes('main.cxx')
+      )
+    ) >= 0);
+
+    if (hasCMain && !hasCXXMain) {
+      // create a copy of the main.c file in the build folder.
+      const pathToCMain = path.join(workspace.workspaceFolders[0].uri.fsPath, info.cSources[cMainIndex]);
+      const cMainFile = await workspace.fs.readFile(Uri.file(pathToCMain));
+      const cxxMainFilePath = path.join(workspace.workspaceFolders[0].uri.fsPath, 'build', 'main.cpp');
+      await workspace.fs.writeFile(Uri.file(cxxMainFilePath), cMainFile);
+      const relativeCXXPath = path.posix.join('build', 'main.cpp');
+      info.cxxSources.push(relativeCXXPath);
+      info.cSources.splice(cMainIndex, 1);
+    }
+  }
+  return info;
+}
 
 export default async function buildSTM(options?: { flash?: boolean; cleanBuild?: boolean }): Promise<void> {
   const {
@@ -65,8 +100,7 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
   const filesInDir: string[] = rootFileList.map((entry) => {
     return entry[0];
   });
-  const requiredFilesInDir = checkForRequiredFiles(filesInDir);
-  let hasConfigAndMakefileMissing = false;
+  const requiredFilesInDir = checkForRequiredFiles(filesInDir); 1
   let makefileIsPresent = false;
   let configFileIsPresent = false;
   requiredFilesInDir.forEach((file) => {
@@ -113,18 +147,7 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
   try {
     currentWorkspaceFolder = fsPathToPosix(workspace.workspaceFolders[0].uri.fsPath);
     info = await getInfo(currentWorkspaceFolder);
-    await updateMakefile(currentWorkspaceFolder, info);
-
-    try {
-      await updateConfiguration(workspace.workspaceFolders[0].uri, info);
-    } catch (err) {
-      const errorMsg = `Something went wrong with configuring the workspace. ERROR: ${err}`;
-      window.showErrorMessage(errorMsg);
-      throw new Error(errorMsg);
-    }
-
     const makeArguments = `-j16 -f ${makefileName}`;
-
     if (cleanBuild) {
       await executeTask(
         'build',
@@ -138,6 +161,20 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
         "$gcc"
       );
     }
+
+    // update makefile info and main.cpp if required.
+    info = await checkForMainCPPOrAddWhenNecessary(info);
+    await updateMakefile(currentWorkspaceFolder, info);
+
+    try {
+      await updateConfiguration(workspace.workspaceFolders[0].uri, info);
+    } catch (err) {
+      const errorMsg = `Something went wrong with configuring the workspace. ERROR: ${err}`;
+      window.showErrorMessage(errorMsg);
+      throw new Error(errorMsg);
+    }
+
+
     await executeTask(
       'build',
       'STM32 build',
