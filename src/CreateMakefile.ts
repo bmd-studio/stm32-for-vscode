@@ -182,6 +182,10 @@ AS_DEFS =
 C_DEFS =  ${'\\'}
 ${createStringList(makeInfo.cDefs, '-D')}
 
+# CXX defines
+CXX_DEFS =  ${'\\'}
+${createStringList(makeInfo.cxxDefs, '-D')}
+
 # AS includes
 AS_INCLUDES = ${'\\'}
 
@@ -195,6 +199,8 @@ ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffuncti
 
 CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
+CXXFLAGS = $(MCU) $(CXX_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections -feliminate-unused-debug-types
+
 ifeq ($(DEBUG), 1)
 CFLAGS += -g -gdwarf-2
 endif
@@ -202,11 +208,11 @@ endif
 # Add additional flags
 CFLAGS += ${createSingleLineStringList(makeInfo.cFlags)}
 ASFLAGS += ${createSingleLineStringList(makeInfo.assemblyFlags)}
-CXXFLAGS = ${createSingleLineStringList(makeInfo.cxxFlags)}
-CXXFLAGS += -feliminate-unused-debug-types
+CXXFLAGS += ${createSingleLineStringList(makeInfo.cxxFlags)}
 
 # Generate dependency information
 CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
+CXXFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 
 #######################################
 # LDFLAGS
@@ -234,6 +240,7 @@ all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET
 # list of cpp program objects
 OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(CPP_SOURCES:.cpp=.o)))
 vpath %.cpp $(sort $(dir $(CPP_SOURCES)))
+
 # list of C objects
 OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(C_SOURCES)))
@@ -242,7 +249,10 @@ OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
 vpath %.s $(sort $(dir $(ASM_SOURCES)))
 
 $(BUILD_DIR)/%.o: %.cpp ${makefileName} | $(BUILD_DIR) 
-\t$(CXX) -c $(CXXFLAGS) $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.cpp=.lst)) $< -o $@
+\t$(CXX) -c $(CXXFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.cpp=.lst)) $< -o $@
+
+$(BUILD_DIR)/%.o: %.cxx ${makefileName} | $(BUILD_DIR) 
+\t$(CXX) -c $(CXXFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.cxx=.lst)) $< -o $@
 
 $(BUILD_DIR)/%.o: %.c ${makefileName} | $(BUILD_DIR) 
 \t$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@

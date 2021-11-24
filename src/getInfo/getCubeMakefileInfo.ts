@@ -180,6 +180,8 @@ export function extractMakefileInfo(makefile: string): MakeInfo {
   output.libdir = removePrefixes(_.isArray(output.libdir) ? output.libdir : [output.libdir], '-L');
   output.cDefs = removePrefixes(output.cDefs, '-D');
   output.cxxDefs = removePrefixes(output.cxxDefs, '-D');
+  // adds the C definitions to the CXX definitions, as the makefile is only c oriented.
+  output.cxxDefs = output.cxxDefs.concat(output.cDefs);
   output.asDefs = removePrefixes(output.asDefs, '-D');
   output.cIncludes = removePrefixes(output.cIncludes, '-I');
 

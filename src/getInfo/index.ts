@@ -80,11 +80,13 @@ export async function checkAndConvertCpp(
         // remove the main.c file.
         newInfo.cSources.splice(indMain, 1);
       }
-    } else {
-      vscode.window.showWarningMessage('No main.cpp file found, will try to compile this as a C project');
-      newInfo.cxxSources = [];
-      newInfo.cxxDefs = [];
     }
+    // else {
+
+    //   vscode.window.showWarningMessage('No main.cpp file found, will try to compile this as a C project');
+    //   newInfo.cxxSources = [];
+    //   newInfo.cxxDefs = [];
+    // }
   } else {
     if (checkForFileNameInArray('main.cpp', newInfo.cxxSources) !== -1) {
       const result = await vscode.window.showWarningMessage(
