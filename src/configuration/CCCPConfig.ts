@@ -1,11 +1,11 @@
 import * as _ from 'lodash';
+import * as path from 'path';
 import * as shelljs from 'shelljs';
 
-import { Uri, workspace, } from 'vscode';
+import { Uri, window, workspace } from 'vscode';
 
 import MakeInfo from '../types/MakeInfo';
 import { writeFileInWorkspace } from '../Helpers';
-import * as path from 'path';
 
 export interface CCppConfig {
   name: string;
@@ -78,9 +78,15 @@ export async function getWorkspaceConfigFile(): Promise<null | CCppProperties> {
   const cCppWorkspaceConfigFiles =
     await workspace.findFiles('**/c_cpp_properties.json');
   if (cCppWorkspaceConfigFiles[0]) {
-    const file = (await workspace.fs.readFile(cCppWorkspaceConfigFiles[0]));
-    const parsedJSON = JSON.parse(Buffer.from(file).toString());
-    return parsedJSON;
+    try {
+      const file = (await workspace.fs.readFile(cCppWorkspaceConfigFiles[0]));
+      const parsedJSON = JSON.parse(Buffer.from(file).toString());
+      return parsedJSON;
+    } catch (err) {
+      window.showErrorMessage(`Something went wrong with parsing the c_cpp_properties.json: ${err}`);
+    }
+
+
   }
   return null;
 }
