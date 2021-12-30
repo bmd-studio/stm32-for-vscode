@@ -13,7 +13,6 @@ export function deepFind(object: any, key: string, value: string): undefined | a
   if (object.hasOwnProperty(key) && object[key] === value || object?.[key]?.[0] === value) {
     return object;
   }
-
   for (let objectKey of Object.keys(object)) {
     const typeOfObject = typeof object[objectKey];
     if (typeOfObject === "object") {
@@ -34,6 +33,8 @@ export function projectFilePathsToWorkspacePaths(
   projectFilePath: string,
   projectFilePaths: string[]
 ): string[] {
-  return projectFilePaths.map((filePath) =>
+  const filteredFilePaths = projectFilePaths.filter((value) => !!value);
+
+  return filteredFilePaths.map((filePath) =>
     path.posix.join(projectFilePath, filePath));
 }

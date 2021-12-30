@@ -184,7 +184,11 @@ export function extractMakefileInfo(makefile: string): MakeInfo {
     }
   });
 
-  output.specification = extractBuildSpecification(makefile);
+  const specification = extractBuildSpecification(makefile);
+  if (specification) {
+    output.assemblyFlags.push(specification);
+  }
+
 
   // get the targetSTM separately as we need the cSources
   output.targetMCU = getTargetSTM(output.cSources);

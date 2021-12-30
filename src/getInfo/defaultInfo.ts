@@ -3,8 +3,10 @@ import _ = require('lodash');
 import MakeInfo from '../types/MakeInfo';
 
 const defaults: Partial<MakeInfo> = {
-  libs: ['c', 'm'],
-  cxxFlags: ['-feliminate-unused-debug-types']
+  libs: ['c', 'm', 'nosys'],
+  cxxFlags: ['-feliminate-unused-debug-types'],
+  assemblyFlags: [],
+  ldFlags: ['-specs=nosys.specs']
 };
 
 /**
@@ -28,11 +30,19 @@ export function addDefaultLibsAndFlagsInfo(info: MakeInfo): MakeInfo {
   if (defaults.cxxFlags === undefined) {
     defaults.cxxFlags = [];
   }
+  if (defaults.ldFlags === undefined) {
+    defaults.ldFlags = [];
+  }
 
 
   info.libs = info.libs.concat(defaults.libs);
   info.assemblyFlags = info.assemblyFlags.concat(defaults.assemblyFlags);
   info.cxxFlags = info.cxxFlags.concat(defaults.cxxFlags);
+  if (info.ldFlags.findIndex(
+    (value) => value.includes('specs=')
+  ) < 0) {
+    info.ldFlags = info.ldFlags.concat(defaults.ldFlags);
+  }
   return info;
 }
 

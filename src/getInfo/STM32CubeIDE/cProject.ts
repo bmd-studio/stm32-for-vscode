@@ -5,6 +5,10 @@ import { parseStringPromise } from "xml2js";
 import { deepFind, projectFilePathsToWorkspacePaths } from './helpers';
 
 import MakeInfo from "../../types/MakeInfo";
+import { writeFileInWorkspace } from '../../Helpers';
+
+// TODO: add linker definitions
+// TODO: add the cDefinitions to the CXX definitions.
 
 /**
  * 
@@ -24,7 +28,7 @@ export async function getCProjectFile(): Promise<any | undefined> {
       )
     );
     const cProjectJSON = await parseStringPromise(
-      cProjectXML, { ignoreAttrs: false, mergeAttrs: true, explicitArray: false }
+      cProjectXML, { ignoreAttrs: false, mergeAttrs: true, explicitArray: false, explicitChildren: true }
     );
     cProjectJSON.location = projectFile[0];
     return cProjectJSON;
@@ -32,7 +36,7 @@ export async function getCProjectFile(): Promise<any | undefined> {
   return undefined;
 }
 
-type CprojectValueType = 'string' | 'dotNotation' | 'includes' | 'definitions' | 'path';
+type CprojectValueType = 'string' | 'dotNotation' | 'includes' | 'definitions' | 'path' | 'flags';
 
 interface CProjectInfoDefinition {
   name: string;
@@ -90,6 +94,11 @@ const infoFromCProjectDefinition: CProjectInfoDefinition[] = [
     name: 'ldscript',
     superClass: 'com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.linker.option.script',
     type: 'path'
+  },
+  {
+    name: 'ldFlags',
+    superClass: 'gnu.c.link.option.ldflags',
+    type: 'flags'
   }
 ];
 const infoFromCProjectac6Definition: CProjectInfoDefinition[] = [
@@ -169,30 +178,41 @@ export function convertCProjectTypeToValue(parentValue: any, type: CprojectValue
         });
         return paths;
       } else {
-        return [parentValue?.listOptionValue?.value];
+        return [];
       }
     }
       break;
     case 'definitions': {
       if (Array.isArray(parentValue?.listOptionValue)) {
         const definitions = parentValue?.listOptionValue?.map((entry: { builtIn: boolean; value: string }) => {
+
           return entry?.value;
         });
         return definitions;
       } else {
-        return [parentValue?.listOptionValue?.value];
+        return [];
       }
     }
       break;
     case 'path':
       return parentValue?.value;
       break;
+    case 'flags':
+      return parentValue?.value?.split(' ');
+      break;
     default:
       return parentValue?.value;
   }
 }
 
-type CprojectInfo = Pick<MakeInfo, 'targetMCU' | 'cIncludes' | 'floatAbi' | 'fpu' | 'ldscript' | 'cDefs'>;
+// eslint-disable-next-line max-len
+type CprojectInfo = Pick<MakeInfo, 'targetMCU' | 'cIncludes' | 'floatAbi' | 'fpu' | 'ldscript' | 'cDefs' | 'ldFlags'>;
+
+/**
+ * Extracts information from the .cproject file.
+ * @param cProjectFile the cproject file string
+ * @returns CprojecInfo, which contains information about the specific mcu used.
+ */
 export function getInfoFromCProjectFile(cProjectFile: any): CprojectInfo {
   // TODO: clean this function up. This now works however  should nicely return the 
 
@@ -202,11 +222,11 @@ export function getInfoFromCProjectFile(cProjectFile: any): CprojectInfo {
     const value = convertCProjectTypeToValue(parentValue, definition.type);
     cProjectInfo[definition.name] = value || '';
   });
-
   infoFromCProjectac6Definition.forEach((definition) => {
     const parentValue = deepFind(cProjectFile, 'superClass', definition.superClass);
     const value = convertCProjectTypeToValue(parentValue, definition.type);
-    if (value !== undefined) {
+    if (
+      value !== undefined && cProjectInfo[definition.name].length === 0) {
       cProjectInfo[definition.name] = value || '';
     }
   });
@@ -234,17 +254,33 @@ export function getInfoFromCProjectFile(cProjectFile: any): CprojectInfo {
     [cProjectInfo.cDefinitions];
 
   // TODO: convert the path to something the extension can use. e.g. from the root of the project
-
-  return {
+  const result: CprojectInfo = {
     targetMCU: Array.isArray(cProjectInfo.targetMCU) ? cProjectInfo.targetMCU[0] : cProjectInfo.targetMCU,
     cIncludes: includePaths,
     fpu: Array.isArray(cProjectInfo.fpu) ? cProjectInfo.fpu[0] : cProjectInfo.fpu,
     floatAbi: Array.isArray(cProjectInfo.floatAbi) ? cProjectInfo.floatAbi[0] : cProjectInfo.floatAbi,
     ldscript: Array.isArray(cProjectInfo.ldscript) ? cProjectInfo.ldscript[0] : cProjectInfo.ldscript,
-    cDefs: definitions
-  } as CprojectInfo;
+    cDefs: definitions,
+    ldFlags: Array.isArray(cProjectInfo.ldFlags) ?
+      cProjectInfo.ldFlags : [cProjectInfo.ldFlags],
+  };
+  if (result.fpu === undefined || result.fpu === 'no' || result.fpu === 'none') {
+    result.fpu = '';
+  }
+  const resultKeys = Object.keys(result) as (keyof CprojectInfo)[];
+  resultKeys.forEach((key) => {
+    let currentInput = result[key];
+    // eslint-disable-next-line max-len
+    result[key] = (Array.isArray(currentInput) ? currentInput.filter(entry => entry) : result[key]) as string & string[];
+  });
+  return result;
 }
 
+/**
+ * Retrieves the linker script from the project
+ * @param projectInfo the cproject file string
+ * @returns the path to the linker script or undefined.
+ */
 async function getLDScriptPathFromCProjectEntry(projectInfo: CprojectInfo): Promise<string | undefined> {
   const ldRegex = /[\w\d_]+.ld/;
   const regexSearchResult = ldRegex.exec(projectInfo.ldscript);

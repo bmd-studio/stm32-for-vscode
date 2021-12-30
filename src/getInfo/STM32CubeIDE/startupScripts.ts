@@ -12,6 +12,11 @@ async function getStartupFilePath(): Promise<string | undefined> {
   if (cubeIDEStartupFilePaths[0]) {
     return cubeIDEStartupFilePaths[0];
   }
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  const SW4STM32StartupFilePaths = await scanForFiles(['**/SW4STM32/**/startup_*.s']);
+  if (SW4STM32StartupFilePaths[0]) {
+    return SW4STM32StartupFilePaths[0];
+  }
   const anyStartupFilePaths = await scanForFiles(['**/startup_*.s']);
   if (anyStartupFilePaths[0]) {
     return anyStartupFilePaths[0];

@@ -28,6 +28,7 @@ export default async function getCubeIDEProjectInfo(): Promise<MakeInfo> {
     result.floatAbi = cProjectInfo.floatAbi ? `${cProjectInfo.floatAbi}` : '';
     result.fpu = `${cProjectInfo.fpu}`;
     result.ldscript = cProjectInfo.ldscript;
+    result.ldFlags = cProjectInfo.ldFlags;
     result.cDefs = cProjectInfo.cDefs;
 
     // still needed

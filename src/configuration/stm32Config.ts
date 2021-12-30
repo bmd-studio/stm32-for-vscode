@@ -54,7 +54,6 @@ cpu: ${config.cpu} # type of cpu e.g. cortex-m4
 fpu: ${config.fpu} # Defines how floating points are defined. Can be left empty.
 floatAbi: ${config.floatAbi}
 ldscript: ${config.ldscript} # linker script
-specification: ${config.specification} # specification, can be nano, nosys or rdimon
 
 # Compiler definitions. The -D prefix for the compiler will be automatically added.
 cDefinitions: ${createYamlArray(config.cDefinitions)}
@@ -73,6 +72,7 @@ asDefinitionsFile:
 cFlags: ${createYamlArray(config.cFlags)}
 cxxFlags: ${createYamlArray(config.cxxFlags)}
 assemblyFlags: ${createYamlArray(config.assemblyFlags)}
+linkerFlags: ${createYamlArray(config.linkerFlags)}
 
 # libraries to be included. The -l prefix to the library will be automatically added.
 # Mind that non standard libraries should have a path to their respective directory.
@@ -141,7 +141,7 @@ export async function readConfigFile(): Promise<ExtensionConfiguration> {
     const yamlConfig: ExtensionConfigurationInterface = YAML.parse(Buffer.from(file).toString('utf-8'));
     if (!yamlConfig) { return Promise.reject(new Error('Could not parse yaml configuration')); }
     _.forEach(yamlConfig, (entry, key) => {
-      if (_.has(yamlConfig, key) && _.get(yamlConfig, key) !== null) {
+      if (_.has(yamlConfig, key) && _.get(yamlConfig, key) !== null && _.get(yamlConfig, key) !== [null]) {
         _.set(configuration, key, entry);
       }
     });
