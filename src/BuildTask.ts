@@ -25,28 +25,29 @@
  * Created by Jort Band - Bureau Moeilijke Dingen
  */
 
-import {
-  window,
-  workspace,
-  Uri
-} from 'vscode';
+import * as path from 'path';
 
+import {
+  EXTENSION_CONFIG_NAME,
+  makefileName,
+} from './Definitions';
 import MakeInfo, { ExtensionConfiguration } from './types/MakeInfo';
+import {
+  Uri,
+  window,
+  workspace
+} from 'vscode';
+import { cpus, targetsMCUs } from './configuration/ConfigInfo';
+
+import { checkForRequiredFiles } from './getInfo/getFiles';
 import executeTask from './HandleTasks';
 import { fsPathToPosix } from './Helpers';
 import {
   getInfo,
 } from './getInfo';
-import {
-  EXTENSION_CONFIG_NAME,
-  makefileName,
-} from './Definitions';
 import updateConfiguration from './configuration/WorkspaceConfigurations';
 import updateMakefile from './UpdateMakefile';
-import { checkForRequiredFiles } from './getInfo/getFiles';
-import { targetsMCUs, cpus } from './configuration/ConfigInfo';
 import { writeConfigFile } from './configuration/stm32Config';
-import * as path from 'path';
 
 /**
  * Checks if the language is C++ and that there is no main.cpp present. 
@@ -91,7 +92,7 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
 
   let currentWorkspaceFolder;
   let info = {} as MakeInfo;
-  if (!workspace.workspaceFolders) {
+  if (!workspace.workspaceFolders || !workspace.workspaceFolders?.[0]) {
     window.showErrorMessage('No workspace folder is open. Stopped build');
     return Promise.reject(Error('no workspace folder is open'));
   }

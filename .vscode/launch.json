@@ -17,7 +17,9 @@
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "args": [
+        "${workspaceFolder}/src/test/STM32-projects/H753ZI_fresh",
         "—disable-extensions",
+        "--enable-proposed-api marus25.cortex-debug",
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
       ],
