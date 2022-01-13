@@ -101,7 +101,7 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
   const filesInDir: string[] = rootFileList.map((entry) => {
     return entry[0];
   });
-  const requiredFilesInDir = checkForRequiredFiles(filesInDir); 1
+  const requiredFilesInDir = checkForRequiredFiles(filesInDir);
   let makefileIsPresent = false;
   let configFileIsPresent = false;
   requiredFilesInDir.forEach((file) => {
@@ -115,10 +115,11 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
   if (!makefileIsPresent && !configFileIsPresent) {
     const response = await window.showInformationMessage(
       // eslint-disable-next-line max-len
-      'Makefile was not found. If using CubeMX please select generate makefile under:Project Manager>Project/Toolchain IDE. Or do you want to generate a blank stm32-config-yaml file, so a custom project can be configured?', 'Cancel', 'Generate config file'
+      'Makefile was not found. If using CubeMX please select generate makefile under:Project Manager>Project/Toolchain IDE. Or do you want to generate a blank stm32-config-yaml file, so a custom project can be configured?',
+      'Cancel',
+      'Generate config file'
     );
     if (response === 'Generate config file') {
-      console.log('Should generate config file');
       const targetMCU = await window.showQuickPick(targetsMCUs, {
         title: 'Pick a target MCU',
       });

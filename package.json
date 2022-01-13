@@ -30,6 +30,7 @@
     "onCommand:stm32-for-vscode.cleanBuild",
     "onCommand:stm32-for-vscode.buildTest",
     "onCommand:stm32-for-vscode.setProgrammer",
+    "onCommand:stm32-for-vscode.importCubeIDEProject",
     "stm32-for-vscode.installBuildTools",
     "workspaceContains:*.ioc",
     "workspaceContains:STM32-for-VSCode.config.yaml",
@@ -72,6 +73,10 @@
       }
     ],
     "commands": [
+      {
+        "command": "stm32-for-vscode.importCubeIDEProject",
+        "title": "STM32: Import CubeIDEProject"
+      },
       {
         "command": "stm32-for-vscode.build",
         "title": "STM32: Build STM32 project"
@@ -141,7 +146,8 @@
     "watch": "tsc -watch -p ./",
     "prewebpack": "yarn run lint",
     "pretest": "rm -rf ./out/test && yarn run compile:test && yarn run lint",
-    "watch:tests": "watch \"yarn test\" ./src --wait=10"
+    "watch:tests": "watch \"yarn test\" ./src --wait=10",
+    "generate-docs": "typedoc --out docs src"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.0",
@@ -160,6 +166,7 @@
     "@types/strip-comments": "^2.0.0",
     "@types/unzipper": "^0.10.3",
     "@types/vscode": "^1.44",
+    "@types/xml2js": "^0.4.9",
     "@typescript-eslint/eslint-plugin": "^4.1.1",
     "@typescript-eslint/parser": "^4.1.1",
     "babel-core": "^6.26.3",
@@ -176,6 +183,7 @@
     "nyc": "^15.1.0",
     "sinon": "^11.1.1",
     "ts-loader": "^9.2.3",
+    "typedoc": "^0.21.5",
     "typescript": "^4.0.2",
     "watch": "^1.0.2",
     "webpack": "^5.40.0",
@@ -193,6 +201,7 @@
     "recursive-readdir": "^2.2.2",
     "shelljs": "^0.8.4",
     "strip-comments": "^2.0.1",
+    "xml2js": "^0.4.23",
     "yaml": "^1.10.0"
   },
   "taskDefinitions": {}

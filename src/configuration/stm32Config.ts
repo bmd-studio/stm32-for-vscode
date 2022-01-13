@@ -50,8 +50,8 @@ optimization: ${config.optimization}
 
 # MCU settings
 targetMCU: ${config.targetMCU}
-cpu: ${config.cpu}
-fpu: ${config.fpu}
+cpu: ${config.cpu} # type of cpu e.g. cortex-m4
+fpu: ${config.fpu} # Defines how floating points are defined. Can be left empty.
 floatAbi: ${config.floatAbi}
 ldscript: ${config.ldscript} # linker script
 
@@ -72,6 +72,7 @@ asDefinitionsFile:
 cFlags: ${createYamlArray(config.cFlags)}
 cxxFlags: ${createYamlArray(config.cxxFlags)}
 assemblyFlags: ${createYamlArray(config.assemblyFlags)}
+linkerFlags: ${createYamlArray(config.linkerFlags)}
 
 # libraries to be included. The -l prefix to the library will be automatically added.
 libraries: ${createYamlArray(config.libraries)}
@@ -123,11 +124,6 @@ export async function writeDefaultConfigFile(config: ExtensionConfiguration): Pr
     configFileWithAddedDefaults.includeDirectories,
     DEFAULT_INCLUDES
   );
-  configFileWithAddedDefaults.assemblyFlags = _.concat(
-    configFileWithAddedDefaults.assemblyFlags,
-    ['-specs=nosys.specs']
-  );
-
   await writeConfigFile(configFileWithAddedDefaults);
   return configFileWithAddedDefaults;
 }
@@ -145,7 +141,7 @@ export async function readConfigFile(): Promise<ExtensionConfiguration> {
     const yamlConfig: ExtensionConfigurationInterface = YAML.parse(Buffer.from(file).toString('utf-8'));
     if (!yamlConfig) { return Promise.reject(new Error('Could not parse yaml configuration')); }
     _.forEach(yamlConfig, (entry, key) => {
-      if (_.has(yamlConfig, key) && _.get(yamlConfig, key) !== null) {
+      if (_.has(yamlConfig, key) && _.get(yamlConfig, key) !== null && _.get(yamlConfig, key) !== [null]) {
         _.set(configuration, key, entry);
       }
     });
@@ -170,7 +166,8 @@ export async function readOrCreateConfigFile(config: ExtensionConfiguration): Pr
     return configFile;
   } catch (err) {
     // no config file present
-    if (err.message === PARSE_YAML_ERROR_MESSAGE) {
+    const { message } = err as Error;
+    if (message === PARSE_YAML_ERROR_MESSAGE) {
       vscode.window.showErrorMessage(
         `Could not parse: ${EXTENSION_CONFIG_NAME}, please check for Errors or delete it so it can be regenerated`
       );

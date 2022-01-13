@@ -34,7 +34,8 @@ export default async function setupTestFiles(workspacePathUri: Uri): Promise<voi
       await writeFileInWorkspace(
         workspacePathUri, './Test/main.cpp', mainCPPFile);
     } catch (err) {
-      window.showWarningMessage(err);
+      const { message } = err as Error;
+      window.showWarningMessage(message);
     }
   }
   if (!foundGoogleTestFolder) {

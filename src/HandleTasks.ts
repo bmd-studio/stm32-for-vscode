@@ -1,5 +1,3 @@
-import 'process';
-
 import {
   ShellExecution,
   Task,
@@ -12,6 +10,7 @@ import {
 } from 'vscode';
 import { getAutomationShell } from './Helpers';
 
+// NOTE: good reference for powershell: https://ss64.com/ps/syntax-esc.html
 /**
  *
  * @param type type of process to execute e.g. build
@@ -41,7 +40,7 @@ export default function executeTask(
 
     }
     const automationShell = getAutomationShell();
-    const shellSpecificToolPath = automationShell.includes('powershell') ? `& \\"${cmd[0]}\\"` : `"${cmd[0]}"`;
+    const shellSpecificToolPath = automationShell.includes('powershell') ? `& '${cmd[0]}'` : `"${cmd[0]}"`;
     cmd.shift();
     const options = cmd.reduce((accumulator, option) => `${accumulator} ${option}`, '');
     let totalPath = `${shellSpecificToolPath}${options}`;
@@ -55,7 +54,6 @@ export default function executeTask(
     );
     tasks.executeTask(processTask);
     tasks.onDidEndTaskProcess((e: TaskProcessEndEvent) => {
-      console.log('task errors', e.execution.task.name, e.exitCode);
       if (e.execution.task.name === name) {
         if (e.exitCode === 0) {
           resolve();

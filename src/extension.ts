@@ -32,6 +32,7 @@ import CommandMenu from './menu/CommandMenu';
 import buildSTM from './BuildTask';
 import { checkBuildTools } from './buildTools';
 import { installAllTools } from './buildTools/installTools';
+import importAndSetupCubeIDEProject from './import';
 
 
 // this method is called when your extension is activated
@@ -47,6 +48,15 @@ export function activate(context: vscode.ExtensionContext): void {
     commandMenu = addCommandMenu(context);
     vscode.commands.executeCommand('setContext', 'stm32ForVSCodeReady', true);
   });
+  vscode.commands.registerCommand('stm32-for-vscode.importCubeIDEProject',
+    async () => {
+      try {
+        await importAndSetupCubeIDEProject();
+      } catch (error) {
+        vscode.window.showErrorMessage(`Something went wrong with importing the Cube IDE project: ${error}`);
+      }
+    }
+  );
   const setProgrammerCommand = vscode.commands.registerCommand(
     'stm32-for-vscode.setProgrammer',
     (programmer?: string
@@ -109,6 +119,3 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(cleanBuildCmd);
 
 }
-
-// // this method is called when your extension is deactivated
-// export function deactivate(): void { }

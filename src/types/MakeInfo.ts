@@ -48,6 +48,7 @@ export interface CompileInfoInterface {
   cFlags: string[];
   assemblyFlags: string[];
   cxxFlags: string[];
+  linkerFlags: string[];
   cDefinitions: string[];
   cxxDefinitions: string[];
   asDefinitions: string[];
@@ -62,6 +63,7 @@ export class CompileInfo implements CompileInfoInterface {
   public cFlags: string[] = [];
   public assemblyFlags: string[] = [];
   public cxxFlags: string[] = [];
+  public linkerFlags: string[] = [];
   public cDefinitions: string[] = [];
   public cxxDefinitions: string[] = [];
   public asDefinitions: string[] = [];
@@ -134,11 +136,12 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
   public target = '';
   public cpu = '';
   public fpu = '';
-  public floatAbi = '';
+  public floatAbi = 'soft';
   public ldscript = '';
   public targetMCU = '';
   public language = 'C' as STM32Languages;
   public optimization = 'Og';
+  public linkerFlags: string[] = [];
   // be aware that more flags are present in the Makefile. However these seem to be mandatory
   public cFlags: string[] = [
     '-Wall', '-fdata-sections', '-ffunction-sections',
@@ -150,7 +153,7 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
   ];
   public cxxFlags: string[] = [];
   public sourceFiles: string[] = [];
-  public libraries: string[] = ['c', 'm', 'nosys'];
+  public libraries: string[] = ['c', 'm'];
   public libraryDirectories: string[] = [];
   public suppressMakefileWarning = false;
 
@@ -164,12 +167,14 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
     this.fpu = makeInfo.fpu;
     this.floatAbi = makeInfo.floatAbi;
     this.ldscript = makeInfo.ldscript;
+    this.linkerFlags = makeInfo.ldFlags;
     this.targetMCU = makeInfo.targetMCU;
     this.cFlags = makeInfo.cFlags;
     this.assemblyFlags = makeInfo.assemblyFlags;
     this.cxxFlags = makeInfo.cxxFlags;
     this.libraryDirectories = makeInfo.libdir;
-    this.sourceFiles.concat(makeInfo.asmSources);
+    this.sourceFiles = this.sourceFiles.concat(makeInfo.asmSources, makeInfo.cSources, makeInfo.cxxSources);
+    this.includeDirectories = this.includeDirectories.concat(makeInfo.cIncludes);
   }
 }
 
@@ -186,7 +191,7 @@ export default class MakeInfo implements MakeInfoInterface {
   public tools: ToolChain = new ToolChain();
   public target = '';
   public cpu = '';
-  public fpu = '';
+  public fpu = 'soft';
   public floatAbi = '';
   public mcu = '';
   public ldscript = '';
@@ -197,5 +202,4 @@ export default class MakeInfo implements MakeInfoInterface {
   public assemblyFlags: string[] = [];
   public ldFlags: string[] = [];
   public cxxFlags: string[] = [];
-
 }

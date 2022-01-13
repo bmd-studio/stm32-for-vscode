@@ -2,9 +2,9 @@ import { ExtensionConfiguration } from '../../types/MakeInfo';
 
 export const configuration = new ExtensionConfiguration();
 configuration.target = 'test_firmware';
-configuration.cpu = '-mcpu=cortex-m7';
-configuration.fpu = '-mfpu=fpv5-d16';
-configuration.floatAbi = '-mfloat-abi=hard';
+configuration.cpu = 'cortex-m7';
+configuration.fpu = 'fpv5-d16';
+configuration.floatAbi = 'hard';
 configuration.ldscript = 'STM32F769IITx_FLASH.ld';
 configuration.targetMCU = 'stm32f7x';
 configuration.cDefinitions = configuration.cDefinitions.concat(['STM32F769xx', 'USE_HAL_DRIVER']);

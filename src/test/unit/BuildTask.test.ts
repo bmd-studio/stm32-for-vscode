@@ -4,6 +4,7 @@ import { expect, use } from 'chai';
 import { test, suite, afterEach } from 'mocha';
 import { workspace, WorkspaceFolder, window } from 'vscode';
 import * as chaiAsPromised from 'chai-as-promised';
+import { waitForWorkspaceFoldersChange } from '../helpers';
 use(chaiAsPromised);
 
 
@@ -12,24 +13,27 @@ suite('MakefileInfoTest', () => {
   afterEach(() => {
     Sinon.restore();
   });
-  test('errorOnNoWorkspace', () => {
+  test('errorOnNoWorkspace', async () => {
     let workspaceFoldersToReAdd: WorkspaceFolder[] | null = null;
-    if (workspace.workspaceFolders) {
+    if (workspace.workspaceFolders && workspace.workspaceFolders.length > 0) {
       workspaceFoldersToReAdd = workspace.workspaceFolders.map((entry) => (entry));
-      workspace.updateWorkspaceFolders(0, workspace.workspaceFolders.length);
+      console.log('workspaceFolders', workspace.workspaceFolders);
+      if (workspace.updateWorkspaceFolders(0, workspace.workspaceFolders.length)) {
+        await waitForWorkspaceFoldersChange();
+      } else {
+        throw Error('something went wrong with updating the workspace folders');
+      }
     }
-    const errorMsg = Sinon.fake();
-    Sinon.replace(window, 'showErrorMessage', errorMsg);
 
     expect(buildSTM({})).to.eventually.be.rejected;
     expect(buildSTM({ cleanBuild: true })).to.be.rejected;
     expect(buildSTM({ flash: true })).to.be.rejected;
     expect(buildSTM({ flash: true, cleanBuild: true })).to.be.rejected;
 
-    expect(errorMsg.callCount).to.equal(4);
-    if (workspaceFoldersToReAdd) {
-      workspaceFoldersToReAdd.forEach((entry) => {
+    if (workspaceFoldersToReAdd && workspaceFoldersToReAdd.length > 0) {
+      workspaceFoldersToReAdd.forEach(async (entry) => {
         workspace.updateWorkspaceFolders(0, null, entry);
+        await waitForWorkspaceFoldersChange();
       });
     }
   });

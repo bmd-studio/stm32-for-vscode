@@ -24,18 +24,18 @@
 import * as _ from 'lodash';
 
 const configFiles = [
-  'stm32f0x.cfg', 'stm32f0x_stlink.cfg',
-  'stm32f1x.cfg', 'stm32f1x_stlink.cfg',
-  'stm32f2x.cfg', 'stm32f2x_stlink.cfg',
-  'stm32f3x.cfg', 'stm32f3x_stlink.cfg',
-  'stm32f4x.cfg', 'stm32f4x_stlink.cfg',
+  'stm32f0x.cfg',
+  'stm32f1x.cfg',
+  'stm32f2x.cfg',
+  'stm32f3x.cfg',
+  'stm32f4x.cfg',
   'stm32f7x.cfg', 'stm32g0x.cfg',
   'stm32g0x_alt.cfg', 'stm32g4x.cfg',
   'stm32g4x_alt.cfg', 'stm32h7x.cfg',
   'stm32h7x_dual_bank.cfg', 'stm32h7x_dual_core.cfg',
   'stm32l0.cfg', 'stm32l0_dual_bank.cfg',
   'stm32l1.cfg', 'stm32l1x_dual_bank.cfg',
-  'stm32l4x.cfg', 'stm32l5x.cfg',
+  'stm32l4x.cfg', 'stm32l5x.cfg', 'stm32mp15x.cfg',
   'stm32lx_stlink.cfg', 'stm32w108xx.cfg',
   'stm32w108_stlink.cfg', 'stm32wbx.cfg',
   'stm32wlx.cfg', 'stm32xl.cfg',
@@ -56,4 +56,21 @@ export default function getTargetConfig(target: string): string | boolean {
     return configFiles[ind];
   }
   return false;
+}
+
+/**
+ * Finds the openocd target MCU from the full name
+ * @param name the fullname e.g. STM32H723ZGTx
+ * @returns the openocd target MCU
+ */
+export function getTargetMCUFromFullName(name: string): string | undefined {
+  let targetNameFind = name.toLowerCase();
+  while (targetNameFind.length > 0) {
+    const possibleMatch = configFiles.find((entry) => entry.includes(targetNameFind));
+    if (possibleMatch) {
+      return possibleMatch.replace('.cfg', '');
+    }
+    targetNameFind = targetNameFind.substring(0, targetNameFind.length - 1);
+  }
+  return undefined;
 }

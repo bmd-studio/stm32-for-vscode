@@ -179,6 +179,7 @@ export async function getInfo(location: string): Promise<MakeInfo> {
     asDefinitionsFromFile
   ));
   STM32MakeInfo.assemblyFlags = _.uniq(_.concat(cubeMakefileInfo.assemblyFlags, projectConfiguration.assemblyFlags));
+  STM32MakeInfo.ldFlags = _.uniq(_.concat(cubeMakefileInfo.ldFlags, projectConfiguration.linkerFlags));
   STM32MakeInfo.cDefs = _.uniq(_.concat(
     cubeMakefileInfo.cDefs,
     projectConfiguration.cDefinitions,
@@ -196,7 +197,6 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   STM32MakeInfo.fpu = projectConfiguration.fpu;
   STM32MakeInfo.language = projectConfiguration.language;
   STM32MakeInfo.optimization = projectConfiguration.optimization;
-  STM32MakeInfo.ldFlags = cubeMakefileInfo.ldFlags;
   STM32MakeInfo.ldscript = projectConfiguration.ldscript;
   STM32MakeInfo.mcu = cubeMakefileInfo.mcu;
   STM32MakeInfo.targetMCU = projectConfiguration.targetMCU;
@@ -205,16 +205,14 @@ export async function getInfo(location: string): Promise<MakeInfo> {
     ...STM32MakeInfo.tools,
     ...buildTools,
   };
-
   // set empty string, as sometimes float-abi or FPU are not included in the STM Makefile
   _.forEach(STM32MakeInfo, (entry, key) => {
-    if (entry === null) {
+    if (entry === null || entry === undefined) {
       _.set(STM32MakeInfo, key, '');
     }
   });
 
   // check for CPP project
   const finalInfo = await checkAndConvertCpp(STM32MakeInfo, projectConfiguration);
-
   return finalInfo;
 }

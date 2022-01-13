@@ -25,9 +25,6 @@ import * as _ from 'lodash';
 import * as pth from 'path';
 import * as vscode from 'vscode';
 
-// import fsRecursive from 'recursive-readdir';
-import { window } from 'vscode';
-
 import { BuildFiles } from '../types/MakeInfo';
 import Glob = require('glob');
 import { EXTENSION_CONFIG_NAME } from '../Definitions';
@@ -83,9 +80,6 @@ export function checkForRequiredFiles(directoryFiles: string[]): { file: string,
     let hasFile = true;
     if (getDirCaseFree(entry.file, directoryFiles) === null) {
       hasFile = false;
-      // window.showWarningMessage(entry.warning);
-      // const res = getDirCaseFree(entry.file, directoryFiles);
-      // check = false;
     }
     return {
       file: entry.file,
@@ -144,21 +138,12 @@ export function sortFiles(list: string[]): BuildFiles {
   return output;
 }
 
-
-
-// /**
-//  * Converts paths to a relative path for a given location
-//  * @param files array containing path strings
-//  * @param loc location to be used as the relative starting point
-//  */
-// export function convertToRelative(files: string[], loc: string): string[] {
-//   const relativeFiles = _.map(files, (file: string) => {
-//     const relative = path.relative(loc, file);
-//     return relative;
-//   });
-//   return relativeFiles;
-// }
-
+/**
+ * Searches for files using glob patterns within the source folder.
+ * @param glob the glob to search for
+ * @param sourceFolder the source folder to search from
+ * @returns 
+ */
 export async function globSearch(glob: string, sourceFolder: string): Promise<string[]> {
   const globOptions = {
     cwd: sourceFolder,
@@ -186,8 +171,22 @@ export async function scanForFiles(includedFilesGlob: string[]): Promise<string[
   const filePromises = includedFilesGlob.map((fileGlob) => {
     return globSearch(fileGlob, workspaceFolder.uri.fsPath);
   });
+  const nonGlobFiles: string[] = [];
+  includedFilesGlob.forEach(async (filePath) => {
+    if (Glob.hasMagic(filePath)) {
+      try {
+        const checkResult = await vscode.workspace.fs.stat(vscode.Uri.file(filePath));
+        if (checkResult.type === vscode.FileType.File) {
+          nonGlobFiles.push(filePath);
+        }
+      } catch (error) {
+
+      }
+    }
+  });
   const returnedFiles = await Promise.all(filePromises);
-  const allFiles = _.flattenDeep(returnedFiles);
+  const combinedFiles = returnedFiles.concat(nonGlobFiles);
+  const allFiles = _.flattenDeep(combinedFiles);
   return allFiles;
 }
 

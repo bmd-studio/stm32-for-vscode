@@ -37,6 +37,15 @@ Click on the ST icon and select the command you want to run. Once this is done f
 - Configuration file per project.
 - Searches for .c/.cpp and .h/.hpp files in your project.
 - Add static libraries for compilation.
+- import existing CubeIDE projects or STM32CubeMX examples
+
+### Build process
+The build process uses the information of the CubeMX makefile and the STM32-for-VSCode.config.yaml file to search for dependencies and set flags. The makefile is optional, however the STM32-for-VSCode.config.yaml will always be present when building. After it has gathered all the files and information it will check if the STM32 for VSCode specific makefile needs to be updated, if so it will update the makefile and run the make/build process.
+
+### Configuration
+The recommended way of configuring the build e.g. adding flags, adding files or directories is by means of the STM32-for-VSCode.config.yaml file. The yaml file contains comments and explanations of each part of the file and should be self explanatory. If it is not or when you require additional parameters feel free to open an issue at: https://github.com/bmd-studio/stm32-for-vscode.
+### Importing
+STM32CubeIDE and ST provided example projects can now be imported by using the: "import CubeIDEProject" command. Do note that the project folder should be open in the workspace.
 
 ## Disclaimer
 This an extension created because I wanted a fast way to build, flash and debug STM32 on OSX in VSCode. This extension is used internally at Bureau Moeilijke Dingen for development. As this might be helpful to others I have allocated time to publish this extension. Should you find any bugs or have feature requests please open an issue on the [Github page](https://github.com/bmd-studio/stm32-for-vscode).
