@@ -6,14 +6,6 @@ import { afterEach, suite, test } from 'mocha';
 
 import buildSTM from '../../BuildTask';
 
-// function cleanUp(projectPath: string) {
-
-// }
-
-function getSTM32ProjectDirectory(projectName: string): string {
-  return path.resolve(__dirname, '../../../src/test/STM32-projects', projectName);
-}
-
 async function waitForWorkspaceFoldersChanges(): Promise<void> {
   return new Promise((resolve) => {
     vscode.workspace.onDidChangeWorkspaceFolders(() => {
@@ -48,11 +40,28 @@ async function cleanUpSTM32ForVSCodeArtifacts(): Promise<void> {
   }
 }
 
-suite('integration', () => {
+suite('build test', () => {
   afterEach(() => {
     cleanUpSTM32ForVSCodeArtifacts();
   });
-  test('H753ZI_fresh', async () => {
+  beforeEach(async () => {
+    // wait for the folder to be loaded
+    if (!vscode.workspace.workspaceFolders || !vscode.workspace.workspaceFolders?.[0]) {
+      await waitForWorkspaceFoldersChanges();
+
+    }
+  })
+  test('default build test', async () => {
+    // execute the test build.
+    try {
+      await buildSTM();
+    } catch (error) {
+      throw error;
+    }
+
+  }).timeout(30000);
+
+  test('build build clean build', async () => {
     // // in out for now
     if (!vscode.workspace.workspaceFolders || !vscode.workspace.workspaceFolders?.[0]) {
       await waitForWorkspaceFoldersChanges();
@@ -61,10 +70,12 @@ suite('integration', () => {
     // execute the test build here
     try {
       await buildSTM();
+      await buildSTM();
+      await buildSTM({ cleanBuild: true });
     } catch (error) {
       throw error;
     }
 
-  }).timeout(30000);
+  }).timeout(60000);
 
 });

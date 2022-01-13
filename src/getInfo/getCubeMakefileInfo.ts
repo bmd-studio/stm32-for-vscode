@@ -119,8 +119,8 @@ export function extractLibs(makefile: string): string[] {
 export function extractBuildSpecification(makefile: string): string {
   const specRegex = /(?:\s-specs=)(\w+\.\w+)/;
   const result = specRegex.exec(makefile);
-  if (result && result[1]) {
-    return result[1];
+  if (result && result[0]) {
+    return result[0].trim();
   }
   return '';
 }
@@ -186,7 +186,7 @@ export function extractMakefileInfo(makefile: string): MakeInfo {
 
   const specification = extractBuildSpecification(makefile);
   if (specification) {
-    output.assemblyFlags.push(specification);
+    output.ldFlags.push(specification);
   }
 
 

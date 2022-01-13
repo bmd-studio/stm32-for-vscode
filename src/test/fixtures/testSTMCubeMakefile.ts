@@ -85,7 +85,7 @@ const libdir = ['/usr/standard'];
 
 export const testMakefileInfo: MakeInfo = {
   cDefs,
-  cxxDefs: [],
+  cxxDefs: cDefs,
   asDefs: [],
   cIncludes,
   cSources: cSources,
@@ -103,8 +103,8 @@ export const testMakefileInfo: MakeInfo = {
   libdir,
   language: 'C',
   cFlags: [],
-  assemblyFlags: ["nano.specs"],
-  ldFlags: [],
+  assemblyFlags: [],
+  ldFlags: ["-specs=nano.specs"],
   cxxFlags: [],
   optimization: 'Og',
 };

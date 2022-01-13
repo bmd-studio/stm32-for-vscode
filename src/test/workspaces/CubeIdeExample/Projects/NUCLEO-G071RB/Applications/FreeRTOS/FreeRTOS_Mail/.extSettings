@@ -1,0 +1,9 @@
+[ProjectFiles]
+HeaderPath=..\..\..\..\..\..\Drivers\BSP\STM32G0xx_Nucleo
+[Others]
+Define=
+HALModule=TIM
+[Groups]
+Application/User=../Src/main.c;../Src/app_freertos.c;../Src/stm32g0xx_it.c;../Src/stm32g0xx_hal_msp.c;../Src/stm32g0xx_hal_timebase_tim.c;
+Doc=../readme.txt;
+Drivers/BSP/STM32G0xx_Nucleo=../../../../../../Drivers/BSP/STM32G0xx_Nucleo/stm32g0xx_nucleo.c;
