@@ -36,7 +36,6 @@ import * as _ from 'lodash';
 import MakeInfo from './types/MakeInfo';
 import { fsPathToPosix } from './Helpers';
 import { makefileName } from './Definitions';
-import { InputType } from 'zlib';
 
 const { platform } = process;
 
@@ -174,7 +173,7 @@ BIN = $(CP) -O binary -S
 CPU = ${createPrefixWhenNoneExists(makeInfo.cpu, '-mcpu=')}
 
 # fpu
-FPU = ${makeInfo.fpu && makeInfo.fpu != '' ? createPrefixWhenNoneExists(makeInfo.fpu, '-mfpu=') : ''}
+FPU = ${makeInfo.fpu && makeInfo.fpu !== '' ? createPrefixWhenNoneExists(makeInfo.fpu, '-mfpu=') : ''}
 
 # float-abi
 FLOAT-ABI = ${createPrefixWhenNoneExists(makeInfo.floatAbi, '-mfloat-abi=')}

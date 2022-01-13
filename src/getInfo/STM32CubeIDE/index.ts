@@ -3,8 +3,6 @@ import getCubeIDECProjectFileInfo from "./cProject";
 import getCubeIDEProjectFileInfo from "./project";
 import getStartupFileInfo from "./startupScripts";
 import { getTargetMCUFromFullName } from '../../OpenOcdTargetFiles';
-import { targetsMCUs } from "../../configuration/ConfigInfo";
-
 
 
 // TODO: should scan for dependencies 

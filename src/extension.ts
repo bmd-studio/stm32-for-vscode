@@ -53,7 +53,7 @@ export function activate(context: vscode.ExtensionContext): void {
       try {
         await importAndSetupCubeIDEProject();
       } catch (error) {
-        console.error(error);
+        vscode.window.showErrorMessage(`Something went wrong with importing the Cube IDE project: ${error}`);
       }
     }
   );
@@ -119,6 +119,3 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(cleanBuildCmd);
 
 }
-
-// // this method is called when your extension is deactivated
-// export function deactivate(): void { }

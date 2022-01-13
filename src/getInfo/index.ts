@@ -45,7 +45,6 @@ import { getBuildToolsFromSettings } from '../buildTools';
 import getMakefileInfo from './getCubeMakefileInfo';
 import * as Micromatch from 'micromatch';
 import getDefinitionsFromFiles from './getDotDefinitions';
-import { Console } from 'console';
 
 /**
  * @description returns the location of a specific file in an array
@@ -204,8 +203,6 @@ export async function getInfo(location: string): Promise<MakeInfo> {
     ...STM32MakeInfo.tools,
     ...buildTools,
   };
-  console.log({ STM32MakeInfo });
-
   // set empty string, as sometimes float-abi or FPU are not included in the STM Makefile
   _.forEach(STM32MakeInfo, (entry, key) => {
     if (entry === null || entry === undefined) {
@@ -215,6 +212,5 @@ export async function getInfo(location: string): Promise<MakeInfo> {
 
   // check for CPP project
   const finalInfo = await checkAndConvertCpp(STM32MakeInfo, projectConfiguration);
-  console.log({ finalInfo, projectConfiguration });
   return finalInfo;
 }

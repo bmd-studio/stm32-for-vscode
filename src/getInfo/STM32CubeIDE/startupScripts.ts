@@ -1,7 +1,6 @@
 import { scanForFiles } from "../getFiles";
 import { workspace, Uri } from 'vscode';
 import * as path from 'path';
-import { start } from "repl";
 
 async function getStartupFilePath(): Promise<string | undefined> {
   const currentWorkspaceFolder = workspace.workspaceFolders?.[0];
@@ -77,7 +76,6 @@ export default async function getStartupFileInfo(): Promise<StartupFileInfo> {
 
     const fpuRegex = /\.fpu\s+([\w-\d]+)/;
     const fpuSearchResult = fpuRegex.exec(startupFile);
-    console.log({ cpuSearchResult, fpuSearchResult, startupFile });
     if (fpuSearchResult) {
       result.fpu = fpuSearchResult[fpuSearchResult.length - 1];
     }

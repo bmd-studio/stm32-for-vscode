@@ -1,5 +1,4 @@
 
-import _ = require('lodash');
 import MakeInfo from '../types/MakeInfo';
 
 const defaults: Partial<MakeInfo> = {

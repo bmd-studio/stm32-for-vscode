@@ -25,9 +25,6 @@ import * as _ from 'lodash';
 import * as pth from 'path';
 import * as vscode from 'vscode';
 
-// import fsRecursive from 'recursive-readdir';
-import { window } from 'vscode';
-
 import { BuildFiles } from '../types/MakeInfo';
 import Glob = require('glob');
 import { EXTENSION_CONFIG_NAME } from '../Definitions';

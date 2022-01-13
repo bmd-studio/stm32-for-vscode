@@ -1,5 +1,3 @@
-import 'process';
-
 import {
   ShellExecution,
   Task,
@@ -56,7 +54,6 @@ export default function executeTask(
     );
     tasks.executeTask(processTask);
     tasks.onDidEndTaskProcess((e: TaskProcessEndEvent) => {
-      console.log('task errors', e.execution.task.name, e.exitCode);
       if (e.execution.task.name === name) {
         if (e.exitCode === 0) {
           resolve();

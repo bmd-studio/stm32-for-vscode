@@ -5,7 +5,6 @@ import { parseStringPromise } from "xml2js";
 import { deepFind, projectFilePathsToWorkspacePaths } from './helpers';
 
 import MakeInfo from "../../types/MakeInfo";
-import { writeFileInWorkspace } from '../../Helpers';
 
 // TODO: add linker definitions
 // TODO: add the cDefinitions to the CXX definitions.
