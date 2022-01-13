@@ -28,8 +28,6 @@
  * It also has all the information that should be extracted from it extracted as testMakefileInfo
  */
 
-import 'process';
-
 import MakeInfo, { ToolChain } from '../../types/MakeInfo';
 
 const { platform } = process;
@@ -81,7 +79,7 @@ const cIncludes = [
 
 const asmSources = ['startup_stm32h743xx.s'];
 const floatAbi = '-mfloat-abi=hard';
-const fpu = '-mfpu=fpv5-d16';
+const fpu = 'fpv5-d16';
 const libs = ['c', 'm', 'nosys'];
 const libdir = ['/usr/standard'];
 
@@ -94,7 +92,7 @@ export const testMakefileInfo: MakeInfo = {
   cxxSources: [],
   asmSources,
   target: 'Clean_project_h7',
-  cpu: '-mcpu=cortex-m7',
+  cpu: 'cortex-m7',
   fpu,
   mcu: '$(CPU) -mthumb $(FPU) $(FLOAT-ABI)',
   floatAbi,
@@ -105,7 +103,7 @@ export const testMakefileInfo: MakeInfo = {
   libdir,
   language: 'C',
   cFlags: [],
-  assemblyFlags: [],
+  assemblyFlags: ["nano.specs"],
   ldFlags: [],
   cxxFlags: [],
   optimization: 'Og',

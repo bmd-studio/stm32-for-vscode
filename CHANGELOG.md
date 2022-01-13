@@ -2,9 +2,11 @@
 
 ## [Unreleased]
 ### Added
-  - Add support to use different project types (EWARM, STM32CubeIDE, etc.).
   - Add ability to introduce generated changes from the main.c file into the main.cpp file.
   - Add support for unit testing using Google Test and Google Mock.
+
+## [3.2.0] - 2022-01-13
+ - Added importer for STM32CubeIDE projects and example projects.
 ## [3.1.4] - 2021-07-27
 ### Added
  - Issue #77: Added .cc extension inclusion for c++ build files.

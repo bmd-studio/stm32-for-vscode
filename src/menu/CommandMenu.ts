@@ -35,6 +35,11 @@ const changeProgrammerCommand: BuildCommandDefinition = {
   explanation: `Changes the programming interface in the openocd.cfg file. 
   A list with available programmers will be provided`,
 };
+const importCubeProject: BuildCommandDefinition = {
+  label: "run CubeIDE importer",
+  command: 'stm32-for-vscode.importCubeIDEProject',
+  explanation: 'Will import a CubeIDE project or example project when present in the current workspace.'
+};
 
 const COMMANDS: { [key: string]: BuildCommandDefinition } = {
   buildCommand,
@@ -42,6 +47,7 @@ const COMMANDS: { [key: string]: BuildCommandDefinition } = {
   flashCommand,
   debugCommand,
   changeProgrammerCommand,
+  importCubeProject
 };
 
 class BuildCommand extends vscode.TreeItem {

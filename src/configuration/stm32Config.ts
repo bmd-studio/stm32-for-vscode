@@ -166,7 +166,8 @@ export async function readOrCreateConfigFile(config: ExtensionConfiguration): Pr
     return configFile;
   } catch (err) {
     // no config file present
-    if (err.message === PARSE_YAML_ERROR_MESSAGE) {
+    const { message } = err as Error;
+    if (message === PARSE_YAML_ERROR_MESSAGE) {
       vscode.window.showErrorMessage(
         `Could not parse: ${EXTENSION_CONFIG_NAME}, please check for Errors or delete it so it can be regenerated`
       );

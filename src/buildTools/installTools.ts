@@ -236,9 +236,9 @@ export function downloadLatestNode(context: vscode.ExtensionContext, fileDownloa
 export async function extractFile(filePath: string, outPath: string): Promise<string> {
   try {
     await decompress(filePath, outPath);
-  } catch (err) {
-    vscode.window.showWarningMessage(err);
-    if (err.message.includes('EEXIST')) {
+  } catch (err: any) {
+    vscode.window.showWarningMessage(`${err}`);
+    if (err?.message?.includes('EEXIST')) {
       await vscode.workspace.fs.delete(vscode.Uri.file(outPath), { recursive: true });
       return extractFile(filePath, outPath);
     }
