@@ -14,8 +14,8 @@ suite('MakefileInfoTest', () => {
     Sinon.restore();
   });
   beforeEach(() => {
-    waitForWorkspaceFoldersChange()
-  })
+    waitForWorkspaceFoldersChange();
+  });
   test('errorOnNoWorkspace', async () => {
 
     if (!workspace.workspaceFolders || workspace.workspaceFolders.length === 0) {
