@@ -16,12 +16,11 @@ async function main(): Promise<void> {
 
     const vscodeExecutablePath = await downloadAndUnzipVSCode('stable');
     const cliPath = resolveCliPathFromVSCodeExecutablePath(vscodeExecutablePath);
-    const testWorkspace = path.resolve(__dirname, '../../src/test/STM32-projects/H753ZI_fresh');
     const testExensionPath = path.resolve(__dirname, '.vscode-test/extensions');
     const testPaths = {
       all: path.resolve(__dirname, './suite/index'),
       unit: path.resolve(__dirname, './unit/index'),
-      build: path.resolve(__dirname, './integration/build.test'),
+      build: path.resolve(__dirname, './integration/build'),
       emptyWorkspace: path.resolve(__dirname, './integration/emptyBuildTask.test')
     };
 

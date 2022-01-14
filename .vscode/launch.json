@@ -17,11 +17,10 @@
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "args": [
-        "${workspaceFolder}/src/test/STM32-projects/H753ZI_fresh",
-        "—disable-extensions",
-        "--enable-proposed-api marus25.cortex-debug",
+        "${workspaceFolder}/src/test/workspaces/H753ZI",
+        "--extensions-dir .vscode-test/extensions",
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
+        "--extensionTestsPath=${workspaceFolder}/out/test/integration/build.test"
       ],
       "outFiles": [
         "${workspaceFolder}/out/test/**/*.js"

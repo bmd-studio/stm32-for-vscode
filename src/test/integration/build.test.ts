@@ -2,17 +2,10 @@ import * as Definitions from '../../Definitions';
 import * as path from 'path';
 import * as vscode from 'vscode';
 
-import { afterEach, suite, test } from 'mocha';
+import { afterEach, beforeEach, suite, test } from 'mocha';
 
 import buildSTM from '../../BuildTask';
-
-async function waitForWorkspaceFoldersChanges(): Promise<void> {
-  return new Promise((resolve) => {
-    vscode.workspace.onDidChangeWorkspaceFolders(() => {
-      resolve();
-    });
-  });
-}
+import { waitForWorkspaceFoldersChange } from '../helpers';
 
 async function cleanUpSTM32ForVSCodeArtifacts(): Promise<void> {
   if (!vscode.workspace.workspaceFolders || !vscode.workspace.workspaceFolders?.[0]) {
@@ -47,10 +40,9 @@ suite('build test', () => {
   beforeEach(async () => {
     // wait for the folder to be loaded
     if (!vscode.workspace.workspaceFolders || !vscode.workspace.workspaceFolders?.[0]) {
-      await waitForWorkspaceFoldersChanges();
-
+      await waitForWorkspaceFoldersChange(2000);
     }
-  })
+  });
   test('default build test', async () => {
     // execute the test build.
     try {
@@ -64,7 +56,7 @@ suite('build test', () => {
   test('build build clean build', async () => {
     // // in out for now
     if (!vscode.workspace.workspaceFolders || !vscode.workspace.workspaceFolders?.[0]) {
-      await waitForWorkspaceFoldersChanges();
+      await waitForWorkspaceFoldersChange(2000);
       // wait for the folder to be loaded
     }
     // execute the test build here

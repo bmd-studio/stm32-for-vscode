@@ -1,0 +1,130 @@
+# Configuration file for the STM32 for VSCode extension
+# Arrays can be inputted in two ways. One is: [entry_1, entry_2, ..., entry_final]
+# or by adding an indented list below the variable name e.g.:
+# VARIABLE:
+# - entry_1
+# - entry_2
+
+# The project name
+target: H753ZI_fresh
+# Can be C or C++
+language: C
+
+optimization: Og
+
+# MCU settings
+targetMCU: stm32h7x
+cpu: cortex-m7 # type of cpu e.g. cortex-m4
+fpu: fpv5-d16 # Defines how floating points are defined. Can be left empty.
+floatAbi: -mfloat-abi=hard
+ldscript: STM32H753ZITx_FLASH.ld # linker script
+
+# Compiler definitions. The -D prefix for the compiler will be automatically added.
+cDefinitions: 
+  - USE_HAL_DRIVER
+  - STM32H753xx
+
+cxxDefinitions: 
+  - USE_HAL_DRIVER
+  - STM32H753xx
+
+asDefinitions: []
+
+# Compiler definition files. you can add a single files or an array of files for different definitions.
+# The file is expected to have a definition each new line.
+# This allows to include for example a .definition file which can be ignored in git and can contain
+# This can be convenient for passing along secrets at compile time, or generating a file for per device setup.
+cDefinitionsFile:
+cxxDefinitionsFile:
+asDefinitionsFile:
+
+# Compiler flags
+cFlags: []
+cxxFlags: []
+assemblyFlags: []
+linkerFlags: 
+  - -specs=nano.specs
+
+
+# libraries to be included. The -l prefix to the library will be automatically added.
+libraries: 
+  - c
+  - m
+  - nosys
+
+# Library directories. Folders can be added here that contain custom libraries.
+libraryDirectories: []
+
+# Files or folders that will be excluded from compilation.
+# Glob patterns (https://www.wikiwand.com/en/Glob_(programming)) can be used.
+# Do mind that double stars are reserved in yaml
+# these should be escaped with a: \ or the name should be in double quotes e.g. "**.test.**"
+excludes: 
+  - "**/Examples/**"
+  - "**/examples/**"
+  - "**/Example/**"
+  - "**/example/**"
+  - "**_template.*"
+
+
+# Include directories (directories containing .h or .hpp files)
+# If a CubeMX makefile is present it will automatically include the include directories from that makefile.
+includeDirectories: 
+  - Core/Inc
+  - Drivers/STM32H7xx_HAL_Driver/Inc
+  - Drivers/STM32H7xx_HAL_Driver/Inc/Legacy
+  - Drivers/CMSIS/Device/ST/STM32H7xx/Include
+  - Drivers/CMSIS/Include
+  - Inc/**
+  - Core/Inc/**
+  - Core/Lib/**
+  - Src/**
+  - Core/Src/**
+  - Core/Lib/**
+
+
+# Files that should be included in the compilation.
+# If a CubeMX makefile is present it will automatically include the  c and cpp/cxx files from that makefile.
+# Glob patterns (https://www.wikiwand.com/en/Glob_(programming)) can be used.
+# Do mind that double stars are reserved in yaml
+# these should be escaped with a: \ or the name should be in double quotes e.g. "HARDWARE_DRIVER*.c"
+sourceFiles:  
+  - startup_stm32h753xx.s
+  - Core/Src/main.c
+  - Core/Src/stm32h7xx_it.c
+  - Core/Src/stm32h7xx_hal_msp.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_cortex.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_eth.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_eth_ex.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc_ex.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_flash.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_flash_ex.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_gpio.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_hsem.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dma.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dma_ex.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_mdma.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pwr.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pwr_ex.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_i2c.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_i2c_ex.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_exti.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim_ex.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart_ex.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pcd.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pcd_ex.c
+  - Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_usb.c
+  - Core/Src/system_stm32h7xx.c
+  - Src/**
+  - Core/Src/**
+  - Core/Lib/**
+
+
+# When no makefile is present it will show a warning pop-up.
+# However when compilation without the CubeMX Makefile is desired, this can be turned of.
+suppressMakefileWarning: false
+    
