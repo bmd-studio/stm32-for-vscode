@@ -27,17 +27,18 @@
 import * as OpenOCDConfig from './configuration/openOCDConfig';
 import * as vscode from 'vscode';
 
-import addCommandMenu from './menu';
+import { installAllTools, installBuildToolsCommand } from './buildTools/installTools';
+
 import CommandMenu from './menu/CommandMenu';
+import addCommandMenu from './menu';
 import buildSTM from './BuildTask';
 import { checkBuildTools } from './buildTools';
-import { installAllTools } from './buildTools/installTools';
 import importAndSetupCubeIDEProject from './import';
-
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext): void {
+export function activate(context: vscode.ExtensionContext): { installTools: () => Promise<void> } {
+  console.log({ contextPath: context.globalStoragePath, vscodeExtensionPath: vscode.extensions.getExtension('bmd.stm32-for-vscode') });
   // This line of code will only be executed once when your extension is
   // activated
   let commandMenu: CommandMenu | undefined = undefined;
@@ -73,16 +74,17 @@ export function activate(context: vscode.ExtensionContext): void {
   });
   context.subscriptions.push(openExtension);
   const installBuildTools = vscode.commands.registerCommand('stm32-for-vscode.installBuildTools', async () => {
-    try {
-      await installAllTools(context);
-      const hasBuildTools = await checkBuildTools(context);
-      if (hasBuildTools && commandMenu) {
-        commandMenu.refresh();
-      }
+    await installBuildToolsCommand(context, commandMenu);
+    // try {
+    //   await installAllTools(context);
+    //   const hasBuildTools = await checkBuildTools(context);
+    //   if (hasBuildTools && commandMenu) {
+    //     commandMenu.refresh();
+    //   }
 
-    } catch (error) {
-      vscode.window.showErrorMessage(`Something went wrong with installing the build tools. Error:${error}`);
-    }
+    // } catch (error) {
+    //   vscode.window.showErrorMessage(`Something went wrong with installing the build tools. Error:${error}`);
+    // }
   });
   context.subscriptions.push(installBuildTools);
 
@@ -117,5 +119,7 @@ export function activate(context: vscode.ExtensionContext): void {
     }
   );
   context.subscriptions.push(cleanBuildCmd);
-
+  return {
+    installTools: async () => { await installBuildToolsCommand(context, commandMenu); }
+  };
 }

@@ -21,7 +21,8 @@ async function main(): Promise<void> {
       all: path.resolve(__dirname, './suite/index'),
       unit: path.resolve(__dirname, './unit/index'),
       build: path.resolve(__dirname, './integration/build'),
-      emptyWorkspace: path.resolve(__dirname, './integration/emptyBuildTask.test')
+      emptyWorkspace: path.resolve(__dirname, './integration/emptyBuildTask.test'),
+      buildTools: path.resolve(__dirname, './integration/buildToolsTest'),
     };
 
     const testWorkspaces = {
@@ -43,11 +44,24 @@ async function main(): Promise<void> {
       stdio: 'inherit'
     });
 
+
     // default unit test, should not matter where it runs
     await runTests({
       vscodeExecutablePath,
       extensionDevelopmentPath,
       extensionTestsPath: testPaths.unit,
+      launchArgs: [
+        testWorkspaces.empty,
+        '--extensions-dir',
+        testExensionPath
+      ]
+    });
+
+    // install build tools
+    await runTests({
+      vscodeExecutablePath,
+      extensionDevelopmentPath,
+      extensionTestsPath: testPaths.buildTools,
       launchArgs: [
         testWorkspaces.empty,
         '--extensions-dir',

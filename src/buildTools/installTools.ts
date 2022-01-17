@@ -19,12 +19,13 @@ import {
   validateXPMToolchainPath
 } from './extensionToolchainHelpers';
 
+import CommandMenu from '../menu/CommandMenu';
 import { GITHUB_ISSUES_URL } from '../Definitions';
 import axios from 'axios';
+import { checkBuildTools } from '.';
 import { exec } from 'child_process';
 import executeTask from '../HandleTasks';
 import { platform } from 'process';
-import { checkBuildTools } from '.';
 
 type XpmInstallType = Promise<void>;
 
@@ -374,3 +375,18 @@ export function installAllTools(context: vscode.ExtensionContext): Promise<void 
 
 
 
+
+export async function installBuildToolsCommand(
+  context: vscode.ExtensionContext,
+  commandMenu: CommandMenu | undefined,
+): Promise<void> {
+  try {
+    await installAllTools(context);
+    const hasBuildTools = await checkBuildTools(context);
+    if (hasBuildTools && commandMenu) {
+      commandMenu.refresh();
+    }
+  } catch (error) {
+    vscode.window.showErrorMessage(`Something went wrong with installing the build tools. Error:${error}`);
+  }
+}
