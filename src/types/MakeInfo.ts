@@ -151,7 +151,9 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
     '-fdata-sections',
     '-ffunction-sections'
   ];
-  public cxxFlags: string[] = [];
+  public cxxFlags: string[] = ['-Wall',
+    '-fdata-sections',
+    '-ffunction-sections'];
   public sourceFiles: string[] = [];
   public libraries: string[] = ['c', 'm'];
   public libraryDirectories: string[] = [];

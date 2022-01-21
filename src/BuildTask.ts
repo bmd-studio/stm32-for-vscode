@@ -48,6 +48,7 @@ import {
 import updateConfiguration from './configuration/WorkspaceConfigurations';
 import updateMakefile from './UpdateMakefile';
 import { writeConfigFile } from './configuration/stm32Config';
+import { writeNinjaFile } from './CreateNinjaFile';
 
 /**
  * Checks if the language is C++ and that there is no main.cpp present. 
@@ -167,6 +168,7 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
     // update makefile info and main.cpp if required.
     info = await checkForMainCPPOrAddWhenNecessary(info);
     await updateMakefile(currentWorkspaceFolder, info);
+    await writeNinjaFile(info, Uri.file(currentWorkspaceFolder));
 
     try {
       await updateConfiguration(workspace.workspaceFolders[0].uri, info);
