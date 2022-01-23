@@ -7,29 +7,32 @@ import { platform } from 'process';
 import * as path from 'path';
 import { Uri, workspace } from 'vscode';
 
+
+
+// TODO: think about what kind of flags need to be added.
+// TODO: add bin, and hex file generation
+// TODO: add size information
+// TODO: checkout the inline inconsistency where inline function does work with the makefile but not for the ninja makefile. 
+function convertPathToPathFromBuildFile(pathString: string): string {
+  return path.isAbsolute(pathString) ? pathString : path.join('../', pathString)
+}
+
 function createCompilerInfo(makeInfo: MakeInfo): string {
   return `
 # COMPILER INFO
-rule c_COMPILER_FOR_BUILD
-  command = "gcc" $ARGS -MD -MQ $out -MF $DEPFILE -o $out "-c" $in
-  deps = gcc
-  depfile = $DEPFILE_UNQUOTED
-  description = Compiling C object $out
-
 rule c_COMPILER
- command = "${makeInfo.tools.armToolchainPath}/arm-none-eabi-gcc" $ARGS -MD -MQ $out -MF $DEPFILE -o $out "-c" $in
+ command = "${makeInfo.tools.armToolchainPath}/arm-none-eabi-gcc" -c $mcu $libs $c_definitions $optimization $build_flags $include_files -MMD -MP -MF"$DEPENDENCY_FILE" -Wa,-a,-ad,-alms=$LIST_FILE $in -o $out
  deps = gcc
- depfile = $DEPFILE_UNQUOTED
+ depfile = $DEPENDENCY_FILE
  description = Compiling C object $out
 rule cxx_COMPILER
- command = "${makeInfo.tools.armToolchainPath}/arm-none-eabi-g++" $ARGS -MD -MQ $out -MF $DEPFILE -o $out "-c" $in
+ command = "${makeInfo.tools.armToolchainPath}/arm-none-eabi-g++" -c $mcu $libs $cxx_definitions $optimization $build_flags $include_files -MMD -MP -MF"$DEPENDENCY_FILE" -Wa,-a,-ad,-alms=$LIST_FILE $in -o $out
  deps = gcc
- depfile = $DEPFILE_UNQUOTED
+ depfile = $DEPENDENCY_FILE
  description = Compiling C object $out
-
 # Rules for linking.
 rule c_LINKER
- command = "${makeInfo.tools.armToolchainPath}/arm-none-eabi-${makeInfo.language === 'C++' ? 'g++' : 'gcc'}" $ARGS -o $out $in $LINK_ARGS
+ command = "${makeInfo.tools.armToolchainPath}/arm-none-eabi-${makeInfo.language === 'C++' ? 'g++' : 'gcc'}" $in $mcu $libs $linker_flags -Wl,-Map=$\{MAP_FILE},--cref -Wl,--gc-sections -o $out
  description = Linking target $out
   `;
 }
@@ -41,10 +44,38 @@ function createTargetOptions(makeInfo: MakeInfo): string {
 
 function createLibraries(makeInfo: MakeInfo): string {
   const libraries = makeInfo.libs.map(entry => `"-l${entry}"`).join(" ");
-  const libraryDirectories = makeInfo.libdir.map(entry => `"-L${path.isAbsolute(entry) ? entry : path.join('../', entry)}"`).join(" ");
+  const libraryDirectories = makeInfo.libdir.map(entry => `"-L${convertPathToPathFromBuildFile(entry)}"`).join(" ");
   // eslint-disable-next-line max-len
   return `libs = ${libraries} ${libraryDirectories}`;
 }
+function createIncludes(makeInfo: MakeInfo): string {
+  const includes = makeInfo.cIncludes.map(entry => `-I"${convertPathToPathFromBuildFile(entry)}"`).join(" ");
+  return `include_files=${includes}`;
+}
+function createDefinitions(makeInfo: MakeInfo): string {
+  const cDefinitions = makeInfo.cDefs.map(entry => `"-D${entry}"`).join(" ");
+  const cxxDefinition = makeInfo.cxxDefs.map(entry => `"-D${entry}"`).join(" ");
+  return `
+c_definitions = ${cDefinitions}
+cxx_definitions = ${cxxDefinition}
+  `;
+}
+
+function createOptimization(makeInfo: MakeInfo): string {
+  return `optimisation = ${makeInfo.optimization}`;
+}
+
+function creatAdditionalBuildFlags(): string {
+  return `build_flags = -fdata-sections -ffunction-sections -g -gdwarf-2`;
+}
+function createLinkerFlags(makeInfo: MakeInfo): string {
+  let linkerFlags = makeInfo.ldFlags.join(" ");
+  linkerFlags += ` -T"${convertPathToPathFromBuildFile(makeInfo.ldscript)}"`;
+  return `linker_flags = ${linkerFlags}`;
+}
+
+
+
 
 function createBuildRulesForSources(makeInfo: MakeInfo): string {
   const includeDirectories = makeInfo.cIncludes.map((entry) => {
@@ -63,10 +94,9 @@ function createBuildRulesForSources(makeInfo: MakeInfo): string {
     return (
       // eslint-disable-next-line max-len
       `
-build ${makeInfo.target}.elf.p/${path.basename(entry)}.o: c_COMPILER ${path.isAbsolute(entry) ? entry : path.join('../', entry,)}
- DEPFILE = "${makeInfo.target}.elf.p/${path.basename(entry)}.o.d"
- DEPFILE_UNQUOTED = ${makeInfo.target}.elf.p/${path.basename(entry)}.o.d
- ARGS = "-I${makeInfo.target}.elf.p" ${cFlags} ${cDefinitions} $libs $mcu ${includeDirectories} 
+build build/${path.basename(entry)}.o: c_COMPILER ${convertPathToPathFromBuildFile(entry)}
+  DEPENDENCY_FILE = build/${path.basename(entry)}.d
+  LIST_FILE = build/${path.basename(entry)}.lst
     `);
   });
 
@@ -74,10 +104,9 @@ build ${makeInfo.target}.elf.p/${path.basename(entry)}.o: c_COMPILER ${path.isAb
     return (
       // eslint-disable-next-line max-len
       `
-build ${makeInfo.target}.elf.p/${path.basename(entry)}.o: c_COMPILER ${path.isAbsolute(entry) ? entry : path.join('../', entry,)}
- DEPFILE = "${makeInfo.target}.elf.p/${path.basename(entry)}.o.d"
- DEPFILE_UNQUOTED = ${makeInfo.target}.elf.p/${path.basename(entry)}.o.d
- ARGS = "-I${makeInfo.target}.elf.p" ${cFlags}  $libs $mcu ${cDefinitions} ${includeDirectories} $mcu
+build build/${path.basename(entry)}.o: c_COMPILER ${convertPathToPathFromBuildFile(entry)}
+  DEPENDENCY_FILE = build/${path.basename(entry)}.d
+  LIST_FILE = build/${path.basename(entry)}.lst
     `);
   });
 
@@ -87,10 +116,9 @@ build ${makeInfo.target}.elf.p/${path.basename(entry)}.o: c_COMPILER ${path.isAb
       return (
         // eslint-disable-next-line max-len
         `
-build ${makeInfo.target}.elf.p/${path.basename(entry)}.o: cxx_COMPILER ${path.isAbsolute(entry) ? entry : path.join('../', entry)}
- DEPFILE = "${makeInfo.target}.elf.p/${path.basename(entry)}.o.d"
- DEPFILE_UNQUOTED = ${makeInfo.target}.elf.p/${path.basename(entry)}.o.d
- ARGS = "-I${makeInfo.target}.elf.p" ${cxxFlags}  $libs $mcu ${cxxDefinition} ${includeDirectories} $mcu
+build build/${path.basename(entry)}.o: cxx_COMPILER ${convertPathToPathFromBuildFile(entry)}
+  DEPENDENCY_FILE = build/${path.basename(entry)}.d
+  LIST_FILE = build/${path.basename(entry)}.lst
       `);
     });
   }
@@ -103,16 +131,16 @@ build ${makeInfo.target}.elf.p/${path.basename(entry)}.o: cxx_COMPILER ${path.is
 }
 
 function createBuildRulesForLinker(makeInfo: MakeInfo): string {
-  let sourcesLinked = makeInfo.cSources.map(entry => `${makeInfo.target}.elf.p/${path.basename(entry)}.o`);
-  sourcesLinked = sourcesLinked.concat(makeInfo.asmSources.map(entry => `${makeInfo.target}.elf.p/${entry}.o`));
+  let sourcesLinked = makeInfo.cSources.map(entry => `build/${path.basename(entry)}.o`);
+  sourcesLinked = sourcesLinked.concat(makeInfo.asmSources.map(entry => `build/${entry}.o`));
   if (makeInfo.language === 'C++') {
     sourcesLinked =
-      sourcesLinked.concat(makeInfo.cxxSources.map(entry => `${makeInfo.target}.elf.p/${entry}.cpp.o`));
+      sourcesLinked.concat(makeInfo.cxxSources.map(entry => `build/${entry}.o`));
   }
 
   return `
 build ${makeInfo.target}.elf: c_LINKER ${sourcesLinked.join(" ")}
-  LINK_ARGS = $libs $mcu ${makeInfo.ldFlags.join(" ")} -T${makeInfo.ldscript}  -Wl,-Map=${makeInfo.target}.elf.p/${makeInfo.target}.map,--cref -Wl,--gc-sections"
+  MAP_FILE = build/${makeInfo.target}.map
   `;
 }
 
@@ -125,8 +153,13 @@ export function createNinjaBuildFile(makeInfo: MakeInfo): string {
   return (
     `
 # Global variables
+${createOptimization(makeInfo)}
 ${createTargetOptions(makeInfo)}
-${createLibraries(makeInfo)} 
+${createLibraries(makeInfo)}
+${createDefinitions(makeInfo)} 
+${createIncludes(makeInfo)}
+${creatAdditionalBuildFlags()}
+${createLinkerFlags(makeInfo)}
 ${createCompilerInfo(makeInfo)}
 # Rules for building sources
 ${createBuildRulesForSources(makeInfo)}
