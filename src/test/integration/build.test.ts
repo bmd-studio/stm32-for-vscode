@@ -29,6 +29,7 @@ async function cleanUpSTM32ForVSCodeArtifacts(): Promise<void> {
   try {
     await Promise.all(fileDeletePromises);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error('Something went wrong with cleaning up the integration test', error);
   }
 }
@@ -48,10 +49,11 @@ suite('build test', () => {
     try {
       await buildSTM();
     } catch (error) {
+      console.error('build test failed: ', error);
       throw error;
     }
 
-  }).timeout(30000);
+  }).timeout(120000);
 
   test('build build clean build', async () => {
     // // in out for now
@@ -68,6 +70,6 @@ suite('build test', () => {
       throw error;
     }
 
-  }).timeout(60000);
+  }).timeout(120000);
 
 });

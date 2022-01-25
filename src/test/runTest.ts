@@ -63,7 +63,7 @@ async function main(): Promise<void> {
       extensionDevelopmentPath,
       extensionTestsPath: testPaths.buildTools,
       launchArgs: [
-        testWorkspaces.empty,
+        testWorkspaces.makefileH7,
         '--extensions-dir',
         testExensionPath
       ]

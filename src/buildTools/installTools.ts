@@ -299,13 +299,14 @@ export async function addExtensionInstalledToolsToSettings(context: vscode.Exten
   if (openocd) {
     await extensionConfiguration.update('openOCDPath', openocd, vscode.ConfigurationTarget.Global);
   }
+  console.log('openocd path', openocd);
 
   // arm-none-eabi
   const armEabi = await validateXPMToolchainPath(armNoneEabiDefinition, context.globalStoragePath);
   if (armEabi) {
     await extensionConfiguration.update('armToolchainPath', armEabi, vscode.ConfigurationTarget.Global);
   }
-
+  console.log('arm eabi path', armEabi);
 
   // make, currently we only install it for windows in the extension
   if (platform === 'win32') {
@@ -313,8 +314,9 @@ export async function addExtensionInstalledToolsToSettings(context: vscode.Exten
     if (make) {
       await extensionConfiguration.update('makePath', make, vscode.ConfigurationTarget.Global);
     }
-
+    console.log('make path', make);
   }
+
 }
 
 export function installAllTools(context: vscode.ExtensionContext): Promise<void | Error> {
@@ -332,13 +334,17 @@ export function installAllTools(context: vscode.ExtensionContext): Promise<void 
         const nodeBinLocation = platform === 'win32' ? nodeInstallLocation : path.join(nodeInstallLocation, 'bin');
         const npxInstallation = path.join(nodeBinLocation, 'npx');
         progress.report({ increment: 10, message: 'Node installed' });
+        console.log('node installed');
 
         progress.report({ increment: 10, message: 'installing openOCD' });
         await installOpenOcd(context, npxInstallation);
+        console.log('openocd installed');
         progress.report({ increment: 20, message: 'installing make' });
         await installMake(context, npxInstallation);
+        console.log('make installed');
         progress.report({ increment: 20, message: 'installing arm-none-eabi' });
         await installArmNonEabi(context, npxInstallation);
+        console.log('arm-none-eabi installed');
         progress.report({ increment: 20, message: 'Finished installing build tools' });
         if (nodeInstallLocation) {
           // remove the node location
@@ -348,6 +354,7 @@ export function installAllTools(context: vscode.ExtensionContext): Promise<void 
         progress.report({ increment: 10, message: 'Cleaning up' });
         await removeOldTools(openocdDefinition, context);
         await removeOldTools(armNoneEabiDefinition, context);
+        console.log('removed old tools');
         if (platform === 'win32') {
           try {
             await removeOldTools(makeDefinition, context);

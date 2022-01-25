@@ -18,10 +18,13 @@ jobs:
     - name: Install Node.js
       uses: actions/setup-node@v1
       with:
-        node-version: 14.x
-    - run: yarn install
-    - run: yarn pretest
-    - name: Run tests
-      uses: GabrielBB/xvfb-action@v1.0
-      with:
-        run: yarn test
+        node-version: 17.x
+    - run: npm install
+    - run: npm run pretest
+    - run: apt update
+    - run: apt install -y libasound2 libgbm1 libgtk-3-0 libnss3 xvfb
+    - run: xvfb-run -a npm test
+      if: runner.os == 'Linux'
+    - run: npm test
+      if: runner.os != 'Linux'
+

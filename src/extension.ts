@@ -27,18 +27,16 @@
 import * as OpenOCDConfig from './configuration/openOCDConfig';
 import * as vscode from 'vscode';
 
-import { installAllTools, installBuildToolsCommand } from './buildTools/installTools';
-
 import CommandMenu from './menu/CommandMenu';
 import addCommandMenu from './menu';
 import buildSTM from './BuildTask';
 import { checkBuildTools } from './buildTools';
 import importAndSetupCubeIDEProject from './import';
+import { installBuildToolsCommand } from './buildTools/installTools';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext): { installTools: () => Promise<void> } {
-  console.log({ contextPath: context.globalStoragePath, vscodeExtensionPath: vscode.extensions.getExtension('bmd.stm32-for-vscode') });
   // This line of code will only be executed once when your extension is
   // activated
   let commandMenu: CommandMenu | undefined = undefined;

@@ -1,10 +1,6 @@
 import * as Mocha from 'mocha';
 import * as glob from 'glob';
 import * as path from 'path';
-const myArgs = process.argv.slice(2);
-console.log('myArgs: ', myArgs);
-
-
 
 export function run(): Promise<void> {
   // Create the mocha test
