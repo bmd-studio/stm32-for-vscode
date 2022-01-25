@@ -12,6 +12,7 @@ import {
   makeDefinition,
   openocdDefinition
 } from './toolChainDefinitions';
+import { checkAutomaticallyInstalledBuildTools, hasRelevantAutomaticallyInstalledBuildTools } from './validateToolchain';
 import {
   getNewestToolchainVersion,
   getToolBasePath,
@@ -31,18 +32,19 @@ type XpmInstallType = Promise<void>;
 
 /**
  * Function for installing a build dependency through npm using the buildToolDefinition
- * @param context vscode context
+ * @param toolsStoragePath storage path to where the tools are stored. The extension uses the globalStoragePath for this
  * @param definition definition of the build tool found in toolChainDefinitions.ts
  */
 export async function xpmInstall(
-  context: vscode.ExtensionContext, npx: string, definition: BuildToolDefinition
+  toolsStoragePath: vscode.Uri, npx: string, definition: BuildToolDefinition
 ): XpmInstallType {
   if (!_.has(definition, 'installation.xpm')) {
     throw new Error('Could not install using xpm');
   }
-  const pathToSaveTo = context.globalStoragePath;
+  const pathToSaveTo = toolsStoragePath.fsPath;
   const nodePath = path.join(npx, '../');
   const env: { [key: string]: string } = process.env as { [key: string]: string };
+  // FIXME: remove the set from lodash over here.
   _.set(env, 'XPACKS_SYSTEM_FOLDER', pathToSaveTo);
   _.set(env, 'XPACKS_REPO_FOLDER', pathToSaveTo);
   _.set(env, 'npm_config_yes', true);
@@ -52,7 +54,7 @@ export async function xpmInstall(
     cwd: path.join(npx, '../'),
   };
   try {
-    await vscode.workspace.fs.createDirectory(vscode.Uri.joinPath(context.globalStorageUri, 'cache'));
+    await vscode.workspace.fs.createDirectory(vscode.Uri.joinPath(toolsStoragePath, 'cache'));
   } catch (_err) { }
 
 
@@ -73,15 +75,15 @@ export async function xpmInstall(
  * Installs openocd using xpm
  * @param context vscode extension context
  */
-export function installOpenOcd(context: vscode.ExtensionContext, npx: string): XpmInstallType {
-  return xpmInstall(context, npx, openocdDefinition);
+export function installOpenOcd(toolsStoragePath: vscode.Uri, npx: string): XpmInstallType {
+  return xpmInstall(toolsStoragePath, npx, openocdDefinition);
 }
 /**
  * Installs make using xpm
  * @note need to use something else then xpm 
  * @param context vscode extension context
  */
-export async function installMake(context: vscode.ExtensionContext, npx: string): Promise<void> {
+export async function installMake(toolsStoragePath: vscode.Uri, npx: string): Promise<void> {
   let executeCmd = '';
   if (shelljs.which('make')) {
     return Promise.resolve();
@@ -95,7 +97,7 @@ export async function installMake(context: vscode.ExtensionContext, npx: string)
       const win32XPMMakeDefinition = _.cloneDeep(makeDefinition);
       win32XPMMakeDefinition.installation.xpm = win32XPMMakeDefinition.installation.windows;
       // executeCmd = makeDefinition.installation.windows || '';
-      return xpmInstall(context, npx, win32XPMMakeDefinition);
+      return xpmInstall(toolsStoragePath, npx, win32XPMMakeDefinition);
     } break;
     case "linux": {
       let cmd = makeDefinition.installation.linux;
@@ -124,15 +126,15 @@ export async function installMake(context: vscode.ExtensionContext, npx: string)
  * Installs cmake using xpm
  * @param context vscode extension context
  */
-export function installCMake(context: vscode.ExtensionContext, npx: string): XpmInstallType {
-  return xpmInstall(context, npx, cMakeDefinition);
+export function installCMake(toolsStoragePath: vscode.Uri, npx: string): XpmInstallType {
+  return xpmInstall(toolsStoragePath, npx, cMakeDefinition);
 }
 /**
  * Installs arm-none-eabi tool chain using xpm
  * @param context vscode extension context
  */
-export function installArmNonEabi(context: vscode.ExtensionContext, npx: string): XpmInstallType {
-  return xpmInstall(context, npx, armNoneEabiDefinition);
+export function installArmNonEabi(toolsStoragePath: vscode.Uri, npx: string): XpmInstallType {
+  return xpmInstall(toolsStoragePath, npx, armNoneEabiDefinition);
 }
 
 const nodeRegex = {
@@ -210,8 +212,8 @@ export function getLatestNodeLink(): Promise<string> {
  * @param context vscode extensions context
  * @param fileDownloadName the platform specific filename for node
  */
-export function downloadLatestNode(context: vscode.ExtensionContext, fileDownloadName: string): Promise<string> {
-  const pathToSaveTo = context.globalStoragePath;
+export function downloadLatestNode(toolsStoragePath: vscode.Uri, fileDownloadName: string): Promise<string> {
+  const pathToSaveTo = toolsStoragePath.fsPath;
   const downloadURL = `${nodeLatestURL}${fileDownloadName}`;
   const downloadPath = path.join(pathToSaveTo, 'tmp', fileDownloadName);
 
@@ -251,15 +253,15 @@ export async function extractFile(filePath: string, outPath: string): Promise<st
 // TODO: create an integration test for downloading node.
 /**
  * Function for downloading and extracting a new latest node version
- * @param context vscode context
+ * @param toolsStoragePath storage path to where the tools are stored. The extension uses the globalStoragePath for this
  */
-export async function getNode(context: vscode.ExtensionContext): Promise<string> {
+export async function getNode(toolsStoragePath: vscode.Uri): Promise<string> {
   try {
     const latestNodeLink = await getLatestNodeLink();
-    const latestNodeCompressed = await downloadLatestNode(context, latestNodeLink);
+    const latestNodeCompressed = await downloadLatestNode(toolsStoragePath, latestNodeLink);
     const extractedNodeFileLoc = await extractFile(
       latestNodeCompressed,
-      path.join(context.globalStorageUri.fsPath, 'node')
+      path.join(toolsStoragePath.fsPath, 'node')
     );
     const dirContents = await vscode.workspace.fs.readDirectory(vscode.Uri.file(extractedNodeFileLoc));
     const nodeInstallationFilePath = _.find(dirContents, (file) => { return (file[0].indexOf('node') >= 0); });
@@ -276,14 +278,14 @@ export async function getNode(context: vscode.ExtensionContext): Promise<string>
   }
 }
 
-export async function removeOldTools(tool: BuildToolDefinition, context: vscode.ExtensionContext): Promise<void> {
+export async function removeOldTools(tool: BuildToolDefinition, toolsStoragePath: vscode.Uri): Promise<void> {
   try {
-    const newest = await getNewestToolchainVersion(tool, context.globalStoragePath);
-    const files = await getToolVersionFolders(tool, context.globalStoragePath);
+    const newest = await getNewestToolchainVersion(tool, toolsStoragePath.fsPath);
+    const files = await getToolVersionFolders(tool, toolsStoragePath.fsPath);
     if (files && newest) {
       files.map(async (file) => {
         if (file[0] !== newest.fileName && file[1] === vscode.FileType.Directory) {
-          const filePath = path.join(getToolBasePath(tool, context.globalStoragePath), file[0]);
+          const filePath = path.join(getToolBasePath(tool, toolsStoragePath.fsPath), file[0]);
           await vscode.workspace.fs.delete(vscode.Uri.file(filePath), { recursive: true });
         }
       });
@@ -292,17 +294,17 @@ export async function removeOldTools(tool: BuildToolDefinition, context: vscode.
     // nothing to do
   }
 }
-export async function addExtensionInstalledToolsToSettings(context: vscode.ExtensionContext): Promise<void> {
+export async function addExtensionInstalledToolsToSettings(toolsStoragePath: vscode.Uri): Promise<void> {
   const extensionConfiguration = vscode.workspace.getConfiguration('stm32-for-vscode');
   //openocd
-  const openocd = await validateXPMToolchainPath(openocdDefinition, context.globalStoragePath);
+  const openocd = await validateXPMToolchainPath(openocdDefinition, toolsStoragePath.fsPath);
   if (openocd) {
     await extensionConfiguration.update('openOCDPath', openocd, vscode.ConfigurationTarget.Global);
   }
   console.log('openocd path', openocd);
 
   // arm-none-eabi
-  const armEabi = await validateXPMToolchainPath(armNoneEabiDefinition, context.globalStoragePath);
+  const armEabi = await validateXPMToolchainPath(armNoneEabiDefinition, toolsStoragePath.fsPath);
   if (armEabi) {
     await extensionConfiguration.update('armToolchainPath', armEabi, vscode.ConfigurationTarget.Global);
   }
@@ -310,7 +312,7 @@ export async function addExtensionInstalledToolsToSettings(context: vscode.Exten
 
   // make, currently we only install it for windows in the extension
   if (platform === 'win32') {
-    const make = await validateXPMToolchainPath(makeDefinition, context.globalStoragePath);
+    const make = await validateXPMToolchainPath(makeDefinition, toolsStoragePath.fsPath);
     if (make) {
       await extensionConfiguration.update('makePath', make, vscode.ConfigurationTarget.Global);
     }
@@ -319,7 +321,7 @@ export async function addExtensionInstalledToolsToSettings(context: vscode.Exten
 
 }
 
-export function installAllTools(context: vscode.ExtensionContext): Promise<void | Error> {
+export function installAllTools(toolsStoragePath: vscode.Uri): Promise<void | Error> {
   return new Promise((resolve) => {
     vscode.window.withProgress({
       location: vscode.ProgressLocation.Notification,
@@ -330,49 +332,50 @@ export function installAllTools(context: vscode.ExtensionContext): Promise<void 
       try {
 
         progress.report({ increment: 0, message: 'installing local copy of node' });
-        const nodeInstallLocation = await getNode(context);
+        const nodeInstallLocation = await getNode(toolsStoragePath);
         const nodeBinLocation = platform === 'win32' ? nodeInstallLocation : path.join(nodeInstallLocation, 'bin');
         const npxInstallation = path.join(nodeBinLocation, 'npx');
         progress.report({ increment: 10, message: 'Node installed' });
         console.log('node installed');
 
         progress.report({ increment: 10, message: 'installing openOCD' });
-        await installOpenOcd(context, npxInstallation);
+        await installOpenOcd(toolsStoragePath, npxInstallation);
         console.log('openocd installed');
         progress.report({ increment: 20, message: 'installing make' });
-        await installMake(context, npxInstallation);
+        await installMake(toolsStoragePath, npxInstallation);
         console.log('make installed');
         progress.report({ increment: 20, message: 'installing arm-none-eabi' });
-        await installArmNonEabi(context, npxInstallation);
+        await installArmNonEabi(toolsStoragePath, npxInstallation);
         console.log('arm-none-eabi installed');
         progress.report({ increment: 20, message: 'Finished installing build tools' });
         if (nodeInstallLocation) {
           // remove the node location
           vscode.workspace.fs.delete(vscode.Uri.file(nodeInstallLocation), { recursive: true });
-          vscode.workspace.fs.delete(vscode.Uri.file(path.join(context.globalStoragePath, 'tmp')), { recursive: true });
+          vscode.workspace.fs.delete(vscode.Uri.file(path.join(toolsStoragePath.fsPath, 'tmp')), { recursive: true });
         }
         progress.report({ increment: 10, message: 'Cleaning up' });
-        await removeOldTools(openocdDefinition, context);
-        await removeOldTools(armNoneEabiDefinition, context);
+        await removeOldTools(openocdDefinition, toolsStoragePath);
+        await removeOldTools(armNoneEabiDefinition, toolsStoragePath);
         console.log('removed old tools');
         if (platform === 'win32') {
           try {
-            await removeOldTools(makeDefinition, context);
+            await removeOldTools(makeDefinition, toolsStoragePath);
           } catch (err) {
             // console.error(err);
           }
         }
-        await addExtensionInstalledToolsToSettings(context);
+        await addExtensionInstalledToolsToSettings(toolsStoragePath);
         progress.report({ increment: 10, message: 'awaiting for all to be installed' });
         // check if build tool installation is finished
         const startTime = Date.now();
         let hasBuildToolsInstalled = false;
         while (Date.now() - startTime < 60000 && !hasBuildToolsInstalled) {
-          hasBuildToolsInstalled = await checkBuildTools(context);
+          const currentToolchain = await checkAutomaticallyInstalledBuildTools(toolsStoragePath);
+          hasBuildToolsInstalled = hasRelevantAutomaticallyInstalledBuildTools(currentToolchain);
         }
 
       } catch (err) {
-        vscode.window.showErrorMessage(`Something has gone wrong while installing the build toold: ${err}`);
+        vscode.window.showErrorMessage(`Something has gone wrong while installing the build tools: ${err}`);
       }
       progress.report({ increment: 100, message: 'Finshed build tool installation' });
       resolve();
@@ -388,7 +391,7 @@ export async function installBuildToolsCommand(
   commandMenu: CommandMenu | undefined,
 ): Promise<void> {
   try {
-    await installAllTools(context);
+    await installAllTools(context.globalStorageUri);
     const hasBuildTools = await checkBuildTools(context);
     if (hasBuildTools && commandMenu) {
       commandMenu.refresh();

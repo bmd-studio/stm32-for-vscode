@@ -23,6 +23,7 @@ async function cleanUpSTM32ForVSCodeArtifacts(): Promise<void> {
     vscode.workspace.fs.delete(vscode.Uri.file(makefilePath), { useTrash: false }),
     vscode.workspace.fs.delete(vscode.Uri.file(configPath), { useTrash: false }),
     vscode.workspace.fs.delete(vscode.Uri.file(openocdConfigPath), { useTrash: false }),
+    // TODO: convert this to launch and tasks.json removal, as this way we can save the toolchain settings.
     vscode.workspace.fs.delete(vscode.Uri.file(workspaceSettingsPath), { useTrash: false, recursive: true }),
     vscode.workspace.fs.delete(vscode.Uri.file(buildDirectoryPath), { useTrash: false, recursive: true }),
   ];

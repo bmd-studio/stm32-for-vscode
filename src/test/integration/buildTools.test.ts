@@ -1,7 +1,10 @@
+import * as path from 'path';
 import * as vscode from 'vscode';
 
+import { checkAutomaticallyInstalledBuildTools, hasRelevantAutomaticallyInstalledBuildTools } from '../../buildTools/validateToolchain';
 import { suite, test } from 'mocha';
 
+import { installAllTools } from '../../buildTools/installTools';
 import { waitForWorkspaceFoldersChange } from '../helpers';
 
 // import { installAllTools } from '../../buildTools/installTools';
@@ -13,32 +16,23 @@ suite('build tools test', () => {
       await waitForWorkspaceFoldersChange(2000);
       // wait for the folder to be loaded
     }
+    const buildToolsFolder = vscode.workspace.workspaceFolders?.[0];
+    if (!buildToolsFolder) {
+      throw new Error('no workspace folder to install build tools in.');
+    }
+    const buildToolsLocation = path.join(buildToolsFolder.uri.fsPath, 'tools');
 
-    // // const processExec = new vscode.CustomExecution(totalPath, shellExecOptions);
-    // const processExec = new vscode.ProcessExecution("${command:stm32-for-vscode.installBuildTools}");
-    // const processTask = new vscode.Task(
-    //   { type: 'process' },
-    //   vscode.TaskScope.Workspace,
-    //   'install build tools', 'STM32 for VSCode',
-    //   processExec
-    // );
-    // try {
-    //   const taskResult = await vscode.tasks.executeTask(processTask);
-    //   console.log({ taskResult });
-    // } catch (error) {
-    //   console.error('could not finish execute task', error);
-    //   throw error;
-    // }
-
-    const bmdExtension = vscode.extensions.getExtension('bmd.stm32-for-vscode');
-    const bmdExtensionExports = bmdExtension?.exports;
-    console.log("LOOOOK AT MEEEEE");
-    console.log({ bmdExtension, bmdExtensionExports });
-    console.log(`${bmdExtensionExports}`);
-    console.log(vscode.extensions.getExtension('bmd.stm32-for-vscode'));
-    console.log("LOOOK AT ME V2");
     try {
-      await bmdExtensionExports.installTools();
+      await installAllTools(vscode.Uri.file(buildToolsLocation));
+      // checks if the build tools are installed and adds them 
+      const result = await checkAutomaticallyInstalledBuildTools(vscode.Uri.file(buildToolsLocation));
+      if (!hasRelevantAutomaticallyInstalledBuildTools(result)) {
+        throw new Error('build tools did not install properly');
+      }
+      const stm32ForVSCodeWorkspaceConfiguration = vscode.workspace.getConfiguration('stm32-for-vscode');
+      await stm32ForVSCodeWorkspaceConfiguration.update('openOCDPath', result.openOCDPath);
+      await stm32ForVSCodeWorkspaceConfiguration.update('armToolchainPath', result.armToolchainPath);
+
       // await installAllTools()
     } catch (error) {
       throw error;

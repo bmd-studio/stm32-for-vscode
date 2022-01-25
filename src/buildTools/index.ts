@@ -23,6 +23,8 @@ export function setCortexDebugSettingsInWorkspace(tools: ToolChain): void {
   }
 }
 
+
+
 /**
  * Checks build tools and updates settings accordingly. Priority of assignment is: 
  * highest: build tools in setting,
@@ -33,7 +35,9 @@ export function setCortexDebugSettingsInWorkspace(tools: ToolChain): void {
 export async function checkBuildTools(context: vscode.ExtensionContext): Promise<boolean> {
   const settingBuildTools = toolChainValidation.checkSettingsForBuildTools();
   const pathBuildTools = toolChainValidation.checkBuildToolsInPath();
-  const extensionInstalledTools = await toolChainValidation.checkAutomaticallyInstalledBuildTools(context);
+  const extensionInstalledTools = await toolChainValidation.checkAutomaticallyInstalledBuildTools(
+    context.globalStorageUri
+  );
 
 
   let finalBuildTools = toolChainValidation.compareAndUpdateMissingBuildTools(
