@@ -22,23 +22,23 @@ suite('install Tools tests', () => {
     expect(getPlatformSpecificNodeLink(latestNodeHTML, 'linux', 'arm64')).to.equal("node-v15.0.1-linux-arm64.tar.gz");
   });
 
-  test('getLatestNodeLink good html response', () => {
-    const fakeAxios = Sinon.fake.returns(Promise.resolve(latestNodeHTML));
-    Sinon.replace(axios, 'get', fakeAxios);
-    expect(getLatestNodeLink()).to.eventually.equal(
-      getPlatformSpecificNodeLink(latestNodeHTML, process.platform, process.arch)
-    );
-  });
-  test('getLatestNodeLink empty html response', () => {
-    const fakeAxios = Sinon.fake.returns(Promise.resolve(''));
-    Sinon.replace(axios, 'get', fakeAxios);
-    expect(getLatestNodeLink()).to.eventually.be.rejected;
-  });
-  test('getLatestNodeLink rejected html response', () => {
-    const fakeAxios = Sinon.fake.returns(Promise.reject(new Error('')));
-    Sinon.replace(axios, 'get', fakeAxios);
-    expect(getLatestNodeLink()).to.eventually.be.rejected;
-  });
+  // test('getLatestNodeLink good html response', () => {
+  //   const fakeAxios = Sinon.fake.returns(Promise.resolve(latestNodeHTML));
+  //   Sinon.replace(axios, 'get', fakeAxios);
+  //   expect(getLatestNodeLink()).to.eventually.equal(
+  //     getPlatformSpecificNodeLink(latestNodeHTML, process.platform, process.arch)
+  //   );
+  // });
+  // test('getLatestNodeLink empty html response', () => {
+  //   const fakeAxios = Sinon.fake.returns(Promise.resolve(''));
+  //   Sinon.replace(axios, 'get', fakeAxios);
+  //   expect(getLatestNodeLink()).to.eventually.be.rejected;
+  // });
+  // test('getLatestNodeLink rejected html response', () => {
+  //   const fakeAxios = Sinon.fake.returns(Promise.reject(new Error('')));
+  //   Sinon.replace(axios, 'get', fakeAxios);
+  //   expect(getLatestNodeLink()).to.eventually.be.rejected;
+  // });
 
 });
 

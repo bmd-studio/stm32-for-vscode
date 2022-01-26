@@ -76,7 +76,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
   test('update c properties without earlier file present', async () => {
     //should test bootstrapping and updating
     const writeFileInWorkspaceFake = Sinon.fake();
-    const findFileInWorkspaceFake = Sinon.fake.returns([]);
+    const findFileInWorkspaceFake = Sinon.fake.returns(Promise.resolve([]));
     Sinon.replace(helpers, 'writeFileInWorkspace', writeFileInWorkspaceFake);
     Sinon.replace(vscode.workspace, 'findFiles', findFileInWorkspaceFake);
     const expectedResult = JSON.stringify({
@@ -104,8 +104,8 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
   test('update c properties, while another config is present', async () => {
     const mockWorkspaceUri = Uri.file('./localworkspace');
     const writeFileInWorkspaceFake = Sinon.fake();
-    const findFileInWorkspaceFake = Sinon.fake.returns([Uri.file('c_cpp_properties.json')]);
-    const readFileInWorkspaceFake = Sinon.fake.returns(new TextEncoder().encode(JSON.stringify({
+    const findFileInWorkspaceFake = Sinon.fake.returns(Promise.resolve([Uri.file('c_cpp_properties.json')]));
+    const readFileInWorkspaceFake = Sinon.fake.returns(Promise.resolve(new TextEncoder().encode(JSON.stringify({
       configurations: [
         {
           name: "SomeOtherConfig",
@@ -121,7 +121,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
         }
       ],
       "version": 4
-    }, null, 2)));
+    }, null, 2))));
     const expectedResult = JSON.stringify({
       configurations: [
         {
@@ -157,7 +157,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
   test('do not update c properties when same config is present', async () => {
     const mockWorkspaceUri = Uri.file('./localworkspace');
     const writeFileInWorkspaceFake = Sinon.fake();
-    const findFileInWorkspaceFake = Sinon.fake.returns([Uri.file('c_cpp_properties.json')]);
+    const findFileInWorkspaceFake = Sinon.fake.returns(Promise.resolve([Uri.file('c_cpp_properties.json')]));
     const expectedResult = JSON.stringify({
       configurations: [{
         name: 'STM32',
@@ -168,7 +168,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
       ],
       version: 4,
     }, null, 2);
-    const readFileInWorkspaceFake = Sinon.fake.returns(new TextEncoder().encode(expectedResult));
+    const readFileInWorkspaceFake = Sinon.fake.returns(Promise.resolve(new TextEncoder().encode(expectedResult)));
     Sinon.replace(helpers, 'writeFileInWorkspace', writeFileInWorkspaceFake);
     Sinon.replace(vscode.workspace, 'findFiles', findFileInWorkspaceFake);
     Sinon.replace(vscode.workspace.fs, 'readFile', readFileInWorkspaceFake);
@@ -180,8 +180,8 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
   });
   test('update c properties, with several other definitions present', async () => {
     const writeFileInWorkspaceFake = Sinon.fake();
-    const findFileInWorkspaceFake = Sinon.fake.returns([Uri.file('c_cpp_properties.json')]);
-    const readFileInWorkspaceFake = Sinon.fake.returns(new TextEncoder().encode(JSON.stringify({
+    const findFileInWorkspaceFake = Sinon.fake.returns(Promise.resolve([Uri.file('c_cpp_properties.json')]));
+    const readFileInWorkspaceFake = Sinon.fake.returns(Promise.resolve(new TextEncoder().encode(JSON.stringify({
       configurations: [
         {
           name: "STM32",
@@ -197,7 +197,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
         }
       ],
       "version": 4
-    }, null, 2)));
+    }, null, 2))));
     Sinon.replace(helpers, 'writeFileInWorkspace', writeFileInWorkspaceFake);
     Sinon.replace(vscode.workspace, 'findFiles', findFileInWorkspaceFake);
     Sinon.replace(vscode.workspace.fs, 'readFile', readFileInWorkspaceFake);
@@ -244,8 +244,8 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
       someKey: 'somevalue',
     };
     const resultingJSONString = JSON.stringify(resultingJSON);
-    const findFilesFake = Sinon.fake.returns([Uri.file('file')]);
-    const fakeReadFile = Sinon.fake.returns(new TextEncoder().encode(resultingJSONString));
+    const findFilesFake = Sinon.fake.returns(Promise.resolve([Uri.file('file')]));
+    const fakeReadFile = Sinon.fake.returns(Promise.resolve(new TextEncoder().encode(resultingJSONString)));
     Sinon.replace(vscode.workspace, 'findFiles', findFilesFake);
     Sinon.replace(vscode.workspace.fs, 'readFile', fakeReadFile);
     const result = await getWorkspaceConfigFile();
@@ -255,7 +255,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     Sinon.restore();
   });
   test('getWorkspaceConfigFile while file absent', () => {
-    const findFilesFake = Sinon.fake.returns([]);
+    const findFilesFake = Sinon.fake.returns(Promise.resolve([]));
     Sinon.replace(vscode.workspace, 'findFiles', findFilesFake);
     expect(getWorkspaceConfigFile()).to.be.rejected;
   });

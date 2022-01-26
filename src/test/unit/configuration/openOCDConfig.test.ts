@@ -18,7 +18,7 @@ suite('OpenOCD Configuration', () => {
     }));
     const writeFake = Sinon.fake.returns(Promise.resolve());
     const workspaceFake = Sinon.fake.returns(vscode.Uri.file('local'));
-    Sinon.replace(vscode.workspace.fs, 'readFile', readFake);
+    Sinon.replace(vscode.workspace.fs, 'readFile', readFake as (uri: vscode.Uri) => Promise<Uint8Array>);
     Sinon.replace(Helpers, 'writeFileInWorkspace', writeFake);
     Sinon.replace(Helpers, 'getWorkspaceUri', workspaceFake);
     const config = new OpenOCDConfiguration('STM32LTest');
@@ -29,7 +29,7 @@ suite('OpenOCD Configuration', () => {
     expect(writeFake.getCall(0).lastArg).to.deep.equal(OpenOCDConfig.create(config));
   });
   test('do nothing when config exists', () => {
-    const readFake = Sinon.fake.returns(Promise.resolve('somefile'));
+    const readFake = Sinon.fake.returns(Promise.resolve(new Uint8Array()));
     const writeFake = Sinon.fake.returns(Promise.resolve());
     const workspaceFake = Sinon.fake.returns(vscode.Uri.file('local'));
     Sinon.replace(vscode.workspace.fs, 'readFile', readFake);

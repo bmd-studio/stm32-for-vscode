@@ -6,7 +6,7 @@ import { afterEach, suite, test } from 'mocha';
 
 import { expect } from 'chai';
 import { getExtensionSettings } from '../../getInfo/getSettings';
-import { workspace } from 'vscode';
+import { workspace, WorkspaceConfiguration } from 'vscode';
 
 // class MockConfig {
 //   public constructor(options?: object) {
@@ -45,7 +45,7 @@ suite('get settings', () => {
     Sinon.restore();
   });
   test('test default settings', () => {
-    const getConfigurationFake = Sinon.fake.returns(mockConfig());
+    const getConfigurationFake = Sinon.fake.returns(mockConfig() as unknown as WorkspaceConfiguration);
     Sinon.replace(workspace, 'getConfiguration', getConfigurationFake);
     const settings = getExtensionSettings();
     expect(settings).to.deep.equal(new ToolChain());
@@ -57,7 +57,7 @@ suite('get settings', () => {
       _.set(emptySettings, key, '');
     });
 
-    const getConfigurationFake = Sinon.fake.returns(mockConfig(emptySettings));
+    const getConfigurationFake = Sinon.fake.returns(mockConfig(emptySettings) as unknown as WorkspaceConfiguration);
     Sinon.replace(workspace, 'getConfiguration', getConfigurationFake);
     const settings = getExtensionSettings();
     expect(settings).to.deep.equal(new ToolChain());
@@ -71,7 +71,7 @@ suite('get settings', () => {
 
     const differentSettingsResult = mockConfig(differentSettings);
 
-    const getConfigurationFake = Sinon.fake.returns(differentSettingsResult);
+    const getConfigurationFake = Sinon.fake.returns(differentSettingsResult as unknown as WorkspaceConfiguration);
     Sinon.replace(workspace, 'getConfiguration', getConfigurationFake);
     const settings = getExtensionSettings();
     expect(settings).to.deep.equal(differentSettings);

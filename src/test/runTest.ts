@@ -1,5 +1,7 @@
 import * as cp from 'child_process';
 import * as path from 'path';
+import * as process from 'process';
+import * as shelljs from 'shelljs';
 
 import {
   downloadAndUnzipVSCode,
@@ -11,11 +13,11 @@ async function main(): Promise<void> {
   try {
     // The folder containing the Extension Manifest package.json
     // Passed to `--extensionDevelopmentPath`
+    // console.log(process);
     const extensionDevelopmentPath = path.resolve(__dirname, '../../');
-
-
     const vscodeExecutablePath = await downloadAndUnzipVSCode('stable');
     const cliPath = resolveCliPathFromVSCodeExecutablePath(vscodeExecutablePath);
+    console.log({ vscodeExecutablePath, cliPath });
     const testExensionPath = path.resolve(__dirname, '.vscode-test/extensions');
     const testPaths = {
       all: path.resolve(__dirname, './suite/index'),
