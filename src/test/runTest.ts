@@ -23,6 +23,8 @@ async function main(): Promise<void> {
       build: path.resolve(__dirname, './integration/build'),
       emptyWorkspace: path.resolve(__dirname, './integration/emptyBuildTask.test'),
       buildTools: path.resolve(__dirname, './integration/buildToolsTest'),
+      importAndBuild: path.resolve(__dirname, './integration/importAndBuild'),
+      cxximportConvertBuild: path.resolve(__dirname, './integration/cxxBuildAndImport'),
     };
 
     const testWorkspaces = {
@@ -31,6 +33,10 @@ async function main(): Promise<void> {
       cubeIDEExample: path.resolve(
         __dirname,
         '../../src/test/workspaces/CubeIdeExample/Projects/NUCLEO-G071RB/Applications/FreeRTOS/FreeRTOS_Mail'
+      ),
+      l5CxxProject: path.resolve(
+        __dirname,
+        '../../src/test/workspaces/l5_cpp_test_project/Secure'
       ),
     };
 
@@ -69,7 +75,7 @@ async function main(): Promise<void> {
       ]
     });
 
-    // Download VS Code, unzip it and run the integration test
+    // // default build integration test
     await runTests({
       vscodeExecutablePath,
       extensionDevelopmentPath,
@@ -80,22 +86,30 @@ async function main(): Promise<void> {
         testExensionPath
       ]
     });
-    // TODO: implement import example.
-    // await runTests({
-    //   vscodeExecutablePath,
-    //   extensionDevelopmentPath,
-    //   extensionTestsPath: testPaths.build,
-    //   launchArgs: [
-    //     testWorkspaces.cubeIDEExample,
-    //     '--extensions-dir',
-    //     testExensionPath
-    //     // "-—disable-extensions",
-    //     // "--enable-proposed-api marus25.cortex-debug",
-    //     // 'marus25.cortex-debug',
-    //     // testWorkspace,
-    //     // '-n'
-    //   ]
-    // });
+    // import and build integration test
+    await runTests({
+      vscodeExecutablePath,
+      extensionDevelopmentPath,
+      extensionTestsPath: testPaths.importAndBuild,
+      launchArgs: [
+        testWorkspaces.cubeIDEExample,
+        '--extensions-dir',
+        testExensionPath
+      ]
+    });
+    // import and build l5 import and convert to CPP test
+    await runTests({
+      vscodeExecutablePath,
+      extensionDevelopmentPath,
+      extensionTestsPath: testPaths.cxximportConvertBuild,
+      launchArgs: [
+        testWorkspaces.l5CxxProject,
+        '--extensions-dir',
+        testExensionPath
+      ]
+    });
+
+
     // TODO: implement tooling clean-up.
   } catch (err) {
     // console.error('Failed to run tests');

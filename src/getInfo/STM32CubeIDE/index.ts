@@ -22,12 +22,18 @@ export default async function getCubeIDEProjectInfo(): Promise<MakeInfo> {
     if (targetMCU) {
       result.targetMCU = targetMCU;
     }
+
+    // TODO: figure out a way to loop over this, 
+    // as now ts complains about assigning string | string[] to string & string[]
     result.cIncludes = result.cIncludes.concat(cProjectInfo.cIncludes);
     result.floatAbi = cProjectInfo.floatAbi ? `${cProjectInfo.floatAbi}` : '';
     result.fpu = `${cProjectInfo.fpu}`;
     result.ldscript = cProjectInfo.ldscript;
     result.ldFlags = cProjectInfo.ldFlags;
     result.cDefs = cProjectInfo.cDefs;
+    result.cFlags = cProjectInfo.cFlags;
+    result.cxxFlags = cProjectInfo.cxxFlags;
+    result.cxxDefs = cProjectInfo.cxxDefs;
 
     // still needed
     result.cpu = `${startupFileInfo.cpu}`;

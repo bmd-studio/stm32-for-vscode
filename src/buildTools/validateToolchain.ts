@@ -137,7 +137,14 @@ export function hasRelevantBuildTools(settingsToolchain: ToolChain): boolean {
 }
 
 export function hasRelevantAutomaticallyInstalledBuildTools(settingsToolchain: ToolChain): boolean {
-  const hasMakeForWindows = process.platform === 'win32' ? settingsToolchain.makePath : true;
+  let hasMakeForWindows = process.platform === 'win32' ? settingsToolchain.makePath : true;
+  if (!hasMakeForWindows) {
+    const systemMakepath = shelljs.which('make');
+    if (systemMakepath) {
+      hasMakeForWindows = true;
+      settingsToolchain.makePath = systemMakepath;
+    }
+  }
   if (settingsToolchain.armToolchainPath
     && settingsToolchain.openOCDPath
     && hasMakeForWindows
