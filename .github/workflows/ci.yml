@@ -21,8 +21,10 @@ jobs:
         node-version: 17.x
     - run: npm install
     - run: npm run pretest
-    - run: apt update
-    - run: apt install -y libasound2 libgbm1 libgtk-3-0 libnss3 xvfb
+    - run: sudo apt update
+      if: runner.os == 'Linux'
+    - run: sudo apt install -y libasound2 libgbm1 libgtk-3-0 libnss3 xvfb
+      if: runner.os == 'Linux'
     - run: xvfb-run -a npm test
       if: runner.os == 'Linux'
     - run: npm test
