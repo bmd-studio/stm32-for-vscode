@@ -18,7 +18,7 @@ async function main(): Promise<void> {
     const vscodeExecutablePath = await downloadAndUnzipVSCode('stable');
     const cliPath = resolveCliPathFromVSCodeExecutablePath(vscodeExecutablePath);
     console.log({ vscodeExecutablePath, cliPath });
-    const testExensionPath = path.resolve(__dirname, '.vscode-test/extensions');
+    const testExtensionPath = path.resolve(__dirname, '.vscode-test/extensions');
     const testPaths = {
       all: path.resolve(__dirname, './suite/index'),
       unit: path.resolve(__dirname, './unit/index'),
@@ -44,7 +44,7 @@ async function main(): Promise<void> {
 
     cp.spawnSync(cliPath, [
       '--extensions-dir',
-      testExensionPath,
+      testExtensionPath,
       '--install-extension',
       'marus25.cortex-debug'
     ], {
@@ -61,7 +61,7 @@ async function main(): Promise<void> {
       launchArgs: [
         testWorkspaces.empty,
         '--extensions-dir',
-        testExensionPath
+        testExtensionPath
       ]
     });
 
@@ -73,7 +73,7 @@ async function main(): Promise<void> {
       launchArgs: [
         testWorkspaces.makefileH7,
         '--extensions-dir',
-        testExensionPath
+        testExtensionPath
       ]
     });
 
@@ -85,7 +85,7 @@ async function main(): Promise<void> {
       launchArgs: [
         testWorkspaces.makefileH7,
         '--extensions-dir',
-        testExensionPath
+        testExtensionPath
       ]
     });
     // import and build integration test
@@ -96,7 +96,7 @@ async function main(): Promise<void> {
       launchArgs: [
         testWorkspaces.cubeIDEExample,
         '--extensions-dir',
-        testExensionPath
+        testExtensionPath
       ]
     });
     // import and build l5 import and convert to CPP test
@@ -107,7 +107,7 @@ async function main(): Promise<void> {
       launchArgs: [
         testWorkspaces.l5CxxProject,
         '--extensions-dir',
-        testExensionPath
+        testExtensionPath
       ]
     });
 

@@ -1,10 +1,11 @@
-import * as vscode from 'vscode';
+import * as Definitions from '../../Definitions';
 import * as path from 'path';
+import * as vscode from 'vscode';
+
 import {
   checkAutomaticallyInstalledBuildTools,
   hasRelevantAutomaticallyInstalledBuildTools
 } from '../../buildTools/validateToolchain';
-import * as Definitions from '../../Definitions';
 
 export async function waitForWorkspaceFoldersChange(timeoutMs?: number): Promise<void> {
   let rejectTimeout = timeoutMs || 500;
@@ -20,7 +21,7 @@ export async function waitForWorkspaceFoldersChange(timeoutMs?: number): Promise
 }
 
 export function getTestToolsFolder(): string {
-  return path.join(__dirname, 'tooling');
+  return path.join(__dirname, '../../../', 'tooling');
 }
 
 export async function addTestToolSettingsToWorkspace(): Promise<void> {
@@ -35,7 +36,7 @@ export async function addTestToolSettingsToWorkspace(): Promise<void> {
       'stm32-for-vscode', vscode.workspace.workspaceFolders[0]);
     await stm32ForVSCodeWorkspaceConfiguration.update('openOCDPath', result.openOCDPath);
     await stm32ForVSCodeWorkspaceConfiguration.update('armToolchainPath', result.armToolchainPath);
-    await stm32ForVSCodeWorkspaceConfiguration.update('makePath', result.makePath);
+    await stm32ForVSCodeWorkspaceConfiguration.update('makePath', result.makePath ? result.makePath : 'make');
   }
 }
 
@@ -71,7 +72,7 @@ export async function cleanUpSTM32ForVSCodeArtifacts(): Promise<void> {
   try {
     await Promise.all(fileDeletePromises);
   } catch (error) {
-    console.log(await vscode.workspace.fs.readDirectory(currentWorkspaceFolderUri.uri));
+    console.error(await vscode.workspace.fs.readDirectory(currentWorkspaceFolderUri.uri));
     // eslint-disable-next-line no-console
     console.error('Something went wrong with cleaning up the integration test', error);
   }
