@@ -33,7 +33,7 @@ suite('Update makefile', () => {
   });
   test('get current makefile without existing file', () => {
     const testUInt8Arr = new Uint8Array(0);
-    const workspaceFSReadFileFake = Sinon.fake.returns(new Promise((resolve) => { resolve(testUInt8Arr); }));
+    const workspaceFSReadFileFake = Sinon.fake.returns(Promise.resolve(testUInt8Arr));
     Sinon.replace(vscode.workspace.fs, 'readFile', workspaceFSReadFileFake);
 
     const makefilePath = './Makefile';
@@ -57,11 +57,7 @@ suite('Update makefile', () => {
     ).to.be.true;
   });
   test('to not update makefile when same makefile is present', async () => {
-    const fakeMakefileReadFile = Sinon.fake.returns(new Promise(
-      (resolve) => {
-        resolve(new TextEncoder().encode(stm32ForVSCodeResult));
-      })
-    );
+    const fakeMakefileReadFile = Sinon.fake.returns(Promise.resolve(new TextEncoder().encode(stm32ForVSCodeResult)));
     const fakeMakefileWriteFile = Sinon.fake.returns(Promise.resolve());
     const fakeMakefileCreate = Sinon.fake.returns(stm32ForVSCodeResult);
     Sinon.replace(makefileFunctions, 'default', fakeMakefileCreate);
@@ -74,11 +70,7 @@ suite('Update makefile', () => {
   });
 
   test('update makefile when different makefile is present', async () => {
-    const fakeMakefileReadFile = Sinon.fake.returns(new Promise(
-      (resolve) => {
-        resolve(new TextEncoder().encode('stm32ForVSCodeResult'));
-      })
-    );
+    const fakeMakefileReadFile = Sinon.fake.returns(Promise.resolve(new TextEncoder().encode('stm32ForVSCodeResult')));
     const fakeMakefileWriteFile = Sinon.fake.returns(Promise.resolve());
     Sinon.replace(vscode.workspace.fs, 'readFile', fakeMakefileReadFile);
     Sinon.replace(vscode.workspace.fs, 'writeFile', fakeMakefileWriteFile);
@@ -94,12 +86,8 @@ suite('Update makefile', () => {
     ).to.be.true;
   });
 
-  test('writemakefile when no earlier makefile is present', async () => {
-    const fakeMakefileReadFile = Sinon.fake.returns(new Promise(
-      (_resolve, reject) => {
-        reject(new Error('makefile is not present'));
-      })
-    );
+  test('write makefile when no earlier makefile is present', async () => {
+    const fakeMakefileReadFile = Sinon.fake.returns(Promise.reject(new Error('makefile is not present')));
     const fakeMakefileWriteFile = Sinon.fake.returns(Promise.resolve());
     Sinon.replace(vscode.workspace.fs, 'readFile', fakeMakefileReadFile);
     Sinon.replace(vscode.workspace.fs, 'writeFile', fakeMakefileWriteFile);

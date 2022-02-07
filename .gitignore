@@ -10,3 +10,8 @@ node_modules
 .nyc_output
 *.log
 *.vsix
+tooling
+**/build/
+openocd.cfg
+STM32Make.make
+STM32-for-VSCode.config.yaml

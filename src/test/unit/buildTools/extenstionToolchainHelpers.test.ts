@@ -103,10 +103,9 @@ suite('Extension Toolchain Helpers', () => {
   });
 
   test('get newest xpm version when none are present', async () => {
-    const fakeReadDirectory = Sinon.fake.returns(Promise.resolve(undefined));
+    const fakeReadDirectory = Sinon.fake.returns(Promise.resolve([]));
     Sinon.replace(vscode.workspace.fs, 'readDirectory', fakeReadDirectory);
-    const getNewestToolchainResult = await getNewestToolchainVersion(openocdDefinition, 'pathIsNotRead');
-    expect(getNewestToolchainResult).to.be.undefined;
+    expect(getNewestToolchainVersion(openocdDefinition, 'pathIsNotRead')).to.eventually.Throw();
   });
 
 });

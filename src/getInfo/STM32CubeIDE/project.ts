@@ -1,4 +1,4 @@
-import { workspace, Uri } from "vscode";
+import { workspace, Uri, window } from "vscode";
 import { parseStringPromise } from "xml2js";
 import { scanForFiles } from "../getFiles";
 import * as path from 'path';
@@ -78,7 +78,6 @@ export async function getProjectFile(): Promise<CubeIDEProject | undefined> {
 export function getSourceFilesFromCubeProjectJSON(projectJSON: CubeIDEProject): string[] {
   if (projectJSON && projectJSON?.projectDescription?.linkedResources?.link) {
     const linkFiles: CubeIDEProjectLink[] = projectJSON?.projectDescription?.linkedResources?.link;
-
     // Loop to retrieve the relative location to the parent.
     const currentFiles = linkFiles.map((entry => {
       let location = entry.locationURI || entry.location || '';
@@ -99,8 +98,11 @@ export function getSourceFilesFromCubeProjectJSON(projectJSON: CubeIDEProject): 
     // need to do this  to get the appropriate  location
     let dirRoot = path.dirname(projectJSON.location);
     return projectFilePathsToWorkspacePaths(dirRoot, filteredFiles);
+  } else {
+    const errorMessage = 'no source files in .project file found';
+    window.showErrorMessage(errorMessage);
+    throw Error(errorMessage);
   }
-  return [];
 }
 
 

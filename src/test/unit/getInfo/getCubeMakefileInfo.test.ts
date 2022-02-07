@@ -89,9 +89,9 @@ suite('Get Cube makefile info', () => {
   });
   test('getMakefile while the makefile is present', async () => {
     const returnedMakefile = 'short makefile';
-    const fakeReadFile = Sinon.fake.returns(new Promise((resolve) => {
-      resolve(new TextEncoder().encode(returnedMakefile));
-    }));
+    const fakeReadFile = Sinon.fake.returns(
+      Promise.resolve(new TextEncoder().encode(returnedMakefile))
+    );
     Sinon.replace(vscode.workspace.fs, 'readFile', fakeReadFile);
     try {
       const makefile = await getMakefile('./Makefile');
@@ -104,18 +104,18 @@ suite('Get Cube makefile info', () => {
   });
   test('getMakefile when not present', async () => {
     const makefileUri = vscode.Uri.file('./Makefile');
-    const fakeReadFile = Sinon.fake.returns(new Promise((_resolve, reject) => {
-      reject(vscode.FileSystemError.FileNotFound(makefileUri));
-    }));
+    const fakeReadFile = Sinon.fake.returns(
+      Promise.reject(vscode.FileSystemError.FileNotFound(makefileUri))
+    );
     Sinon.replace(vscode.workspace.fs, 'readFile', fakeReadFile);
     expect(getMakefile('./Makefile')).to.be.rejectedWith(vscode.FileSystemError.FileNotFound(makefileUri));
     expect(fakeReadFile.calledOnceWith(vscode.Uri.file('./Makefile'))).to.be.true;
   });
   test('getMakefileInfo', async () => {
     const makefilePath = 'someRelevant/path';
-    const fakeReadFile = Sinon.fake.returns(new Promise((resolve) => {
-      resolve(new TextEncoder().encode(testMakefile));
-    }));
+    const fakeReadFile = Sinon.fake.returns(
+      Promise.resolve(new TextEncoder().encode(testMakefile))
+    );
     Sinon.replace(vscode.workspace.fs, 'readFile', fakeReadFile);
     const makefileInfo = await getMakefileInfo(makefilePath);
     expect(fakeReadFile.calledOnceWith(vscode.Uri.file('someRelevant/path/Makefile'))).to.be.true;

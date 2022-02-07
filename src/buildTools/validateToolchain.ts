@@ -70,16 +70,16 @@ export function compareAndUpdateMissingBuildTools(startSettings: ToolChain, addi
  * @param settingsToolchain 
  */
 export async function checkAutomaticallyInstalledBuildTools(
-  context: vscode.ExtensionContext
+  toolsStoragePath: vscode.Uri
 ): Promise<ToolChain> {
   const installedBuildTools = new ToolChain();
   // arm none eabi
-  const armToolchainPath = await validateXPMToolchainPath(armNoneEabiDefinition, context.globalStoragePath);
+  const armToolchainPath = await validateXPMToolchainPath(armNoneEabiDefinition, toolsStoragePath.fsPath);
   if ((checkSettingsPathValidity(armToolchainPath))) {
     installedBuildTools.armToolchainPath = armToolchainPath;
   }
   // OpenOCD
-  const openOCDPath = await validateXPMToolchainPath(openocdDefinition, context.globalStoragePath);
+  const openOCDPath = await validateXPMToolchainPath(openocdDefinition, toolsStoragePath.fsPath);
   if (checkSettingsPathValidity(openOCDPath)) {
     installedBuildTools.openOCDPath = openOCDPath;
   }
@@ -87,7 +87,7 @@ export async function checkAutomaticallyInstalledBuildTools(
   // make should not be checked for now except for windows. The others ones should have it in PATH
   // only windows make can be installed through xpm
   if (process.platform === 'win32') {
-    const makePath = await validateXPMToolchainPath(makeDefinition, context.globalStoragePath);
+    const makePath = await validateXPMToolchainPath(makeDefinition, toolsStoragePath.fsPath);
     if (checkSettingsPathValidity(makePath)) {
       installedBuildTools.makePath = makePath;
     }
@@ -130,6 +130,24 @@ export function hasRelevantBuildTools(settingsToolchain: ToolChain): boolean {
   if (settingsToolchain.armToolchainPath
     && settingsToolchain.makePath
     && settingsToolchain.openOCDPath
+  ) {
+    return true;
+  }
+  return false;
+}
+
+export function hasRelevantAutomaticallyInstalledBuildTools(settingsToolchain: ToolChain): boolean {
+  let hasMakeForWindows = process.platform === 'win32' ? settingsToolchain.makePath : true;
+  if (!hasMakeForWindows) {
+    const systemMakepath = shelljs.which('make');
+    if (systemMakepath) {
+      hasMakeForWindows = true;
+      settingsToolchain.makePath = systemMakepath;
+    }
+  }
+  if (settingsToolchain.armToolchainPath
+    && settingsToolchain.openOCDPath
+    && hasMakeForWindows
   ) {
     return true;
   }

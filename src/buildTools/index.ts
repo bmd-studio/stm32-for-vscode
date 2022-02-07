@@ -1,10 +1,10 @@
 import * as _ from 'lodash';
+import * as path from 'path';
 import * as toolChainValidation from './validateToolchain';
 import * as vscode from 'vscode';
-import { which } from 'shelljs';
-import * as path from 'path';
 
 import { ToolChain } from '../types/MakeInfo';
+import { which } from 'shelljs';
 
 /**
  * Sets up cortex debug to work with the paths STM32 for VSCode is given in the settings.
@@ -12,13 +12,18 @@ import { ToolChain } from '../types/MakeInfo';
  */
 export function setCortexDebugSettingsInWorkspace(tools: ToolChain): void {
   const cortexDebugSetting = vscode.workspace.getConfiguration('cortex-debug');
-  if (cortexDebugSetting.get('armToolchainPath') && cortexDebugSetting.get('armToolchainPath') !== tools.armToolchainPath) {
+  if (
+    cortexDebugSetting.get('armToolchainPath') &&
+    cortexDebugSetting.get('armToolchainPath') !== tools.armToolchainPath
+  ) {
     cortexDebugSetting.update('armToolchainPath', tools.armToolchainPath, vscode.ConfigurationTarget.Workspace);
   }
   if (cortexDebugSetting.get('openocdPath') && cortexDebugSetting.get('openocdPath') !== tools.openOCDPath) {
     cortexDebugSetting.update('openocdPath', tools.openOCDPath, vscode.ConfigurationTarget.Workspace);
   }
 }
+
+
 
 /**
  * Checks build tools and updates settings accordingly. Priority of assignment is: 
@@ -30,7 +35,9 @@ export function setCortexDebugSettingsInWorkspace(tools: ToolChain): void {
 export async function checkBuildTools(context: vscode.ExtensionContext): Promise<boolean> {
   const settingBuildTools = toolChainValidation.checkSettingsForBuildTools();
   const pathBuildTools = toolChainValidation.checkBuildToolsInPath();
-  const extensionInstalledTools = await toolChainValidation.checkAutomaticallyInstalledBuildTools(context);
+  const extensionInstalledTools = await toolChainValidation.checkAutomaticallyInstalledBuildTools(
+    context.globalStorageUri
+  );
 
 
   let finalBuildTools = toolChainValidation.compareAndUpdateMissingBuildTools(

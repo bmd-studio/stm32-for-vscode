@@ -22,8 +22,13 @@ export function createYamlArray(info: string[]): string {
   let output = '\n';
   const prepend = '  - ';
 
-  info.map((entry) => {
-    output += `${prepend}${entry}\n`;
+  info.forEach((entry) => {
+    let entryToWrite = entry;
+    // check for * icons at the start this is reserved in yaml
+    if (entry.indexOf('*') === 0) {
+      entryToWrite = `"${entry}"`;
+    }
+    output += `${prepend}${entryToWrite}\n`;
   });
   return output;
 }

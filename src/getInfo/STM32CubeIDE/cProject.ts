@@ -35,7 +35,7 @@ export async function getCProjectFile(): Promise<any | undefined> {
   return undefined;
 }
 
-type CprojectValueType = 'string' | 'dotNotation' | 'includes' | 'definitions' | 'path' | 'flags';
+type CprojectValueType = 'string' | 'dotNotation' | 'includes' | 'definitions' | 'path' | 'flags' | 'booleanFlag';
 
 interface CProjectInfoDefinition {
   name: string;
@@ -98,6 +98,11 @@ const infoFromCProjectDefinition: CProjectInfoDefinition[] = [
     name: 'ldFlags',
     superClass: 'gnu.c.link.option.ldflags',
     type: 'flags'
+  },
+  {
+    name: 'secureModeFlag',
+    superClass: 'com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.option.mcmse',
+    type: 'booleanFlag',
   }
 ];
 const infoFromCProjectac6Definition: CProjectInfoDefinition[] = [
@@ -199,13 +204,16 @@ export function convertCProjectTypeToValue(parentValue: any, type: CprojectValue
     case 'flags':
       return parentValue?.value?.split(' ');
       break;
+    case 'booleanFlag':
+      return parentValue?.value;
+      break;
     default:
       return parentValue?.value;
   }
 }
 
 // eslint-disable-next-line max-len
-type CprojectInfo = Pick<MakeInfo, 'targetMCU' | 'cIncludes' | 'floatAbi' | 'fpu' | 'ldscript' | 'cDefs' | 'ldFlags'>;
+export type CprojectInfo = Pick<MakeInfo, 'targetMCU' | 'cIncludes' | 'floatAbi' | 'fpu' | 'ldscript' | 'cDefs' | 'cxxDefs' | 'ldFlags' | 'cFlags' | 'cxxFlags'>;
 
 /**
  * Extracts information from the .cproject file.
@@ -252,7 +260,6 @@ export function getInfoFromCProjectFile(cProjectFile: any): CprojectInfo {
     cProjectInfo.cDefinitions :
     [cProjectInfo.cDefinitions];
 
-  // TODO: convert the path to something the extension can use. e.g. from the root of the project
   const result: CprojectInfo = {
     targetMCU: Array.isArray(cProjectInfo.targetMCU) ? cProjectInfo.targetMCU[0] : cProjectInfo.targetMCU,
     cIncludes: includePaths,
@@ -260,8 +267,13 @@ export function getInfoFromCProjectFile(cProjectFile: any): CprojectInfo {
     floatAbi: Array.isArray(cProjectInfo.floatAbi) ? cProjectInfo.floatAbi[0] : cProjectInfo.floatAbi,
     ldscript: Array.isArray(cProjectInfo.ldscript) ? cProjectInfo.ldscript[0] : cProjectInfo.ldscript,
     cDefs: definitions,
+    cxxDefs: definitions,
     ldFlags: Array.isArray(cProjectInfo.ldFlags) ?
       cProjectInfo.ldFlags : [cProjectInfo.ldFlags],
+    // for now only c projects are imported, 
+    // so if we want to use it for a c++ project to copy the c flags to the the c++ flags 
+    cFlags: cProjectInfo['secureModeFlag'] ? ['-mcmse'] : [],
+    cxxFlags: cProjectInfo['secureModeFlag'] ? ['-mcmse'] : [],
   };
   if (result.fpu === undefined || result.fpu === 'no' || result.fpu === 'none') {
     result.fpu = '';

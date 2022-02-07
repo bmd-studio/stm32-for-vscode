@@ -1,10 +1,6 @@
 import * as Mocha from 'mocha';
 import * as glob from 'glob';
 import * as path from 'path';
-const myArgs = process.argv.slice(2);
-console.log('myArgs: ', myArgs);
-
-
 
 export function run(): Promise<void> {
   // Create the mocha test
@@ -31,10 +27,10 @@ export function run(): Promise<void> {
             c();
           }
         });
-      } catch (err) {
+      } catch (error) {
         // eslint-disable-next-line no-console
-        console.error(err);
-        e(err);
+        console.error(error);
+        e(error);
       }
     });
   });
