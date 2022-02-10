@@ -60,6 +60,6 @@ export function checkAndConvertCpp(makeInfo: MakeInfo): MakeInfo {
   }
   // else it is a C only file, so remove all the C++ files and definitions.
   newInfo.cxxSources = [];
-  newInfo.cxxDefs = [];
+  newInfo.cxxDefinitions = [];
   return newInfo;
 }

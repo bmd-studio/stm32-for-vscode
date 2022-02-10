@@ -120,12 +120,12 @@ export function sortFiles(list: string[]): BuildFiles {
     } else if (extension === 'c') {
       output.cSources.push(entry);
     } else if (extension === 'h' || extension === 'hpp') {
-      // output.cIncludes.push(path.dirname(entry));
+      // output.cIncludeDirectories.push(path.dirname(entry));
       // removed this as sourcefiles and include directories are split up
     } else if (extension === 's') {
-      output.asmSources.push(entry);
+      output.assemblySources.push(entry);
     } else if (extension === 'a') {
-      output.libdir.push(path.dirname(entry));
+      output.libraryDirectories.push(path.dirname(entry));
     }
   });
   // sort arrays and remove possible duplicates.

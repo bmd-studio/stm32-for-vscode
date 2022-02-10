@@ -37,18 +37,18 @@ suite('GetBuildFilesFromWorkspaceTest', () => {
     expect(getIncludeDirectoriesFromFileList(testArr)).to.deep.equal(expectedTestoutput);
 
     const output = getIncludeDirectoriesFromFileList(HeaderFiles);
-    expect(output).to.deep.equal(SortedBuildFiles.cIncludes);
+    expect(output).to.deep.equal(SortedBuildFiles.cIncludeDirectories);
 
 
   });
   test('sortFiles', () => {
     const output = sortFiles(FileListWithRandomFiles);
-    // this is done as cIncludes are not handled in the build files anymore.
-    SortedBuildFiles.cIncludes = [];
-    expect([]).to.deep.equal(output.cIncludes);
+    // this is done as cIncludeDirectories are not handled in the build files anymore.
+    SortedBuildFiles.cIncludeDirectories = [];
+    expect([]).to.deep.equal(output.cIncludeDirectories);
     expect(SortedBuildFiles.cSources).to.deep.equal(output.cSources);
     expect(SortedBuildFiles.cxxSources).to.deep.equal(output.cxxSources);
-    expect(SortedBuildFiles.asmSources).to.deep.equal(output.asmSources);
+    expect(SortedBuildFiles.assemblySources).to.deep.equal(output.assemblySources);
     expect(SortedBuildFiles).to.deep.equal(output);
   });
 });

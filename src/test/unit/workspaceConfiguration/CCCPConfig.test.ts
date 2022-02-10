@@ -39,10 +39,10 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
   });
 
   test('definitionConversion', () => {
-    const testDefs: { cDefs: string[]; cxxDefs: string[]; asDefs: string[] } = {
-      cDefs: ['-DdefSomeC', '-DdefSomeD'],
-      cxxDefs: ['-DefineThis', '-Definethat'],
-      asDefs: ['-DasDefinition', '-DescriptiveDef']
+    const testDefs: { cDefinitions: string[]; cxxDefinitions: string[]; assemblyDefinitions: string[] } = {
+      cDefinitions: ['-DdefSomeC', '-DdefSomeD'],
+      cxxDefinitions: ['-DefineThis', '-Definethat'],
+      assemblyDefinitions: ['-DasDefinition', '-DescriptiveDef']
     };
     const result = ['defSomeC', 'defSomeD', 'efineThis', 'efinethat', 'asDefinition', 'escriptiveDef'].sort();
     expect(getDefinitions(testDefs).sort()).to.deep.equal(result);
@@ -50,10 +50,10 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
   test('getCProperties', () => {
 
     const ingoing: MakeInfo = newMakeInfo({
-      cDefs: ['defSomeC', 'defSomeD'],
-      cxxDefs: ['efineThis', 'efinethat'],
-      asDefs: ['asDefinition', 'escriptiveDef'],
-      cIncludes: ['someInclude/Path', 'Some/other/1nclud3p@th/w1th5omeW135DCh@r$'],
+      cDefinitions: ['defSomeC', 'defSomeD'],
+      cxxDefinitions: ['efineThis', 'efinethat'],
+      assemblyDefinitions: ['asDefinition', 'escriptiveDef'],
+      cIncludeDirectories: ['someInclude/Path', 'Some/other/1nclud3p@th/w1th5omeW135DCh@r$'],
       tools: {
         armToolchainPath: 'start/somelocation/',
         openOCDPath: true,
@@ -82,7 +82,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     const expectedResult = JSON.stringify({
       configurations: [{
         name: 'STM32',
-        includePath: _.uniq(testMakefileInfo.cIncludes).sort(),
+        includePath: _.uniq(testMakefileInfo.cIncludeDirectories).sort(),
         defines: _.uniq(getDefinitions(testMakefileInfo)).sort(),
         compilerPath: 'arm-none-eabi-gcc',
       }
@@ -138,7 +138,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
         },
         {
           name: 'STM32',
-          includePath: _.uniq(testMakefileInfo.cIncludes).sort(),
+          includePath: _.uniq(testMakefileInfo.cIncludeDirectories).sort(),
           defines: _.uniq(getDefinitions(testMakefileInfo)).sort(),
           compilerPath: "arm-none-eabi-gcc",
         }
@@ -161,7 +161,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     const expectedResult = JSON.stringify({
       configurations: [{
         name: 'STM32',
-        includePath: _.uniq(testMakefileInfo.cIncludes).sort(),
+        includePath: _.uniq(testMakefileInfo.cIncludeDirectories).sort(),
         defines: _.uniq(getDefinitions(testMakefileInfo)).sort(),
         compilerPath: 'arm-none-eabi-gcc',
       }
@@ -225,7 +225,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     expectedCallResult.configurations[0].includePath =
       _.uniq(
         expectedCallResult.configurations[0].includePath.concat(
-          testMakefileInfo.cIncludes
+          testMakefileInfo.cIncludeDirectories
         )).sort();
     expectedCallResult.configurations[0].defines =
       _.uniq(

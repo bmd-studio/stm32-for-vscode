@@ -27,11 +27,11 @@ export interface CCppProperties {
  *     project
  */
 export function getDefinitions(
-  info: { cDefs: string[]; cxxDefs: string[]; asDefs: string[] }): string[] {
-  const cDefs = _.map(info.cDefs, entry => _.replace(entry, '-D', ''));
-  const cxxDefs = _.map(info.cxxDefs, entry => _.replace(entry, '-D', ''));
-  const asDefs = _.map(info.asDefs, entry => _.replace(entry, '-D', ''));
-  let defs = _.concat(cDefs, cxxDefs, asDefs);
+  info: { cDefinitions: string[]; cxxDefinitions: string[]; assemblyDefinitions: string[] }): string[] {
+  const cDefinitions = _.map(info.cDefinitions, entry => _.replace(entry, '-D', ''));
+  const cxxDefinitions = _.map(info.cxxDefinitions, entry => _.replace(entry, '-D', ''));
+  const assemblyDefinitions = _.map(info.assemblyDefinitions, entry => _.replace(entry, '-D', ''));
+  let defs = _.concat(cDefinitions, cxxDefinitions, assemblyDefinitions);
   defs = _.uniq(defs);
   defs = defs.sort();
   return defs;
@@ -62,7 +62,7 @@ export function getAbsoluteCompilerPath(info: MakeInfo): string {
 export function getCPropertiesConfig(info: MakeInfo): CCppConfig {
   const config = {
     name: 'STM32',
-    includePath: info.cIncludes,
+    includePath: info.cIncludeDirectories,
     defines: getDefinitions(info),
     compilerPath: getAbsoluteCompilerPath(info),
   };
@@ -129,7 +129,7 @@ export async function updateCProperties(workspacePathUri: Uri, info: MakeInfo): 
     configFile.configurations.push(stmConfiguration);
     needsUpdating = true;
   }
-  const includes = info.cIncludes;
+  const includes = info.cIncludeDirectories;
   const definitions = getDefinitions(info);
   const oldConfig = _.cloneDeep(stmConfiguration);
 

@@ -12,6 +12,22 @@
       "preLaunchTask": "compile extension"
     },
     {
+      "name": "Extension unit tests",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "${workspaceFolder}/src/test/workspaces/CubeIdeExample/Projects/NUCLEO-G071RB/Applications/FreeRTOS/FreeRTOS_Mail",
+        "--extensions-dir .vscode-test/extensions",
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionTestsPath=${workspaceFolder}/out/test/unit"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/out/test/**/*.js"
+      ],
+      "preLaunchTask": "compile tests"
+    },
+    {
       "name": "Extension Tests",
       "type": "extensionHost",
       "request": "launch",

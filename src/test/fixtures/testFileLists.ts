@@ -128,14 +128,14 @@ export const cxxFiles = [
   'Src/RandomDriver.cpp',
   'Src/randomCXXFile.cxx'
 ];
-export const cIncludes = [
+export const cIncludeDirectories = [
   'Drivers/STM32H7xx_HAL_Driver/Inc',
   'Inc',
   'Src',
 ];
 
-export const libdir = [];
-export const libs = [];  // ['-lc', '-lm', '-lnosys']
+export const libraryDirectories = [];
+export const libraries = [];  // ['-lc', '-lm', '-lnosys']
 
 export const FileListWithRandomFiles = [
   'randomFile.ts',
@@ -144,10 +144,10 @@ export const FileListWithRandomFiles = [
   'README.md'].concat(TotalFileList);
 
 export const SortedBuildFiles: BuildFiles = {
-  asmSources: asmFiles.sort(),
-  cIncludes: cIncludes.sort(),
+  assemblySources: asmFiles.sort(),
+  cIncludeDirectories: cIncludeDirectories.sort(),
   cSources: cFiles.sort(),
   cxxSources: cxxFiles.sort(),
-  libdir: libdir.sort(),
-  libs: libs.sort(),
+  libraryDirectories: libraryDirectories.sort(),
+  libraries: libraries.sort(),
 };

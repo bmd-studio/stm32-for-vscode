@@ -35,11 +35,11 @@ export function noMakefileAndConfigFileDialogue(): Promise<boolean> {
             ).then((infoMessage) => {
               if (infoMessage === 'Yes') {
                 const emptyConfig = new ExtensionConfiguration();
-                emptyConfig.targetMCU = 'e.g. stm32f7x';
+                emptyConfig.openocdTarget = 'e.g. stm32f7x';
                 emptyConfig.cpu = "e.g. -mcpu=cortex-m7";
                 emptyConfig.fpu = "e.g. -mfpu=fpv4-sp-d16";
                 emptyConfig.floatAbi = "e.g. -mfloat-abi=hard";
-                emptyConfig.ldscript = "e.g. STM32F769IITx_FLASH.ld";
+                emptyConfig.linkerScript = "e.g. STM32F769IITx_FLASH.ld";
                 emptyConfig.suppressMakefileWarning = true;
                 readOrCreateConfigFile(emptyConfig).then(() => {
                   vscode.window.showInformationMessage(
@@ -103,7 +103,7 @@ export async function checkProjectFilesAndCreate(): Promise<boolean> {
   if (!projectFiles.openocd && projectFiles.config) {
     const emptyConfig = new ExtensionConfiguration();
     const configFile = await readOrCreateConfigFile(emptyConfig);
-    const openocdConfig = new OpenOCDConfiguration(configFile.targetMCU);
+    const openocdConfig = new OpenOCDConfiguration(configFile.openocdTarget);
     await OpenOCDConfig.readOrCreateConfigFile(openocdConfig);
     OpenOCDConfig.changeProgrammerDialogue();
   }

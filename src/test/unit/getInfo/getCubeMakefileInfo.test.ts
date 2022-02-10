@@ -4,7 +4,7 @@ import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { afterEach, suite, test, beforeEach } from 'mocha';
 import getMakefileInfo, {
-  extractLibs,
+  extractlibraries,
   extractMakefileInfo,
   extractMultiLineInfo,
   extractSingleLineInfo,
@@ -32,7 +32,7 @@ suite('Get Cube makefile info', () => {
     expect(extractSingleLineInfo('C_SOURCES', testMakefile)).to.equal(' \\');
     expect(extractSingleLineInfo('PREFIX', testMakefile)).to.equal('arm-none-eabi-');
     expect(extractSingleLineInfo('CPU', testMakefile)).to.equal('-mcpu=cortex-m7');
-    expect(extractSingleLineInfo('LIBS', testMakefile)).to.equal('-lc -lm -lnosys');
+    expect(extractSingleLineInfo('libraries', testMakefile)).to.equal('-lc -lm -lnosys');
   });
   test('extractMultiLineInfo', () => {
     assert.deepEqual(extractMultiLineInfo('C_DEFS', testMakefile),
@@ -43,9 +43,9 @@ suite('Get Cube makefile info', () => {
   test('getTargetSTM', () => {
     assert.equal(getTargetSTM(testMakefileInfo.cSources), 'stm32h7x');
   });
-  test('getLibs', () => {
-    const libLTestString = 'LIBS = -llib -lotherlib -lsomeotherotherLib -lstdc++\n';
-    const result = extractLibs(libLTestString);
+  test('getlibraries', () => {
+    const libLTestString = 'libraries = -llib -lotherlib -lsomeotherotherLib -lstdc++\n';
+    const result = extractlibraries(libLTestString);
     const expectedResult = [
       '-llib',
       '-lotherlib',
@@ -68,24 +68,27 @@ suite('Get Cube makefile info', () => {
     const result = removePrefixes(prefixedList, '-l');
     expect(result).to.deep.equal(unPrefixedList);
   });
+  test('MultilineMakefileInfo', () => {
+
+  });
   test('extractAllInfo', () => {
     const output = extractMakefileInfo(testMakefile);
-    assert.deepEqual(output.targetMCU, testMakefileInfo.targetMCU);
+    assert.deepEqual(output.openocdTarget, testMakefileInfo.openocdTarget);
     assert.deepEqual(output.target, testMakefileInfo.target);
-    assert.deepEqual(output.ldscript, testMakefileInfo.ldscript);
+    assert.deepEqual(output.linkerScript, testMakefileInfo.linkerScript);
     assert.deepEqual(output.mcu, testMakefileInfo.mcu);
     assert.deepEqual(output.floatAbi, testMakefileInfo.floatAbi);
     assert.deepEqual(output.fpu, testMakefileInfo.fpu);
     assert.deepEqual(output.cpu, testMakefileInfo.cpu);
-    assert.deepEqual(output.asmSources, testMakefileInfo.asmSources);
+    assert.deepEqual(output.assemblySources, testMakefileInfo.assemblySources);
     assert.deepEqual(output.cxxSources, testMakefileInfo.cxxSources);
     assert.deepEqual(output.cSources, testMakefileInfo.cSources);
-    assert.deepEqual(removePrefixes(output.cIncludes, '-I'), testMakefileInfo.cIncludes);
-    assert.deepEqual(removePrefixes(output.asDefs, '-D'), testMakefileInfo.asDefs);
-    assert.deepEqual(removePrefixes(output.cxxDefs, '-D'), testMakefileInfo.cxxDefs);
-    assert.deepEqual(removePrefixes(output.cDefs, '-D'), testMakefileInfo.cDefs);
-    assert.deepEqual(removePrefixes(output.libs, '-l'), testMakefileInfo.libs);
-    assert.deepEqual(output.libdir, testMakefileInfo.libdir);
+    assert.deepEqual(removePrefixes(output.cIncludeDirectories, '-I'), testMakefileInfo.cIncludeDirectories);
+    assert.deepEqual(removePrefixes(output.assemblyDefinitions, '-D'), testMakefileInfo.assemblyDefinitions);
+    assert.deepEqual(removePrefixes(output.cxxDefinitions, '-D'), testMakefileInfo.cxxDefinitions);
+    assert.deepEqual(removePrefixes(output.cDefinitions, '-D'), testMakefileInfo.cDefinitions);
+    assert.deepEqual(removePrefixes(output.libraries, '-l'), testMakefileInfo.libraries);
+    assert.deepEqual(output.libraryDirectories, testMakefileInfo.libraryDirectories);
   });
   test('getMakefile while the makefile is present', async () => {
     const returnedMakefile = 'short makefile';
@@ -94,7 +97,7 @@ suite('Get Cube makefile info', () => {
     );
     Sinon.replace(vscode.workspace.fs, 'readFile', fakeReadFile);
     try {
-      const makefile = await getMakefile('./Makefile');
+      const makefile = await linkerFlags('./Makefile');
       expect(fakeReadFile.calledOnceWith(vscode.Uri.file('./Makefile'))).to.be.true;
       expect(makefile).to.equal(returnedMakefile);
     } catch (err) {

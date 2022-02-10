@@ -1,4 +1,4 @@
-export const targetsMCUs = [
+export const stm32Series = [
   'stm32f0x',
   'stm32f1x',
   'stm32f2x',

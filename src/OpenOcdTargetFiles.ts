@@ -42,7 +42,7 @@ const configFiles = [
   'stm32_stlink.cfg',
 ];
 
-export default function getTargetConfig(target: string): string | boolean {
+export default function getOpenOCDTargetConfig(target: string): string | boolean {
   const cleanTarget = _.toLower(
     _.trimEnd(
       _.trimEnd(target, 'cfg'),
@@ -63,7 +63,7 @@ export default function getTargetConfig(target: string): string | boolean {
  * @param name the fullname e.g. STM32H723ZGTx
  * @returns the openocd target MCU
  */
-export function getTargetMCUFromFullName(name: string): string | undefined {
+export function getOpenocdTargetFromFullName(name: string): string | undefined {
   let targetNameFind = name.toLowerCase();
   while (targetNameFind.length > 0) {
     const possibleMatch = configFiles.find((entry) => entry.includes(targetNameFind));

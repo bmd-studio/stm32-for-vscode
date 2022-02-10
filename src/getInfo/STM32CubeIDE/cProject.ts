@@ -45,7 +45,7 @@ interface CProjectInfoDefinition {
 
 const infoFromCProjectDefinition: CProjectInfoDefinition[] = [
   {
-    name: 'targetMCU',
+    name: 'stm32Series',
     superClass: 'com.st.stm32cube.ide.mcu.gnu.managedbuild.option.target_mcu',
     type: 'string'
   },
@@ -90,12 +90,12 @@ const infoFromCProjectDefinition: CProjectInfoDefinition[] = [
     type: 'includes'
   },
   {
-    name: 'ldscript',
+    name: 'linkerScript',
     superClass: 'com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.linker.option.script',
     type: 'path'
   },
   {
-    name: 'ldFlags',
+    name: 'linkerFlags',
     superClass: 'gnu.c.link.option.ldflags',
     type: 'flags'
   },
@@ -107,7 +107,7 @@ const infoFromCProjectDefinition: CProjectInfoDefinition[] = [
 ];
 const infoFromCProjectac6Definition: CProjectInfoDefinition[] = [
   {
-    name: 'targetMCU',
+    name: 'stm32Series',
     superClass: 'fr.ac6.managedbuild.option.gnu.cross.mcu',
     type: 'string'
   },
@@ -152,7 +152,7 @@ const infoFromCProjectac6Definition: CProjectInfoDefinition[] = [
     type: 'includes'
   },
   {
-    name: 'ldscript',
+    name: 'linkerScript',
     superClass: 'fr.ac6.managedbuild.tool.gnu.cross.c.linker.script',
     type: 'path'
   }
@@ -213,7 +213,7 @@ export function convertCProjectTypeToValue(parentValue: any, type: CprojectValue
 }
 
 // eslint-disable-next-line max-len
-export type CprojectInfo = Pick<MakeInfo, 'targetMCU' | 'cIncludes' | 'floatAbi' | 'fpu' | 'ldscript' | 'cDefs' | 'cxxDefs' | 'ldFlags' | 'cFlags' | 'cxxFlags'>;
+export type CprojectInfo = Pick<MakeInfo, 'openocdTarget' | 'cIncludeDirectories' | 'floatAbi' | 'fpu' | 'linkerScript' | 'cDefinitions' | 'cxxDefinitions' | 'linkerFlags' | 'cFlags' | 'cxxFlags'>;
 
 /**
  * Extracts information from the .cproject file.
@@ -261,15 +261,15 @@ export function getInfoFromCProjectFile(cProjectFile: any): CprojectInfo {
     [cProjectInfo.cDefinitions];
 
   const result: CprojectInfo = {
-    targetMCU: Array.isArray(cProjectInfo.targetMCU) ? cProjectInfo.targetMCU[0] : cProjectInfo.targetMCU,
-    cIncludes: includePaths,
+    stm32Series: Array.isArray(cProjectInfo.stm32Series) ? cProjectInfo.stm32Series[0] : cProjectInfo.stm32Series,
+    cIncludeDirectories: includePaths,
     fpu: Array.isArray(cProjectInfo.fpu) ? cProjectInfo.fpu[0] : cProjectInfo.fpu,
     floatAbi: Array.isArray(cProjectInfo.floatAbi) ? cProjectInfo.floatAbi[0] : cProjectInfo.floatAbi,
-    ldscript: Array.isArray(cProjectInfo.ldscript) ? cProjectInfo.ldscript[0] : cProjectInfo.ldscript,
-    cDefs: definitions,
-    cxxDefs: definitions,
-    ldFlags: Array.isArray(cProjectInfo.ldFlags) ?
-      cProjectInfo.ldFlags : [cProjectInfo.ldFlags],
+    linkerScript: Array.isArray(cProjectInfo.linkerScript) ? cProjectInfo.linkerScript[0] : cProjectInfo.linkerScript,
+    cDefinitions: definitions,
+    cxxDefinitions: definitions,
+    linkerFlags: Array.isArray(cProjectInfo.linkerFlags) ?
+      cProjectInfo.linkerFlags : [cProjectInfo.linkerFlags],
     // for now only c projects are imported, 
     // so if we want to use it for a c++ project to copy the c flags to the the c++ flags 
     cFlags: cProjectInfo['secureModeFlag'] ? ['-mcmse'] : [],
@@ -294,7 +294,7 @@ export function getInfoFromCProjectFile(cProjectFile: any): CprojectInfo {
  */
 async function getLDScriptPathFromCProjectEntry(projectInfo: CprojectInfo): Promise<string | undefined> {
   const ldRegex = /[\w\d_]+.ld/;
-  const regexSearchResult = ldRegex.exec(projectInfo.ldscript);
+  const regexSearchResult = ldRegex.exec(projectInfo.linkerScript);
   if (regexSearchResult) {
     const ldScriptName = regexSearchResult[0];
     const ldFiles = await scanForFiles([`**/${ldScriptName}`]);
@@ -315,7 +315,7 @@ export default async function getCubeIDECProjectFileInfo(): Promise<CprojectInfo
     // search for the ld script
     const ldScriptPath = await getLDScriptPathFromCProjectEntry(projectInfo);
     if (ldScriptPath) {
-      projectInfo.ldscript = ldScriptPath;
+      projectInfo.linkerScript = ldScriptPath;
     }
 
 

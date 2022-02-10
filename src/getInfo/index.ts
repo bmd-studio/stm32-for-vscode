@@ -85,7 +85,7 @@ export async function checkAndConvertCpp(
 
     //   vscode.window.showWarningMessage('No main.cpp file found, will try to compile this as a C project');
     //   newInfo.cxxSources = [];
-    //   newInfo.cxxDefs = [];
+    //   newInfo.cxxDefinitions = [];
     // }
   } else {
     if (checkForFileNameInArray('main.cpp', newInfo.cxxSources) !== -1) {
@@ -127,16 +127,16 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   const projectConfiguration = await STM32ProjectConfiguration.readOrCreateConfigFile(standardConfig);
 
   await OpenOCDConfigFile.readOrCreateConfigFile(
-    new OpenOCDConfiguration(cubeMakefileInfo.targetMCU)
+    new OpenOCDConfiguration(cubeMakefileInfo.stm32Series)
   );
 
   const combinedSourceFiles = _.concat(
     projectConfiguration.sourceFiles,
     cubeMakefileInfo.cxxSources,
     cubeMakefileInfo.cSources,
-    cubeMakefileInfo.asmSources
+    cubeMakefileInfo.assemblySources
   );
-  const combinedHeaderFiles = _.concat(projectConfiguration.includeDirectories, cubeMakefileInfo.cIncludes);
+  const combinedHeaderFiles = _.concat(projectConfiguration.includeDirectories, cubeMakefileInfo.cIncludeDirectories);
 
   const sourceFilePromise = getSourceFiles(combinedSourceFiles);
   const headerFilePromise = getHeaderFiles(combinedHeaderFiles);
@@ -167,28 +167,28 @@ export async function getInfo(location: string): Promise<MakeInfo> {
 
   // replace spaces with underscores, to prevent spaces in path issues.
   STM32MakeInfo.target = projectConfiguration.target.split(' ').join('_');
-  STM32MakeInfo.cIncludes = _.uniq(_.concat(includeDirectories, filteredIncludeDirectories));
+  STM32MakeInfo.cIncludeDirectories = _.uniq(_.concat(includeDirectories, filteredIncludeDirectories));
   STM32MakeInfo.cxxSources = sortedSourceFiles.cxxSources;
   STM32MakeInfo.cSources = sortedSourceFiles.cSources;
-  STM32MakeInfo.asmSources = sortedSourceFiles.asmSources;
-  STM32MakeInfo.libs = _.uniq(_.concat(projectConfiguration.libraries, cubeMakefileInfo.libs));
-  STM32MakeInfo.libdir = _.uniq(_.concat(projectConfiguration.libraryDirectories, cubeMakefileInfo.libdir));
-  STM32MakeInfo.asDefs = _.uniq(_.concat(
-    cubeMakefileInfo.asDefs,
+  STM32MakeInfo.assemblySources = sortedSourceFiles.assemblySources;
+  STM32MakeInfo.libraries = _.uniq(_.concat(projectConfiguration.libraries, cubeMakefileInfo.libraries));
+  STM32MakeInfo.libraryDirectories = _.uniq(_.concat(projectConfiguration.libraryDirectories, cubeMakefileInfo.libraryDirectories));
+  STM32MakeInfo.assemblyDefinitions = _.uniq(_.concat(
+    cubeMakefileInfo.assemblyDefinitions,
     projectConfiguration.asDefinitions,
     asDefinitionsFromFile
   ));
   STM32MakeInfo.assemblyFlags = _.uniq(_.concat(cubeMakefileInfo.assemblyFlags, projectConfiguration.assemblyFlags));
-  STM32MakeInfo.ldFlags = _.uniq(_.concat(cubeMakefileInfo.ldFlags, projectConfiguration.linkerFlags));
-  STM32MakeInfo.cDefs = _.uniq(_.concat(
-    cubeMakefileInfo.cDefs,
+  STM32MakeInfo.linkerFlags = _.uniq(_.concat(cubeMakefileInfo.linkerFlags, projectConfiguration.linkerFlags));
+  STM32MakeInfo.cDefinitions = _.uniq(_.concat(
+    cubeMakefileInfo.cDefinitions,
     projectConfiguration.cDefinitions,
     cDefinitionsFromFile
   ));
   STM32MakeInfo.cFlags = _.uniq(_.concat(cubeMakefileInfo.cFlags, projectConfiguration.cFlags));
   STM32MakeInfo.cpu = projectConfiguration.cpu;
-  STM32MakeInfo.cxxDefs = _.uniq(_.concat(
-    cubeMakefileInfo.cxxDefs,
+  STM32MakeInfo.cxxDefinitions = _.uniq(_.concat(
+    cubeMakefileInfo.cxxDefinitions,
     projectConfiguration.cxxDefinitions,
     cxxDefinitionsFromFile
   ));
@@ -197,9 +197,9 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   STM32MakeInfo.fpu = projectConfiguration.fpu;
   STM32MakeInfo.language = projectConfiguration.language;
   STM32MakeInfo.optimization = projectConfiguration.optimization;
-  STM32MakeInfo.ldscript = projectConfiguration.ldscript;
+  STM32MakeInfo.linkerScript = projectConfiguration.linkerScript;
   STM32MakeInfo.mcu = cubeMakefileInfo.mcu;
-  STM32MakeInfo.targetMCU = projectConfiguration.targetMCU;
+  STM32MakeInfo.openocdTarget = projectConfiguration.openocdTarget;
   const buildTools = getBuildToolsFromSettings();
   STM32MakeInfo.tools = {
     ...STM32MakeInfo.tools,

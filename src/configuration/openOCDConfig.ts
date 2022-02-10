@@ -17,7 +17,7 @@ export function create(config: OpenOCDConfigurationInterface): string {
 source [find interface/${config.interface}.cfg]
 
 # The target MCU. This should match your board
-source [find target/${config.targetMCU}.cfg]
+source [find target/${config.openocdTarget}.cfg]
 `;
   return openocdConfig;
 }

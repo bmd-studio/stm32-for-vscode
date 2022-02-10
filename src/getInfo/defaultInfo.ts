@@ -2,23 +2,23 @@
 import MakeInfo from '../types/MakeInfo';
 
 const defaults: Partial<MakeInfo> = {
-  libs: ['c', 'm', 'nosys'],
+  libraries: ['c', 'm', 'nosys'],
   cxxFlags: ['-feliminate-unused-debug-types'],
   assemblyFlags: [],
-  ldFlags: ['-specs=nosys.specs']
+  linkerFlags: ['-specs=nosys.specs']
 };
 
 /**
  * Adds default library and flags to the MakeInfo.
- * @param info makeInfo to add default libs and flags to
+ * @param info makeInfo to add default libraries and flags to
  * @returns 
  */
-export function addDefaultLibsAndFlagsInfo(info: MakeInfo): MakeInfo {
-  if (info.libs === undefined) {
-    info.libs = [];
+export function addDefaultlibrariesAndFlagsInfo(info: MakeInfo): MakeInfo {
+  if (info.libraries === undefined) {
+    info.libraries = [];
   }
-  if (defaults.libs === undefined) {
-    defaults.libs = [];
+  if (defaults.libraries === undefined) {
+    defaults.libraries = [];
   }
   if (info.assemblyFlags === undefined) {
     info.assemblyFlags = [];
@@ -29,22 +29,22 @@ export function addDefaultLibsAndFlagsInfo(info: MakeInfo): MakeInfo {
   if (defaults.cxxFlags === undefined) {
     defaults.cxxFlags = [];
   }
-  if (defaults.ldFlags === undefined) {
-    defaults.ldFlags = [];
+  if (defaults.linkerFlags === undefined) {
+    defaults.linkerFlags = [];
   }
 
 
-  info.libs = info.libs.concat(defaults.libs);
+  info.libraries = info.libraries.concat(defaults.libraries);
   info.assemblyFlags = info.assemblyFlags.concat(defaults.assemblyFlags);
   info.cxxFlags = info.cxxFlags.concat(defaults.cxxFlags);
-  if (info.ldFlags.findIndex(
+  if (info.linkerFlags.findIndex(
     (value) => value.includes('specs=')
   ) < 0) {
-    info.ldFlags = info.ldFlags.concat(defaults.ldFlags);
+    info.linkerFlags = info.linkerFlags.concat(defaults.linkerFlags);
   }
   return info;
 }
 
 export default function addDefaults(info: MakeInfo): MakeInfo {
-  return addDefaultLibsAndFlagsInfo(info);
+  return addDefaultlibrariesAndFlagsInfo(info);
 }

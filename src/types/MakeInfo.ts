@@ -7,6 +7,41 @@ export interface Stm32SettingsInterface {
   openOCDInterface: string;
 }
 
+
+export interface CubeMXMakefileInfoInterface {
+  cDefinitions: string[];
+  assemblyDefinitions: string[];
+  cIncludeDirectories: string[];
+  cSources: string[]
+  assemblySources: string[];
+  libraryDirectories: string[];
+  libraries: string[];
+  projectName: string;
+  cpu: string;
+  fpu: string;
+  floatAbi: string;
+  linkerScript: string;
+  optimization: string;
+  specifications: string[];
+}
+
+export class CubeMXMakefileInfo implements CubeMXMakefileInfoInterface {
+  public cDefinitions = [] as string[];
+  public assemblyDefinitions = [] as string[];
+  public cIncludeDirectories = [] as string[];
+  public cSources = [] as string[];
+  public assemblySources = [] as string[];
+  public libraryDirectories = [] as string[];
+  public libraries = [] as string[];
+  public projectName = '';
+  public cpu = '';
+  public fpu = '';
+  public floatAbi = '';
+  public linkerScript = '';
+  public optimization = 'Og';
+  public specifications = ['-specs=nano.specs'];
+}
+
 export interface ToolChainInterface {
   openOCDPath: string | boolean;
   makePath: string | boolean;
@@ -14,32 +49,32 @@ export interface ToolChainInterface {
 }
 
 export interface BuildFilesInterface {
-  cIncludes: string[];
+  cIncludeDirectories: string[];
   cSources: string[];
   cxxSources: string[];
-  asmSources: string[];
-  libs: string[];
-  libdir: string[];
+  assemblySources: string[];
+  libraries: string[];
+  libraryDirectories: string[];
 }
 
 export type STM32Languages = 'C' | 'C++';
 
 export interface TargetInfoInterface {
-  target: string;
+  projectName: string;
   cpu: string;
   fpu: string;
   floatAbi: string;
-  targetMCU: string;
-  ldscript: string;
+  openocdTarget: string;
+  linkerScript: string;
 }
 
 export class TargetInfo implements TargetInfoInterface {
-  public target = '';
+  public projectName = '';
   public cpu = '';
   public fpu = '';
   public floatAbi = '';
-  public targetMCU = '';
-  public ldscript = '';
+  public openocdTarget = '';
+  public linkerScript = '';
 }
 
 export interface CompileInfoInterface {
@@ -91,9 +126,9 @@ export interface MakeInfoInterface extends BuildFilesInterface, TargetInfoInterf
   cFlags: string[];
   assemblyFlags: string[];
   cxxFlags: string[];
-  cDefs: string[];
-  cxxDefs: string[];
-  asDefs: string[];
+  cDefinitions: string[];
+  cxxDefinitions: string[];
+  assemblyDefinitions: string[];
   tools: ToolChain;
 }
 
@@ -103,12 +138,12 @@ export class ToolChain implements ToolChainInterface {
   public armToolchainPath: string | boolean = false;
 }
 export class BuildFiles implements BuildFilesInterface {
-  public cIncludes: string[] = [];
+  public cIncludeDirectories: string[] = [];
   public cSources: string[] = [];
   public cxxSources: string[] = [];
-  public asmSources: string[] = [];
-  public libs: string[] = [];
-  public libdir: string[] = [];
+  public assemblySources: string[] = [];
+  public libraries: string[] = [];
+  public libraryDirectories: string[] = [];
 }
 
 export interface ExtensionConfigurationInterface extends TargetInfoInterface, CompileInfoInterface, Libraries {
@@ -137,8 +172,8 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
   public cpu = '';
   public fpu = '';
   public floatAbi = 'soft';
-  public ldscript = '';
-  public targetMCU = '';
+  public linkerScript = '';
+  public openocdTarget = '';
   public language = 'C' as STM32Languages;
   public optimization = 'Og';
   public linkerFlags: string[] = [];
@@ -158,48 +193,48 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
   public suppressMakefileWarning = false;
 
   public importRelevantInfoFromMakefile(makeInfo: MakeInfo): void {
-    this.cDefinitions = makeInfo.cDefs;
-    this.cxxDefinitions = makeInfo.cxxDefs;
-    this.asDefinitions = makeInfo.asDefs;
-    this.libraries = makeInfo.libs;
+    this.cDefinitions = makeInfo.cDefinitions;
+    this.cxxDefinitions = makeInfo.cxxDefinitions;
+    this.asDefinitions = makeInfo.assemblyDefinitions;
+    this.libraries = makeInfo.libraries;
     this.target = makeInfo.target;
     this.cpu = makeInfo.cpu;
     this.fpu = makeInfo.fpu;
     this.floatAbi = makeInfo.floatAbi;
-    this.ldscript = makeInfo.ldscript;
-    this.linkerFlags = makeInfo.ldFlags;
-    this.targetMCU = makeInfo.targetMCU;
+    this.linkerScript = makeInfo.linkerScript;
+    this.linkerFlags = makeInfo.linkerFlags;
+    this.openocdTarget = makeInfo.openocdTarget;
     this.cFlags = makeInfo.cFlags;
     this.assemblyFlags = makeInfo.assemblyFlags;
     this.cxxFlags = makeInfo.cxxFlags;
-    this.libraryDirectories = makeInfo.libdir;
-    this.sourceFiles = this.sourceFiles.concat(makeInfo.asmSources, makeInfo.cSources, makeInfo.cxxSources);
-    this.includeDirectories = this.includeDirectories.concat(makeInfo.cIncludes);
+    this.libraryDirectories = makeInfo.libraryDirectories;
+    this.sourceFiles = this.sourceFiles.concat(makeInfo.assemblySources, makeInfo.cSources, makeInfo.cxxSources);
+    this.includeDirectories = this.includeDirectories.concat(makeInfo.cIncludeDirectories);
   }
 }
 
 export default class MakeInfo implements MakeInfoInterface {
-  public cDefs: string[] = [];
-  public cxxDefs: string[] = [];
-  public asDefs: string[] = [];
-  public cIncludes: string[] = [];
+  public cDefinitions: string[] = [];
+  public cxxDefinitions: string[] = [];
+  public assemblyDefinitions: string[] = [];
+  public cIncludeDirectories: string[] = [];
   public cSources: string[] = [];
   public cxxSources: string[] = [];
-  public asmSources: string[] = [];
-  public libdir: string[] = [];
-  public libs: string[] = [];
+  public assemblySources: string[] = [];
+  public libraryDirectories: string[] = [];
+  public libraries: string[] = [];
   public tools: ToolChain = new ToolChain();
-  public target = '';
+  public projectName = '';
   public cpu = '';
   public fpu = 'soft';
   public floatAbi = '';
   public mcu = '';
-  public ldscript = '';
-  public targetMCU = '';
+  public linkerScript = '';
+  public openocdTarget = '';
   public language = 'C' as STM32Languages;
   public optimization = 'Og';
   public cFlags: string[] = [];
   public assemblyFlags: string[] = [];
-  public ldFlags: string[] = [];
+  public linkerFlags: string[] = [];
   public cxxFlags: string[] = [];
 }

@@ -139,7 +139,7 @@ ${createStringList(makeInfo.cxxSources)}
 
 # ASM sources
 ASM_SOURCES =  ${'\\'}
-${createStringList(makeInfo.asmSources)}
+${createStringList(makeInfo.assemblySources)}
 
 
 #######################################
@@ -187,18 +187,18 @@ AS_DEFS =
 
 # C defines
 C_DEFS =  ${'\\'}
-${createStringList(makeInfo.cDefs, '-D')}
+${createStringList(makeInfo.cDefinitions, '-D')}
 
 # CXX defines
 CXX_DEFS =  ${'\\'}
-${createStringList(makeInfo.cxxDefs, '-D')}
+${createStringList(makeInfo.cxxDefinitions, '-D')}
 
 # AS includes
 AS_INCLUDES = ${'\\'}
 
 # C includes
 C_INCLUDES =  ${'\\'}
-${createStringList(makeInfo.cIncludes, '-I')}
+${createStringList(makeInfo.cIncludeDirectories, '-I')}
 
 
 # compile gcc flags
@@ -225,17 +225,17 @@ CXXFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 # LDFLAGS
 #######################################
 # link script
-LDSCRIPT = ${makeInfo.ldscript}
+LDSCRIPT = ${makeInfo.linkerScript}
 
 # libraries
 LIBS = ${createSingleLineStringList(makeInfo.libs, '-l')}
-LIBDIR = ${'\\'}
-${createStringList(makeInfo.libdir, '-L')}
+libraryDirectory = ${'\\'}
+${createStringList(makeInfo.libraryDirectory, '-L')}
 
 # Additional LD Flags from config file
-ADDITIONALLDFLAGS = ${createSingleLineStringList(makeInfo.ldFlags)}
+ADDITIONALLDFLAGS = ${createSingleLineStringList(makeInfo.linkerFlags)}
 
-LDFLAGS = $(MCU) $(ADDITIONALLDFLAGS) -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+LDFLAGS = $(MCU) $(ADDITIONALLDFLAGS) -T$(LDSCRIPT) $(libraryDirectory) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
@@ -290,7 +290,7 @@ flash: $(BUILD_DIR)/$(TARGET).elf
 # erase
 #######################################
 erase: $(BUILD_DIR)/$(TARGET).elf
-\t${makeInfo.tools.openOCDPath ? `"${fsPathToPosix(`${makeInfo.tools.openOCDPath}`)}"` : 'openocd'} -f ./openocd.cfg -c "init; reset halt; ${makeInfo.targetMCU} mass_erase 0; exit"
+\t${makeInfo.tools.openOCDPath ? `"${fsPathToPosix(`${makeInfo.tools.openOCDPath}`)}"` : 'openocd'} -f ./openocd.cfg -c "init; reset halt; ${makeInfo.openocdTarget} mass_erase 0; exit"
 
 #######################################
 # clean up
