@@ -13,3 +13,7 @@ coverage
 .vscode-test
 test
 vsc-extension-quickstart.md
+tooling
+.nyc_output
+.github
+docs

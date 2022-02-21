@@ -2,7 +2,7 @@
 import { TaskDefinition } from 'vscode';
 
 const expectedResult: TaskDefinition = {
-  showDevDebugOutput: true,
+  showDevDebugOutput: 'parsed',
   cwd: '${workspaceRoot}',
   executable: `./build/Clean_project_h7.elf`,
   name: 'Debug STM32',

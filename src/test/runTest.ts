@@ -1,7 +1,6 @@
 import * as cp from 'child_process';
 import * as path from 'path';
 import * as process from 'process';
-import * as shelljs from 'shelljs';
 
 import {
   downloadAndUnzipVSCode,
@@ -17,7 +16,6 @@ async function main(): Promise<void> {
     const extensionDevelopmentPath = path.resolve(__dirname, '../../');
     const vscodeExecutablePath = await downloadAndUnzipVSCode('stable');
     const cliPath = resolveCliPathFromVSCodeExecutablePath(vscodeExecutablePath);
-    console.log({ vscodeExecutablePath, cliPath });
     const testExtensionPath = path.resolve(__dirname, '.vscode-test/extensions');
     const testPaths = {
       all: path.resolve(__dirname, './suite/index'),

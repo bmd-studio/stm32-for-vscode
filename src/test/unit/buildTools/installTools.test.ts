@@ -1,10 +1,7 @@
 import * as Sinon from 'sinon';
-import * as process from 'process';
-
-import { getLatestNodeLink, getPlatformSpecificNodeLink } from '../../../buildTools/installTools';
+import { getPlatformSpecificNodeLink } from '../../../buildTools/installTools';
 
 import { afterEach } from 'mocha';
-import axios from 'axios';
 import { expect } from 'chai';
 import { latestNodeHTML } from './latestNodeHTML';
 
