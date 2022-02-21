@@ -1,5 +1,5 @@
 
-import {TaskDefinition} from 'vscode';
+import { TaskDefinition } from 'vscode';
 
 const expectedResult: TaskDefinition = {
   showDevDebugOutput: true,
@@ -10,7 +10,7 @@ const expectedResult: TaskDefinition = {
   type: 'cortex-debug',
   servertype: 'openocd',
   preLaunchTask: 'Build STM',
-  device: 'stlink',
+  device: 'stm32h743',
   configFiles: [
     'openocd.cfg',
   ],

@@ -1,9 +1,17 @@
 import MakefileInfo from '../types/MakeInfo';
 import { TaskDefinition } from 'vscode';
 
+function getCortexDevice(info: MakefileInfo): string {
+  const device = info.asmSources.find((entry) => entry.indexOf('startup_') >= 0);
+  if (device) {
+    return device.replace('startup_', '').replace('xx.s', '');
+  }
+  return '';
+}
+
 export default function getLaunchTask(info: MakefileInfo): TaskDefinition {
   const config = {
-    showDevDebugOutput: true,
+    showDevDebugOutput: 'parsed',
     // eslint-disable-next-line no-template-curly-in-string
     cwd: '${workspaceRoot}',
     executable: `./build/${info.target}.elf`,
@@ -12,7 +20,7 @@ export default function getLaunchTask(info: MakefileInfo): TaskDefinition {
     type: 'cortex-debug',
     servertype: 'openocd',
     preLaunchTask: 'Build STM',
-    device: 'stlink',
+    device: getCortexDevice(info),
     configFiles: [
       'openocd.cfg',
     ],

@@ -3,10 +3,14 @@
 ## [Unreleased]
 ### Added
   - Add ability to introduce generated changes from the main.c file into the main.cpp file.
-  - Add support for unit testing using Google Test and Google Mock.
-## [3.2.0] - 2022-01-13
+  - Add support for unit testing.
+## [3.2.0] - 2022-02-21
 ### Added
  - Added importer for STM32CubeIDE projects and example projects.
+
+### Fixed
+ - Issue #94: Switched from stlink to the MCU device type in the device field when configuring cortex-debug.
+ - Issue #88: Not mixing C++ flags and C flags anymore  while compiling. They are now separate in the makefile.
 ## [3.1.5] - 2021-11-18
 ### Added
 - Issue #89: Added automatic main.cpp generation with a main.c file, if the language is set to .cpp
