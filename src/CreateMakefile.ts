@@ -84,8 +84,13 @@ export function createGCCPathOutput(makeInfo: MakeInfo): string {
   }
   return '';
 }
-
+/**
+ * Gives a prefix to an input string and checks if it already exists. If the input is empty the prefix is not added.
+ */
 function createPrefixWhenNoneExists(input: string, prefix: string): string {
+  if (!input || input.length === 0) {
+    return '';
+  }
   if (input.indexOf(prefix) >= 0) {
     return input;
   }
@@ -173,7 +178,7 @@ BIN = $(CP) -O binary -S
 CPU = ${createPrefixWhenNoneExists(makeInfo.cpu, '-mcpu=')}
 
 # fpu
-FPU = ${makeInfo.fpu && makeInfo.fpu !== '' ? createPrefixWhenNoneExists(makeInfo.fpu, '-mfpu=') : ''}
+FPU = ${createPrefixWhenNoneExists(makeInfo.fpu, '-mfpu=')}
 
 # float-abi
 FLOAT-ABI = ${createPrefixWhenNoneExists(makeInfo.floatAbi, '-mfloat-abi=')}

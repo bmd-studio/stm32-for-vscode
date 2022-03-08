@@ -136,7 +136,7 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
   public target = '';
   public cpu = '';
   public fpu = '';
-  public floatAbi = 'soft';
+  public floatAbi = '';
   public ldscript = '';
   public targetMCU = '';
   public language = 'C' as STM32Languages;
@@ -191,7 +191,7 @@ export default class MakeInfo implements MakeInfoInterface {
   public tools: ToolChain = new ToolChain();
   public target = '';
   public cpu = '';
-  public fpu = 'soft';
+  public fpu = '';
   public floatAbi = '';
   public mcu = '';
   public ldscript = '';
