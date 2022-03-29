@@ -26,16 +26,18 @@
  * Check the current configuration file and adds the option for debug and build
  * tasks.
  */
-import * as _ from 'lodash';
 
-import { DebugConfiguration, TaskDefinition, Uri, workspace, WorkspaceConfiguration } from 'vscode';
+import * as _ from 'lodash';
+import * as path from 'path';
+
+import { DebugConfiguration, TaskDefinition, Uri, WorkspaceConfiguration, window, workspace } from 'vscode';
+import getLaunchTask, { getCortexDevice } from './LaunchTasksConfig';
 
 import MakeInfo from '../types/MakeInfo';
 import buildTasks from './BuildTasksConfig';
-import getLaunchTask from './LaunchTasksConfig';
-import updateCProperties from './CCCPConfig';
+import { getSVDFileForChip } from '../projectSetup/svdFiles';
 import setCortexDebugWorkspaceConfiguration from './cortexDebugConfig';
-
+import updateCProperties from './CCCPConfig';
 
 /**
  * Function for updating the launch.json file to include debugging information.
@@ -57,6 +59,19 @@ export async function updateLaunch(
   }
   // only change the launch configuration when none is present
   if (configWithSameNameIndex < 0) {
+    try {
+      const svdFile = await getSVDFileForChip(getCortexDevice(info));
+      if (svdFile) {
+        const svdPath = path.join(workspacePathUri.fsPath, svdFile.name);
+        workspace.fs.writeFile(Uri.file(svdPath), Buffer.from(svdFile.data));
+        config.configFiles.push(svdFile.name);
+      }
+    } catch (e) {
+      window.showInformationMessage(
+        // eslint-disable-next-line max-len
+        'Could not find SVD file for the current chip, add this manually to your project folder and add it to your launch configuration'
+      );
+    }
     launchConfig.push(config);
     await launchFile.update('configurations', launchConfig);
   }

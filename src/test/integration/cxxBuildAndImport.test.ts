@@ -1,16 +1,15 @@
 import * as vscode from 'vscode';
 
-import { afterEach, beforeEach, suite, test } from 'mocha';
-
-import buildSTM from '../../BuildTask';
 import {
   addTestToolSettingsToWorkspace,
-  waitForWorkspaceFoldersChange,
-  cleanUpSTM32ForVSCodeArtifacts
+  cleanUpSTM32ForVSCodeArtifacts,
+  waitForWorkspaceFoldersChange
 } from '../helpers';
-import importAndSetupCubeIDEProject from '../../import';
+import { afterEach, beforeEach, suite, test } from 'mocha';
 import { readConfigFile, writeConfigFile } from '../../configuration/stm32Config';
 
+import buildSTM from '../../BuildTask';
+import importAndSetupCubeIDEProject from '../../import';
 
 suite('import and convert to C++ test', () => {
   afterEach(() => {

@@ -28,6 +28,25 @@
       "preLaunchTask": "compile tests"
     },
     {
+      "name": "Extension Unit Tests",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "${workspaceFolder}/src/test/workspaces/CubeIdeExample/Projects/NUCLEO-G071RB/Applications/FreeRTOS/FreeRTOS_Mail",
+        "--extensions-dir .vscode-test/extensions",
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionTestsPath=${workspaceFolder}/out/test/unit/index.js"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/out/test/**/*.js"
+      ],
+      "preLaunchTask": "compile tests",
+      "env": {
+        "TEST_ENVIRONMENT": "unit",
+      }
+    },
+    {
       "showDevDebugOutput": true,
       "cwd": "${workspaceRoot}",
       "executable": "./build/undefined.elf",

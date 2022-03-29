@@ -12,7 +12,6 @@ async function main(): Promise<void> {
   try {
     // The folder containing the Extension Manifest package.json
     // Passed to `--extensionDevelopmentPath`
-    // console.log(process);
     const extensionDevelopmentPath = path.resolve(__dirname, '../../');
     const vscodeExecutablePath = await downloadAndUnzipVSCode('stable');
     const cliPath = resolveCliPathFromVSCodeExecutablePath(vscodeExecutablePath);
@@ -62,6 +61,11 @@ async function main(): Promise<void> {
         testExtensionPath
       ]
     });
+
+    // only run unit tests.
+    if (process.env.TEST_ENVIRONMENT === 'unit') {
+      return;
+    }
 
     // install build tools
     await runTests({
