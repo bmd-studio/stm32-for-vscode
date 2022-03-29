@@ -15,3 +15,4 @@ tooling
 openocd.cfg
 STM32Make.make
 STM32-for-VSCode.config.yaml
+**.svd

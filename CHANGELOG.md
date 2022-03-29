@@ -2,8 +2,15 @@
 
 ## [Unreleased]
 ### Added
-  - Add ability to introduce generated changes from the main.c file into the main.cpp file.
   - Add support for unit testing.
+  - Add support for more in depth search for SVD files.
+
+## [3.2.2] = 2022-03-29
+### Fixed
+ - Fixed Issue #96: Fixed issue where debugging for C++ gave no source file error due to missing debugging flags.
+
+## Feature
+ - Issue #94: Extension will try and find the SVD file for the specific MCU, add it to the workspace folder and add it to the cortex-debug launch configuration.
 
 ## [3.2.1] - 2022-03-08
 ### Fixed
