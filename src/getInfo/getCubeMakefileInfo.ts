@@ -38,7 +38,7 @@
  * Created by Jort Band- Bureau Moeilijke Dingen
  */
 
-import MakeInfo, { CubeMXMakefileInfo } from '../types/MakeInfo';
+import { CubeMXMakefileInfo } from '../types/MakeInfo';
 
 /**
  * Removes the \ and enter from the makefile to convert it to a large single line.
@@ -63,7 +63,7 @@ function extractSingleLineVariablesFromMakefile(makefile: string): { [key: strin
     const variableAndString = variableAndStringMatcher.exec(variableLine);
     return {
       name: variableAndString?.[1],
-      values: variableAndString?.[2].split('').filter((entryString) => entryString !== '')
+      values: variableAndString?.[2].split(' ').filter((entryString) => entryString !== '')
     };
   });
 
@@ -122,7 +122,14 @@ export function removePrefixes(information: string[], prefix: string): string[] 
  */
 function removePrefixesFromMakefile(cubeMXMakefileInfo: CubeMXMakefileInfo): void {
   makeInfoPrefixes.forEach(([makefileInfoKey, prefix]) => {
-    removePrefixes(cubeMXMakefileInfo[makefileInfoKey] as string[], prefix);
+    if (Array.isArray(cubeMXMakefileInfo[makefileInfoKey])) {
+      removePrefixes(cubeMXMakefileInfo[makefileInfoKey] as string[], prefix);
+    } else {
+      removePrefixes([cubeMXMakefileInfo[makefileInfoKey]] as string[], prefix);
+      cubeMXMakefileInfo[makefileInfoKey] =
+        (cubeMXMakefileInfo[makefileInfoKey][0] ? cubeMXMakefileInfo[makefileInfoKey][0] : '') as string[] & string;
+    }
+
   });
 }
 
@@ -132,8 +139,8 @@ const makeInfoKeysToMakefileKeys: [keyof CubeMXMakefileInfo, string][] = [
   ['cIncludeDirectories', 'C_INCLUDES'],
   ['cSources', 'C_SOURCES'],
   ['assemblySources', 'ASM_SOURCES'],
-  ['libraryDirectories', 'libraryDirectories'],
-  ['libraries', 'libraries'],
+  ['libraryDirectories', 'LIBDIR'],
+  ['libraries', 'LIBS'],
   ['projectName', 'TARGET'],
   ['cpu', 'CPU'],
   ['fpu', 'FPU'],
@@ -141,6 +148,25 @@ const makeInfoKeysToMakefileKeys: [keyof CubeMXMakefileInfo, string][] = [
   ['linkerScript', 'LDSCRIPT'],
   ['optimization', 'OPT'],
 ];
+
+/**
+ * @description Function for getting the target from the hal_msp.c file
+ * e.g getting the target stm32l4x from: Src/stm32l4xx_hal_msp.c
+ * @param {string[]} cFiles
+ */
+export function getOpenocdTargetSTM(linkerScript: string): string {
+  let output = '';
+  const regPattern = /(STM32\w+)_\w+.ld/i;
+  if (regPattern.test(linkerScript)) {
+    const regOut = regPattern.exec(linkerScript);
+    const last = regOut ? regOut[regOut.length - 1] : '';
+    output = last;
+    const replaceTrailingXPattern = /x+$/i;
+    output = output.replace(replaceTrailingXPattern, '');
+  }
+
+  return output;
+}
 /**
  * 
  * @param makefile 
@@ -155,31 +181,13 @@ export default function extractMakefileInfo(makefile: string): CubeMXMakefileInf
       if (Array.isArray(makefileInfo[infoKey])) {
         makefileInfo[infoKey] = extractedVariables[makefileKey] as string & string[];
       } else {
-        makefileInfo[infoKey] = extractedVariables[makefileKey].join(' ') as string & string[];
+        makefileInfo[infoKey] = extractedVariables[makefileKey].join('') as string & string[];
       }
     }
   });
-  makefileInfo.specifications = extractBuildSpecification(makefile);
+  makefileInfo.linkerFlags = makefileInfo.linkerFlags.concat(extractBuildSpecification(makefile));
+  makefileInfo.openocdTarget = getOpenocdTargetSTM(makefileInfo.linkerScript);
   removePrefixesFromMakefile(makefileInfo);
 
   return makefileInfo;
-}
-
-
-/**
- * @description Function for getting the target from the hal_msp.c file
- * e.g getting the target stm32l4x from: Src/stm32l4xx_hal_msp.c
- * @param {string[]} cFiles
- */
-export function getOpenocdTargetSTM(cFiles: string[]): string {
-  const regPattern = /(.*\/)?(.*)x_hal_msp.c/i;
-  let output = '';
-  cFiles.forEach((fileName) => {
-    if (regPattern.test(fileName)) {
-      const regOut = regPattern.exec(fileName);
-      const last = regOut ? regOut[regOut.length - 1] : '';
-      output = last;
-    }
-  });
-  return output;
 }

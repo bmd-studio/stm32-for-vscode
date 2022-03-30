@@ -17,7 +17,7 @@ export default async function getCubeIDEProjectInfo(): Promise<MakeInfo> {
     if (startupFileInfo) {
       result.assemblySources.push(startupFileInfo.path);
     }
-    result.target = projectFiles.target;
+    result.projectName = projectFiles.projectName;
     const openocdTarget = getOpenocdTargetFromFullName(cProjectInfo.openocdTarget);
     if (openocdTarget) {
       result.openocdTarget = openocdTarget;

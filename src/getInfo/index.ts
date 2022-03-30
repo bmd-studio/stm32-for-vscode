@@ -31,7 +31,7 @@ import * as OpenOCDConfigFile from '../configuration/openOCDConfig';
 import * as STM32ProjectConfiguration from '../configuration/stm32Config';
 import * as _ from 'lodash';
 import * as vscode from 'vscode';
-import MakeInfo, { ExtensionConfiguration } from '../types/MakeInfo';
+import MakeInfo, { CubeMXMakefileInfo, ExtensionConfiguration } from '../types/MakeInfo';
 import {
   getHeaderFiles,
   getSourceFiles,
@@ -112,7 +112,7 @@ export async function checkAndConvertCpp(
  */
 export async function getInfo(location: string): Promise<MakeInfo> {
   if (!vscode.workspace.workspaceFolders) { throw Error('No workspace folder was selected'); }
-  let cubeMakefileInfo = new MakeInfo();
+  let cubeMakefileInfo = new CubeMXMakefileInfo();
   try {
     cubeMakefileInfo = await getMakefileInfo(location);
   } catch (e) {
@@ -127,12 +127,11 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   const projectConfiguration = await STM32ProjectConfiguration.readOrCreateConfigFile(standardConfig);
 
   await OpenOCDConfigFile.readOrCreateConfigFile(
-    new OpenOCDConfiguration(cubeMakefileInfo.stm32Series)
+    new OpenOCDConfiguration(cubeMakefileInfo.openocdTarget)
   );
 
   const combinedSourceFiles = _.concat(
     projectConfiguration.sourceFiles,
-    cubeMakefileInfo.cxxSources,
     cubeMakefileInfo.cSources,
     cubeMakefileInfo.assemblySources
   );
@@ -166,39 +165,39 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   }
 
   // replace spaces with underscores, to prevent spaces in path issues.
-  STM32MakeInfo.target = projectConfiguration.target.split(' ').join('_');
+  STM32MakeInfo.projectName = projectConfiguration.projectName.split(' ').join('_');
   STM32MakeInfo.cIncludeDirectories = _.uniq(_.concat(includeDirectories, filteredIncludeDirectories));
   STM32MakeInfo.cxxSources = sortedSourceFiles.cxxSources;
   STM32MakeInfo.cSources = sortedSourceFiles.cSources;
   STM32MakeInfo.assemblySources = sortedSourceFiles.assemblySources;
   STM32MakeInfo.libraries = _.uniq(_.concat(projectConfiguration.libraries, cubeMakefileInfo.libraries));
-  STM32MakeInfo.libraryDirectories = _.uniq(_.concat(projectConfiguration.libraryDirectories, cubeMakefileInfo.libraryDirectories));
+  STM32MakeInfo.libraryDirectories = _.uniq(
+    projectConfiguration.libraryDirectories.concat(cubeMakefileInfo.libraryDirectories)
+  );
   STM32MakeInfo.assemblyDefinitions = _.uniq(_.concat(
     cubeMakefileInfo.assemblyDefinitions,
     projectConfiguration.asDefinitions,
     asDefinitionsFromFile
   ));
-  STM32MakeInfo.assemblyFlags = _.uniq(_.concat(cubeMakefileInfo.assemblyFlags, projectConfiguration.assemblyFlags));
+  STM32MakeInfo.assemblyFlags = _.uniq(projectConfiguration.assemblyFlags);
   STM32MakeInfo.linkerFlags = _.uniq(_.concat(cubeMakefileInfo.linkerFlags, projectConfiguration.linkerFlags));
   STM32MakeInfo.cDefinitions = _.uniq(_.concat(
     cubeMakefileInfo.cDefinitions,
     projectConfiguration.cDefinitions,
     cDefinitionsFromFile
   ));
-  STM32MakeInfo.cFlags = _.uniq(_.concat(cubeMakefileInfo.cFlags, projectConfiguration.cFlags));
+  STM32MakeInfo.cFlags = _.uniq(projectConfiguration.cFlags);
   STM32MakeInfo.cpu = projectConfiguration.cpu;
   STM32MakeInfo.cxxDefinitions = _.uniq(_.concat(
-    cubeMakefileInfo.cxxDefinitions,
     projectConfiguration.cxxDefinitions,
     cxxDefinitionsFromFile
   ));
-  STM32MakeInfo.cxxFlags = _.uniq(_.concat(cubeMakefileInfo.cxxFlags, projectConfiguration.cxxFlags));
+  STM32MakeInfo.cxxFlags = _.uniq(projectConfiguration.cxxFlags);
   STM32MakeInfo.floatAbi = projectConfiguration.floatAbi;
   STM32MakeInfo.fpu = projectConfiguration.fpu;
   STM32MakeInfo.language = projectConfiguration.language;
   STM32MakeInfo.optimization = projectConfiguration.optimization;
   STM32MakeInfo.linkerScript = projectConfiguration.linkerScript;
-  STM32MakeInfo.mcu = cubeMakefileInfo.mcu;
   STM32MakeInfo.openocdTarget = projectConfiguration.openocdTarget;
   const buildTools = getBuildToolsFromSettings();
   STM32MakeInfo.tools = {

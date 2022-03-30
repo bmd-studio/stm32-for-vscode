@@ -1,7 +1,7 @@
 import { ExtensionConfiguration } from '../../types/MakeInfo';
 
 export const configuration = new ExtensionConfiguration();
-configuration.target = 'test_firmware';
+configuration.projectName = 'test_firmware';
 configuration.cpu = 'cortex-m7';
 configuration.fpu = 'fpv5-d16';
 configuration.floatAbi = 'hard';

@@ -1,5 +1,4 @@
 import * as Sinon from 'sinon';
-// import { workspace, Uri, WorkspaceFolder, window } from 'vscode';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as helpers from '../../../Helpers';
 
@@ -14,8 +13,6 @@ import updateConfiguration, {
 import BuildTasks from '../../fixtures/tasksFixture';
 import LaunchTestFile from '../../fixtures/launchTaskFixture';
 import { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
-
-// import {SinonFake } from '@types/sinon';
 
 use(chaiAsPromised);
 suite('WorkspaceConfiguration', () => {
@@ -72,7 +69,7 @@ suite('WorkspaceConfiguration', () => {
     const { getWorkspaceConfigFake, getConfigInWorkspaceFake, updateConfigFake } = launchFixtures;
     const testUri = Uri.file('local');
 
-    await updateLaunch(Uri.file('local'), { ...testMakefileInfo, target: 'othertesttarget' });
+    await updateLaunch(Uri.file('local'), { ...testMakefileInfo, projectName: 'othertesttarget' });
     expect(getWorkspaceConfigFake.calledOnce).to.be.true;
     expect(getConfigInWorkspaceFake.calledOnceWith('launch', testUri)).to.be.true;
     expect(updateConfigFake.calledOnce).to.be.false;
@@ -83,7 +80,7 @@ suite('WorkspaceConfiguration', () => {
     const { getWorkspaceConfigFake, getConfigInWorkspaceFake, updateConfigFake } = launchFixtures;
     const testUri = Uri.file('local');
 
-    await updateLaunch(Uri.file('local'), { ...testMakefileInfo, target: 'othertesttarget' });
+    await updateLaunch(Uri.file('local'), { ...testMakefileInfo, projectName: 'othertesttarget' });
     expect(getWorkspaceConfigFake.callCount).to.equal(1);
     expect(getWorkspaceConfigFake.calledOnce).to.be.true;
     expect(getConfigInWorkspaceFake.calledOnceWith('launch', testUri)).to.be.true;

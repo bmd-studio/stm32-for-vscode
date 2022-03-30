@@ -6,7 +6,7 @@ export default function getLaunchTask(info: MakefileInfo): TaskDefinition {
     showDevDebugOutput: true,
     // eslint-disable-next-line no-template-curly-in-string
     cwd: '${workspaceRoot}',
-    executable: `./build/${info.target}.elf`,
+    executable: `./build/${info.projectName}.elf`,
     name: 'Debug STM32',
     request: 'launch',
     type: 'cortex-debug',

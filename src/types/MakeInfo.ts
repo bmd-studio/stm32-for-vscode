@@ -22,7 +22,7 @@ export interface CubeMXMakefileInfoInterface {
   floatAbi: string;
   linkerScript: string;
   optimization: string;
-  specifications: string[];
+  linkerFlags: string[];
 }
 
 export class CubeMXMakefileInfo implements CubeMXMakefileInfoInterface {
@@ -39,7 +39,8 @@ export class CubeMXMakefileInfo implements CubeMXMakefileInfoInterface {
   public floatAbi = '';
   public linkerScript = '';
   public optimization = 'Og';
-  public specifications = ['-specs=nano.specs'];
+  public linkerFlags = ['-specs=nano.specs'];
+  public openocdTarget = '';
 }
 
 export interface ToolChainInterface {
@@ -168,7 +169,7 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
   public cxxDefinitionsFile?: string | string[] = [];
   public asDefinitionsFile?: string | string[] = [];
   public includeDirectories: string[] = [];
-  public target = '';
+  public projectName = '';
   public cpu = '';
   public fpu = '';
   public floatAbi = 'soft';
@@ -192,26 +193,27 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
   public libraryDirectories: string[] = [];
   public suppressMakefileWarning = false;
 
-  public importRelevantInfoFromMakefile(makeInfo: MakeInfo): void {
+  public importRelevantInfoFromMakefile(makeInfo: CubeMXMakefileInfo): void {
     this.cDefinitions = makeInfo.cDefinitions;
-    this.cxxDefinitions = makeInfo.cxxDefinitions;
     this.asDefinitions = makeInfo.assemblyDefinitions;
     this.libraries = makeInfo.libraries;
-    this.target = makeInfo.target;
+    this.projectName = makeInfo.projectName;
     this.cpu = makeInfo.cpu;
     this.fpu = makeInfo.fpu;
     this.floatAbi = makeInfo.floatAbi;
     this.linkerScript = makeInfo.linkerScript;
     this.linkerFlags = makeInfo.linkerFlags;
     this.openocdTarget = makeInfo.openocdTarget;
-    this.cFlags = makeInfo.cFlags;
-    this.assemblyFlags = makeInfo.assemblyFlags;
-    this.cxxFlags = makeInfo.cxxFlags;
+    this.optimization = makeInfo.optimization;
     this.libraryDirectories = makeInfo.libraryDirectories;
-    this.sourceFiles = this.sourceFiles.concat(makeInfo.assemblySources, makeInfo.cSources, makeInfo.cxxSources);
+    this.sourceFiles = this.sourceFiles.concat(makeInfo.assemblySources, makeInfo.cSources);
     this.includeDirectories = this.includeDirectories.concat(makeInfo.cIncludeDirectories);
+
+
+
   }
 }
+
 
 export default class MakeInfo implements MakeInfoInterface {
   public cDefinitions: string[] = [];
@@ -228,7 +230,6 @@ export default class MakeInfo implements MakeInfoInterface {
   public cpu = '';
   public fpu = 'soft';
   public floatAbi = '';
-  public mcu = '';
   public linkerScript = '';
   public openocdTarget = '';
   public language = 'C' as STM32Languages;

@@ -109,7 +109,7 @@ export default function createMakefile(makeInfo: MakeInfo): string {
 ######################################
 # target
 ######################################
-TARGET = ${makeInfo.target}
+TARGET = ${makeInfo.projectName}
 
 
 ######################################
@@ -228,9 +228,9 @@ CXXFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
 LDSCRIPT = ${makeInfo.linkerScript}
 
 # libraries
-LIBS = ${createSingleLineStringList(makeInfo.libs, '-l')}
+LIBS = ${createSingleLineStringList(makeInfo.libraries, '-l')}
 libraryDirectory = ${'\\'}
-${createStringList(makeInfo.libraryDirectory, '-L')}
+${createStringList(makeInfo.libraryDirectories, '-L')}
 
 # Additional LD Flags from config file
 ADDITIONALLDFLAGS = ${createSingleLineStringList(makeInfo.linkerFlags)}

@@ -47,14 +47,14 @@ export function createConfigFile(config: ExtensionConfiguration): string {
 # - entry_2
 
 # The project name
-target: ${config.target}
+projectName: ${config.projectName}
 # Can be C or C++
 language: ${config.language}
 
 optimization: ${config.optimization}
 
 # MCU settings
-openocdTarget: ${config.openocdTarget}  e.g. STM32F4x
+openocdTarget: ${config.openocdTarget} # e.g. STM32F4x
 cpu: ${config.cpu} # type of cpu e.g. cortex-m4
 fpu: ${config.fpu} # Defines how floating points are defined. Can be left empty.
 floatAbi: ${config.floatAbi}

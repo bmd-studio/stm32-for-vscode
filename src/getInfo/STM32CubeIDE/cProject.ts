@@ -261,7 +261,9 @@ export function getInfoFromCProjectFile(cProjectFile: any): CprojectInfo {
     [cProjectInfo.cDefinitions];
 
   const result: CprojectInfo = {
-    stm32Series: Array.isArray(cProjectInfo.stm32Series) ? cProjectInfo.stm32Series[0] : cProjectInfo.stm32Series,
+    openocdTarget: Array.isArray(cProjectInfo.openocdTarget)
+      ? cProjectInfo.openocdTarget[0]
+      : cProjectInfo.openocdTarget,
     cIncludeDirectories: includePaths,
     fpu: Array.isArray(cProjectInfo.fpu) ? cProjectInfo.fpu[0] : cProjectInfo.fpu,
     floatAbi: Array.isArray(cProjectInfo.floatAbi) ? cProjectInfo.floatAbi[0] : cProjectInfo.floatAbi,

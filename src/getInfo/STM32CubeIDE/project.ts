@@ -36,7 +36,7 @@ interface CubeIDEProject {
 }
 
 export interface CubeIDEProjectFileInfo {
-  target: string,
+  projectName: string,
   sourceFiles: string[],
 
 }
@@ -118,7 +118,7 @@ export default async function getCubeIDEProjectFileInfo(): Promise<CubeIDEProjec
   const sourceFiles = getSourceFilesFromCubeProjectJSON(cubeIDEProjectFile);
   return {
     sourceFiles,
-    target: cubeIDEProjectFile.projectDescription?.name ?
+    projectName: cubeIDEProjectFile.projectDescription?.name ?
       cubeIDEProjectFile.projectDescription?.name :
       'firmware',
   };

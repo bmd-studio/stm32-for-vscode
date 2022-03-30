@@ -37,7 +37,7 @@ import {
   window,
   workspace
 } from 'vscode';
-import { cpus, targetsMCUs } from './configuration/ConfigInfo';
+import { cpus, stm32Series } from './configuration/ConfigInfo';
 
 import { checkForRequiredFiles } from './getInfo/getFiles';
 import executeTask from './HandleTasks';
@@ -120,7 +120,7 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
       'Generate config file'
     );
     if (response === 'Generate config file') {
-      const stm32Series = await window.showQuickPick(targetsMCUs, {
+      const stm32SeriesSelection = await window.showQuickPick(stm32Series, {
         title: 'Pick a target MCU',
       });
       const targetCPU = await window.showQuickPick(cpus, {
@@ -131,8 +131,8 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
         prompt: 'please enter the name/path to the linker script'
       });
       const standardConfig: ExtensionConfiguration = new ExtensionConfiguration();
-      if (stm32Series) {
-        standardConfig.stm32Series = stm32Series;
+      if (stm32SeriesSelection) {
+        standardConfig.openocdTarget = stm32SeriesSelection;
       }
       if (targetCPU) {
         standardConfig.cpu = targetCPU;
