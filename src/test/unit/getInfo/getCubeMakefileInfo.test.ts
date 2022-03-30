@@ -54,7 +54,7 @@ suite('Get Cube makefile info', () => {
     // assert.deepStrictEqual(removePrefixes(output.cxxDefinitions, '-D'), testMakefileInfo.cxxDefinitions);
     assert.deepStrictEqual(removePrefixes(output.cDefinitions, '-D'), testMakefileInfo.cDefinitions);
     assert.deepStrictEqual(removePrefixes(output.libraries, '-l'), testMakefileInfo.libraries);
-    assert.deepStrictEqual(output.libraryDirectories, testMakefileInfo.libraryDirectories);
+    assert.deepStrictEqual(removePrefixes(output.libraryDirectories, '-L'), testMakefileInfo.libraryDirectories);
   });
   // FIXME: create a way to handle files more uniformly. e.g. auto import different types of projects if it can.
   // test('getMakefile while the makefile is present', async () => {
