@@ -19,6 +19,8 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 16.x
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - run: npm install
     - run: npm run pretest
     - run: export DISPLAY=99.0
