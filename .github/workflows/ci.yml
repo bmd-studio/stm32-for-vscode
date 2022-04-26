@@ -21,6 +21,7 @@ jobs:
         node-version: 17.x
     - run: npm install
     - run: npm run pretest
+    - run: export DISPLAY=99.0
     - run: sudo apt update
       if: runner.os == 'Linux'
     - run: sudo apt install -y libasound2 libgbm1 libgtk-3-0 libnss3 xvfb

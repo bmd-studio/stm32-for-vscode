@@ -72,6 +72,7 @@ export async function cleanUpSTM32ForVSCodeArtifacts(): Promise<void> {
   try {
     await Promise.all(fileDeletePromises);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error(await vscode.workspace.fs.readDirectory(currentWorkspaceFolderUri.uri));
     // eslint-disable-next-line no-console
     console.error('Something went wrong with cleaning up the integration test', error);
