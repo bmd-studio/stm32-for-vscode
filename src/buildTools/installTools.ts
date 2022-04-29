@@ -186,7 +186,8 @@ export function getPlatformSpecificNodeLink(
   return link;
 }
 
-const nodeLatestURL = 'https://nodejs.org/dist/latest/';
+// latest gallium is the latest lts v16 version. 
+const nodeLatestURL = 'https://nodejs.org/dist/latest-gallium/';
 
 /**
  * Gets the latest node version download filename for the current platform.
@@ -199,6 +200,7 @@ export function getLatestNodeLink(): Promise<string> {
       if (latestLink) {
         resolve(`${latestLink}`);
       } else {
+        console.error(`Could not find node version for ${process.platform} ${process.arch}`, response.data);
         reject(
           new Error(
             'No link found for this specific platform, ' +
