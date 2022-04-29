@@ -1,18 +1,18 @@
 import * as Sinon from 'sinon';
 
+import {afterEach, beforeEach} from 'mocha';
 import axios, {AxiosRequestConfig, AxiosResponse} from 'axios';
 import { getSVDFileForChip, getSVDFileList } from '../../../projectSetup/svdFiles';
 
 import GithubSVDSResponseFixture from './githubSVDResponseFixture';
-import h7SVDResponseFixture from './githubSVDResponseFixture';
 import { expect } from 'chai';
-import {beforeEach, afterEach} from 'mocha';
+import h7SVDResponseFixture from './githubSVDResponseFixture';
 
 suite('SVD files', () => {
   const svdResponse: AxiosResponse = {
     data: GithubSVDSResponseFixture,
     status: 200,
-    statusText: 'succes',
+    statusText: 'success',
     headers: {},
     config: {} as AxiosRequestConfig,
   };

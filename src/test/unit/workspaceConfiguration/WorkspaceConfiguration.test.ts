@@ -7,12 +7,15 @@ import LaunchTestFile, { expectedResultWithSVD } from '../../fixtures/launchTask
 import { TaskDefinition, Uri, workspace } from 'vscode';
 import { afterEach, beforeEach, suite, test } from 'mocha';
 import { assert, expect, use } from 'chai';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import updateConfiguration, {
   updateLaunch,
   updateTasks
 } from '../../../configuration/WorkspaceConfigurations';
 
 import BuildTasks from '../../fixtures/tasksFixture';
+import GithubSVDSResponseFixture from '../projectSetup/githubSVDResponseFixture';
+import h7SVDResponseFixture from '../projectSetup/h7SVDFileFixture';
 import { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
 
 // import {SinonFake } from '@types/sinon';
@@ -83,8 +86,21 @@ suite('WorkspaceConfiguration', () => {
 
     const { getWorkspaceConfigFake, getConfigInWorkspaceFake, updateConfigFake } = launchFixtures;
     const testUri = Uri.file('local');
-
+    const svdResponse: AxiosResponse = {
+      data: GithubSVDSResponseFixture,
+      status: 200,
+      statusText: 'success',
+      headers: {},
+      config: {} as AxiosRequestConfig,
+    };
+    const axiosGetStub = Sinon.stub(axios, 'get').resolves(Promise.resolve(svdResponse));
+    const h7Response = {...svdResponse, data: h7SVDResponseFixture};
+    axiosGetStub.withArgs(
+      'https://raw.githubusercontent.com/posborne/cmsis-svd/master/data/STMicro/STM32H753x.svd'
+    ).returns(Promise.resolve(h7Response));
+    
     await updateLaunch(Uri.file('local'), { ...testMakefileInfo, target: 'othertesttarget' });
+    expect(axiosGetStub.calledTwice).to.be.true;
     expect(getWorkspaceConfigFake.callCount).to.equal(1);
     expect(getWorkspaceConfigFake.calledOnce).to.be.true;
     // expect(getConfigInWorkspaceFake.calledOnceWith('launch', testUri)).to.be.true;
