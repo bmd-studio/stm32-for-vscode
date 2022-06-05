@@ -208,9 +208,6 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
     this.libraryDirectories = makeInfo.libraryDirectories;
     this.sourceFiles = this.sourceFiles.concat(makeInfo.assemblySources, makeInfo.cSources);
     this.includeDirectories = this.includeDirectories.concat(makeInfo.cIncludeDirectories);
-
-
-
   }
 }
 
@@ -226,7 +223,7 @@ export default class MakeInfo implements MakeInfoInterface {
   public libraryDirectories: string[] = [];
   public libraries: string[] = [];
   public tools: ToolChain = new ToolChain();
-  public projectName = '';
+  public projectName = 'project';
   public cpu = '';
   public fpu = 'soft';
   public floatAbi = '';

@@ -8,6 +8,7 @@ import {
   resolveCliPathFromVSCodeExecutablePath,
   runTests
 } from '@vscode/test-electron';
+import { platform } from 'process';
 
 async function main(): Promise<void> {
   try {
@@ -15,9 +16,13 @@ async function main(): Promise<void> {
     // Passed to `--extensionDevelopmentPath`
     // console.log(process);
     const extensionDevelopmentPath = path.resolve(__dirname, '../../');
-    const vscodeExecutablePath = await downloadAndUnzipVSCode('stable');
+    let vscodeExecutablePath = undefined;
+    if (platform === 'win32') {
+      vscodeExecutablePath = await downloadAndUnzipVSCode('stable', 'win32-x64-archive');
+    } else {
+      vscodeExecutablePath = await downloadAndUnzipVSCode('stable');
+    }
     const cliPath = resolveCliPathFromVSCodeExecutablePath(vscodeExecutablePath);
-    console.log({ vscodeExecutablePath, cliPath });
     const testExensionPath = path.resolve(__dirname, '.vscode-test/extensions');
     const testPaths = {
       all: path.resolve(__dirname, './suite/index'),

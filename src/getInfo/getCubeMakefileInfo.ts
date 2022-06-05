@@ -39,6 +39,8 @@
  */
 
 import { CubeMXMakefileInfo } from '../types/MakeInfo';
+import { workspace, Uri } from 'vscode';
+import * as path from 'path';
 
 /**
  * Removes the \ and enter from the makefile to convert it to a large single line.
@@ -103,7 +105,7 @@ const makeInfoPrefixes: [keyof CubeMXMakefileInfo, string][] = [
   ['cIncludeDirectories', '-I'],
   ['libraryDirectories', '-L'],
   ['libraries', '-l'],
-  ['optimization', '-'],
+  // ['optimization', '-'],
 ];
 /**
  * Removes prefixes from an array.
@@ -172,7 +174,7 @@ export function getOpenocdTargetSTM(linkerScript: string): string {
  * @param makefile 
  * @returns 
  */
-export default function extractMakefileInfo(makefile: string): CubeMXMakefileInfo {
+export function extractMakefileInfo(makefile: string): CubeMXMakefileInfo {
   const makefileInfo: CubeMXMakefileInfo = new CubeMXMakefileInfo();
   const singleLinedMakefile = convertLineBreaksToSingleLine(makefile);
   const extractedVariables = extractSingleLineVariablesFromMakefile(singleLinedMakefile);
@@ -185,9 +187,45 @@ export default function extractMakefileInfo(makefile: string): CubeMXMakefileInf
       }
     }
   });
+  // FIXME: sourcefiles
+  // FIXME: INCLUDES
   makefileInfo.linkerFlags = makefileInfo.linkerFlags.concat(extractBuildSpecification(makefile));
   makefileInfo.openocdTarget = getOpenocdTargetSTM(makefileInfo.linkerScript);
+  makefileInfo.optimization = makefileInfo.optimization.replace('-', '');
+  console.log({ makefileInfo });
   removePrefixesFromMakefile(makefileInfo);
-
+  console.log({ makefileInfo });
   return makefileInfo;
+}
+
+/**
+ * @description
+ * @param {string} location - location of the makefile e.g. /filepath/Makefile
+ */
+export async function getMakefile(location: string): Promise<string> {
+  const makefileFile = await workspace.fs.readFile(Uri.file(location));
+  const makefile = Buffer.from(makefileFile).toString('utf-8');
+  return makefile;
+}
+
+/**
+ * @description async function for retrieving information from a makefile in JSON format.
+ * @param {string} location - location of the makefile
+ */
+export default async function getMakefileInfo(location: string): Promise<CubeMXMakefileInfo> {
+  let loc = './Makefile';
+  if (location) {
+    loc = location;
+  }
+
+  // Guard for checking if the makefile name is actually appended to the location
+  if (path.posix.basename(location) !== 'Makefile') {
+    loc = path.posix.join(loc, 'Makefile');
+  }
+
+  // try getting the makefile
+  let makefile = await getMakefile(loc);
+
+  // when the makefile is found, extract the information according to the makefileInfo fields
+  return extractMakefileInfo(makefile);
 }

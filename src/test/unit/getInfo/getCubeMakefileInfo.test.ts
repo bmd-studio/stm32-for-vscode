@@ -3,9 +3,10 @@ import * as assert from 'assert';
 
 import * as vscode from 'vscode';
 import { afterEach, suite, test, beforeEach } from 'mocha';
-import getMakefileInfo, {
+import {
   getOpenocdTargetSTM,
   removePrefixes,
+  extractMakefileInfo,
 } from '../../../getInfo/getCubeMakefileInfo';
 import testMakefile, { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
 import { expect } from 'chai';
@@ -39,7 +40,7 @@ suite('Get Cube makefile info', () => {
 
   });
   test('extractAllInfo', () => {
-    const output = getMakefileInfo(testMakefile);
+    const output = extractMakefileInfo(testMakefile);
     assert.deepStrictEqual(output.openocdTarget, testMakefileInfo.openocdTarget);
     assert.deepStrictEqual(output.projectName, testMakefileInfo.projectName);
     assert.deepStrictEqual(output.linkerScript, testMakefileInfo.linkerScript);
