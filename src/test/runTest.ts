@@ -7,13 +7,19 @@ import {
   resolveCliPathFromVSCodeExecutablePath,
   runTests
 } from '@vscode/test-electron';
+import { platform } from 'process';
 
 async function main(): Promise<void> {
   try {
     // The folder containing the Extension Manifest package.json
     // Passed to `--extensionDevelopmentPath`
     const extensionDevelopmentPath = path.resolve(__dirname, '../../');
-    const vscodeExecutablePath = await downloadAndUnzipVSCode('stable');
+    let vscodeExecutablePath = undefined;
+    if (platform === 'win32') {
+      vscodeExecutablePath = await downloadAndUnzipVSCode('stable', 'win32-x64-archive');
+    } else {
+      vscodeExecutablePath = await downloadAndUnzipVSCode('stable');
+    }
     const cliPath = resolveCliPathFromVSCodeExecutablePath(vscodeExecutablePath);
     const testExtensionPath = path.resolve(__dirname, '.vscode-test/extensions');
     const testPaths = {

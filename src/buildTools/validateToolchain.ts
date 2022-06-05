@@ -92,7 +92,6 @@ export async function checkAutomaticallyInstalledBuildTools(
       installedBuildTools.makePath = makePath;
     }
   }
-
   return Promise.resolve(installedBuildTools);
 }
 
