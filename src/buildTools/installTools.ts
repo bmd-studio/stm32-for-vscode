@@ -166,14 +166,17 @@ const nodeRegex: { [key: string]: { [key: string]: RegExp } } = {
 export function getPlatformSpecificNodeLink(
   latestNodeBody: string, currentPlatform: NodeJS.Platform, arch: string
 ): string | undefined {
-  const regexPattern = nodeRegex?.[`${currentPlatform}`]?.[arch];
+  const regexPattern = nodeRegex?.[`${currentPlatform}`]?.[`${arch}`];
   if (!regexPattern) {
-    return undefined;
+    throw new Error(
+      // eslint-disable-next-line max-len
+      `Could not find the NodeJS link for your specific platform: platform: ${process.platform}, arch: ${process.arch}. Please open an issue on our Github: ${GITHUB_ISSUES_URL}`);
   }
   const platformRegex = new RegExp(
     regexPattern,
     regexPattern.flags);
   let link = undefined;
+
   if (platformRegex) {
     const result = platformRegex.exec(latestNodeBody);
     if (Array.isArray(result)) {
@@ -200,7 +203,6 @@ export function getLatestNodeLink(): Promise<string> {
       if (latestLink) {
         resolve(`${latestLink}`);
       } else {
-        console.error(`Could not find node version for ${process.platform} ${process.arch}`, response.data);
         reject(
           new Error(
             'No link found for this specific platform, ' +
@@ -324,7 +326,14 @@ export async function addExtensionInstalledToolsToSettings(toolsStoragePath: vsc
   }
 
 }
-
+/**
+ * Install all relevant tools for compiling for a specific platform
+ * @note there is a specific issue on windows x32 systems when it uses the ia32 arch.
+ * The binaries for xpack are not compiled for this arch and it will not find it.
+ * Give the decline of x32 systems this will not be supported.
+ * @param toolsStoragePath path where the tools will be installed
+ * @returns void
+ */
 export function installAllTools(toolsStoragePath: vscode.Uri): Promise<void | Error> {
   return new Promise((resolve) => {
     vscode.window.withProgress({
@@ -332,7 +341,15 @@ export function installAllTools(toolsStoragePath: vscode.Uri): Promise<void | Er
       title: 'Installing build tools',
       cancellable: false,
     }, async (progress) => {
+      if (process.arch === 'ia32') {
+        vscode.window.showWarningMessage(
+          // eslint-disable-next-line max-len
+          `There is a known issue with windows system with the ia32. Tools might not install correctly. Should you encounter this issue. Please open an issue on: ${GITHUB_ISSUES_URL}`
+        );
+      }
+
       progress.report({ increment: 0, message: 'Starting build tools installation' });
+      // FIXME: VSCode for X32 does not work as it is converted to iar32. This does not work for XPack
       try {
         // Node
         progress.report({ increment: 0, message: 'installing local copy of node' });
@@ -381,7 +398,7 @@ export function installAllTools(toolsStoragePath: vscode.Uri): Promise<void | Er
         vscode.window.showErrorMessage(`Something has gone wrong while installing the build tools: ${err}`);
         throw (err);
       }
-      progress.report({ increment: 100, message: 'Finshed build tool installation' });
+      progress.report({ increment: 100, message: 'Finished build tool installation' });
       resolve();
     });
   });

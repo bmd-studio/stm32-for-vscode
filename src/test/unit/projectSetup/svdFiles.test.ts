@@ -1,7 +1,7 @@
 import * as Sinon from 'sinon';
 
-import {afterEach, beforeEach} from 'mocha';
-import axios, {AxiosRequestConfig, AxiosResponse} from 'axios';
+import { afterEach, beforeEach } from 'mocha';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { getSVDFileForChip, getSVDFileList } from '../../../projectSetup/svdFiles';
 
 import GithubSVDSResponseFixture from './githubSVDResponseFixture';
@@ -17,8 +17,8 @@ suite('SVD files', () => {
     config: {} as AxiosRequestConfig,
   };
   beforeEach(() => {
-    
-   
+
+
   });
   afterEach(() => {
     Sinon.restore();
@@ -33,7 +33,7 @@ suite('SVD files', () => {
   });
   test('getSVDFileForChip', async () => {
     const axiosGetStub = Sinon.stub(axios, 'get').resolves(Promise.resolve(svdResponse));
-    const h7Response = {...svdResponse, data: h7SVDResponseFixture};
+    const h7Response = { ...svdResponse, data: h7SVDResponseFixture };
     axiosGetStub.withArgs(
       'https://raw.githubusercontent.com/posborne/cmsis-svd/master/data/STMicro/STM32H753x.svd'
     ).returns(Promise.resolve(h7Response));
@@ -43,7 +43,7 @@ suite('SVD files', () => {
   });
   test('getSVDFileForChip lowercase', async () => {
     const axiosGetStub = Sinon.stub(axios, 'get').resolves(Promise.resolve(svdResponse));
-    const h7Response = {...svdResponse, data: h7SVDResponseFixture};
+    const h7Response = { ...svdResponse, data: h7SVDResponseFixture };
     axiosGetStub.withArgs(
       'https://raw.githubusercontent.com/posborne/cmsis-svd/master/data/STMicro/STM32H753x.svd'
     ).returns(Promise.resolve(h7Response));
@@ -52,7 +52,7 @@ suite('SVD files', () => {
   });
 
   test('no SVD file found', async () => {
-    const axiosGetStub = Sinon.stub(axios, 'get').resolves(Promise.resolve(svdResponse));
+    Sinon.stub(axios, 'get').resolves(Promise.resolve(svdResponse));
     expect(getSVDFileForChip('no_chip_found')).to.eventually.Throw();
   });
 });

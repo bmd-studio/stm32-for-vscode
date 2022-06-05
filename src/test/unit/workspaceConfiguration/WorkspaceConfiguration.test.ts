@@ -84,8 +84,7 @@ suite('WorkspaceConfiguration', () => {
   test('add launch config on empty config', async () => {
     setWorkspaceConfigFakeOutput([]);
 
-    const { getWorkspaceConfigFake, getConfigInWorkspaceFake, updateConfigFake } = launchFixtures;
-    const testUri = Uri.file('local');
+    const { getWorkspaceConfigFake, updateConfigFake } = launchFixtures;
     const svdResponse: AxiosResponse = {
       data: GithubSVDSResponseFixture,
       status: 200,
@@ -94,11 +93,11 @@ suite('WorkspaceConfiguration', () => {
       config: {} as AxiosRequestConfig,
     };
     const axiosGetStub = Sinon.stub(axios, 'get').resolves(Promise.resolve(svdResponse));
-    const h7Response = {...svdResponse, data: h7SVDResponseFixture};
+    const h7Response = { ...svdResponse, data: h7SVDResponseFixture };
     axiosGetStub.withArgs(
       'https://raw.githubusercontent.com/posborne/cmsis-svd/master/data/STMicro/STM32H753x.svd'
     ).returns(Promise.resolve(h7Response));
-    
+
     await updateLaunch(Uri.file('local'), { ...testMakefileInfo, target: 'othertesttarget' });
     expect(axiosGetStub.calledTwice).to.be.true;
     expect(getWorkspaceConfigFake.callCount).to.equal(1);

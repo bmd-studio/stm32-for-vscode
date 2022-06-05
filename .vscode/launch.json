@@ -20,7 +20,23 @@
         "${workspaceFolder}/src/test/workspaces/CubeIdeExample/Projects/NUCLEO-G071RB/Applications/FreeRTOS/FreeRTOS_Mail",
         "--extensions-dir .vscode-test/extensions",
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "--extensionTestsPath=${workspaceFolder}/out/test/integration/importAndBuild"
+        "--extensionTestsPath=${workspaceFolder}/out/test/integration/buildToolsTest"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/out/test/**/*.js"
+      ],
+      "preLaunchTask": "compile tests"
+    },
+    {
+      "name": "Extension Tests tool integration",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "${workspaceFolder}/src/test/workspaces/CubeIdeExample/Projects/NUCLEO-G071RB/Applications/FreeRTOS/FreeRTOS_Mail",
+        "--extensions-dir .vscode-test/extensions",
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionTestsPath=${workspaceFolder}/out/test/integration/buildToolsTest"
       ],
       "outFiles": [
         "${workspaceFolder}/out/test/**/*.js"
