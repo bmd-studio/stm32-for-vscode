@@ -5,11 +5,16 @@
   - Add support for unit testing.
   - Add support for more in depth search for SVD files.
 
-## [3.2.2] = 2022-03-29
+## [3.2.3] - 2022-06-17
+### Added
+ - Added attach debug configuration
+### Fixed
+  - Fix: SVD was added as a configuration file to the debugging configuration. Is now added to the specific SVDFile key.
+## [3.2.2] - 2022-03-29
 ### Fixed
  - Fixed Issue #96: Fixed issue where debugging for C++ gave no source file error due to missing debugging flags.
 
-## Feature
+## Added
  - Issue #94: Extension will try and find the SVD file for the specific MCU, add it to the workspace folder and add it to the cortex-debug launch configuration.
 
 ## [3.2.1] - 2022-03-08

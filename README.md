@@ -21,9 +21,9 @@ There are a few command line tools that need to be installed for this extension 
 - OpenOCD: [Windows](https://gnutoolchains.com/arm-eabi/openocd/), [all platforms](https://xpack.github.io/openocd/install/)
 
 ## Configuring CubeMX
-This extension assumes the project initialised with CubeMX and the option to create a Makefile project under Project Manager->Project->Toolchain/IDE.
+This extension assumes the project initialized with CubeMX and the option to create a Makefile project under Project Manager->Project->Toolchain/IDE.
 
-Also please leave the default on Copy all used libraries into the project folder and generate seperate .c and .h files for the peripherals.
+Also please leave the default on Copy all used libraries into the project folder.
 
 ## How to use
 Click on the ST icon and select the command you want to run. Once this is done for the first time you can also use the shortcut cmd/ctrl+shift+b to start building.

@@ -28,10 +28,9 @@
  */
 
 import * as _ from 'lodash';
-import * as path from 'path';
 
-import { DebugConfiguration, TaskDefinition, Uri, WorkspaceConfiguration, window, workspace } from 'vscode';
-import getLaunchTask, { getCortexDevice } from './LaunchTasksConfig';
+import { TaskDefinition, Uri, WorkspaceConfiguration, window, workspace } from 'vscode';
+import getLaunchTask, { getAttachTask, getCortexDevice } from './LaunchTasksConfig';
 
 import MakeInfo from '../types/MakeInfo';
 import buildTasks from './BuildTasksConfig';
@@ -49,30 +48,32 @@ export async function updateLaunch(
   const launchFile = workspace.getConfiguration('launch', workspacePathUri);
   const launchConfig: TaskDefinition[] = launchFile.get('configurations', []);
   const config = getLaunchTask(info);
-  let configWithSameNameIndex = -1;
-  if (launchConfig && !_.isEmpty(launchConfig)) {
-    _.map(launchConfig, (entry: DebugConfiguration, index) => {
-      if (entry.name === config.name) {
-        configWithSameNameIndex = index;
-      }
-    });
+  const attachTask = getAttachTask(info);
+  const hasLaunchTask = !!launchConfig.find(task => task.name === config.name);
+  const hasAttachTask = !!launchConfig.find(task => task.name === attachTask.name);
+  if(!hasLaunchTask || !hasAttachTask) {
+    try{
+      const svdFile = await getSVDFileForChip(getCortexDevice(info));
+      config.svdFile.push(svdFile.name);
+      attachTask.svdFile.push(svdFile.name);
+    } catch(err) {
+      window.showErrorMessage(
+        `Could not find SVD file for the current device: ${getCortexDevice(info)}. 
+        If you want to use it for debugging look for it at: https://www.st.com/
+        and add the file name to the .svdFile option in the launch.json configurations`);
+      // eslint-disable-next-line no-console
+      console.error(`Could not find an SVD file for the chip ${getCortexDevice(info)}`);
+    }
+  }
+
+  if (!hasLaunchTask) {
+    launchConfig.push(config);
+  }
+  if(!hasAttachTask) {
+    launchConfig.push(attachTask);
   }
   // only change the launch configuration when none is present
-  if (configWithSameNameIndex < 0) {
-    try {
-      const svdFile = await getSVDFileForChip(getCortexDevice(info));
-      if (svdFile) {
-        const svdPath = path.join(workspacePathUri.fsPath, svdFile.name);
-        workspace.fs.writeFile(Uri.file(svdPath), Buffer.from(svdFile.data));
-        config.configFiles.push(svdFile.name);
-      }
-    } catch (e) {
-      window.showInformationMessage(
-        // eslint-disable-next-line max-len
-        'Could not find SVD file for the current chip, add this manually to your project folder and add it to your launch configuration'
-      );
-    }
-    launchConfig.push(config);
+  if (!hasLaunchTask || !hasAttachTask) {
     await launchFile.update('configurations', launchConfig);
   }
 }

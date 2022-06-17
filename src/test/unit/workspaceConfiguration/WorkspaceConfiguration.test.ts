@@ -3,7 +3,7 @@ import * as Sinon from 'sinon';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as helpers from '../../../Helpers';
 
-import LaunchTestFile, { expectedResultWithSVD } from '../../fixtures/launchTaskFixture';
+import LaunchTestFile, { attachFixture, debugFixture, } from '../../fixtures/launchTaskFixture';
 import { TaskDefinition, Uri, workspace } from 'vscode';
 import { afterEach, beforeEach, suite, test } from 'mocha';
 import { assert, expect, use } from 'chai';
@@ -22,6 +22,7 @@ import { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
 
 use(chaiAsPromised);
 suite('WorkspaceConfiguration', () => {
+
   let launchFixtures: {
     getWorkspaceConfigFake: Sinon.SinonSpy;
     updateConfigFake: Sinon.SinonSpy;
@@ -31,6 +32,7 @@ suite('WorkspaceConfiguration', () => {
     updateConfigFake: Sinon.fake.returns(Promise.resolve()),
     getConfigInWorkspaceFake: Sinon.fake(),
   };
+
   const setWorkspaceConfigFakeOutput = (output?: TaskDefinition[]): void => {
     launchFixtures.getConfigInWorkspaceFake = Sinon.fake.returns({
       get: launchFixtures.getWorkspaceConfigFake,
@@ -48,7 +50,7 @@ suite('WorkspaceConfiguration', () => {
   };
 
   beforeEach(() => {
-    launchFixtures.getWorkspaceConfigFake = Sinon.fake.returns([LaunchTestFile]);
+    launchFixtures.getWorkspaceConfigFake = Sinon.fake.returns(LaunchTestFile);
     launchFixtures.updateConfigFake = Sinon.fake.returns(Promise.resolve());
   });
   afterEach(() => {
@@ -60,17 +62,6 @@ suite('WorkspaceConfiguration', () => {
     };
   });
 
-  test('has launch config', async () => {
-    setWorkspaceConfigFakeOutput();
-    const { getWorkspaceConfigFake, getConfigInWorkspaceFake, updateConfigFake } = launchFixtures;
-    const testUri = Uri.file('local');
-
-    await updateLaunch(Uri.file('local'), testMakefileInfo);
-    expect(getWorkspaceConfigFake.calledOnce).to.be.true;
-    expect(getConfigInWorkspaceFake.calledOnceWith('launch', testUri)).to.be.true;
-    expect(updateConfigFake.notCalled).to.be.true;
-    Sinon.restore();
-  });
   test('do not overwrite launch config with the same name', async () => {
     setWorkspaceConfigFakeOutput();
     const { getWorkspaceConfigFake, getConfigInWorkspaceFake, updateConfigFake } = launchFixtures;
@@ -81,6 +72,7 @@ suite('WorkspaceConfiguration', () => {
     expect(getConfigInWorkspaceFake.calledOnceWith('launch', testUri)).to.be.true;
     expect(updateConfigFake.calledOnce).to.be.false;
   });
+
   test('add launch config on empty config', async () => {
     setWorkspaceConfigFakeOutput([]);
 
@@ -104,10 +96,14 @@ suite('WorkspaceConfiguration', () => {
     expect(getWorkspaceConfigFake.calledOnce).to.be.true;
     // expect(getConfigInWorkspaceFake.calledOnceWith('launch', testUri)).to.be.true;
     expect(updateConfigFake.calledOnce).to.be.true;
-    expect(updateConfigFake.getCall(0).args[1]).to.deep.equal([{
-      ...expectedResultWithSVD,
+    expect(updateConfigFake.getCall(0).args[1].find((task: any)=> debugFixture.name === task?.name)).to.deep.equal({
+      ...debugFixture,
       executable: "./build/othertesttarget.elf"
-    }]);
+    });
+    expect(updateConfigFake.getCall(0).args[1].find((task: any) => attachFixture.name === task?.name)).to.deep.equal({
+      ...attachFixture,
+      executable: "./build/othertesttarget.elf"
+    });
   });
 
   test('adds all new tasks', async () => {

@@ -4,9 +4,10 @@ import * as process from 'process';
 
 import {
   downloadAndUnzipVSCode,
-  resolveCliPathFromVSCodeExecutablePath,
+  resolveCliArgsFromVSCodeExecutablePath,
   runTests
 } from '@vscode/test-electron';
+
 import { platform } from 'process';
 
 async function main(): Promise<void> {
@@ -20,7 +21,7 @@ async function main(): Promise<void> {
     } else {
       vscodeExecutablePath = await downloadAndUnzipVSCode('stable');
     }
-    const cliPath = resolveCliPathFromVSCodeExecutablePath(vscodeExecutablePath);
+    const [cli, ...args] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath);
     const testExtensionPath = path.resolve(__dirname, '.vscode-test/extensions');
     const testPaths = {
       all: path.resolve(__dirname, './suite/index'),
@@ -45,7 +46,8 @@ async function main(): Promise<void> {
       ),
     };
 
-    cp.spawnSync(cliPath, [
+    cp.spawnSync(cli, [
+      ...args,
       '--extensions-dir',
       testExtensionPath,
       '--install-extension',
@@ -64,7 +66,7 @@ async function main(): Promise<void> {
       launchArgs: [
         testWorkspaces.empty,
         '--extensions-dir',
-        testExtensionPath
+        testExtensionPath,
       ]
     });
 

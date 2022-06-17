@@ -9,6 +9,8 @@ export function getCortexDevice(info: MakefileInfo): string {
   return '';
 }
 
+
+
 export default function getLaunchTask(info: MakefileInfo): TaskDefinition {
   const config = {
     showDevDebugOutput: 'parsed',
@@ -26,4 +28,11 @@ export default function getLaunchTask(info: MakefileInfo): TaskDefinition {
     ],
   };
   return config;
+}
+
+export function getAttachTask(info: MakefileInfo): TaskDefinition {
+  const attachTask = getLaunchTask(info);
+  attachTask.name = 'Attach STM32';
+  attachTask.request = 'attach';
+  return attachTask;
 }
