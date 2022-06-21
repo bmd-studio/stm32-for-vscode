@@ -55,6 +55,22 @@ export async function writeMakefile(makefilePath: string, makefile: string): Pro
   });
 }
 
+/**
+ * Copy the custom user rules from oldMakeFile to newMakeFile
+ * @param oldMakefile the old makefile
+ * @param newMakefile the new makefile
+ */
+export function copyUserRules(oldMakefile: string, newMakefile: string): string {
+  const oldStartRules = oldMakefile.indexOf("# *** USER RULES BEGIN ***");
+  const oldEndRules = oldMakefile.indexOf("# *** USER RULES END ***");
+  const newStartRules = newMakefile.indexOf("# *** USER RULES BEGIN ***");
+  const newEndRules = newMakefile.indexOf("# *** USER RULES END ***");
+  if(oldStartRules === -1 || oldEndRules === -1 || newStartRules === -1 || newEndRules === -1) {
+    return newMakefile;
+  }
+  return newMakefile.slice(0, newStartRules) + oldMakefile.slice(oldStartRules, oldEndRules) + newMakefile.slice(newEndRules, newMakefile.length);
+}
+
 
 /**
  * @description creates a new makefile based on the current info and checks if it
@@ -71,7 +87,10 @@ export default async function updateMakefile(workspaceLocation: string, info: Ma
   } catch (err) {
     oldMakefile = null;
   }
-  const newMakefile = createMakefile(info);
+  let newMakefile = createMakefile(info);
+  if(typeof oldMakefile === 'string') {
+    newMakefile = copyUserRules(oldMakefile, newMakefile);
+  }
   if (newMakefile !== oldMakefile) {
     await writeMakefile(makefilePath, newMakefile);
   }

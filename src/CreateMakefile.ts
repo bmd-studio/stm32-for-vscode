@@ -303,6 +303,10 @@ erase: $(BUILD_DIR)/$(TARGET).elf
 #######################################
 clean:
 \t${platform === 'win32' ? 'cmd /c rd /s /q' : '-rm -fR'} $(BUILD_DIR)
+
+# *** USER RULES BEGIN ***
+
+# *** USER RULES END ***
 	
 #######################################
 # dependencies
