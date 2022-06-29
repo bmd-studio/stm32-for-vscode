@@ -1,8 +1,8 @@
 
-import {
+import createMakefile, {
   createGCCPathOutput,
   createSingleLineStringList,
-  createStringList
+  createStringList,
 } from '../../CreateMakefile';
 import { suite, test } from 'mocha';
 
@@ -35,10 +35,18 @@ suite('CreateMakefile', () => {
     makeInfo.tools.armToolchainPath = '.';
     expect(createGCCPathOutput(makeInfo)).to.equal('');
   });
-  // TODO: this should be tested in an integration test. This test breaks way to easily.
-  // test('Create makefile matches template', () => {
-  //   const result = createMakefile(testMakefileInfo);
-  //   expect(result).to.equal(stm32ForVSCodeResult);
-  // });
+  test('if custom makefileRules are added', () => {
+    const makeInfo = new MakeInfo();
+    const customMakefileRules = [
+      {
+        command: 'sayhi',
+        rule: "echo sayhi"
+      },
+    ];
+    makeInfo.customMakefileRules = customMakefileRules;
+    const makefileOutput = createMakefile(makeInfo);
+    expect(makefileOutput).to.contain(customMakefileRules[0].command);
+    expect(makefileOutput).to.contain(customMakefileRules[0].rule);
+  });
 
 });

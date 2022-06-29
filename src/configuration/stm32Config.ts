@@ -104,6 +104,14 @@ sourceFiles:  ${createYamlArray(config.sourceFiles)}
 # When no makefile is present it will show a warning pop-up.
 # However when compilation without the CubeMX Makefile is desired, this can be turned of.
 suppressMakefileWarning: ${config.suppressMakefileWarning}
+
+# Custom makefile rules
+# Here custom makefile rules can be added to the STM32Make.make file
+# an example of how this can be used is commented out below.
+customMakefileRules:
+# - command: sayhello
+#   rule: echo "hello"
+#   dependsOn: $(BUILD_DIR)/$(TARGET).elf # can be left out    
     `
   );
 }
@@ -135,15 +143,28 @@ export async function writeDefaultConfigFile(config: ExtensionConfiguration): Pr
 
 const PARSE_YAML_ERROR_MESSAGE = 'Could not parse yaml configuration';
 
-export async function readConfigFile(): Promise<ExtensionConfiguration> {
+/**
+ * read the stm32-for-vscode.config.yaml from disk
+ * @returns return the stm32-for-vscode.config.yaml in string format
+ */
+export async function getConfigFileFromWorkspace(): Promise<string> {
   const workspaceFolderUri = Helpers.getWorkspaceUri();
   if (!workspaceFolderUri) { return Promise.reject(new Error('No workspace folder selected')); }
-  const configuration = new ExtensionConfiguration();
   const configurationPath = path.resolve(workspaceFolderUri.fsPath, EXTENSION_CONFIG_NAME);
+  const file = await vscode.workspace.fs.readFile(vscode.Uri.file(configurationPath));
+  if (!file) { throw new Error('No configuration file found'); }
+  return Buffer.from(file).toString('utf-8');
+}
+
+/**
+ * reads and parses the stm32-for-vscode.config.yaml file
+ * @returns The configuration of the current project
+ */
+export async function readConfigFile(): Promise<ExtensionConfiguration> {
+  const configuration = new ExtensionConfiguration();
   try {
-    const file = await vscode.workspace.fs.readFile(vscode.Uri.file(configurationPath));
-    if (!file) { throw new Error('No configuration file found'); }
-    const yamlConfig: ExtensionConfigurationInterface = YAML.parse(Buffer.from(file).toString('utf-8'));
+    const file = await getConfigFileFromWorkspace();
+    const yamlConfig: ExtensionConfigurationInterface = YAML.parse(file);
     if (!yamlConfig) { return Promise.reject(new Error('Could not parse yaml configuration')); }
     _.forEach(yamlConfig, (entry, key) => {
       if (_.has(yamlConfig, key) && _.get(yamlConfig, key) !== null && _.get(yamlConfig, key) !== [null]) {

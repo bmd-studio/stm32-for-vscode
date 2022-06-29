@@ -148,20 +148,27 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
 
   try {
     currentWorkspaceFolder = fsPathToPosix(workspace.workspaceFolders[0].uri.fsPath);
+
     info = await getInfo(currentWorkspaceFolder);
     const makeArguments = `-j16 -f ${makefileName}`;
     if (cleanBuild) {
-      await executeTask(
-        'build',
-        'STM32 clean',
-        [
-          `${info.tools.makePath}`,
-          makeArguments,
-          `clean`
-        ],
-        {},
-        "$gcc"
-      );
+      try {
+        await executeTask(
+          'build',
+          'STM32 clean',
+          [
+            `${info.tools.makePath}`,
+            makeArguments,
+            `clean`
+          ],
+          {},
+          "$gcc"
+        );
+      } catch (err) {
+        const errorMsg = `Something went wrong with cleaning the build. Still are going to proceed to building.
+        ERROR: ${err}`;
+        window.showErrorMessage(errorMsg);
+      }
     }
 
     // update makefile info and main.cpp if required.
@@ -175,7 +182,6 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
       window.showErrorMessage(errorMsg);
       throw new Error(errorMsg);
     }
-
 
     await executeTask(
       'build',

@@ -107,6 +107,7 @@ export const testMakefileInfo: MakeInfo = {
   ldFlags: ["-specs=nano.specs"],
   cxxFlags: [],
   optimization: 'Og',
+  customMakefileRules: undefined,
 };
 
 export const stm32ForVSCodeResult = `##########################################################################################################################

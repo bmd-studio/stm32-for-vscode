@@ -211,6 +211,7 @@ export async function getInfo(location: string): Promise<MakeInfo> {
       _.set(STM32MakeInfo, key, '');
     }
   });
+  STM32MakeInfo.customMakefileRules = projectConfiguration.customMakefileRules;
 
   // check for CPP project
   const finalInfo = await checkAndConvertCpp(STM32MakeInfo, projectConfiguration);

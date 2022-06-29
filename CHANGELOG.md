@@ -8,8 +8,10 @@
 ## [3.2.3] - 2022-06-17
 ### Added
  - Added attach debug configuration
+ - Issue #109: Added custom makefile rule option to the STM32-for-VSCode.config.yaml file which allows for custom makefile rules to be included.
 ### Fixed
   - Fix: SVD was added as a configuration file to the debugging configuration. Is now added to the specific SVDFile key.
+  - Issue #108 Fix: clean build failed when already cleaned. Now check for this and throws an error when cleaning fails, but continuous to build.
 ## [3.2.2] - 2022-03-29
 ### Fixed
  - Fixed Issue #96: Fixed issue where debugging for C++ gave no source file error due to missing debugging flags.

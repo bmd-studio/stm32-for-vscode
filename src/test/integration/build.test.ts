@@ -26,6 +26,11 @@ suite('build test', () => {
     await buildSTM();
   }).timeout(120000);
 
+  test('do clean build on fresh project test', async () => {
+    // execute the test build.
+    await buildSTM({ cleanBuild: true });
+  }).timeout(120000);
+
   test('build build clean build', async () => {
     // // in out for now
     if (!vscode.workspace.workspaceFolders || !vscode.workspace.workspaceFolders?.[0]) {

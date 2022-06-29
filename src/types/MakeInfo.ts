@@ -33,6 +33,12 @@ export interface TargetInfoInterface {
   ldscript: string;
 }
 
+export interface CustomMakefileRulesInterface {
+  command: string;
+  rule: string;
+  dependsOn?: string;
+}
+
 export class TargetInfo implements TargetInfoInterface {
   public target = '';
   public cpu = '';
@@ -95,6 +101,7 @@ export interface MakeInfoInterface extends BuildFilesInterface, TargetInfoInterf
   cxxDefs: string[];
   asDefs: string[];
   tools: ToolChain;
+  customMakefileRules?: CustomMakefileRulesInterface[];
 }
 
 export class ToolChain implements ToolChainInterface {
@@ -116,7 +123,12 @@ export interface ExtensionConfigurationInterface extends TargetInfoInterface, Co
   includeDirectories: string[];
   sourceFiles: string[];
   suppressMakefileWarning: boolean;
+  customMakefileRules?: CustomMakefileRulesInterface[];
 }
+
+
+
+
 
 export class ExtensionConfiguration implements ExtensionConfigurationInterface {
   public excludes = [
@@ -156,6 +168,8 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
   public libraries: string[] = ['c', 'm'];
   public libraryDirectories: string[] = [];
   public suppressMakefileWarning = false;
+  public customMakefileRules: CustomMakefileRulesInterface[] | undefined = undefined;
+
 
   public importRelevantInfoFromMakefile(makeInfo: MakeInfo): void {
     this.cDefinitions = makeInfo.cDefs;
@@ -202,4 +216,5 @@ export default class MakeInfo implements MakeInfoInterface {
   public assemblyFlags: string[] = [];
   public ldFlags: string[] = [];
   public cxxFlags: string[] = [];
+  public customMakefileRules: CustomMakefileRulesInterface[] | undefined = undefined;
 }

@@ -31,6 +31,7 @@ async function main(): Promise<void> {
       buildTools: path.resolve(__dirname, './integration/buildToolsTest'),
       importAndBuild: path.resolve(__dirname, './integration/importAndBuild'),
       cxximportConvertBuild: path.resolve(__dirname, './integration/cxxBuildAndImport'),
+      customMakefileRules: path.resolve(__dirname, './integration/customMakefileRulesTest'),
     };
 
     const testWorkspaces = {
@@ -116,6 +117,18 @@ async function main(): Promise<void> {
       extensionTestsPath: testPaths.cxximportConvertBuild,
       launchArgs: [
         testWorkspaces.l5CxxProject,
+        '--extensions-dir',
+        testExtensionPath
+      ]
+    });
+
+    // testing custom rules for the makefile
+    await runTests({
+      vscodeExecutablePath,
+      extensionDevelopmentPath,
+      extensionTestsPath: testPaths.customMakefileRules,
+      launchArgs: [
+        testWorkspaces.makefileH7,
         '--extensions-dir',
         testExtensionPath
       ]
