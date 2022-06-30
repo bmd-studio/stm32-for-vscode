@@ -4,21 +4,17 @@
 ### Added
   - Add support for unit testing.
   - Add support for more in depth search for SVD files.
-
-## [3.2.3] - 2022-06-17
-### Added
- - Added attach debug configuration
- - Issue #109: Added custom makefile rule option to the STM32-for-VSCode.config.yaml file which allows for custom makefile rules to be included.
-### Fixed
-  - Fix: SVD was added as a configuration file to the debugging configuration. Is now added to the specific SVDFile key.
-  - Issue #108 Fix: clean build failed when already cleaned. Now check for this and throws an error when cleaning fails, but continuous to build.
-## [3.2.2] - 2022-03-29
+  
+## [3.2.2] - 2022-06-29
 ### Fixed
  - Fixed Issue #96: Fixed issue where debugging for C++ gave no source file error due to missing debugging flags.
-
-## Added
+ - Fix: SVD was added as a configuration file to the debugging configuration. Is now added to the specific SVDFile key.
+ - Issue #108 Fix: clean build failed when already cleaned. Now check for this and throws an error when cleaning fails, but continuous to build.
+### Added
  - Issue #94: Extension will try and find the SVD file for the specific MCU, add it to the workspace folder and add it to the cortex-debug launch configuration.
-
+ - Added attach debug configuration
+ - Issue #109: Added custom makefile rule option to the STM32-for-VSCode.config.yaml file which allows for custom makefile rules to be included.
+  
 ## [3.2.1] - 2022-03-08
 ### Fixed
  - Issue #97: Fixed issue where the default values of fpu and float-abi were not correct. These are now left empty and will not be included as compiler flags when not set.

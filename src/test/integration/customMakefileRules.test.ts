@@ -6,15 +6,11 @@ import {
   waitForWorkspaceFoldersChange
 } from '../helpers';
 import { afterEach, beforeEach, suite, test } from 'mocha';
-import { readConfigFile, writeConfigFile } from '../../configuration/stm32Config';
 
 import buildSTM from '../../BuildTask';
-import importAndSetupCubeIDEProject from '../../import';
-import { expect } from 'chai';
 import { getConfigFileFromWorkspace } from '../../configuration/stm32Config';
 import * as Helpers from '../../Helpers';
 import { EXTENSION_CONFIG_NAME } from '../../Definitions';
-import _ = require('lodash');
 
 suite('customMakefileRules test', () => {
   afterEach(() => {
