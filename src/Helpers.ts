@@ -33,33 +33,52 @@ export function convertToolPathToAbsolutePath(toolPath: string, dir?: boolean): 
 }
 
 /**
+ * Writes a string based file to the given file path
+ * @param filePath path of the file
+ * @param file file in string format
+ */
+export async function writeFile(filePath: string, file: string): Promise<void> {
+  const encoder = new TextEncoder();
+  const fileUri = Uri.file(filePath);
+  await workspace.fs.writeFile(fileUri, encoder.encode(file));
+}
+
+/**
  * Helper function for writing a file in the workspace. Returns a promise
  * @param workspacePathUri Path to the active workspace
  * @param filePath Relative path to the file within the workspace
  * @param file The file that needs to be written
  */
-export function writeFileInWorkspace(
+export async function writeFileInWorkspace(
   workspacePathUri: Uri, filePath: string, file: string): Promise<void> {
   const totalPath = path.resolve(fsPathToPosix(workspacePathUri.fsPath), filePath);
-  const propertiesUri = Uri.file(totalPath);
-  const encoder = new TextEncoder();
-  return new Promise((resolve, reject) => {
-    try {
-      workspace.fs.writeFile(propertiesUri, encoder.encode(file)).then(() => {
-        resolve();
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
+  await writeFile(totalPath, file);
 }
 
-export function getWorkspaceUri(): Uri | null {
+export function getWorkspaceUri(): Uri | undefined {
   const workspaces = workspace.workspaceFolders;
   if (workspaces && workspaces.length > 0) {
     return workspaces[0].uri;
   }
-  return null;
+  return undefined;
+}
+
+export async function checkIfFileExists(filePath: string): Promise<boolean> {
+  let hasFile = true;
+  const fileUri = Uri.file(filePath);
+  try {
+    await workspace.fs.stat(fileUri);
+  } catch (err) {
+    hasFile = false;
+  }
+  return hasFile;
+}
+
+export async function checkIfFileExitsIfNotWrite(filePath: string, file: string): Promise<void> {
+  const hasFile = checkIfFileExists(filePath);
+  if (!hasFile) {
+    await writeFile(filePath, file);
+  }
 }
 
 export function getAutomationShell(): string {

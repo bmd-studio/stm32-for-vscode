@@ -87,6 +87,13 @@ export class Libraries implements LibrariesInterface {
   public libraries: string[] = [];
   public libraryDirectories: string[] = [];
 }
+export interface TestInfoInterface {
+  sourceFiles: string[];
+  flags: string[];
+  headerFiles: string[];
+}
+
+
 
 // NOTE: this differs from the configuration in the shortinening of the DEFS names
 // This is maintained as this helps in parsing the makefile however should be noted
@@ -102,6 +109,7 @@ export interface MakeInfoInterface extends BuildFilesInterface, TargetInfoInterf
   asDefs: string[];
   tools: ToolChain;
   customMakefileRules?: CustomMakefileRulesInterface[];
+  testInfo: TestInfoInterface
 }
 
 export class ToolChain implements ToolChainInterface {
@@ -125,8 +133,6 @@ export interface ExtensionConfigurationInterface extends TargetInfoInterface, Co
   suppressMakefileWarning: boolean;
   customMakefileRules?: CustomMakefileRulesInterface[];
 }
-
-
 
 
 
@@ -217,4 +223,9 @@ export default class MakeInfo implements MakeInfoInterface {
   public ldFlags: string[] = [];
   public cxxFlags: string[] = [];
   public customMakefileRules: CustomMakefileRulesInterface[] | undefined = undefined;
+  public testInfo: TestInfoInterface = {
+    flags: [],
+    sourceFiles: [],
+    headerFiles: [],
+  };
 }

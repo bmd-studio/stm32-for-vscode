@@ -74,6 +74,10 @@
 		],
 		"commands": [
 			{
+				"command": "stm32-for-vscode.test-stat",
+				"title": "STM32: Test stat"
+			},
+			{
 				"command": "stm32-for-vscode.importCubeIDEProject",
 				"title": "STM32: Import CubeIDEProject"
 			},

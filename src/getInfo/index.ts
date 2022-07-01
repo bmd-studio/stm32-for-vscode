@@ -146,13 +146,23 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   ] = await Promise.all([sourceFilePromise, headerFilePromise]);
 
 
-  const filteredSourceFiles = Micromatch.not(indiscriminateSourceFileList, projectConfiguration.excludes);
-  const filteredHeaderFiles = Micromatch.not(indiscriminateHeaderFileList, projectConfiguration.excludes);
+  // TODO: put this logic somewhere else the function is getting to big this way
+  let filteredSourceFiles = Micromatch.not(indiscriminateSourceFileList, projectConfiguration.excludes);
+  let filteredHeaderFiles = Micromatch.not(indiscriminateHeaderFileList, projectConfiguration.excludes);
+
+  // TESTING
+  STM32MakeInfo.testInfo.sourceFiles = Micromatch(filteredSourceFiles, "**.test.(c|cc|cpp|cxx)");
+  STM32MakeInfo.testInfo.headerFiles = Micromatch(filteredHeaderFiles, "**.test.(h|hpp|hxx)");
+
+  filteredSourceFiles = Micromatch.not(indiscriminateSourceFileList, "**.test.(c|cc|cpp|cxx)");
+  filteredHeaderFiles = Micromatch.not(indiscriminateHeaderFileList, "**.test.(h|hpp|hxx)");
 
   const sortedSourceFiles = sortFiles(filteredSourceFiles);
   const includeDirectories = getIncludeDirectoriesFromFileList(filteredHeaderFiles);
   const regularIncludeDirectories = getNonGlobIncludeDirectories(combinedHeaderFiles);
   const filteredIncludeDirectories = Micromatch.not(regularIncludeDirectories, projectConfiguration.excludes);
+
+
 
   let cDefinitionsFromFile: string[] = [];
   let cxxDefinitionsFromFile: string[] = [];

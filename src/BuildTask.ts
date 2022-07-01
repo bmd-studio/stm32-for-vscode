@@ -88,7 +88,7 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
     flash,
     cleanBuild,
   } = options || {};
-
+  const startTime = Date.now();
 
   let currentWorkspaceFolder;
   let info = {} as MakeInfo;
@@ -182,7 +182,8 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
       window.showErrorMessage(errorMsg);
       throw new Error(errorMsg);
     }
-
+    const endTime = Date.now();
+    console.log(`total time of the pre built step took: ${endTime - startTime}`);
     await executeTask(
       'build',
       'STM32 build',
