@@ -35,6 +35,8 @@ import importAndSetupCubeIDEProject from './import';
 import { installBuildToolsCommand } from './buildTools/installTools';
 import { fsPathToPosix, getWorkspaceUri } from './Helpers';
 import * as path from 'path';
+import buildTest from './testing';
+import { getInfo } from './getInfo';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -50,17 +52,13 @@ export function activate(context: vscode.ExtensionContext): { installTools: () =
     vscode.commands.executeCommand('setContext', 'stm32ForVSCodeReady', true);
   });
 
-  vscode.commands.registerCommand('stm32-for-vscode.test-stat',
+  vscode.commands.registerCommand('stm32-for-vscode.build-tests',
     async () => {
-      try {
-        const workspaceUri = getWorkspaceUri();
-        if (!workspaceUri) return;
-        const filePath = path.join(fsPathToPosix(workspaceUri.fsPath), 'somenoneExistenFile');
-        const statResult = await vscode.workspace.fs.stat(vscode.Uri.file(filePath));
-        console.log(statResult);
-      } catch (error) {
-        console.error(error);
-      }
+      if (!vscode.workspace.workspaceFolders?.[0]) { return; }
+      const currentWorkspaceFolder = fsPathToPosix(vscode.workspace.workspaceFolders[0].uri.fsPath);
+
+      const info = await getInfo(currentWorkspaceFolder);
+      await buildTest(info);
     }
   );
 

@@ -74,7 +74,7 @@
 		],
 		"commands": [
 			{
-				"command": "stm32-for-vscode.test-stat",
+				"command": "stm32-for-vscode.build-tests",
 				"title": "STM32: Test stat"
 			},
 			{

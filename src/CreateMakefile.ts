@@ -159,6 +159,7 @@ OPT = -${makeInfo.optimization}
 #######################################
 # Build path
 BUILD_DIR = build
+OBJECT_DIR = $(BUILD_DIR)/objects
 
 ######################################
 # source
@@ -269,7 +270,7 @@ ${createStringList(makeInfo.libdir, '-L')}
 # Additional LD Flags from config file
 ADDITIONALLDFLAGS = ${createSingleLineStringList(makeInfo.ldFlags)}
 
-LDFLAGS = $(MCU) $(ADDITIONALLDFLAGS) -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+LDFLAGS = $(MCU) $(ADDITIONALLDFLAGS) -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(OBJECT_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
 
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
@@ -279,26 +280,26 @@ all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET
 # build the application
 #######################################
 # list of cpp program objects
-OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(CPP_SOURCES:.cpp=.o)))
+OBJECTS = $(addprefix $(OBJECT_DIR)/,$(notdir $(CPP_SOURCES:.cpp=.o)))
 vpath %.cpp $(sort $(dir $(CPP_SOURCES)))
 
 # list of C objects
-OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
+OBJECTS += $(addprefix $(OBJECT_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(C_SOURCES)))
 # list of ASM program objects
-OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
+OBJECTS += $(addprefix $(OBJECT_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
 vpath %.s $(sort $(dir $(ASM_SOURCES)))
 
-$(BUILD_DIR)/%.o: %.cpp ${makefileName} | $(BUILD_DIR) 
-\t$(CXX) -c $(CXXFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.cpp=.lst)) $< -o $@
+$(OBJECT_DIR)/%.o: %.cpp ${makefileName} | $(OBJECT_DIR) 
+\t$(CXX) -c $(CXXFLAGS) -Wa,-a,-ad,-alms=$(OBJECT_DIR)/$(notdir $(<:.cpp=.lst)) $< -o $@
 
-$(BUILD_DIR)/%.o: %.cxx ${makefileName} | $(BUILD_DIR) 
-\t$(CXX) -c $(CXXFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.cxx=.lst)) $< -o $@
+$(OBJECT_DIR)/%.o: %.cxx ${makefileName} | $(OBJECT_DIR) 
+\t$(CXX) -c $(CXXFLAGS) -Wa,-a,-ad,-alms=$(OBJECT_DIR)/$(notdir $(<:.cxx=.lst)) $< -o $@
 
-$(BUILD_DIR)/%.o: %.c ${makefileName} | $(BUILD_DIR) 
-\t$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
+$(OBJECT_DIR)/%.o: %.c ${makefileName} | $(OBJECT_DIR) 
+\t$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(OBJECT_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
 
-$(BUILD_DIR)/%.o: %.s ${makefileName} | $(BUILD_DIR)
+$(OBJECT_DIR)/%.o: %.s ${makefileName} | $(OBJECT_DIR)
 \t$(AS) -c $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) ${makefileName}
@@ -311,8 +312,12 @@ $(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 \t$(BIN) $< $@
 
-$(BUILD_DIR):
+$(BUILD_DIR): 
 \tmkdir $@
+
+$(OBJECT_DIR):
+\tmkdir $@
+
 
 #######################################
 # flash

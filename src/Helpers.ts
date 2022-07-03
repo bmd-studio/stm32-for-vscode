@@ -75,7 +75,7 @@ export async function checkIfFileExists(filePath: string): Promise<boolean> {
 }
 
 export async function checkIfFileExitsIfNotWrite(filePath: string, file: string): Promise<void> {
-  const hasFile = checkIfFileExists(filePath);
+  const hasFile = await checkIfFileExists(filePath);
   if (!hasFile) {
     await writeFile(filePath, file);
   }

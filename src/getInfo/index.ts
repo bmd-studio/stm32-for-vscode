@@ -151,11 +151,11 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   let filteredHeaderFiles = Micromatch.not(indiscriminateHeaderFileList, projectConfiguration.excludes);
 
   // TESTING
-  STM32MakeInfo.testInfo.sourceFiles = Micromatch(filteredSourceFiles, "**.test.(c|cc|cpp|cxx)");
-  STM32MakeInfo.testInfo.headerFiles = Micromatch(filteredHeaderFiles, "**.test.(h|hpp|hxx)");
+  STM32MakeInfo.testInfo.sourceFiles = Micromatch(filteredSourceFiles, "**/*.test.(c|cc|cpp|cxx)");
+  STM32MakeInfo.testInfo.headerFiles = Micromatch(filteredHeaderFiles, "**/*.test.(h|hpp|hxx)");
 
-  filteredSourceFiles = Micromatch.not(indiscriminateSourceFileList, "**.test.(c|cc|cpp|cxx)");
-  filteredHeaderFiles = Micromatch.not(indiscriminateHeaderFileList, "**.test.(h|hpp|hxx)");
+  filteredSourceFiles = Micromatch.not(indiscriminateSourceFileList, "**/*.test.(c|cc|cpp|cxx)");
+  filteredHeaderFiles = Micromatch.not(indiscriminateHeaderFileList, "**/*.test.(h|hpp|hxx)");
 
   const sortedSourceFiles = sortFiles(filteredSourceFiles);
   const includeDirectories = getIncludeDirectoriesFromFileList(filteredHeaderFiles);
