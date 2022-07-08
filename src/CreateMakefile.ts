@@ -316,7 +316,7 @@ $(BUILD_DIR):
 \tmkdir $@
 
 $(OBJECT_DIR):
-\tmkdir $@
+\tmkdir -p $@
 
 
 #######################################
