@@ -27,24 +27,26 @@
  * Created by Jort Band - Bureau Moeilijke Dingen
 */
 
+import * as Micromatch from 'micromatch';
 import * as OpenOCDConfigFile from '../configuration/openOCDConfig';
 import * as STM32ProjectConfiguration from '../configuration/stm32Config';
 import * as _ from 'lodash';
 import * as vscode from 'vscode';
+
 import MakeInfo, { ExtensionConfiguration } from '../types/MakeInfo';
 import {
   getHeaderFiles,
-  getSourceFiles,
-  sortFiles,
   getIncludeDirectoriesFromFileList,
-  getNonGlobIncludeDirectories
+  getNonGlobIncludeDirectories,
+  getSourceFiles,
+  sortFiles
 } from './getFiles';
 
+import {LIBRARIES_FOLDER} from '../testing/libariesFolder'
 import { OpenOCDConfiguration } from '../types/OpenOCDConfig';
 import { getBuildToolsFromSettings } from '../buildTools';
-import getMakefileInfo from './getCubeMakefileInfo';
-import * as Micromatch from 'micromatch';
 import getDefinitionsFromFiles from './getDotDefinitions';
+import getMakefileInfo from './getCubeMakefileInfo';
 
 /**
  * @description returns the location of a specific file in an array
@@ -153,6 +155,13 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   // TESTING
   STM32MakeInfo.testInfo.sourceFiles = Micromatch(filteredSourceFiles, "**/*.test.(c|cc|cpp|cxx)");
   STM32MakeInfo.testInfo.headerFiles = Micromatch(filteredHeaderFiles, "**/*.test.(h|hpp|hxx)");
+
+  const libraryFolderSourceFiles = Micromatch(filteredSourceFiles, `${LIBRARIES_FOLDER}/(**|**/**).(c|cc|cpp|cxx)`);
+  const libraryFolderHeaderFiles = Micromatch(filteredSourceFiles, `${LIBRARIES_FOLDER}/(**|**/**).(h|hpp|hxx)`);
+  
+  STM32MakeInfo.testInfo.sourceFiles = _.uniq(STM32MakeInfo.testInfo.sourceFiles.concat(libraryFolderSourceFiles));
+  STM32MakeInfo.testInfo.headerFiles = _.uniq(STM32MakeInfo.testInfo.headerFiles.concat(libraryFolderHeaderFiles));
+  STM32MakeInfo.testInfo.headerFiles = _.uniq(getIncludeDirectoriesFromFileList(STM32MakeInfo.testInfo.headerFiles));
 
   filteredSourceFiles = Micromatch.not(indiscriminateSourceFileList, "**/*.test.(c|cc|cpp|cxx)");
   filteredHeaderFiles = Micromatch.not(indiscriminateHeaderFileList, "**/*.test.(h|hpp|hxx)");

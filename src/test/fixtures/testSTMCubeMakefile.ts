@@ -108,6 +108,11 @@ export const testMakefileInfo: MakeInfo = {
   cxxFlags: [],
   optimization: 'Og',
   customMakefileRules: undefined,
+  testInfo: {
+    flags: [],
+    sourceFiles: [],
+    headerFiles: []
+  }
 };
 
 export const stm32ForVSCodeResult = `##########################################################################################################################

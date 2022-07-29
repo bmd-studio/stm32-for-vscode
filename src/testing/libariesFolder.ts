@@ -1,10 +1,10 @@
+import { Uri, window, workspace } from 'vscode';
+import { checkIfFileExists, checkIfFileExitsIfNotWrite, fsPathToPosix, getWorkspaceUri } from '../Helpers';
 
-import { checkIfFileExists, fsPathToPosix, getWorkspaceUri, checkIfFileExitsIfNotWrite } from '../Helpers';
 import { join } from 'path';
-import { workspace, Uri, window } from 'vscode';
 import libraryReadme from './libraryReadme';
 
-const LIBRARIES_FOLDER = 'libraries';
+export const LIBRARIES_FOLDER = 'libraries';
 const LIBRARY_README_PATH = `${LIBRARIES_FOLDER}/README.md`;
 
 export default async function setupLibrariesFolder(): Promise<void> {

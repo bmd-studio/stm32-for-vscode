@@ -1,16 +1,23 @@
-import axios from 'axios';
-import { checkIfFileExists, checkIfFileExitsIfNotWrite, fsPathToPosix, getWorkspaceUri } from '../Helpers';
 import * as path from 'path';
+
+import { Uri, window, workspace } from 'vscode';
+import { checkIfFileExists, checkIfFileExitsIfNotWrite, fsPathToPosix, getWorkspaceUri, writeFileInWorkspace } from '../Helpers';
+
 import MakeInfo from '../types/MakeInfo';
+import axios from 'axios';
+import executeTask from '../HandleTasks';
+import setupLibrariesFolder from './libariesFolder';
+import testsReadmeMD from './testsMapReadme';
+
 const DOCTEST_FILE_URL = "https://raw.githubusercontent.com/doctest/doctest/master/doctest/doctest.h";
 const TEST_MAP = "tests";
 const DOCTEST_FOLDER = `${TEST_MAP}/doctest`;
 const DOCTEST_PATH = `${DOCTEST_FOLDER}/doctest.h`;
 const TEST_README_PATH = `${TEST_MAP}/README.md`;
-import executeTask from '../HandleTasks';
-import setupLibrariesFolder from './libariesFolder';
-import { workspace, Uri, window } from 'vscode';
-import testsReadmeMD from './testsMapReadme';
+const TEST_MAKEFILE_PATH = 'unit-tests.make';
+
+
+// TODO: implement a new configuration for intellisense for testing
 
 
 
@@ -62,22 +69,85 @@ export default async function buildTest(info: MakeInfo): Promise<void> {
   }
 
 
-  const filteredSourcesFiles = info.cSources.filter(
-    (entry) => !(entry.includes('main.c') || entry.toLowerCase().includes('stm32'))
-  );
-  const filteredHeaderFiles = info.cIncludes.filter(
-    (includePath) => !(includePath.includes('Middlewares') || includePath.includes('Drivers'))
-  );
-
-
-  const testSourceFiles = filteredSourcesFiles.concat(info.testInfo.sourceFiles);
-  const testHeaderFiles = filteredHeaderFiles.concat(info.testInfo.headerFiles);
-
-  const sourceFileListString = testSourceFiles.join(' ');
-  let testHeaderFilesListString = testHeaderFiles.map((headerDir) => `-I${headerDir}`).join(' ');
+  const sourceFileListString = info.testInfo.sourceFiles.join(' ');
+  let testHeaderFilesListString = info.testInfo.headerFiles.map((headerDir) => `-I${headerDir}`).join(' ');
   testHeaderFilesListString += ` -I${TEST_MAP}`;
+  testHeaderFilesListString += ` -I${DOCTEST_FOLDER}`;
+
+  const testMakefilePath = path.join(fsPathToPosix(workspacUri.fsPath), TEST_MAKEFILE_PATH);
+  await writeFileInWorkspace(workspacUri, TEST_MAKEFILE_PATH, createTestMakefile(info));
 
 
-  const buildCommand = `${sourceFileListString} ${testHeaderFilesListString} -DTEST -o unitTests`;
-  await executeTask('build', 'build test', ['g++', buildCommand], {}, 'gcc');
+  // TODO: Add default flags in the config yaml.
+  const buildCommand = 
+  `${sourceFileListString} ${testHeaderFilesListString} -DTEST -DDOCTEST_CONFIG_IMPLEMENT_WITH_MAIN -o unitTests`;
+  await executeTask('build', 'build test', ['make', '-f', TEST_MAKEFILE_PATH], {}, 'gcc');
 }
+
+
+// FIXME: add .exe to windows 
+function createTestMakefile(info: MakeInfo): string {
+  const testMakefile =
+  `
+######################################
+# target
+######################################
+TARGET = ${info.target}-unit-tests
+
+#######################################
+# paths
+#######################################
+# Build path
+BUILD_DIR = build/tests
+OBJECT_DIR = $(BUILD_DIR)/objects
+  
+C_SOURCES = ${info.testInfo.sourceFiles.join(' ')}
+C_INCLUDES = ${info.testInfo.headerFiles.concat([TEST_MAP, DOCTEST_FOLDER]).map(((headerDir) => `-I${headerDir}`)).join(' ')}
+LIBS = -lc -lm -lnosys 
+LIBDIR = 
+
+
+C_DEFINITIONS = -DTEST -DDOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+C_FLAGS = -Wall -fdata-sections -ffunction-sections 
+LDFLAGS = $(LIBDIR) $(LIBS) -Wl,-Map=$(OBJECT_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+
+#######################################
+# Compiler
+#######################################
+CXX = g++
+
+# default action: build all
+all: $(BUILD_DIR)/$(TARGET)
+
+OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
+vpath %.c $(sort $(dir $(C_SOURCES)))
+
+OBJECTS = $(addprefix $(OBJECT_DIR)/,$(notdir $(C_SOURCES:.cpp=.o)))
+vpath %.cpp $(sort $(dir $(C_SOURCES)))
+
+
+$(OBJECT_DIR)/%.o: %.c ${TEST_MAKEFILE_PATH} | $(OBJECT_DIR) 
+	$(CXX) -c $(C_FLAGS) $(C_INCLUDES) $< -o $@
+
+$(OBJECT_DIR)/%.o: %.cpp ${TEST_MAKEFILE_PATH} | $(OBJECT_DIR) 
+	$(CXX) -c $(C_FLAGS) $(C_INCLUDES) -std=c++20 $< -o $@
+
+$(OBJECT_DIR)/%.o: %.cxx ${TEST_MAKEFILE_PATH} | $(OBJECT_DIR) 
+	$(CXX) -c $(C_FLAGS) $(C_INCLUDES) $< -o $@
+
+$(BUILD_DIR)/$(TARGET): $(OBJECTS) ${TEST_MAKEFILE_PATH}
+	$(CXX) $(OBJECTS) $(LDFLAGS) -o $@
+
+$(BUILD_DIR): 
+	mkdir $@
+
+$(OBJECT_DIR):
+	mkdir -p $@
+
+#######################################
+# dependencies
+#######################################
+-include $(wildcard $(BUILD_DIR)/*.d)
+`;
+  return testMakefile;
+} 

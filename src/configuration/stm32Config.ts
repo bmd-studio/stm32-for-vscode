@@ -4,10 +4,12 @@ import * as _ from 'lodash';
 import * as path from 'path';
 import * as vscode from 'vscode';
 
-import { EXTENSION_CONFIG_NAME } from '../Definitions';
 import { ExtensionConfiguration, ExtensionConfigurationInterface } from '../types/MakeInfo';
 
-const DEFAULT_SOURCES = ['Src/**', 'Core/Src/**', 'Core/Lib/**'];
+import { EXTENSION_CONFIG_NAME } from '../Definitions';
+import {LIBRARIES_FOLDER} from '../testing/libariesFolder';
+
+const DEFAULT_SOURCES = ['Src/**', 'Core/Src/**', 'Core/Lib/**', `${LIBRARIES_FOLDER}/**`];
 const DEFAULT_INCLUDES = ['Inc/**', 'Core/Inc/**', 'Core/Lib/**'].concat(DEFAULT_SOURCES);
 
 /**
