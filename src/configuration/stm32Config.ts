@@ -7,9 +7,9 @@ import * as vscode from 'vscode';
 import { ExtensionConfiguration, ExtensionConfigurationInterface } from '../types/MakeInfo';
 
 import { EXTENSION_CONFIG_NAME } from '../Definitions';
-import {LIBRARIES_FOLDER} from '../testing/libariesFolder';
+import {MODULES_FOLDER} from '../testing/modulesFolder';
 
-const DEFAULT_SOURCES = ['Src/**', 'Core/Src/**', 'Core/Lib/**', `${LIBRARIES_FOLDER}/**`];
+const DEFAULT_SOURCES = ['Src/**', 'Core/Src/**', 'Core/Lib/**', `${MODULES_FOLDER}/**`];
 const DEFAULT_INCLUDES = ['Inc/**', 'Core/Inc/**', 'Core/Lib/**'].concat(DEFAULT_SOURCES);
 
 /**

@@ -13,11 +13,14 @@ export interface ToolChainInterface {
   armToolchainPath: string | boolean;
 }
 
-export interface BuildFilesInterface {
-  cIncludes: string[];
+export interface SourceFiles {
   cSources: string[];
   cxxSources: string[];
   asmSources: string[];
+}
+
+export interface BuildFilesInterface extends SourceFiles {
+  cIncludes: string[];
   libs: string[];
   libdir: string[];
 }
@@ -87,8 +90,7 @@ export class Libraries implements LibrariesInterface {
   public libraries: string[] = [];
   public libraryDirectories: string[] = [];
 }
-export interface TestInfoInterface {
-  sourceFiles: string[];
+export interface TestInfoInterface extends SourceFiles {
   flags: string[];
   headerFiles: string[];
 }
@@ -225,7 +227,9 @@ export default class MakeInfo implements MakeInfoInterface {
   public customMakefileRules: CustomMakefileRulesInterface[] | undefined = undefined;
   public testInfo: TestInfoInterface = {
     flags: [],
-    sourceFiles: [],
+    cSources: [],
+    asmSources: [],
+    cxxSources: [],
     headerFiles: [],
   };
 }

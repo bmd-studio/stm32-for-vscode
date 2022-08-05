@@ -6,7 +6,7 @@ import { checkIfFileExists, checkIfFileExitsIfNotWrite, fsPathToPosix, getWorksp
 import MakeInfo from '../types/MakeInfo';
 import axios from 'axios';
 import executeTask from '../HandleTasks';
-import setupLibrariesFolder from './libariesFolder';
+import setupLibrariesFolder from './modulesFolder';
 import testsReadmeMD from './testsMapReadme';
 
 const DOCTEST_FILE_URL = "https://raw.githubusercontent.com/doctest/doctest/master/doctest/doctest.h";
@@ -68,8 +68,9 @@ export default async function buildTest(info: MakeInfo): Promise<void> {
     return;
   }
 
-
-  const sourceFileListString = info.testInfo.sourceFiles.join(' ');
+  let sourceFileListString = 
+    `${info.testInfo.cSources.join(' ')} ${info.testInfo.cxxSources.join(' ')} ${info.testInfo.asmSources.join(' ')}`;
+  
   let testHeaderFilesListString = info.testInfo.headerFiles.map((headerDir) => `-I${headerDir}`).join(' ');
   testHeaderFilesListString += ` -I${TEST_MAP}`;
   testHeaderFilesListString += ` -I${DOCTEST_FOLDER}`;
