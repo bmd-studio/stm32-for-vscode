@@ -4,7 +4,7 @@ import { checkIfFileExists, checkIfFileExitsIfNotWrite, fsPathToPosix, getWorksp
 import { join } from 'path';
 import libraryReadme from './modulesReadme';
 
-export const MODULES_FOLDER = 'libraries';
+export const MODULES_FOLDER = 'modules';
 const MODULES_README_PATH = `${MODULES_FOLDER}/README.md`;
 
 export default async function setupModulesFolder(): Promise<void> {

@@ -30,7 +30,9 @@ export function newMakeInfo(info: Partial<MakeInfo>): MakeInfo {
     customMakefileRules: undefined,
     testInfo: {
       flags: [],
-      sourceFiles: [],
+      cSources: [],
+      cxxSources: [],
+      asmSources: [],
       headerFiles: []
     }
   };

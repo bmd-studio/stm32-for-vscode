@@ -86,7 +86,11 @@ export default async function buildTest(info: MakeInfo): Promise<void> {
 }
 
 
-// FIXME: add .exe to windows 
+
+// function getFilteredLibraries(info: MakeInfo)
+
+// FIXME: add .exe to windows
+// TODO: add assembly support and test it
 function createTestMakefile(info: MakeInfo): string {
   const testMakefile =
   `
@@ -102,15 +106,17 @@ TARGET = ${info.target}-unit-tests
 BUILD_DIR = build/tests
 OBJECT_DIR = $(BUILD_DIR)/objects
   
-C_SOURCES = ${info.testInfo.sourceFiles.join(' ')}
+C_SOURCES = ${info.testInfo.cSources.join(' ')}
+CXX_SOURCES = ${info.testInfo.cxxSources.join(' ')}
+ASM_SOURCES = ${info.testInfo.asmSources.join(' ')}
 C_INCLUDES = ${info.testInfo.headerFiles.concat([TEST_MAP, DOCTEST_FOLDER]).map(((headerDir) => `-I${headerDir}`)).join(' ')}
-LIBS = -lc -lm -lnosys 
+LIBS = -lc -lm 
 LIBDIR = 
 
 
 C_DEFINITIONS = -DTEST -DDOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-C_FLAGS = -Wall -fdata-sections -ffunction-sections 
-LDFLAGS = $(LIBDIR) $(LIBS) -Wl,-Map=$(OBJECT_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+C_FLAGS = $(C_DEFINITIONS) -Wall -fdata-sections -ffunction-sections 
+LDFLAGS = $(LIBDIR) $(LIBS) $(C_DEFINITIONS)
 
 #######################################
 # Compiler
@@ -123,9 +129,11 @@ all: $(BUILD_DIR)/$(TARGET)
 OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(C_SOURCES)))
 
-OBJECTS = $(addprefix $(OBJECT_DIR)/,$(notdir $(C_SOURCES:.cpp=.o)))
-vpath %.cpp $(sort $(dir $(C_SOURCES)))
+OBJECTS += $(addprefix $(OBJECT_DIR)/,$(notdir $(CXX_SOURCES:.cpp=.o)))
+vpath %.cpp $(sort $(dir $(CXX_SOURCES)))
 
+OBJECTS += $(addprefix $(OBJECT_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
+vpath %.s $(sort $(dir $(ASM_SOURCES)))
 
 $(OBJECT_DIR)/%.o: %.c ${TEST_MAKEFILE_PATH} | $(OBJECT_DIR) 
 	$(CXX) -c $(C_FLAGS) $(C_INCLUDES) $< -o $@
@@ -133,11 +141,14 @@ $(OBJECT_DIR)/%.o: %.c ${TEST_MAKEFILE_PATH} | $(OBJECT_DIR)
 $(OBJECT_DIR)/%.o: %.cpp ${TEST_MAKEFILE_PATH} | $(OBJECT_DIR) 
 	$(CXX) -c $(C_FLAGS) $(C_INCLUDES) -std=c++20 $< -o $@
 
+$(OBJECT_DIR)/%.o: %.s ${TEST_MAKEFILE_PATH} | $(OBJECT_DIR) 
+	$(CXX) -c $(C_FLAGS) $(C_INCLUDES) -std=c++20 $< -o $@
+
 $(OBJECT_DIR)/%.o: %.cxx ${TEST_MAKEFILE_PATH} | $(OBJECT_DIR) 
 	$(CXX) -c $(C_FLAGS) $(C_INCLUDES) $< -o $@
 
 $(BUILD_DIR)/$(TARGET): $(OBJECTS) ${TEST_MAKEFILE_PATH}
-	$(CXX) $(OBJECTS) $(LDFLAGS) -o $@
+	$(CXX) $(OBJECTS) $(LDFLAGS)  -o $@
 
 $(BUILD_DIR): 
 	mkdir $@
@@ -148,7 +159,7 @@ $(OBJECT_DIR):
 #######################################
 # dependencies
 #######################################
--include $(wildcard $(BUILD_DIR)/*.d)
+-include $(wildcard $(OBJECT_DIR)/*.d)
 `;
   return testMakefile;
 } 

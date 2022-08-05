@@ -110,7 +110,9 @@ export const testMakefileInfo: MakeInfo = {
   customMakefileRules: undefined,
   testInfo: {
     flags: [],
-    sourceFiles: [],
+    cSources: [],
+    cxxSources: [],
+    asmSources: [],
     headerFiles: []
   }
 };

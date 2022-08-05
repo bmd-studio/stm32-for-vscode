@@ -113,7 +113,7 @@ type MakeInfoSourcesAndHeaders = Pick<MakeInfo,"cIncludes"| "cSources" | "cxxSou
 async function getAllSourcesAndHeaders(
   makeInfo: MakeInfo,
   projectConfiguration: ExtensionConfiguration 
-  ): Promise<MakeInfoSourcesAndHeaders> {
+): Promise<MakeInfoSourcesAndHeaders> {
   const combinedSourceFiles = _.concat(
     projectConfiguration.sourceFiles,
     makeInfo.cxxSources,
@@ -196,7 +196,7 @@ function extractTestFiles(fileList: string[]): TestFileAndBuildFileLists {
 function filterTestFilesAndHeaders(sourcesAndHeaders: MakeInfoSourcesAndHeaders): TestFilesAndBuildFiles {
   type KeysArray = Array<keyof MakeInfoSourcesAndHeaders>;
   const keys: KeysArray = Object.keys(sourcesAndHeaders) as KeysArray;  
-  const result:TestFilesAndBuildFiles = {} as TestFilesAndBuildFiles;
+  const result:TestFilesAndBuildFiles = {test: {}, build: {}} as TestFilesAndBuildFiles;
   
   keys.forEach((key) => {
     const extractedFiles = extractTestFiles(sourcesAndHeaders[key]);
@@ -306,6 +306,7 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   sourceFileKeys.forEach((key) => {
     STM32MakeInfo.testInfo[key] = moduleSources[key].concat(filteredTestAndHeaderFiles.test[key]);
   });
+  
   
 
   // libraries
