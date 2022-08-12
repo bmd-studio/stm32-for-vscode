@@ -9,7 +9,7 @@ import {
   checkSettingsPathValidity,
   checkToolchainPathForTool,
   validateArmToolchainPath,
-  validateXPMToolchainPath
+  validateXPMToolchainPath,
 } from './extensionToolchainHelpers';
 
 import { ToolChain } from '../types/MakeInfo';
@@ -19,13 +19,13 @@ import { getExtensionSettings } from '../getInfo/getSettings';
  * The steps for validating the toolchain are as follows
  * 1. Check settings paths
  * 2. Check for automatically installed tools by STM32 for VSCode
- * 3. Check the pre-installed tool paths 
+ * 3. Check the pre-installed tool paths
 */
 /**
  * Function for retrieving the settings and checking if the build tools are valid.
  */
 export function checkSettingsForBuildTools(): ToolChain {
-  const settingsToolchain = new ToolChain();  // has standard all paths to false
+  const settingsToolchain = new ToolChain(); // has standard all paths to false
   const settings = getExtensionSettings();
   // arm none eabi
   if (checkSettingsPathValidity(settings.armToolchainPath)) {
@@ -64,13 +64,12 @@ export function compareAndUpdateMissingBuildTools(startSettings: ToolChain, addi
   return newSettings;
 }
 
-
 /**
  * Checks if the setting is already there and if not tries to check pre installed locations
- * @param settingsToolchain 
+ * @param settingsToolchain
  */
 export async function checkAutomaticallyInstalledBuildTools(
-  toolsStoragePath: vscode.Uri
+  toolsStoragePath: vscode.Uri,
 ): Promise<ToolChain> {
   const installedBuildTools = new ToolChain();
   // arm none eabi

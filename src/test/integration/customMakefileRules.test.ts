@@ -1,11 +1,13 @@
 import * as vscode from 'vscode';
 import { execSync } from 'child_process';
 import {
+  afterEach, beforeEach, suite, test,
+} from 'mocha';
+import {
   addTestToolSettingsToWorkspace,
   cleanUpSTM32ForVSCodeArtifacts,
-  waitForWorkspaceFoldersChange
+  waitForWorkspaceFoldersChange,
 } from '../helpers';
-import { afterEach, beforeEach, suite, test } from 'mocha';
 
 import buildSTM from '../../BuildTask';
 import { getConfigFileFromWorkspace } from '../../configuration/stm32Config';
@@ -39,11 +41,11 @@ customMakefileRules:
     await Helpers.writeFileInWorkspace(workspaceFolderUri, EXTENSION_CONFIG_NAME, stm32ConfigFile);
     await buildSTM();
 
-    execSync('make -f STM32Make.make sayhello',
+    execSync(
+      'make -f STM32Make.make sayhello',
       {
-        cwd: vscode.workspace.workspaceFolders?.[0].uri.fsPath
-      }
+        cwd: vscode.workspace.workspaceFolders?.[0].uri.fsPath,
+      },
     );
-
   }).timeout(120000);
 });

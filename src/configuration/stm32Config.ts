@@ -1,20 +1,20 @@
-import * as Helpers from '../Helpers';
 import * as YAML from 'yaml';
 import * as _ from 'lodash';
 import * as path from 'path';
 import * as vscode from 'vscode';
+import * as Helpers from '../Helpers';
 
 import { ExtensionConfiguration, ExtensionConfigurationInterface } from '../types/MakeInfo';
 
 import { EXTENSION_CONFIG_NAME } from '../Definitions';
-import {MODULES_FOLDER} from '../testing/modulesFolder';
+import { MODULES_FOLDER } from '../testing/modulesFolder';
 
 const DEFAULT_SOURCES = ['Src/**', 'Core/Src/**', 'Core/Lib/**', `${MODULES_FOLDER}/**`];
 const DEFAULT_INCLUDES = ['Inc/**', 'Core/Inc/**', 'Core/Lib/**'].concat(DEFAULT_SOURCES);
 
 /**
  * Converts arrays of string into indented - value\n lists to adhere to YAML formatting
- * @note If an empty array is padded, "[]" will be outputted. 
+ * @note If an empty array is padded, "[]" will be outputted.
  * @param info the array of string to be converted
  */
 export function createYamlArray(info: string[]): string {
@@ -118,8 +118,6 @@ customMakefileRules:
   );
 }
 
-
-
 export async function writeConfigFile(config: ExtensionConfiguration): Promise<void> {
   const configFile = createConfigFile(config);
   const workspaceFolderUri = Helpers.getWorkspaceUri();
@@ -128,7 +126,7 @@ export async function writeConfigFile(config: ExtensionConfiguration): Promise<v
 }
 
 /**
- * 
+ *
  * @param config The STM32 for VScode Extension configuration
  */
 export async function writeDefaultConfigFile(config: ExtensionConfiguration): Promise<ExtensionConfiguration> {
@@ -137,7 +135,7 @@ export async function writeDefaultConfigFile(config: ExtensionConfiguration): Pr
   configFileWithAddedDefaults.sourceFiles = _.concat(configFileWithAddedDefaults.sourceFiles, DEFAULT_SOURCES);
   configFileWithAddedDefaults.includeDirectories = _.concat(
     configFileWithAddedDefaults.includeDirectories,
-    DEFAULT_INCLUDES
+    DEFAULT_INCLUDES,
   );
   await writeConfigFile(configFileWithAddedDefaults);
   return configFileWithAddedDefaults;
@@ -184,7 +182,7 @@ export async function readConfigFile(): Promise<ExtensionConfiguration> {
 /**
  * Read the STM32 for VSCOde configuration file, creates one when none is present.
  * @note When a corrupt file is present it will return the passed configuration.
- * @param config: This should be a standard configuration file with information from the Makefile added 
+ * @param config: This should be a standard configuration file with information from the Makefile added
  */
 export async function readOrCreateConfigFile(config: ExtensionConfiguration): Promise<ExtensionConfiguration> {
   const workspaceFolderUri = Helpers.getWorkspaceUri();
@@ -197,7 +195,7 @@ export async function readOrCreateConfigFile(config: ExtensionConfiguration): Pr
     const { message } = err as Error;
     if (message === PARSE_YAML_ERROR_MESSAGE) {
       vscode.window.showErrorMessage(
-        `Could not parse: ${EXTENSION_CONFIG_NAME}, please check for Errors or delete it so it can be regenerated`
+        `Could not parse: ${EXTENSION_CONFIG_NAME}, please check for Errors or delete it so it can be regenerated`,
       );
       return config; // returns the standard configuration
     }
@@ -211,5 +209,4 @@ export async function readOrCreateConfigFile(config: ExtensionConfiguration): Pr
     vscode.window.showErrorMessage(`Something went wrong with writing the configuration file: ${err}`);
   }
   return config;
-
 }

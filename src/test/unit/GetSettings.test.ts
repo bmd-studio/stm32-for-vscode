@@ -1,12 +1,12 @@
 import * as Sinon from 'sinon';
 import * as _ from 'lodash';
 
-import { Stm32SettingsInterface, ToolChain } from '../../types/MakeInfo';
 import { afterEach, suite, test } from 'mocha';
 
 import { expect } from 'chai';
-import { getExtensionSettings } from '../../getInfo/getSettings';
 import { workspace, WorkspaceConfiguration } from 'vscode';
+import { getExtensionSettings } from '../../getInfo/getSettings';
+import { Stm32SettingsInterface, ToolChain } from '../../types/MakeInfo';
 
 // class MockConfig {
 //   public constructor(options?: object) {
@@ -24,8 +24,6 @@ import { workspace, WorkspaceConfiguration } from 'vscode';
 interface MockWorkspaceConfig extends Stm32SettingsInterface {
   get: (key: string) => string;
 }
-
-
 
 function mockConfig(options?: object): MockWorkspaceConfig {
   const defaultToolchain = new ToolChain();

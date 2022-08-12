@@ -1,16 +1,15 @@
 import * as Sinon from 'sinon';
 import * as vscode from 'vscode';
 
+import { afterEach, beforeEach } from 'mocha';
+import { expect } from 'chai';
 import {
   XPMToolVersion,
   compareVersions,
   getNewestToolchainVersion,
   isVersionFile,
-  parseXPMVersionNumbers
+  parseXPMVersionNumbers,
 } from '../../../buildTools/extensionToolchainHelpers';
-
-import { afterEach, beforeEach } from 'mocha';
-import { expect } from 'chai';
 import { openocdDefinition } from '../../../buildTools/toolChainDefinitions';
 
 import { makeFSOverWritable } from '../../helpers/fsOverwriteFunctions';
@@ -107,5 +106,4 @@ suite('Extension Toolchain Helpers', () => {
     Sinon.replace(vscode.workspace.fs, 'readDirectory', fakeReadDirectory);
     expect(getNewestToolchainVersion(openocdDefinition, 'pathIsNotRead')).to.eventually.Throw();
   });
-
 });

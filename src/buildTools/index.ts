@@ -13,8 +13,8 @@ import { which } from 'shelljs';
 export function setCortexDebugSettingsInWorkspace(tools: ToolChain): void {
   const cortexDebugSetting = vscode.workspace.getConfiguration('cortex-debug');
   if (
-    cortexDebugSetting.get('armToolchainPath') &&
-    cortexDebugSetting.get('armToolchainPath') !== tools.armToolchainPath
+    cortexDebugSetting.get('armToolchainPath')
+    && cortexDebugSetting.get('armToolchainPath') !== tools.armToolchainPath
   ) {
     cortexDebugSetting.update('armToolchainPath', tools.armToolchainPath, vscode.ConfigurationTarget.Workspace);
   }
@@ -23,10 +23,8 @@ export function setCortexDebugSettingsInWorkspace(tools: ToolChain): void {
   }
 }
 
-
-
 /**
- * Checks build tools and updates settings accordingly. Priority of assignment is: 
+ * Checks build tools and updates settings accordingly. Priority of assignment is:
  * highest: build tools in setting,
  * mid: build tools installed by the extension
  * low: build tools in path
@@ -36,13 +34,12 @@ export async function checkBuildTools(context: vscode.ExtensionContext): Promise
   const settingBuildTools = toolChainValidation.checkSettingsForBuildTools();
   const pathBuildTools = toolChainValidation.checkBuildToolsInPath();
   const extensionInstalledTools = await toolChainValidation.checkAutomaticallyInstalledBuildTools(
-    context.globalStorageUri
+    context.globalStorageUri,
   );
-
 
   let finalBuildTools = toolChainValidation.compareAndUpdateMissingBuildTools(
     settingBuildTools,
-    extensionInstalledTools
+    extensionInstalledTools,
   );
   finalBuildTools = toolChainValidation.compareAndUpdateMissingBuildTools(finalBuildTools, pathBuildTools);
 
@@ -64,8 +61,11 @@ export async function checkBuildTools(context: vscode.ExtensionContext): Promise
   if (vscode?.workspace?.workspaceFolders?.[0]) {
     const localSettingsPath = path.join(vscode.workspace.workspaceFolders[0].uri.fsPath, '.vscode', 'settings.json');
 
-    const localExtensionSettings =
-      vscode.workspace.getConfiguration('stm32-for-vscode', vscode.Uri.file(localSettingsPath));
+    const localExtensionSettings = vscode.workspace.getConfiguration(
+      'stm32-for-vscode',
+      vscode.Uri.file(localSettingsPath)
+    );
+    
     _.forEach(finalBuildTools, (toolPath, key) => {
       const localPath = localExtensionSettings.get(key);
       if (localPath === undefined) { return; }
@@ -81,19 +81,16 @@ export async function checkBuildTools(context: vscode.ExtensionContext): Promise
 
   await Promise.all(localUpdatePromises);
 
-
   // check if all relevant build tools are present. If not a menu should be shown, where the user
   // has the option to install the build tools automatically
   const hasBuildTools = toolChainValidation.hasRelevantBuildTools(finalBuildTools);
 
   context.globalState.update('hasBuildTools', hasBuildTools);
   if (hasBuildTools) {
-
     setCortexDebugSettingsInWorkspace(finalBuildTools);
   }
   return Promise.resolve(hasBuildTools);
 }
-
 
 export function getBuildToolsFromSettings(): ToolChain {
   const extensionSettings = vscode.workspace.getConfiguration('stm32-for-vscode');
@@ -103,4 +100,3 @@ export function getBuildToolsFromSettings(): ToolChain {
   });
   return toolChain;
 }
-

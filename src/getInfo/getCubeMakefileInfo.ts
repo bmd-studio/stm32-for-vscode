@@ -2,17 +2,17 @@
 * MIT License
 *
 * Copyright (c) 2020 Bureau Moeilijke Dingen
-* 
+*
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
 * in the Software without restriction, including without limitation the rights
 * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 * copies of the Software, and to permit persons to whom the Software is
 * furnished to do so, subject to the following conditions:
-* 
+*
 * The above copyright notice and this permission notice shall be included in all
 * copies or substantial portions of the Software.
-* 
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -63,7 +63,7 @@ export function extractSingleLineInfo(name: string, makefile: string): string {
   const newPatt = new RegExp(`${name}\\s=\\s(.*)`, 'gmi');
   const newRes = newPatt.exec(makefile);
   const result = _.last(newRes);
-  return result ? result : '';
+  return result || '';
 }
 /**
  * @description Extracts multiline info from a makefile
@@ -112,9 +112,9 @@ export function extractLibs(makefile: string): string[] {
 }
 
 /**
- * @description - Extracts the build specification from the makefile e.g nosys.specs  
+ * @description - Extracts the build specification from the makefile e.g nosys.specs
  * @param makefile  - A string representation of the Makefile
- * @returns 
+ * @returns
  */
 export function extractBuildSpecification(makefile: string): string {
   const specRegex = /(?:\s-specs=)(\w+\.\w+)/;
@@ -131,9 +131,7 @@ export function extractBuildSpecification(makefile: string): string {
  * @param prefix the prefix to be removed e.g. -I
  */
 export function removePrefixes(information: string[], prefix: string): string[] {
-  const output = information.map((entry) => {
-    return entry.replace(new RegExp("^\\s*" + prefix), '');
-  });
+  const output = information.map((entry) => entry.replace(new RegExp(`^\\s*${prefix}`), ''));
   return output;
 }
 
@@ -189,10 +187,8 @@ export function extractMakefileInfo(makefile: string): MakeInfo {
     output.ldFlags.push(specification);
   }
 
-
   // get the targetSTM separately as we need the cSources
   output.targetMCU = getTargetSTM(output.cSources);
-
 
   // remove prefixes.
   output.floatAbi = removePrefixes([output.floatAbi], '--mfloat-abi=')[0];

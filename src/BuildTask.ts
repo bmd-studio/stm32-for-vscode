@@ -28,15 +28,15 @@
 import * as path from 'path';
 
 import {
+  Uri,
+  window,
+  workspace,
+} from 'vscode';
+import {
   EXTENSION_CONFIG_NAME,
   makefileName,
 } from './Definitions';
 import MakeInfo, { ExtensionConfiguration } from './types/MakeInfo';
-import {
-  Uri,
-  window,
-  workspace
-} from 'vscode';
 import { cpus, targetsMCUs } from './configuration/ConfigInfo';
 
 import { checkForRequiredFiles } from './getInfo/getFiles';
@@ -50,7 +50,7 @@ import updateMakefile from './UpdateMakefile';
 import { writeConfigFile } from './configuration/stm32Config';
 
 /**
- * Checks if the language is C++ and that there is no main.cpp present. 
+ * Checks if the language is C++ and that there is no main.cpp present.
  * If so it will output the main.cpp in the build folder, so it can be used for compilation.
  * @param info makefile info
  */
@@ -66,7 +66,7 @@ async function checkForMainCPPOrAddWhenNecessary(info: MakeInfo): Promise<MakeIn
     const hasCXXMain = (info.cxxSources.findIndex(
       (file) => (
         file.includes('main.cpp') || file.includes('main.cxx')
-      )
+      ),
     ) >= 0);
 
     if (hasCMain && !hasCXXMain) {
@@ -98,9 +98,7 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
   }
   // check for makefiles
   const rootFileList = await workspace.fs.readDirectory(workspace.workspaceFolders[0].uri);
-  const filesInDir: string[] = rootFileList.map((entry) => {
-    return entry[0];
-  });
+  const filesInDir: string[] = rootFileList.map((entry) => entry[0]);
   const requiredFilesInDir = checkForRequiredFiles(filesInDir);
   let makefileIsPresent = false;
   let configFileIsPresent = false;
@@ -117,7 +115,7 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
       // eslint-disable-next-line max-len
       'Makefile was not found. If using CubeMX please select generate makefile under:Project Manager>Project/Toolchain IDE. Or do you want to generate a blank stm32-config-yaml file, so a custom project can be configured?',
       'Cancel',
-      'Generate config file'
+      'Generate config file',
     );
     if (response === 'Generate config file') {
       const targetMCU = await window.showQuickPick(targetsMCUs, {
@@ -128,7 +126,7 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
       });
       const ldScript = await window.showInputBox({
         title: 'linker script',
-        prompt: 'please enter the name/path to the linker script'
+        prompt: 'please enter the name/path to the linker script',
       });
       const standardConfig: ExtensionConfiguration = new ExtensionConfiguration();
       if (targetMCU) {
@@ -159,10 +157,10 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
           [
             `${info.tools.makePath}`,
             makeArguments,
-            `clean`
+            'clean',
           ],
           {},
-          "$gcc"
+          '$gcc',
         );
       } catch (err) {
         const errorMsg = `Something went wrong with cleaning the build. Still are going to proceed to building.
@@ -190,10 +188,10 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
       [
         `${info.tools.makePath}`,
         makeArguments,
-        `${flash ? ' flash' : ''}`
+        `${flash ? ' flash' : ''}`,
       ],
       {},
-      "$gcc"
+      '$gcc',
     );
   } catch (err) {
     const errMsg = `Something went wrong during the build process: ${err}`;

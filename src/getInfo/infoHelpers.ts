@@ -3,7 +3,12 @@ import * as vscode from 'vscode';
 
 import MakeInfo from '../types/MakeInfo';
 
-export function combineArraysIntoObject(arr1: string[], arr2: string[], key: string, obj: {}): {} {
+export function combineArraysIntoObject(
+  arr1: string[],
+  arr2: string[],
+  key: string,
+  obj: Record<string, unknown>
+): Record<string, unknown> {
   // GUARD: against empty or null arrays.
   if (!arr2 || !_.isArray(arr2)) {
     if (arr1 && _.isArray(arr1)) {
@@ -55,7 +60,7 @@ export function checkAndConvertCpp(makeInfo: MakeInfo): MakeInfo {
   }
   if (!_.isEmpty(newInfo.cxxSources)) {
     vscode.window.showWarningMessage(
-      'You have several cxx/cpp/cc files, however no main.cpp file. Will ignore these files for now'
+      'You have several cxx/cpp/cc files, however no main.cpp file. Will ignore these files for now',
     );
   }
   // else it is a C only file, so remove all the C++ files and definitions.

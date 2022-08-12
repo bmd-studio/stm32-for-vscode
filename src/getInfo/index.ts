@@ -39,16 +39,18 @@ import {
   getIncludeDirectoriesFromFileList,
   getNonGlobIncludeDirectories,
   getSourceFiles,
-  sortFiles
+  sortFiles,
 } from './getFiles';
 
-import {MODULES_FOLDER} from '../testing/modulesFolder'
+import { MODULES_FOLDER } from '../testing/modulesFolder';
 import { OpenOCDConfiguration } from '../types/OpenOCDConfig';
 import { getBuildToolsFromSettings } from '../buildTools';
 import getDefinitionsFromFiles from './getDotDefinitions';
 import getMakefileInfo from './getCubeMakefileInfo';
 
 import path = require('path');
+
+
 
 /**
  * @description returns the location of a specific file in an array
@@ -72,7 +74,7 @@ export function checkForFileNameInArray(name: string, array: string[], caseMatte
  */
 export async function checkAndConvertCpp(
   totalInfo: MakeInfo,
-  projectConfiguration: ExtensionConfiguration
+  projectConfiguration: ExtensionConfiguration,
 ): Promise<MakeInfo> {
   const newInfo = _.cloneDeep(totalInfo);
 
@@ -91,34 +93,33 @@ export async function checkAndConvertCpp(
     //   newInfo.cxxSources = [];
     //   newInfo.cxxDefs = [];
     // }
-  } else {
-    if (checkForFileNameInArray('main.cpp', newInfo.cxxSources) !== -1) {
-      const result = await vscode.window.showWarningMessage(
-        `We can see that you are trying to compile a C project with a main.cpp file. 
+  } else if (checkForFileNameInArray('main.cpp', newInfo.cxxSources) !== -1) {
+    const result = await vscode.window.showWarningMessage(
+      `We can see that you are trying to compile a C project with a main.cpp file. 
         Do you want to convert this project to a C++ project?`,
-        'yes', 'no');
-      if (result === 'yes') {
-        projectConfiguration.language = 'C++';
-        await STM32ProjectConfiguration.writeConfigFile(projectConfiguration);
-        return checkAndConvertCpp(totalInfo, projectConfiguration);
-      }
+      'yes',
+      'no',
+    );
+    if (result === 'yes') {
+      projectConfiguration.language = 'C++';
+      await STM32ProjectConfiguration.writeConfigFile(projectConfiguration);
+      return checkAndConvertCpp(totalInfo, projectConfiguration);
     }
   }
   return newInfo;
 }
 
-
-type MakeInfoSourcesAndHeaders = Pick<MakeInfo,"cIncludes"| "cSources" | "cxxSources" | "asmSources">;
+type MakeInfoSourcesAndHeaders = Pick<MakeInfo, 'cIncludes'| 'cSources' | 'cxxSources' | 'asmSources'>;
 
 async function getAllSourcesAndHeaders(
   makeInfo: MakeInfo,
-  projectConfiguration: ExtensionConfiguration 
+  projectConfiguration: ExtensionConfiguration,
 ): Promise<MakeInfoSourcesAndHeaders> {
   const combinedSourceFiles = _.concat(
     projectConfiguration.sourceFiles,
     makeInfo.cxxSources,
     makeInfo.cSources,
-    makeInfo.asmSources
+    makeInfo.asmSources,
   );
   const combinedHeaderFiles = _.concat(projectConfiguration.includeDirectories, makeInfo.cIncludes);
 
@@ -126,12 +127,11 @@ async function getAllSourcesAndHeaders(
   const headerFilePromise = getHeaderFiles(combinedHeaderFiles);
   const [
     indiscriminateSourceFileList,
-    indiscriminateHeaderFileList
+    indiscriminateHeaderFileList,
   ] = await Promise.all([sourceFilePromise, headerFilePromise]);
 
-
-  let filteredSourceFiles = Micromatch.not(indiscriminateSourceFileList, projectConfiguration.excludes);
-  let filteredHeaderFiles = Micromatch.not(indiscriminateHeaderFileList, projectConfiguration.excludes);
+  const filteredSourceFiles = Micromatch.not(indiscriminateSourceFileList, projectConfiguration.excludes);
+  const filteredHeaderFiles = Micromatch.not(indiscriminateHeaderFileList, projectConfiguration.excludes);
 
   const sortedSourceFiles = sortFiles(filteredSourceFiles);
   const includeDirectories = getIncludeDirectoriesFromFileList(filteredHeaderFiles);
@@ -148,7 +148,7 @@ async function getAllSourcesAndHeaders(
 }
 
 function extractModuleFileOrFolder(fileList: string[]): string[] {
-  const filterFunction = (file:string ): boolean => {
+  const filterFunction = (file:string): boolean => {
     const normalizedPath = path.normalize(file);
     const hasModulesFolderRoot = normalizedPath.indexOf(`${MODULES_FOLDER}`) === 0;
     return hasModulesFolderRoot;
@@ -175,16 +175,14 @@ interface TestFileAndBuildFileLists {
   build: string[];
 }
 function extractTestFiles(fileList: string[]): TestFileAndBuildFileLists {
-  const filterFunction = (file: string): boolean => {
-    return file.includes('.test.');
-  };
+  const filterFunction = (file: string): boolean => file.includes('.test.');
 
   const result:TestFileAndBuildFileLists = {
     test: [],
-    build: []
+    build: [],
   };
   fileList.forEach((entry) => {
-    if(filterFunction(entry)) {
+    if (filterFunction(entry)) {
       result.test.push(entry);
     } else {
       result.build.push(entry);
@@ -195,9 +193,9 @@ function extractTestFiles(fileList: string[]): TestFileAndBuildFileLists {
 
 function filterTestFilesAndHeaders(sourcesAndHeaders: MakeInfoSourcesAndHeaders): TestFilesAndBuildFiles {
   type KeysArray = Array<keyof MakeInfoSourcesAndHeaders>;
-  const keys: KeysArray = Object.keys(sourcesAndHeaders) as KeysArray;  
-  const result:TestFilesAndBuildFiles = {test: {}, build: {}} as TestFilesAndBuildFiles;
-  
+  const keys: KeysArray = Object.keys(sourcesAndHeaders) as KeysArray;
+  const result:TestFilesAndBuildFiles = { test: {}, build: {} } as TestFilesAndBuildFiles;
+
   keys.forEach((key) => {
     const extractedFiles = extractTestFiles(sourcesAndHeaders[key]);
     result.test[key] = extractedFiles.test;
@@ -231,7 +229,7 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   const projectConfiguration = await STM32ProjectConfiguration.readOrCreateConfigFile(standardConfig);
 
   await OpenOCDConfigFile.readOrCreateConfigFile(
-    new OpenOCDConfiguration(cubeMakefileInfo.targetMCU)
+    new OpenOCDConfiguration(cubeMakefileInfo.targetMCU),
   );
 
   // const combinedSourceFiles = _.concat(
@@ -249,7 +247,6 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   //   indiscriminateHeaderFileList
   // ] = await Promise.all([sourceFilePromise, headerFilePromise]);
 
-
   // // TODO: put this logic somewhere else the function is getting to big this way
   // let filteredSourceFiles = Micromatch.not(indiscriminateSourceFileList, projectConfiguration.excludes);
   // let filteredHeaderFiles = Micromatch.not(indiscriminateHeaderFileList, projectConfiguration.excludes);
@@ -260,7 +257,7 @@ export async function getInfo(location: string): Promise<MakeInfo> {
 
   // const libraryFolderSourceFiles = Micromatch(filteredSourceFiles, `${MODULES_FOLDER}/(**|**/**).(c|cc|cpp|cxx)`);
   // const libraryFolderHeaderFiles = Micromatch(filteredSourceFiles, `${MODULES_FOLDER}/(**|**/**).(h|hpp|hxx)`);
-  
+
   // STM32MakeInfo.testInfo.sourceFiles = _.uniq(STM32MakeInfo.testInfo.sourceFiles.concat(libraryFolderSourceFiles));
   // STM32MakeInfo.testInfo.headerFiles = _.uniq(STM32MakeInfo.testInfo.headerFiles.concat(libraryFolderHeaderFiles));
   // STM32MakeInfo.testInfo.headerFiles = _.uniq(getIncludeDirectoriesFromFileList(STM32MakeInfo.testInfo.headerFiles));
@@ -277,7 +274,6 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   const sourcesAndHeaders = await getAllSourcesAndHeaders(cubeMakefileInfo, projectConfiguration);
   const filteredTestAndHeaderFiles = filterTestFilesAndHeaders(sourcesAndHeaders);
   const moduleSources = extractModuleSourcesAndHeaders(filteredTestAndHeaderFiles.build);
-  
 
   let cDefinitionsFromFile: string[] = [];
   let cxxDefinitionsFromFile: string[] = [];
@@ -287,7 +283,7 @@ export async function getInfo(location: string): Promise<MakeInfo> {
     cxxDefinitionsFromFile = await getDefinitionsFromFiles(location, projectConfiguration.cxxDefinitionsFile);
     asDefinitionsFromFile = await getDefinitionsFromFiles(location, projectConfiguration.asDefinitionsFile);
   } catch (err) {
-
+    vscode.window.showWarningMessage(`Something went wrong when getting definitions from the specified files: ${err}`);
   }
 
   // replace spaces with underscores, to prevent spaces in path issues.
@@ -306,8 +302,6 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   sourceFileKeys.forEach((key) => {
     STM32MakeInfo.testInfo[key] = moduleSources[key].concat(filteredTestAndHeaderFiles.test[key]);
   });
-  
-  
 
   // libraries
   STM32MakeInfo.libs = _.uniq(_.concat(projectConfiguration.libraries, cubeMakefileInfo.libs));
@@ -317,20 +311,20 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   STM32MakeInfo.asDefs = _.uniq(_.concat(
     cubeMakefileInfo.asDefs,
     projectConfiguration.asDefinitions,
-    asDefinitionsFromFile
+    asDefinitionsFromFile,
   ));
   STM32MakeInfo.cDefs = _.uniq(_.concat(
     cubeMakefileInfo.cDefs,
     projectConfiguration.cDefinitions,
-    cDefinitionsFromFile
+    cDefinitionsFromFile,
   ));
   STM32MakeInfo.cxxDefs = _.uniq(_.concat(
     cubeMakefileInfo.cxxDefs,
     projectConfiguration.cxxDefinitions,
-    cxxDefinitionsFromFile
+    cxxDefinitionsFromFile,
   ));
-  
-  // flags 
+
+  // flags
   STM32MakeInfo.assemblyFlags = _.uniq(_.concat(cubeMakefileInfo.assemblyFlags, projectConfiguration.assemblyFlags));
   STM32MakeInfo.ldFlags = _.uniq(_.concat(cubeMakefileInfo.ldFlags, projectConfiguration.linkerFlags));
   STM32MakeInfo.cFlags = _.uniq(_.concat(cubeMakefileInfo.cFlags, projectConfiguration.cFlags));
@@ -342,11 +336,11 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   STM32MakeInfo.fpu = projectConfiguration.fpu;
   STM32MakeInfo.mcu = cubeMakefileInfo.mcu;
   STM32MakeInfo.targetMCU = projectConfiguration.targetMCU;
-  
+
   STM32MakeInfo.language = projectConfiguration.language;
   STM32MakeInfo.optimization = projectConfiguration.optimization;
   STM32MakeInfo.ldscript = projectConfiguration.ldscript;
-  
+
   const buildTools = getBuildToolsFromSettings();
   STM32MakeInfo.tools = {
     ...STM32MakeInfo.tools,

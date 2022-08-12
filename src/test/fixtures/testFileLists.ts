@@ -126,7 +126,7 @@ export const cFiles = [
 export const cxxFiles = [
   'Src/main.cpp',
   'Src/RandomDriver.cpp',
-  'Src/randomCXXFile.cxx'
+  'Src/randomCXXFile.cxx',
 ];
 export const cIncludes = [
   'Drivers/STM32H7xx_HAL_Driver/Inc',
@@ -135,7 +135,7 @@ export const cIncludes = [
 ];
 
 export const libdir = [];
-export const libs = [];  // ['-lc', '-lm', '-lnosys']
+export const libs = []; // ['-lc', '-lm', '-lnosys']
 
 export const FileListWithRandomFiles = [
   'randomFile.ts',

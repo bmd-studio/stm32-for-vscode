@@ -1,12 +1,12 @@
-import * as GetSettings from '../../../getInfo/getSettings';
 import * as Sinon from 'sinon';
 import * as path from 'path';
 import * as shelljs from 'shelljs';
 
-import { ToolChain } from '../../../types/MakeInfo';
 import { afterEach } from 'mocha';
-import { checkSettingsForBuildTools } from '../../../buildTools/validateToolchain';
 import { expect } from 'chai';
+import { ToolChain } from '../../../types/MakeInfo';
+import { checkSettingsForBuildTools } from '../../../buildTools/validateToolchain';
+import * as GetSettings from '../../../getInfo/getSettings';
 
 suite('validate Toolchain Functions', () => {
   afterEach(() => {
@@ -37,6 +37,4 @@ suite('validate Toolchain Functions', () => {
     expect(result.armToolchainPath).to.equal(fakeToolchainResult.armToolchainPath);
     expect(result.makePath).to.equal(path.join(fakeToolchainResult.makePath, 'make'));
   });
-
-
 });

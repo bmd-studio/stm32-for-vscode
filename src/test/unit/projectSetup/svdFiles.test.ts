@@ -16,10 +16,6 @@ suite('SVD files', () => {
     headers: {},
     config: {} as AxiosRequestConfig,
   };
-  beforeEach(() => {
-
-
-  });
   afterEach(() => {
     Sinon.restore();
   });
@@ -27,7 +23,7 @@ suite('SVD files', () => {
     const axiosGetStub = Sinon.stub(axios, 'get').resolves(Promise.resolve(svdResponse));
     const fileList = await getSVDFileList();
     expect(fileList.length).to.be.greaterThan(30);
-    const h7Files = fileList.filter(file => file.name.indexOf('H7') !== -1);
+    const h7Files = fileList.filter((file) => file.name.indexOf('H7') !== -1);
     expect(h7Files.length).to.be.greaterThan(10);
     expect(axiosGetStub.calledOnce).to.be.true;
   });
@@ -35,17 +31,16 @@ suite('SVD files', () => {
     const axiosGetStub = Sinon.stub(axios, 'get').resolves(Promise.resolve(svdResponse));
     const h7Response = { ...svdResponse, data: h7SVDResponseFixture };
     axiosGetStub.withArgs(
-      'https://raw.githubusercontent.com/posborne/cmsis-svd/master/data/STMicro/STM32H753x.svd'
+      'https://raw.githubusercontent.com/posborne/cmsis-svd/master/data/STMicro/STM32H753x.svd',
     ).returns(Promise.resolve(h7Response));
     const svdFile = await getSVDFileForChip('STM32H753');
     expect(svdFile.data).to.equal(h7SVDResponseFixture);
-
   });
   test('getSVDFileForChip lowercase', async () => {
     const axiosGetStub = Sinon.stub(axios, 'get').resolves(Promise.resolve(svdResponse));
     const h7Response = { ...svdResponse, data: h7SVDResponseFixture };
     axiosGetStub.withArgs(
-      'https://raw.githubusercontent.com/posborne/cmsis-svd/master/data/STMicro/STM32H753x.svd'
+      'https://raw.githubusercontent.com/posborne/cmsis-svd/master/data/STMicro/STM32H753x.svd',
     ).returns(Promise.resolve(h7Response));
     const svdFileLowerCase = await getSVDFileForChip('STM32H753'.toLowerCase());
     expect(svdFileLowerCase.data).to.equal(h7SVDResponseFixture);
@@ -56,4 +51,3 @@ suite('SVD files', () => {
     expect(getSVDFileForChip('no_chip_found')).to.eventually.Throw();
   });
 });
-

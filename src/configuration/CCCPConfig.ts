@@ -27,10 +27,11 @@ export interface CCppProperties {
  *     project
  */
 export function getDefinitions(
-  info: { cDefs: string[]; cxxDefs: string[]; asDefs: string[] }): string[] {
-  const cDefs = _.map(info.cDefs, entry => _.replace(entry, '-D', ''));
-  const cxxDefs = _.map(info.cxxDefs, entry => _.replace(entry, '-D', ''));
-  const asDefs = _.map(info.asDefs, entry => _.replace(entry, '-D', ''));
+  info: { cDefs: string[]; cxxDefs: string[]; asDefs: string[] },
+): string[] {
+  const cDefs = _.map(info.cDefs, (entry) => _.replace(entry, '-D', ''));
+  const cxxDefs = _.map(info.cxxDefs, (entry) => _.replace(entry, '-D', ''));
+  const asDefs = _.map(info.asDefs, (entry) => _.replace(entry, '-D', ''));
   let defs = _.concat(cDefs, cxxDefs, asDefs);
   defs = _.uniq(defs);
   defs = defs.sort();
@@ -69,14 +70,12 @@ export function getCPropertiesConfig(info: MakeInfo): CCppConfig {
   return config;
 }
 
-
 /**
  * @description Gets the c_cpp_properties.json file from the current workspace.
  * @Note This cannot be done by workpace.getConfiguration as it is not a standard .vscode configuration.
  */
 export async function getWorkspaceConfigFile(): Promise<null | CCppProperties> {
-  const cCppWorkspaceConfigFiles =
-    await workspace.findFiles('**/c_cpp_properties.json');
+  const cCppWorkspaceConfigFiles = await workspace.findFiles('**/c_cpp_properties.json');
   if (cCppWorkspaceConfigFiles[0]) {
     try {
       const file = (await workspace.fs.readFile(cCppWorkspaceConfigFiles[0]));
@@ -85,8 +84,6 @@ export async function getWorkspaceConfigFile(): Promise<null | CCppProperties> {
     } catch (err) {
       window.showErrorMessage(`Something went wrong with parsing the c_cpp_properties.json: ${err}`);
     }
-
-
   }
   return null;
 }
@@ -109,16 +106,14 @@ export async function updateCProperties(workspacePathUri: Uri, info: MakeInfo): 
   if (currentConfigFile) {
     // configFile = defaultCCPPProperties;
     configFile = currentConfigFile;
-    const index = _.findIndex(
-      currentConfigFile.configurations, { name: stmConfiguration.name }
-    );
+    const index = _.findIndex(currentConfigFile.configurations, { name: stmConfiguration.name });
 
     if (index >= 0) {
       stmConfigIndex = index;
       stmConfiguration = currentConfigFile.configurations[index];
     } else {
       // no file has been found and should be added to the configurations
-      configFile.configurations.push(stmConfiguration);  // push default
+      configFile.configurations.push(stmConfiguration); // push default
       // config
       stmConfigIndex = configFile.configurations.length - 1;
       needsUpdating = true;
@@ -133,15 +128,13 @@ export async function updateCProperties(workspacePathUri: Uri, info: MakeInfo): 
   const definitions = getDefinitions(info);
   const oldConfig = _.cloneDeep(stmConfiguration);
 
-  stmConfiguration.defines =
-    _.uniq(stmConfiguration.defines.concat(definitions)).sort();
-  stmConfiguration.includePath =
-    _.uniq(stmConfiguration.includePath.concat(includes)).sort();
+  stmConfiguration.defines = _.uniq(stmConfiguration.defines.concat(definitions)).sort();
+  stmConfiguration.includePath = _.uniq(stmConfiguration.includePath.concat(includes)).sort();
   stmConfiguration.compilerPath = getAbsoluteCompilerPath(info);
   configFile.configurations[stmConfigIndex] = stmConfiguration;
 
-  if (!_.isEqual(stmConfiguration.defines, oldConfig.defines) ||
-    !_.isEqual(stmConfiguration.includePath, oldConfig.includePath)
+  if (!_.isEqual(stmConfiguration.defines, oldConfig.defines)
+    || !_.isEqual(stmConfiguration.includePath, oldConfig.includePath)
     || !_.isEqual(stmConfiguration.compilerPath, oldConfig.compilerPath)) {
     needsUpdating = true;
   }
@@ -149,9 +142,10 @@ export async function updateCProperties(workspacePathUri: Uri, info: MakeInfo): 
     return;
   }
   await writeFileInWorkspace(
-    workspacePathUri, '.vscode/c_cpp_properties.json',
-    JSON.stringify(configFile, null, 2));
+    workspacePathUri,
+    '.vscode/c_cpp_properties.json',
+    JSON.stringify(configFile, null, 2),
+  );
 }
-
 
 export default updateCProperties;

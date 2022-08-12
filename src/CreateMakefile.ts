@@ -103,23 +103,19 @@ function createPrefixWhenNoneExists(input: string, prefix: string): string {
  * @returns a string containing custom makefile rules which can be embedded in the makefile
  */
 function customMakefileRules(makeInfo: MakeInfo): string {
-
   if (makeInfo.customMakefileRules) {
     // reduces the makefile rules and returns them
-    return makeInfo.customMakefileRules.reduce(
-      (previousString, currentValue) => {
-        const { command, rule, dependsOn = '' } = currentValue;
-        const newRule =
-          `
+    return makeInfo.customMakefileRules.reduce((previousString, currentValue) => {
+      const { command, rule, dependsOn = '' } = currentValue;
+      const newRule = `
 #######################################
 # ${command}
 #######################################
 ${command}: ${dependsOn}
 \t${rule}
       `;
-        return `${previousString}\n\n${newRule}`;
-      }, '');
-
+      return `${previousString}\n\n${newRule}`;
+    }, '');
   }
   // returns empty when no customMakefileRules are found
   return '';

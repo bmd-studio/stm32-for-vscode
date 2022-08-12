@@ -2,8 +2,8 @@
 // import * as chaiAsPromised from 'chai-as-promised';
 
 // import { afterEach, suite, test } from 'mocha';
-// import { 
-// checkAndConvertCpp, 
+// import {
+// checkAndConvertCpp,
 // checkForFileNameInArray,
 // combineArraysIntoObject,
 // combineInfo,
@@ -12,4 +12,4 @@
 
 // // suite('Info', () => {
 
-// }); 
+// });

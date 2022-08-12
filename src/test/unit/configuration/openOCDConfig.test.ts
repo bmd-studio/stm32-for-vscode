@@ -1,12 +1,12 @@
-import * as Helpers from '../../../Helpers';
-import * as OpenOCDConfig from '../../../configuration/openOCDConfig';
 import * as Sinon from 'sinon';
 import * as vscode from 'vscode';
 
 import { afterEach, suite, test } from 'mocha';
 
-import { OpenOCDConfiguration } from '../../../types';
 import { expect } from 'chai';
+import { OpenOCDConfiguration } from '../../../types';
+import * as OpenOCDConfig from '../../../configuration/openOCDConfig';
+import * as Helpers from '../../../Helpers';
 
 suite('OpenOCD Configuration', () => {
   afterEach(() => {
@@ -46,10 +46,10 @@ suite('OpenOCD Configuration', () => {
       Promise.resolve(
         Buffer.from(
           OpenOCDConfig.create(
-            new OpenOCDConfiguration('STM32LTest')
-          )
-        )
-      )
+            new OpenOCDConfiguration('STM32LTest'),
+          ),
+        ),
+      ),
     );
     const writeFake = Sinon.fake.returns(Promise.resolve());
     const workspaceFake = Sinon.fake.returns(vscode.Uri.file('local'));
@@ -64,6 +64,5 @@ suite('OpenOCD Configuration', () => {
     expect(readFake.calledOnce).to.be.true;
     expect(writeFake.calledOnce).to.be.true;
     expect(writeFake.lastCall.lastArg).to.deep.equal((OpenOCDConfig.create(testProgrammerConfig)));
-
   });
 });

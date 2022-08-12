@@ -2,17 +2,17 @@
 * MIT License
 *
 * Copyright (c) 2020 Bureau Moeilijke Dingen
-* 
+*
 * Permission is hereby granted, free of charge, to any person obtaining a copy
 * of this software and associated documentation files (the "Software"), to deal
 * in the Software without restriction, including without limitation the rights
 * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 * copies of the Software, and to permit persons to whom the Software is
 * furnished to do so, subject to the following conditions:
-* 
+*
 * The above copyright notice and this permission notice shall be included in all
 * copies or substantial portions of the Software.
-* 
+*
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,8 +26,9 @@ import * as pth from 'path';
 import * as vscode from 'vscode';
 
 import { BuildFiles } from '../types/MakeInfo';
-import Glob = require('glob');
 import { EXTENSION_CONFIG_NAME } from '../Definitions';
+
+import Glob = require('glob');
 
 const path = pth.posix; // did this so everything would be posix.
 
@@ -35,14 +36,13 @@ export const REQUIRED_RESOURCES = [
   {
     file: 'Makefile',
     // eslint-disable-next-line max-len
-    warning: 'No Makefile is present, please initialize your project using CubeMX, with the toolchain set to Makefile under the project manager'
+    warning: 'No Makefile is present, please initialize your project using CubeMX, with the toolchain set to Makefile under the project manager',
   },
   {
     file: EXTENSION_CONFIG_NAME,
     warning: '',
-  }
+  },
 ];
-
 
 /* When a standard project is initialized  this is the file structure:
  |-${projectName}.ioc
@@ -54,7 +54,6 @@ export const REQUIRED_RESOURCES = [
  |-startup_${target}xx
  |-${TARGETCHIP}x_FLASH.ld
  */
-
 
 /**
  *  Returns the Dirname, with the same spelling as the actual directory, however with correct upper or lower case.
@@ -101,7 +100,7 @@ export function getIncludeDirectoriesFromFileList(headerList: string[]): string[
   });
   incList = _.uniq(incList);
 
-  incList = _.map(incList, entry => `${entry}`);
+  incList = _.map(incList, (entry) => `${entry}`);
   incList.sort();
   return incList;
 }
@@ -142,7 +141,7 @@ export function sortFiles(list: string[]): BuildFiles {
  * Searches for files using glob patterns within the source folder.
  * @param glob the glob to search for
  * @param sourceFolder the source folder to search from
- * @returns 
+ * @returns
  */
 export async function globSearch(glob: string, sourceFolder: string): Promise<string[]> {
   const globOptions = {
@@ -168,9 +167,7 @@ export async function scanForFiles(includedFilesGlob: string[]): Promise<string[
   const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
   if (workspaceFolder === undefined) { return []; }
 
-  const filePromises = includedFilesGlob.map((fileGlob) => {
-    return globSearch(fileGlob, workspaceFolder.uri.fsPath);
-  });
+  const filePromises = includedFilesGlob.map((fileGlob) => globSearch(fileGlob, workspaceFolder.uri.fsPath));
   const nonGlobFiles: string[] = [];
   includedFilesGlob.forEach(async (filePath) => {
     if (Glob.hasMagic(filePath)) {
@@ -179,6 +176,7 @@ export async function scanForFiles(includedFilesGlob: string[]): Promise<string[
         if (checkResult.type === vscode.FileType.File) {
           nonGlobFiles.push(filePath);
         }
+      // eslint-disable-next-line no-empty
       } catch (error) {
 
       }
@@ -209,7 +207,7 @@ export async function getSourceFiles(sourceFileGlobs: string[]): Promise<string[
 }
 
 /**
- * Gets the regular non glob like filepaths from a file list including glob patterns. 
+ * Gets the regular non glob like filepaths from a file list including glob patterns.
  * @param headerFilesGlobs list of file paths including glob like filepaths
  * @returns regular filenames
  */
@@ -243,4 +241,3 @@ export async function getHeaderFiles(headerFilesGlobs: string[]): Promise<string
   });
   return headerFiles;
 }
-

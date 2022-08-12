@@ -1,7 +1,9 @@
 import { Uri, window, workspace } from 'vscode';
-import { checkIfFileExists, checkIfFileExitsIfNotWrite, fsPathToPosix, getWorkspaceUri } from '../Helpers';
-
 import { join } from 'path';
+import {
+  checkIfFileExists, checkIfFileExitsIfNotWrite, fsPathToPosix, getWorkspaceUri,
+} from '../Helpers';
+
 import libraryReadme from './modulesReadme';
 
 export const MODULES_FOLDER = 'modules';
@@ -23,7 +25,7 @@ export default async function setupModulesFolder(): Promise<void> {
     await checkIfFileExitsIfNotWrite(localReadmePath, libraryReadme);
   } catch (err) {
     window.showErrorMessage(
-      `Something went wrong with making the ${MODULES_FOLDER} folder, please create it manually. Error: ${err}`
+      `Something went wrong with making the ${MODULES_FOLDER} folder, please create it manually. Error: ${err}`,
     );
   }
 }

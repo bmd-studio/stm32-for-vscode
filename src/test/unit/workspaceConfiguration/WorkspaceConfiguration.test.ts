@@ -1,16 +1,18 @@
 import * as Sinon from 'sinon';
 // import { workspace, Uri, WorkspaceFolder, window } from 'vscode';
 import * as chaiAsPromised from 'chai-as-promised';
-import * as helpers from '../../../Helpers';
 
-import LaunchTestFile, { attachFixture, debugFixture, } from '../../fixtures/launchTaskFixture';
 import { TaskDefinition, Uri, workspace } from 'vscode';
-import { afterEach, beforeEach, suite, test } from 'mocha';
+import {
+  afterEach, beforeEach, suite, test,
+} from 'mocha';
 import { assert, expect, use } from 'chai';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import LaunchTestFile, { attachFixture, debugFixture } from '../../fixtures/launchTaskFixture';
+import * as helpers from '../../../Helpers';
 import updateConfiguration, {
   updateLaunch,
-  updateTasks
+  updateTasks,
 } from '../../../configuration/WorkspaceConfigurations';
 
 import BuildTasks from '../../fixtures/tasksFixture';
@@ -22,7 +24,6 @@ import { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
 
 use(chaiAsPromised);
 suite('WorkspaceConfiguration', () => {
-
   let launchFixtures: {
     getWorkspaceConfigFake: Sinon.SinonSpy;
     updateConfigFake: Sinon.SinonSpy;
@@ -87,7 +88,7 @@ suite('WorkspaceConfiguration', () => {
     const axiosGetStub = Sinon.stub(axios, 'get').resolves(Promise.resolve(svdResponse));
     const h7Response = { ...svdResponse, data: h7SVDResponseFixture };
     axiosGetStub.withArgs(
-      'https://raw.githubusercontent.com/posborne/cmsis-svd/master/data/STMicro/STM32H753x.svd'
+      'https://raw.githubusercontent.com/posborne/cmsis-svd/master/data/STMicro/STM32H753x.svd',
     ).returns(Promise.resolve(h7Response));
 
     await updateLaunch(Uri.file('local'), { ...testMakefileInfo, target: 'othertesttarget' });
@@ -96,13 +97,13 @@ suite('WorkspaceConfiguration', () => {
     expect(getWorkspaceConfigFake.calledOnce).to.be.true;
     // expect(getConfigInWorkspaceFake.calledOnceWith('launch', testUri)).to.be.true;
     expect(updateConfigFake.calledOnce).to.be.true;
-    expect(updateConfigFake.getCall(0).args[1].find((task: any)=> debugFixture.name === task?.name)).to.deep.equal({
+    expect(updateConfigFake.getCall(0).args[1].find((task: any) => debugFixture.name === task?.name)).to.deep.equal({
       ...debugFixture,
-      executable: "./build/othertesttarget.elf"
+      executable: './build/othertesttarget.elf',
     });
     expect(updateConfigFake.getCall(0).args[1].find((task: any) => attachFixture.name === task?.name)).to.deep.equal({
       ...attachFixture,
-      executable: "./build/othertesttarget.elf"
+      executable: './build/othertesttarget.elf',
     });
   });
 

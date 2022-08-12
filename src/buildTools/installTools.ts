@@ -10,23 +10,24 @@ import {
   armNoneEabiDefinition,
   cMakeDefinition,
   makeDefinition,
-  openocdDefinition
+  openocdDefinition,
 } from './toolChainDefinitions';
 import {
   checkAutomaticallyInstalledBuildTools,
-  hasRelevantAutomaticallyInstalledBuildTools
+  hasRelevantAutomaticallyInstalledBuildTools,
 } from './validateToolchain';
 import {
   getNewestToolchainVersion,
   getToolBasePath,
   getToolVersionFolders,
-  validateXPMToolchainPath
+  validateXPMToolchainPath,
 } from './extensionToolchainHelpers';
 
 import CommandMenu from '../menu/CommandMenu';
 import { GITHUB_ISSUES_URL } from '../Definitions';
 import axios from 'axios';
 import { checkBuildTools } from '.';
+import {checkIfFileExists} from '../Helpers';
 import { exec } from 'child_process';
 import executeTask from '../HandleTasks';
 import { platform } from 'process';
@@ -39,7 +40,9 @@ type XpmInstallType = Promise<void>;
  * @param definition definition of the build tool found in toolChainDefinitions.ts
  */
 export async function xpmInstall(
-  toolsStoragePath: vscode.Uri, npx: string, definition: BuildToolDefinition
+  toolsStoragePath: vscode.Uri,
+  npx: string,
+  definition: BuildToolDefinition
 ): XpmInstallType {
   if (!_.has(definition, 'installation.xpm')) {
     throw new Error('Could not install using xpm');
@@ -47,17 +50,20 @@ export async function xpmInstall(
   const pathToSaveTo = toolsStoragePath.fsPath;
   const nodePath = path.join(npx, '../');
   const env: { [key: string]: string } = process.env as { [key: string]: string };
-  env['XPACKS_SYSTEM_FOLDER'] = pathToSaveTo;
-  env['XPACKS_REPO_FOLDER'] = pathToSaveTo;
-  env['npm_config_yes'] = `${true}`;
-  env['PATH'] = `${env.PATH}${platform === 'win32' ? ';' : ':'}${nodePath}`;
+  env.XPACKS_SYSTEM_FOLDER = pathToSaveTo;
+  env.XPACKS_REPO_FOLDER = pathToSaveTo;
+  env.npm_config_yes = `${true}`;
+  env.PATH = `${env.PATH}${platform === 'win32' ? ';' : ':'}${nodePath}`;
   const execOptions = {
     env,
     cwd: path.join(npx, '../'),
   };
   try {
     await vscode.workspace.fs.createDirectory(vscode.Uri.joinPath(toolsStoragePath, 'cache'));
-  } catch (_err) { }
+  // eslint-disable-next-line no-empty
+  } catch (_err) {
+    
+  }
 
   const npxCommand = platform === 'win32' ? `${npx}.cmd` : npx;
   await executeTask(
@@ -67,9 +73,9 @@ export async function xpmInstall(
       // adding the .cmd for windows, otherwise it will open in a different window for powershell.
       `${npxCommand}`,
       // `--cache "${path.join(context.globalStorageUri.fsPath, 'cache')}"`,
-      `xpm install --global ${definition.installation.xpm}`
+      `xpm install --global ${definition.installation.xpm}`,
     ],
-    execOptions
+    execOptions,
   );
 }
 
@@ -82,7 +88,7 @@ export function installOpenOcd(toolsStoragePath: vscode.Uri, npx: string): XpmIn
 }
 /**
  * Installs make using xpm
- * @note need to use something else then xpm 
+ * @note need to use something else then xpm
  * @param context vscode extension context
  */
 export async function installMake(toolsStoragePath: vscode.Uri, npx: string): Promise<void> {
@@ -91,18 +97,17 @@ export async function installMake(toolsStoragePath: vscode.Uri, npx: string): Pr
     return Promise.resolve();
   }
 
-
   switch (platform) {
-    case "darwin": {
+    case 'darwin': {
       executeCmd = makeDefinition.installation.darwin || '';
     } break;
-    case "win32": {
+    case 'win32': {
       const win32XPMMakeDefinition = _.cloneDeep(makeDefinition);
       win32XPMMakeDefinition.installation.xpm = win32XPMMakeDefinition.installation.windows;
       return xpmInstall(toolsStoragePath, npx, win32XPMMakeDefinition);
     } break;
-    case "linux": {
-      let cmd = makeDefinition.installation.linux;
+    case 'linux': {
+      const cmd = makeDefinition.installation.linux;
       let linuxExecutable = [''];
       if (cmd && !Array.isArray(cmd)) {
         linuxExecutable = [cmd];
@@ -112,7 +117,7 @@ export async function installMake(toolsStoragePath: vscode.Uri, npx: string): Pr
     } break;
   }
   return new Promise((resolve, reject) => {
-    exec(`${executeCmd}`, (error, /*stdout, stderr*/) => {
+    exec(`${executeCmd}`, (error /* stdout, stderr */) => {
       if (error) {
         reject(error);
         return;
@@ -146,7 +151,7 @@ const nodeRegex: { [key: string]: { [key: string]: RegExp } } = {
   },
   darwin: {
     x64: /href="(node-v\d*.\d*.\d*.-darwin-x64.tar.gz)/gm,
-    arm64: /href="(node-v\d*.\d*.\d*.-darwin-arm64.tar.gz)/gm
+    arm64: /href="(node-v\d*.\d*.\d*.-darwin-arm64.tar.gz)/gm,
   },
   linux: {
     arm: /href="(node-v\d*.\d*.\d*.-linux-armv7l.tar.gz)/gm,
@@ -154,28 +159,32 @@ const nodeRegex: { [key: string]: { [key: string]: RegExp } } = {
     x64: /href="(node-v\d*.\d*.\d*.-linux-x64.tar.gz)/gm,
     ppc64: /href="(node-v\d*.\d*.\d*.-linux-ppc64le.tar.gz)/gm,
     s390x: /href="(node-v\d*.\d*.\d*.-linux-s390x.tar.gz)/gm,
-  }
+  },
 };
 
 /**
- * 
+ *
  * @param latestNodeBody body of the https://nodejs.org/dist/latest/ page
  * @param platform the platform for which to get the node version
  * @param arch the arch for which to get the node version
  */
 export function getPlatformSpecificNodeLink(
-  latestNodeBody: string, currentPlatform: NodeJS.Platform, arch: string
+  latestNodeBody: string,
+  currentPlatform: NodeJS.Platform,
+  arch: string
 ): string | undefined {
   const regexPattern = nodeRegex?.[`${currentPlatform}`]?.[`${arch}`];
   if (!regexPattern) {
     throw new Error(
       // eslint-disable-next-line max-len
-      `Could not find the NodeJS link for your specific platform: platform: ${process.platform}, arch: ${process.arch}. Please open an issue on our Github: ${GITHUB_ISSUES_URL}`);
+      `Could not find the NodeJS link for your specific platform: platform: ${process.platform}, arch: ${process.arch}. Please open an issue on our Github: ${GITHUB_ISSUES_URL}`,
+    );
   }
   const platformRegex = new RegExp(
     regexPattern,
-    regexPattern.flags);
-  let link = undefined;
+    regexPattern.flags,
+  );
+  let link;
 
   if (platformRegex) {
     const result = platformRegex.exec(latestNodeBody);
@@ -184,19 +193,18 @@ export function getPlatformSpecificNodeLink(
     }
   }
   if (link) {
-    link = link.replace(`href="`, '');
+    link = link.replace('href="', '');
   }
   return link;
 }
 
-// latest gallium is the latest lts v16 version. 
+// latest gallium is the latest lts v16 version.
 const nodeLatestURL = 'https://nodejs.org/dist/latest-gallium/';
 
 /**
  * Gets the latest node version download filename for the current platform.
  */
 export function getLatestNodeLink(): Promise<string> {
-
   return new Promise((resolve, reject) => {
     axios.get(nodeLatestURL).then((response) => {
       const latestLink = getPlatformSpecificNodeLink(response.data, process.platform, process.arch);
@@ -205,10 +213,10 @@ export function getLatestNodeLink(): Promise<string> {
       } else {
         reject(
           new Error(
-            'No link found for this specific platform, ' +
-            'please open a new issue to ask for support for your specific platform at: ' +
-            'https://github.com/bmd-studio/stm32-for-vscode/issues'
-          )
+            'No link found for this specific platform, '
+            + 'please open a new issue to ask for support for your specific platform at: '
+            + 'https://github.com/bmd-studio/stm32-for-vscode/issues',
+          ),
         );
       }
     }).catch((err) => {
@@ -228,33 +236,32 @@ export function downloadLatestNode(toolsStoragePath: vscode.Uri, fileDownloadNam
   const downloadPath = path.join(pathToSaveTo, 'tmp', fileDownloadName);
 
   return new Promise((resolve, reject) => {
-
     axios.get(downloadURL, { responseType: 'arraybuffer' }).then((response) => {
       vscode.workspace.fs.writeFile(vscode.Uri.file(downloadPath), response.data).then(() => {
         resolve(downloadPath);
       }, (error) => {
         reject(error);
       });
-    }).catch(err => reject(err));
-
+    }).catch((err) => reject(err));
   });
 }
 
 /**
  * Extracts compressed files to a specific directory.
+ * @note: removes any previous files if it already exists.
  * @param context vscode extension context
  * @param filePath path to the file to be extracted
  * @param outPath path to the output directory
  */
 export async function extractFile(filePath: string, outPath: string): Promise<string> {
+  const fileExists = await checkIfFileExists(outPath);
+  if(fileExists) {
+    await vscode.workspace.fs.delete(vscode.Uri.file(outPath), { recursive: true });
+  }
   try {
     await decompress(filePath, outPath);
-  } catch (err: any) {
+  } catch (err: unknown) {
     vscode.window.showWarningMessage(`${err}`);
-    if (err?.message?.includes('EEXIST')) {
-      await vscode.workspace.fs.delete(vscode.Uri.file(outPath), { recursive: true });
-      return extractFile(filePath, outPath);
-    }
     throw err;
   }
   return outPath;
@@ -270,10 +277,10 @@ export async function getNode(toolsStoragePath: vscode.Uri): Promise<string> {
     const latestNodeCompressed = await downloadLatestNode(toolsStoragePath, latestNodeLink);
     const extractedNodeFileLoc = await extractFile(
       latestNodeCompressed,
-      path.join(toolsStoragePath.fsPath, 'node')
+      path.join(toolsStoragePath.fsPath, 'node'),
     );
     const dirContents = await vscode.workspace.fs.readDirectory(vscode.Uri.file(extractedNodeFileLoc));
-    const nodeInstallationFilePath = _.find(dirContents, (file) => { return (file[0].indexOf('node') >= 0); });
+    const nodeInstallationFilePath = _.find(dirContents, (file) => (file[0].indexOf('node') >= 0));
     if (!nodeInstallationFilePath || !nodeInstallationFilePath[0]) {
       throw new Error('No node installation could be found after download and extraction');
     }
@@ -281,7 +288,7 @@ export async function getNode(toolsStoragePath: vscode.Uri): Promise<string> {
   } catch (error) {
     vscode.window.showErrorMessage(
       `An error occurred during the node installation process, 
-        please try again or create an issue at: ${GITHUB_ISSUES_URL}, with stating error: ${error}`
+        please try again or create an issue at: ${GITHUB_ISSUES_URL}, with stating error: ${error}`,
     );
     throw error;
   }
@@ -307,7 +314,7 @@ export async function removeOldTools(tool: BuildToolDefinition, toolsStoragePath
 }
 export async function addExtensionInstalledToolsToSettings(toolsStoragePath: vscode.Uri): Promise<void> {
   const extensionConfiguration = vscode.workspace.getConfiguration('stm32-for-vscode');
-  //openocd
+  // openocd
   const openocd = await validateXPMToolchainPath(openocdDefinition, toolsStoragePath.fsPath);
   if (openocd) {
     await extensionConfiguration.update('openOCDPath', openocd, vscode.ConfigurationTarget.Global);
@@ -324,7 +331,6 @@ export async function addExtensionInstalledToolsToSettings(toolsStoragePath: vsc
       await extensionConfiguration.update('makePath', make, vscode.ConfigurationTarget.Global);
     }
   }
-
 }
 /**
  * Install all relevant tools for compiling for a specific platform
@@ -344,7 +350,7 @@ export function installAllTools(toolsStoragePath: vscode.Uri): Promise<void | Er
       if (process.arch === 'ia32') {
         vscode.window.showWarningMessage(
           // eslint-disable-next-line max-len
-          `There is a known issue with windows system with the ia32. Tools might not install correctly. Should you encounter this issue. Please open an issue on: ${GITHUB_ISSUES_URL}`
+          `There is a known issue with windows system with the ia32. Tools might not install correctly. Should you encounter this issue. Please open an issue on: ${GITHUB_ISSUES_URL}`,
         );
       }
 
@@ -381,8 +387,8 @@ export function installAllTools(toolsStoragePath: vscode.Uri): Promise<void | Er
         if (platform === 'win32') {
           try {
             await removeOldTools(makeDefinition, toolsStoragePath);
-          } catch (err) {
-          }
+          // eslint-disable-next-line no-empty
+          } catch (err) {}
         }
         await addExtensionInstalledToolsToSettings(toolsStoragePath);
         progress.report({ increment: 10, message: 'awaiting for all to be installed' });
@@ -393,7 +399,6 @@ export function installAllTools(toolsStoragePath: vscode.Uri): Promise<void | Er
           const currentToolchain = await checkAutomaticallyInstalledBuildTools(toolsStoragePath);
           hasBuildToolsInstalled = hasRelevantAutomaticallyInstalledBuildTools(currentToolchain);
         }
-
       } catch (err) {
         vscode.window.showErrorMessage(`Something has gone wrong while installing the build tools: ${err}`);
         throw (err);
@@ -403,9 +408,6 @@ export function installAllTools(toolsStoragePath: vscode.Uri): Promise<void | Er
     });
   });
 }
-
-
-
 
 export async function installBuildToolsCommand(
   context: vscode.ExtensionContext,

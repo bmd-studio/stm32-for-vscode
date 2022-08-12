@@ -6,7 +6,7 @@ export default function addCommandMenu(context: vscode.ExtensionContext): Comman
 
   vscode.window.registerTreeDataProvider(
     'stm32ForVSCodeCommands',
-    commandMenuProvider
+    commandMenuProvider,
   );
   return commandMenuProvider;
 }

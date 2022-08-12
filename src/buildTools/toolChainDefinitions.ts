@@ -26,7 +26,6 @@ export interface BuildToolDefinition {
   xpmName: string;
 }
 
-
 export const openocdDefinition: BuildToolDefinition = {
   name: 'openOCD',
   standardCmd: 'openocd',
@@ -53,7 +52,7 @@ export const makeDefinition: BuildToolDefinition = {
     linux: ['sudo', '-S apt-get install build-essential'],
   },
   xpmPath: './.content/bin',
-  xpmName: 'windows-build-tools'
+  xpmName: 'windows-build-tools',
 };
 
 export const cMakeDefinition: BuildToolDefinition = {
@@ -64,10 +63,10 @@ export const cMakeDefinition: BuildToolDefinition = {
   requiredByCortexDebug: false,
   installation: {
     xpm: '@xpack-dev-tools/cmake@latest',
-    url: "https://cmake.org/download/",
+    url: 'https://cmake.org/download/',
   },
   xpmName: 'cmake',
-  xpmPath: './.content/bin'
+  xpmPath: './.content/bin',
 };
 
 export const armNoneEabiDefinition: BuildToolDefinition = {

@@ -2,7 +2,11 @@ import * as Sinon from 'sinon';
 import * as assert from 'assert';
 
 import * as vscode from 'vscode';
-import { afterEach, suite, test, beforeEach } from 'mocha';
+import {
+  afterEach, suite, test, beforeEach,
+} from 'mocha';
+import { TextEncoder } from 'util';
+import { expect } from 'chai';
 import getMakefileInfo, {
   extractLibs,
   extractMakefileInfo,
@@ -14,9 +18,7 @@ import getMakefileInfo, {
 } from '../../../getInfo/getCubeMakefileInfo';
 import testMakefile, { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
 
-import { TextEncoder } from 'util';
 import { ToolChain } from '../../../types/MakeInfo';
-import { expect } from 'chai';
 import { makeFSOverWritable } from '../../helpers/fsOverwriteFunctions';
 
 suite('Get Cube makefile info', () => {
@@ -35,8 +37,10 @@ suite('Get Cube makefile info', () => {
     expect(extractSingleLineInfo('LIBS', testMakefile)).to.equal('-lc -lm -lnosys');
   });
   test('extractMultiLineInfo', () => {
-    assert.deepEqual(extractMultiLineInfo('C_DEFS', testMakefile),
-      ['-DUSE_HAL_DRIVER', '-DSTM32H743xx', '-DUSE_HAL_DRIVER', '-DSTM32H743xx']);
+    assert.deepEqual(
+      extractMultiLineInfo('C_DEFS', testMakefile),
+      ['-DUSE_HAL_DRIVER', '-DSTM32H743xx', '-DUSE_HAL_DRIVER', '-DSTM32H743xx'],
+    );
     assert.deepEqual(extractMultiLineInfo('c_sources', testMakefile), testMakefileInfo.cSources);
     assert.deepEqual(extractMultiLineInfo('target', testMakefile), []);
   });
@@ -56,14 +60,14 @@ suite('Get Cube makefile info', () => {
   });
   test('remove prefixes', () => {
     const prefixedList = [
-      "-lentry1",
-      "-lentry_two-l",
-      "-l entry three",
+      '-lentry1',
+      '-lentry_two-l',
+      '-l entry three',
     ];
     const unPrefixedList = [
-      "entry1",
-      "entry_two-l",
-      " entry three",
+      'entry1',
+      'entry_two-l',
+      ' entry three',
     ];
     const result = removePrefixes(prefixedList, '-l');
     expect(result).to.deep.equal(unPrefixedList);
@@ -90,7 +94,7 @@ suite('Get Cube makefile info', () => {
   test('getMakefile while the makefile is present', async () => {
     const returnedMakefile = 'short makefile';
     const fakeReadFile = Sinon.fake.returns(
-      Promise.resolve(new TextEncoder().encode(returnedMakefile))
+      Promise.resolve(new TextEncoder().encode(returnedMakefile)),
     );
     Sinon.replace(vscode.workspace.fs, 'readFile', fakeReadFile);
     try {
@@ -100,12 +104,11 @@ suite('Get Cube makefile info', () => {
     } catch (err) {
       assert(err);
     }
-
   });
   test('getMakefile when not present', async () => {
     const makefileUri = vscode.Uri.file('./Makefile');
     const fakeReadFile = Sinon.fake.returns(
-      Promise.reject(vscode.FileSystemError.FileNotFound(makefileUri))
+      Promise.reject(vscode.FileSystemError.FileNotFound(makefileUri)),
     );
     Sinon.replace(vscode.workspace.fs, 'readFile', fakeReadFile);
     expect(getMakefile('./Makefile')).to.be.rejectedWith(vscode.FileSystemError.FileNotFound(makefileUri));
@@ -114,7 +117,7 @@ suite('Get Cube makefile info', () => {
   test('getMakefileInfo', async () => {
     const makefilePath = 'someRelevant/path';
     const fakeReadFile = Sinon.fake.returns(
-      Promise.resolve(new TextEncoder().encode(testMakefile))
+      Promise.resolve(new TextEncoder().encode(testMakefile)),
     );
     Sinon.replace(vscode.workspace.fs, 'readFile', fakeReadFile);
     const makefileInfo = await getMakefileInfo(makefilePath);
@@ -124,5 +127,4 @@ suite('Get Cube makefile info', () => {
     expect(makefileInfo).to.deep.equal(testMakefileInfo);
     Sinon.restore();
   });
-
 });

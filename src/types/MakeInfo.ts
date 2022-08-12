@@ -1,5 +1,3 @@
-
-
 export interface Stm32SettingsInterface {
   armToolchainPath: string;
   openOCDPath: string;
@@ -44,10 +42,15 @@ export interface CustomMakefileRulesInterface {
 
 export class TargetInfo implements TargetInfoInterface {
   public target = '';
+
   public cpu = '';
+
   public fpu = '';
+
   public floatAbi = '';
+
   public targetMCU = '';
+
   public ldscript = '';
 }
 
@@ -68,16 +71,27 @@ export interface CompileInfoInterface {
 
 export class CompileInfo implements CompileInfoInterface {
   public language = 'C' as STM32Languages;
+
   public optimization = 'Og';
+
   public cFlags: string[] = [];
+
   public assemblyFlags: string[] = [];
+
   public cxxFlags: string[] = [];
+
   public linkerFlags: string[] = [];
+
   public cDefinitions: string[] = [];
+
   public cxxDefinitions: string[] = [];
+
   public asDefinitions: string[] = [];
+
   public cDefinitionsFile?: string | string[];
+
   public cxxDefinitionsFile?: string | string[];
+
   public asDefinitionsFile?: string | string[];
 }
 
@@ -88,14 +102,13 @@ export interface LibrariesInterface {
 
 export class Libraries implements LibrariesInterface {
   public libraries: string[] = [];
+
   public libraryDirectories: string[] = [];
 }
 export interface TestInfoInterface extends SourceFiles {
   flags: string[];
   headerFiles: string[];
 }
-
-
 
 // NOTE: this differs from the configuration in the shortinening of the DEFS names
 // This is maintained as this helps in parsing the makefile however should be noted
@@ -116,15 +129,22 @@ export interface MakeInfoInterface extends BuildFilesInterface, TargetInfoInterf
 
 export class ToolChain implements ToolChainInterface {
   public openOCDPath: string | boolean = false;
+
   public makePath: string | boolean = false;
+
   public armToolchainPath: string | boolean = false;
 }
 export class BuildFiles implements BuildFilesInterface {
   public cIncludes: string[] = [];
+
   public cSources: string[] = [];
+
   public cxxSources: string[] = [];
+
   public asmSources: string[] = [];
+
   public libs: string[] = [];
+
   public libdir: string[] = [];
 }
 
@@ -136,48 +156,69 @@ export interface ExtensionConfigurationInterface extends TargetInfoInterface, Co
   customMakefileRules?: CustomMakefileRulesInterface[];
 }
 
-
-
 export class ExtensionConfiguration implements ExtensionConfigurationInterface {
   public excludes = [
-    `"**/Examples/**"`,
-    `"**/examples/**"`,
-    `"**/Example/**"`,
-    `"**/example/**"`,
-    `"**_template.*"`,
+    '"**/Examples/**"',
+    '"**/examples/**"',
+    '"**/Example/**"',
+    '"**/example/**"',
+    '"**_template.*"',
   ];
+
   public cDefinitions: string[] = [];
+
   public cxxDefinitions: string[] = [];
+
   public asDefinitions: string[] = [];
+
   public cDefinitionsFile?: string | string[] = [];
+
   public cxxDefinitionsFile?: string | string[] = [];
+
   public asDefinitionsFile?: string | string[] = [];
+
   public includeDirectories: string[] = [];
+
   public target = '';
+
   public cpu = '';
+
   public fpu = '';
+
   public floatAbi = '';
+
   public ldscript = '';
+
   public targetMCU = '';
+
   public language = 'C' as STM32Languages;
+
   public optimization = 'Og';
+
   public linkerFlags: string[] = [];
+
   // be aware that more flags are present in the Makefile. However these seem to be mandatory
   public cFlags: string[] = [
     '-Wall', '-fdata-sections', '-ffunction-sections',
   ];
+
   public assemblyFlags: string[] = [
     '-Wall',
     '-fdata-sections',
-    '-ffunction-sections'
+    '-ffunction-sections',
   ];
-  public cxxFlags: string[] = [];
-  public sourceFiles: string[] = [];
-  public libraries: string[] = ['c', 'm'];
-  public libraryDirectories: string[] = [];
-  public suppressMakefileWarning = false;
-  public customMakefileRules: CustomMakefileRulesInterface[] | undefined = undefined;
 
+  public cxxFlags: string[] = [];
+
+  public sourceFiles: string[] = [];
+
+  public libraries: string[] = ['c', 'm'];
+
+  public libraryDirectories: string[] = [];
+
+  public suppressMakefileWarning = false;
+
+  public customMakefileRules: CustomMakefileRulesInterface[] | undefined = undefined;
 
   public importRelevantInfoFromMakefile(makeInfo: MakeInfo): void {
     this.cDefinitions = makeInfo.cDefs;
@@ -202,29 +243,53 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
 
 export default class MakeInfo implements MakeInfoInterface {
   public cDefs: string[] = [];
+
   public cxxDefs: string[] = [];
+
   public asDefs: string[] = [];
+
   public cIncludes: string[] = [];
+
   public cSources: string[] = [];
+
   public cxxSources: string[] = [];
+
   public asmSources: string[] = [];
+
   public libdir: string[] = [];
+
   public libs: string[] = [];
+
   public tools: ToolChain = new ToolChain();
+
   public target = '';
+
   public cpu = '';
+
   public fpu = '';
+
   public floatAbi = '';
+
   public mcu = '';
+
   public ldscript = '';
+
   public targetMCU = '';
+
   public language = 'C' as STM32Languages;
+
   public optimization = 'Og';
+
   public cFlags: string[] = [];
+
   public assemblyFlags: string[] = [];
+
   public ldFlags: string[] = [];
+
   public cxxFlags: string[] = [];
+
   public customMakefileRules: CustomMakefileRulesInterface[] | undefined = undefined;
+
   public testInfo: TestInfoInterface = {
     flags: [],
     cSources: [],

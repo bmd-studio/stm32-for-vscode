@@ -1,12 +1,12 @@
+import * as _ from 'lodash';
 import * as path from 'path';
 import * as shelljs from 'shelljs';
 import * as vscode from 'vscode';
-import * as _ from 'lodash';
 
 import {
   BuildToolDefinition,
   XPACKS_DEV_TOOL_PATH,
-  armNoneEabiDefinition
+  armNoneEabiDefinition,
 } from './toolChainDefinitions';
 
 export interface XPMToolVersion {
@@ -22,15 +22,10 @@ export function checkSettingsPathValidity(path: string | boolean): boolean {
   return false;
 }
 
-
 export function parseXPMVersionNumbers(fileName: string): XPMToolVersion {
   const [toolVersion = '', xpmVersion = ''] = fileName.split('-');
-  const [major = 0, middle = 0, minor = 0] = toolVersion.split('.').map((number) => {
-    return parseInt(number);
-  });
-  const [xpmMajor, xpmMiddle = 0, xpmMinor = 0] = xpmVersion.split('.').map((number) => {
-    return parseInt(number);
-  });
+  const [major = 0, middle = 0, minor = 0] = toolVersion.split('.').map((number) => parseInt(number));
+  const [xpmMajor, xpmMiddle = 0, xpmMinor = 0] = xpmVersion.split('.').map((number) => parseInt(number));
   return {
     toolVersion: [major, middle, minor],
     xpmVersion: [xpmMajor, xpmMiddle, xpmMinor],
@@ -83,7 +78,9 @@ export function getToolBasePath(tool: BuildToolDefinition, xpmPath: string): str
   return path.join(xpmPath, XPACKS_DEV_TOOL_PATH, tool.xpmName);
 }
 export async function getToolVersionFolders(
-  tool: BuildToolDefinition, xpmPath: string): Promise<[string, vscode.FileType][] | null> {
+  tool: BuildToolDefinition,
+  xpmPath: string
+): Promise<[string, vscode.FileType][] | null> {
   if (!tool.xpmName) {
     return null;
   }
@@ -97,15 +94,15 @@ export async function getToolVersionFolders(
 }
 
 /**
- * Function which returns 
+ * Function which returns
  * @param tool build tool defintion
  * @param xpmPath the path to which the xpm install was performed.
- * @returns 
+ * @returns
  */
 export async function getNewestToolchainVersion(
-  tool: BuildToolDefinition, xpmPath: string
+  tool: BuildToolDefinition,
+  xpmPath: string
 ): Promise<XPMToolVersion | undefined> {
-
   const files = await getToolVersionFolders(tool, xpmPath);
   if (!files) {
     return undefined;
@@ -145,7 +142,6 @@ export async function validateXPMToolchainPath(tool: BuildToolDefinition, xpmPat
   }
 }
 
-
 export function validateArmToolchainPath(armToolChainPath: string | boolean): string | false {
   if (!armToolChainPath || _.isEmpty(armToolChainPath) || !_.isString(armToolChainPath)) { return false; }
   const immediatePath = shelljs.which(armToolChainPath);
@@ -163,7 +159,7 @@ export function validateArmToolchainPath(armToolChainPath: string | boolean): st
 
 export function checkToolchainPathForTool(
   toolPath: string | boolean,
-  definition: BuildToolDefinition
+  definition: BuildToolDefinition,
 ): string | boolean {
   if (!checkSettingsPathValidity(toolPath)) {
     return false;

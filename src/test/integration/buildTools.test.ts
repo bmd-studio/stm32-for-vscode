@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
 
+import { suite, test, before } from 'mocha';
 import {
   checkAutomaticallyInstalledBuildTools,
-  hasRelevantAutomaticallyInstalledBuildTools
+  hasRelevantAutomaticallyInstalledBuildTools,
 } from '../../buildTools/validateToolchain';
-import { suite, test, before } from 'mocha';
 
 import { installAllTools } from '../../buildTools/installTools';
 import { waitForWorkspaceFoldersChange, getTestToolsFolder } from '../helpers';
@@ -18,7 +18,6 @@ suite('build tools test', () => {
       console.log(err);
     }
     return Promise.resolve();
-
   });
   test('install build tools', async () => {
     // should await the workspace, so STM32 for vscode is activated.
@@ -33,11 +32,10 @@ suite('build tools test', () => {
       console.error(err);
     }
 
-    // checks if the build tools are installed and adds them 
+    // checks if the build tools are installed and adds them
     const result = await checkAutomaticallyInstalledBuildTools(vscode.Uri.file(getTestToolsFolder()));
     if (!hasRelevantAutomaticallyInstalledBuildTools(result)) {
       throw new Error('build tools did not install properly');
     }
-
   }).timeout(10 * 60 * 1000);
 });

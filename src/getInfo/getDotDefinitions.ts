@@ -1,6 +1,9 @@
-import { workspace, Uri, window } from 'vscode';
 import * as stripComments from 'strip-comments';
+
+import { Uri, window, workspace } from 'vscode';
+
 import { join } from 'path';
+
 /**
  * Gets NAME=VALUE pairs from a file and ignores comments.
  * @param file input include file, which is a DEFINTION=VALUE file separated by new lines. Can have # comments
@@ -19,7 +22,8 @@ export function getDefinitionsFromFile(file: string): string[] {
 }
 
 export default async function getDefinitionsFromFiles(
-  workspaceLocation: string, files?: string[] | string
+  workspaceLocation: string,
+  files?: string[] | string
 ): Promise<string[]> {
   let output: string[] = [];
   if (!files) {
@@ -32,20 +36,14 @@ export default async function getDefinitionsFromFiles(
   });
   try {
     const definitionFiles = await Promise.all(filePromises);
-    const includesFromFiles = definitionFiles.map((file) => {
-      return getDefinitionsFromFile(Buffer.from(file).toString('utf8'));
-    });
+    const includesFromFiles = definitionFiles.map((file) => getDefinitionsFromFile(Buffer.from(file).toString('utf8')));
     includesFromFiles.forEach((defs) => {
       output = output.concat(defs);
     });
-
   } catch (err) {
     window.showErrorMessage(
-      `An error occured while reading the provided .include files, please make sure the file is present. Error: ${err}`
+      `An error occured while reading the provided .include files, please make sure the file is present. Error: ${err}`,
     );
   }
   return output;
-
 }
-
-

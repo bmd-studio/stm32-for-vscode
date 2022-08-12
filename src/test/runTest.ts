@@ -5,7 +5,7 @@ import * as process from 'process';
 import {
   downloadAndUnzipVSCode,
   resolveCliArgsFromVSCodeExecutablePath,
-  runTests
+  runTests,
 } from '@vscode/test-electron';
 
 import { platform } from 'process';
@@ -15,7 +15,7 @@ async function main(): Promise<void> {
     // The folder containing the Extension Manifest package.json
     // Passed to `--extensionDevelopmentPath`
     const extensionDevelopmentPath = path.resolve(__dirname, '../../');
-    let vscodeExecutablePath = undefined;
+    let vscodeExecutablePath;
     if (platform === 'win32') {
       vscodeExecutablePath = await downloadAndUnzipVSCode('stable', 'win32-x64-archive');
     } else {
@@ -39,11 +39,11 @@ async function main(): Promise<void> {
       empty: path.resolve(__dirname, '../../src/test/workspaces/empty'),
       cubeIDEExample: path.resolve(
         __dirname,
-        '../../src/test/workspaces/CubeIdeExample/Projects/NUCLEO-G071RB/Applications/FreeRTOS/FreeRTOS_Mail'
+        '../../src/test/workspaces/CubeIdeExample/Projects/NUCLEO-G071RB/Applications/FreeRTOS/FreeRTOS_Mail',
       ),
       l5CxxProject: path.resolve(
         __dirname,
-        '../../src/test/workspaces/l5_cpp_test_project/Secure'
+        '../../src/test/workspaces/l5_cpp_test_project/Secure',
       ),
     };
 
@@ -52,12 +52,11 @@ async function main(): Promise<void> {
       '--extensions-dir',
       testExtensionPath,
       '--install-extension',
-      'marus25.cortex-debug'
+      'marus25.cortex-debug',
     ], {
       encoding: 'utf-8',
-      stdio: 'inherit'
+      stdio: 'inherit',
     });
-
 
     // default unit test, should not matter where it runs
     await runTests({
@@ -68,7 +67,7 @@ async function main(): Promise<void> {
         testWorkspaces.empty,
         '--extensions-dir',
         testExtensionPath,
-      ]
+      ],
     });
 
     // only run unit tests.
@@ -84,8 +83,8 @@ async function main(): Promise<void> {
       launchArgs: [
         testWorkspaces.makefileH7,
         '--extensions-dir',
-        testExtensionPath
-      ]
+        testExtensionPath,
+      ],
     });
 
     // // default build integration test
@@ -96,8 +95,8 @@ async function main(): Promise<void> {
       launchArgs: [
         testWorkspaces.makefileH7,
         '--extensions-dir',
-        testExtensionPath
-      ]
+        testExtensionPath,
+      ],
     });
     // import and build integration test
     await runTests({
@@ -107,8 +106,8 @@ async function main(): Promise<void> {
       launchArgs: [
         testWorkspaces.cubeIDEExample,
         '--extensions-dir',
-        testExtensionPath
-      ]
+        testExtensionPath,
+      ],
     });
     // import and build l5 import and convert to CPP test
     await runTests({
@@ -118,8 +117,8 @@ async function main(): Promise<void> {
       launchArgs: [
         testWorkspaces.l5CxxProject,
         '--extensions-dir',
-        testExtensionPath
-      ]
+        testExtensionPath,
+      ],
     });
 
     // testing custom rules for the makefile
@@ -130,10 +129,9 @@ async function main(): Promise<void> {
       launchArgs: [
         testWorkspaces.makefileH7,
         '--extensions-dir',
-        testExtensionPath
-      ]
+        testExtensionPath,
+      ],
     });
-
 
     // TODO: implement tooling clean-up.
   } catch (err) {

@@ -31,9 +31,8 @@ export async function getSVDFileList(): Promise<SVDFile[]> {
       { name: responseFile.name, download_url: responseFile.download_url }
     ));
     return files;
-  } else {
-    throw new Error('Could not get SVD Files from Github');
   }
+  throw new Error('Could not get SVD Files from Github');
 }
 
 export interface SVDLocalFile {
@@ -42,13 +41,11 @@ export interface SVDLocalFile {
 }
 export async function getSVDFileForChip(chip: string): Promise<SVDLocalFile> {
   const svdFileList = await getSVDFileList();
-  const svdFile = svdFileList.find(file => file.name.toUpperCase().includes(chip.toUpperCase()));
+  const svdFile = svdFileList.find((file) => file.name.toUpperCase().includes(chip.toUpperCase()));
   if (!svdFile) { throw new Error('Could not find desired SVD file for the chip'); }
   const fileBuffer = (await axios.get(svdFile.download_url)).data;
   return {
     name: svdFile.name,
-    data: fileBuffer
+    data: fileBuffer,
   };
 }
-
-

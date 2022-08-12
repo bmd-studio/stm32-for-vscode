@@ -1,6 +1,6 @@
 import { workspace, ConfigurationTarget } from 'vscode';
-import MakeInfo from '../types/MakeInfo';
 import _ = require('lodash');
+import MakeInfo from '../types/MakeInfo';
 
 export default function setCortexDebugWorkspaceConfiguration(info: MakeInfo): void {
   const cortexConfig = workspace.getConfiguration('cortex-debug');

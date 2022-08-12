@@ -33,24 +33,22 @@ export default function executeTask(
     let currentTaskScope: TaskScope | WorkspaceFolder = TaskScope.Workspace;
     if (taskScope) {
       currentTaskScope = taskScope;
-    } else {
-      if (workspace?.workspaceFolders?.[0]) {
-        currentTaskScope = workspace.workspaceFolders[0];
-      }
-
+    } else if (workspace?.workspaceFolders?.[0]) {
+      currentTaskScope = workspace.workspaceFolders[0];
     }
     const automationShell = getAutomationShell();
     const shellSpecificToolPath = automationShell.includes('powershell') ? `& '${cmd[0]}'` : `"${cmd[0]}"`;
     cmd.shift();
     const options = cmd.reduce((accumulator, option) => `${accumulator} ${option}`, '');
-    let totalPath = `${shellSpecificToolPath}${options}`;
+    const totalPath = `${shellSpecificToolPath}${options}`;
     const processExec = new ShellExecution(totalPath, shellExecOptions);
     const processTask = new Task(
       { type },
       currentTaskScope,
-      name, 'STM32 for VSCode',
+      name,
+      'STM32 for VSCode',
       processExec,
-      problemMatcher
+      problemMatcher,
     );
     tasks.executeTask(processTask);
     tasks.onDidEndTaskProcess((e: TaskProcessEndEvent) => {

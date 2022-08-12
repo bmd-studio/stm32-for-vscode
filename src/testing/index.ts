@@ -1,7 +1,13 @@
 import * as path from 'path';
 
 import { Uri, window, workspace } from 'vscode';
-import { checkIfFileExists, checkIfFileExitsIfNotWrite, fsPathToPosix, getWorkspaceUri, writeFileInWorkspace } from '../Helpers';
+import {
+  checkIfFileExists,
+  checkIfFileExitsIfNotWrite,
+  fsPathToPosix,
+  getWorkspaceUri,
+  writeFileInWorkspace,
+} from '../Helpers';
 
 import MakeInfo from '../types/MakeInfo';
 import axios from 'axios';
@@ -9,26 +15,22 @@ import executeTask from '../HandleTasks';
 import setupLibrariesFolder from './modulesFolder';
 import testsReadmeMD from './testsMapReadme';
 
-const DOCTEST_FILE_URL = "https://raw.githubusercontent.com/doctest/doctest/master/doctest/doctest.h";
-const TEST_MAP = "tests";
+const DOCTEST_FILE_URL = 'https://raw.githubusercontent.com/doctest/doctest/master/doctest/doctest.h';
+const TEST_MAP = 'tests';
 const DOCTEST_FOLDER = `${TEST_MAP}/doctest`;
 const DOCTEST_PATH = `${DOCTEST_FOLDER}/doctest.h`;
 const TEST_README_PATH = `${TEST_MAP}/README.md`;
 const TEST_MAKEFILE_PATH = 'unit-tests.make';
 
-
 // TODO: implement a new configuration for intellisense for testing
-
-
 
 async function getDoctestFile(): Promise<string> {
   const response = await axios.get(DOCTEST_FILE_URL);
   if (response.status === 200) {
     return response.data;
   }
-  else {
-    throw new Error('Something wen wrong with fetching the doctest file');;
-  }
+
+  throw new Error('Something wen wrong with fetching the doctest file');
 }
 
 /**
@@ -52,7 +54,6 @@ async function addDoctestFileToProject(): Promise<void> {
   await checkIfFileExitsIfNotWrite(doctestLocalPath, doctestFile);
 }
 
-
 export default async function buildTest(info: MakeInfo): Promise<void> {
   const workspacUri = getWorkspaceUri();
   if (!workspacUri) {
@@ -61,16 +62,16 @@ export default async function buildTest(info: MakeInfo): Promise<void> {
   try {
     await addDoctestFileToProject();
     await setupLibrariesFolder();
-    // 
+    //
     await checkIfFileExitsIfNotWrite(path.join(fsPathToPosix(workspacUri.fsPath), TEST_README_PATH), testsReadmeMD);
   } catch (error) {
     window.showErrorMessage(`Something went wrong with setting up the test folder. Error: ${error}`);
     return;
   }
 
-  let sourceFileListString = 
-    `${info.testInfo.cSources.join(' ')} ${info.testInfo.cxxSources.join(' ')} ${info.testInfo.asmSources.join(' ')}`;
-  
+  const sourceFileListString = 
+  `${info.testInfo.cSources.join(' ')} ${info.testInfo.cxxSources.join(' ')} ${info.testInfo.asmSources.join(' ')}`;
+
   let testHeaderFilesListString = info.testInfo.headerFiles.map((headerDir) => `-I${headerDir}`).join(' ');
   testHeaderFilesListString += ` -I${TEST_MAP}`;
   testHeaderFilesListString += ` -I${DOCTEST_FOLDER}`;
@@ -78,22 +79,18 @@ export default async function buildTest(info: MakeInfo): Promise<void> {
   const testMakefilePath = path.join(fsPathToPosix(workspacUri.fsPath), TEST_MAKEFILE_PATH);
   await writeFileInWorkspace(workspacUri, TEST_MAKEFILE_PATH, createTestMakefile(info));
 
-
   // TODO: Add default flags in the config yaml.
   const buildCommand = 
   `${sourceFileListString} ${testHeaderFilesListString} -DTEST -DDOCTEST_CONFIG_IMPLEMENT_WITH_MAIN -o unitTests`;
   await executeTask('build', 'build test', ['make', '-f', TEST_MAKEFILE_PATH], {}, 'gcc');
 }
 
-
-
 // function getFilteredLibraries(info: MakeInfo)
 
 // FIXME: add .exe to windows
 // TODO: add assembly support and test it
 function createTestMakefile(info: MakeInfo): string {
-  const testMakefile =
-  `
+  const testMakefile = `
 ######################################
 # target
 ######################################
@@ -162,4 +159,4 @@ $(OBJECT_DIR):
 -include $(wildcard $(OBJECT_DIR)/*.d)
 `;
   return testMakefile;
-} 
+}

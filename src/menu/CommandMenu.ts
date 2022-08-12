@@ -1,5 +1,5 @@
-import * as vscode from "vscode";
-import * as _ from "lodash";
+import * as vscode from 'vscode';
+import * as _ from 'lodash';
 
 export interface BuildCommandDefinition {
   label: string;
@@ -36,9 +36,9 @@ const changeProgrammerCommand: BuildCommandDefinition = {
   A list with available programmers will be provided`,
 };
 const importCubeProject: BuildCommandDefinition = {
-  label: "run CubeIDE importer",
+  label: 'run CubeIDE importer',
   command: 'stm32-for-vscode.importCubeIDEProject',
-  explanation: 'Will import a CubeIDE project or example project when present in the current workspace.'
+  explanation: 'Will import a CubeIDE project or example project when present in the current workspace.',
 };
 
 const COMMANDS: { [key: string]: BuildCommandDefinition } = {
@@ -47,7 +47,7 @@ const COMMANDS: { [key: string]: BuildCommandDefinition } = {
   flashCommand,
   debugCommand,
   changeProgrammerCommand,
-  importCubeProject
+  importCubeProject,
 };
 
 class BuildCommand extends vscode.TreeItem {
@@ -72,6 +72,7 @@ class BuildCommand extends vscode.TreeItem {
 
 export default class CommandMenuProvider implements vscode.TreeDataProvider<BuildCommand> {
   private context: vscode.ExtensionContext;
+
   public constructor(context: vscode.ExtensionContext) {
     this.context = context;
   }
@@ -79,6 +80,7 @@ export default class CommandMenuProvider implements vscode.TreeDataProvider<Buil
   public getTreeItem(element: BuildCommand): vscode.TreeItem {
     return element;
   }
+
   public getChildren(): BuildCommand[] {
     const hasBuildTools = this.context.globalState.get('hasBuildTools');
     if (!hasBuildTools) {
@@ -96,18 +98,19 @@ export default class CommandMenuProvider implements vscode.TreeDataProvider<Buil
           command.explanation,
           command.command,
           vscode.TreeItemCollapsibleState.None,
-          command?.arguments
-        )
+          command?.arguments,
+        ),
       );
     });
     return commands;
   }
+
   // eslint-disable-next-line max-len
   private _onDidChangeTreeData: vscode.EventEmitter<BuildCommand | undefined> = new vscode.EventEmitter<BuildCommand | undefined>();
+
   public readonly onDidChangeTreeData: vscode.Event<BuildCommand | undefined> = this._onDidChangeTreeData.event;
 
   public refresh(): void {
     this._onDidChangeTreeData.fire(undefined);
   }
 }
-

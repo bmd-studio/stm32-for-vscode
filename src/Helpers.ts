@@ -1,10 +1,11 @@
 import * as path from 'path';
 import * as shelljs from 'shelljs';
-const { platform } = process;
 
 import { Uri, workspace, env } from 'vscode';
 
 import { TextEncoder } from 'util';
+
+const { platform } = process;
 
 export function splitStringLines(input: string): string[] {
   return input.split(/\r\n|\r|\n/);
@@ -49,8 +50,7 @@ export async function writeFile(filePath: string, file: string): Promise<void> {
  * @param filePath Relative path to the file within the workspace
  * @param file The file that needs to be written
  */
-export async function writeFileInWorkspace(
-  workspacePathUri: Uri, filePath: string, file: string): Promise<void> {
+export async function writeFileInWorkspace(workspacePathUri: Uri, filePath: string, file: string): Promise<void> {
   const totalPath = path.resolve(fsPathToPosix(workspacePathUri.fsPath), filePath);
   await writeFile(totalPath, file);
 }

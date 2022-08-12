@@ -1,15 +1,16 @@
 import * as vscode from 'vscode';
 
-import { afterEach, beforeEach, suite, test } from 'mocha';
+import {
+  afterEach, beforeEach, suite, test,
+} from 'mocha';
 
 import buildSTM from '../../BuildTask';
 import {
   addTestToolSettingsToWorkspace,
   waitForWorkspaceFoldersChange,
-  cleanUpSTM32ForVSCodeArtifacts
+  cleanUpSTM32ForVSCodeArtifacts,
 } from '../helpers';
 import importAndSetupCubeIDEProject from '../../import';
-
 
 suite('importer test', () => {
   afterEach(() => {
@@ -26,6 +27,5 @@ suite('importer test', () => {
   test('Import Cube example project and build', async () => {
     await importAndSetupCubeIDEProject();
     await buildSTM();
-
   }).timeout(120000);
 });

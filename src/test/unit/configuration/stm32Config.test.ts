@@ -1,14 +1,15 @@
-import * as Helpers from '../../../Helpers';
-import * as STM32Config from '../../../configuration/stm32Config';
 import * as Sinon from 'sinon';
 import * as vscode from 'vscode';
 
 import { suite, test, beforeEach } from 'mocha';
 
-import { configurationFixture } from '../../fixtures/extensionConfigurationFixture';
 import { expect } from 'chai';
-import { makeFSOverWritable } from '../../helpers/fsOverwriteFunctions';
 import { TextEncoder } from 'util';
+import { configurationFixture } from '../../fixtures/extensionConfigurationFixture';
+import { makeFSOverWritable } from '../../helpers/fsOverwriteFunctions';
+import * as STM32Config from '../../../configuration/stm32Config';
+import * as Helpers from '../../../Helpers';
+
 suite('STM32Config', () => {
   beforeEach(() => {
     makeFSOverWritable(vscode);

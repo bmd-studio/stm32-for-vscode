@@ -1,12 +1,12 @@
-import * as Helpers from '../Helpers';
 import * as path from 'path';
 import * as vscode from 'vscode';
+import * as Helpers from '../Helpers';
 
 import { OpenOCDConfigurationInterface } from '../types';
 import { openOCDInterfaces } from './openOCDInterfaceFiles';
 
 /**
- * Creates an openocd configuration file string. 
+ * Creates an openocd configuration file string.
  * @param config openocd configuration
  */
 export function create(config: OpenOCDConfigurationInterface): string {
@@ -22,10 +22,9 @@ source [find target/${config.targetMCU}.cfg]
   return openocdConfig;
 }
 
-
 /**
  * Write the openocd configuration to the workspace
- * @param configuration openocd configuration file 
+ * @param configuration openocd configuration file
  */
 export async function write(configuration: string): Promise<void> {
   const workspaceUri = Helpers.getWorkspaceUri();
@@ -59,7 +58,7 @@ export async function readOrCreateConfigFile(config: OpenOCDConfigurationInterfa
     await write(configuration);
   } catch (error) {
     vscode.window.showErrorMessage(
-      `Something went wrong while creating the openocd configuration file. Error: ${error}`
+      `Something went wrong while creating the openocd configuration file. Error: ${error}`,
     );
     throw error;
   }
@@ -78,22 +77,21 @@ export function changeProgrammer(programmer: string): Promise<void> {
         resolve();
       }).catch((error) => {
         vscode.window.showErrorMessage(
-          `Something went wrong when writing the new openocd configuration file. Error: ${error}`
+          `Something went wrong when writing the new openocd configuration file. Error: ${error}`,
         );
         reject(error);
       });
     }).catch((error) => {
       vscode.window.showErrorMessage(
-        `Something went wrong wen reading the openocd config file for changing the programmer. Error: ${error}`
+        `Something went wrong wen reading the openocd config file for changing the programmer. Error: ${error}`,
       );
       reject(error);
     });
   });
-
 }
 
 /**
- * Opens a dialogue to change the programmer in the openocd.cfg file. 
+ * Opens a dialogue to change the programmer in the openocd.cfg file.
  * @param programmer (optional) if given the programmer will be selected without a dialogue
  */
 export function changeProgrammerDialogue(programmer?: string): Promise<void> {
@@ -116,5 +114,4 @@ export function changeProgrammerDialogue(programmer?: string): Promise<void> {
       });
     }
   });
-
 }

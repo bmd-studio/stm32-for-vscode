@@ -1,7 +1,7 @@
 import { suite, test } from 'mocha';
 
-import {debugFixture} from '../../fixtures/launchTaskFixture';
 import { expect } from 'chai';
+import { debugFixture } from '../../fixtures/launchTaskFixture';
 import getLaunchTask from '../../../configuration/LaunchTasksConfig';
 import { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
 

@@ -30,56 +30,57 @@ import * as vscode from 'vscode';
 import CommandMenu from './menu/CommandMenu';
 import addCommandMenu from './menu';
 import buildSTM from './BuildTask';
+import buildTest from './testing';
 import { checkBuildTools } from './buildTools';
+import { fsPathToPosix } from './Helpers';
+import { getInfo } from './getInfo';
 import importAndSetupCubeIDEProject from './import';
 import { installBuildToolsCommand } from './buildTools/installTools';
-import { fsPathToPosix, getWorkspaceUri } from './Helpers';
-import * as path from 'path';
-import buildTest from './testing';
-import { getInfo } from './getInfo';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext): { installTools: () => Promise<void> } {
   // This line of code will only be executed once when your extension is
   // activated
-  let commandMenu: CommandMenu | undefined = undefined;
+  let commandMenu: CommandMenu | undefined;
   checkBuildTools(context).then((hasBuildTools) => {
     if (hasBuildTools) {
-      // should continue with 
+      // should continue with
     }
     commandMenu = addCommandMenu(context);
     vscode.commands.executeCommand('setContext', 'stm32ForVSCodeReady', true);
   });
 
-  vscode.commands.registerCommand('stm32-for-vscode.build-tests',
+  vscode.commands.registerCommand(
+    'stm32-for-vscode.build-tests',
     async () => {
       if (!vscode.workspace.workspaceFolders?.[0]) { return; }
       const currentWorkspaceFolder = fsPathToPosix(vscode.workspace.workspaceFolders[0].uri.fsPath);
 
       const info = await getInfo(currentWorkspaceFolder);
       await buildTest(info);
-    }
+    },
   );
 
-  vscode.commands.registerCommand('stm32-for-vscode.importCubeIDEProject',
+  vscode.commands.registerCommand(
+    'stm32-for-vscode.importCubeIDEProject',
     async () => {
       try {
         await importAndSetupCubeIDEProject();
       } catch (error) {
         vscode.window.showErrorMessage(`Something went wrong with importing the Cube IDE project: ${error}`);
       }
-    }
+    },
   );
   const setProgrammerCommand = vscode.commands.registerCommand(
     'stm32-for-vscode.setProgrammer',
-    (programmer?: string
-    ) => {
+    (programmer?: string) => {
       OpenOCDConfig.changeProgrammerDialogue(programmer);
-    });
+    },
+  );
   context.subscriptions.push(setProgrammerCommand);
   const openSettingsCommand = vscode.commands.registerCommand('stm32-for-vscode.openSettings', () => {
-    vscode.commands.executeCommand('workbench.action.openSettings', `@ext:bmd.stm32-for-vscode`);
+    vscode.commands.executeCommand('workbench.action.openSettings', '@ext:bmd.stm32-for-vscode');
   });
   context.subscriptions.push(openSettingsCommand);
   const openExtension = vscode.commands.registerCommand('stm32-for-vscode.openExtension', async () => {
@@ -101,7 +102,7 @@ export function activate(context: vscode.ExtensionContext): { installTools: () =
   });
   context.subscriptions.push(installBuildTools);
 
-  const buildToolsCommand = vscode.commands.registerCommand("stm32-for-vscode.checkBuildTools", async () => {
+  const buildToolsCommand = vscode.commands.registerCommand('stm32-for-vscode.checkBuildTools', async () => {
     await checkBuildTools(context);
   });
   context.subscriptions.push(buildToolsCommand);
@@ -109,8 +110,7 @@ export function activate(context: vscode.ExtensionContext): { installTools: () =
     'stm32-for-vscode.build',
     async () => {
       await buildSTM({});
-
-    }
+    },
   );
   context.subscriptions.push(buildCmd);
   const flashCmd = vscode.commands.registerCommand(
@@ -119,7 +119,7 @@ export function activate(context: vscode.ExtensionContext): { installTools: () =
       await buildSTM({
         flash: true,
       });
-    }
+    },
   );
   context.subscriptions.push(flashCmd);
 
@@ -129,10 +129,10 @@ export function activate(context: vscode.ExtensionContext): { installTools: () =
       await buildSTM({
         cleanBuild: true,
       });
-    }
+    },
   );
   context.subscriptions.push(cleanBuildCmd);
   return {
-    installTools: async () => { await installBuildToolsCommand(context, commandMenu); }
+    installTools: async () => { await installBuildToolsCommand(context, commandMenu); },
   };
 }

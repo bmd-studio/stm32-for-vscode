@@ -1,6 +1,6 @@
+import * as vscode from 'vscode';
 import * as Helpers from '../Helpers';
 import * as OpenOCDConfig from '../configuration/openOCDConfig';
-import * as vscode from 'vscode';
 
 import { ExtensionConfiguration, OpenOCDConfiguration } from '../types';
 
@@ -17,38 +17,38 @@ import { readOrCreateConfigFile } from '../configuration/stm32Config';
 export function noMakefileAndConfigFileDialogue(): Promise<boolean> {
   return new Promise((resolve) => {
     vscode.window.showWarningMessage(
-      'No Makefile is present, please initialize your project using CubeMX,' +
-      'with the toolchain set to Makefile under the project manager'
-      ,
+      'No Makefile is present, please initialize your project using CubeMX,'
+      + 'with the toolchain set to Makefile under the project manager',
       'Wil do',
-      'Create custom setup')
+      'Create custom setup',
+    )
       .then(
         (buttonMessage) => {
           if (buttonMessage === 'Create custom setup') {
             // should make an "empty config file"
             vscode.window.showInformationMessage(
               `Are you sure that you want to create a custom project?\n
-              This means that you will have to fill in all the MCU defintions ` +
-              `and file locations in: ${EXTENSION_CONFIG_NAME} before the project ` +
-              `will compile with the STM32 for VSCode extension`,
-              "Yes", "Cancel"
+              This means that you will have to fill in all the MCU defintions `
+              + `and file locations in: ${EXTENSION_CONFIG_NAME} before the project `
+              + 'will compile with the STM32 for VSCode extension',
+              'Yes',
+              'Cancel',
             ).then((infoMessage) => {
               if (infoMessage === 'Yes') {
                 const emptyConfig = new ExtensionConfiguration();
                 emptyConfig.targetMCU = 'e.g. stm32f7x';
-                emptyConfig.cpu = "e.g. -mcpu=cortex-m7";
-                emptyConfig.fpu = "e.g. -mfpu=fpv4-sp-d16";
-                emptyConfig.floatAbi = "e.g. -mfloat-abi=hard";
-                emptyConfig.ldscript = "e.g. STM32F769IITx_FLASH.ld";
+                emptyConfig.cpu = 'e.g. -mcpu=cortex-m7';
+                emptyConfig.fpu = 'e.g. -mfpu=fpv4-sp-d16';
+                emptyConfig.floatAbi = 'e.g. -mfloat-abi=hard';
+                emptyConfig.ldscript = 'e.g. STM32F769IITx_FLASH.ld';
                 emptyConfig.suppressMakefileWarning = true;
                 readOrCreateConfigFile(emptyConfig).then(() => {
                   vscode.window.showInformationMessage(
-                    "Successfully created the config file," +
-                    "please add the necessary information, otherwise it will not compile"
+                    'Successfully created the config file,'
+                    + 'please add the necessary information, otherwise it will not compile',
                   );
                 });
                 resolve(true);
-                return;
               } else {
                 resolve(false);
               }
@@ -56,7 +56,8 @@ export function noMakefileAndConfigFileDialogue(): Promise<boolean> {
           } else {
             resolve(false);
           }
-        });
+        },
+      );
   });
 }
 
@@ -85,7 +86,7 @@ export async function checkProjectFilesAndCreate(): Promise<boolean> {
     if (!configFile.suppressMakefileWarning) {
       vscode.window.showWarningMessage(
         // eslint-disable-next-line max-len
-        "No CubeMX Makefile was found. Please configure your project to generate a Makefile project under Project Manager>Toolchain/IDE"
+        'No CubeMX Makefile was found. Please configure your project to generate a Makefile project under Project Manager>Toolchain/IDE',
       );
       // return Promise.resolve(true); // should continue despite this, worst case scenario the compilation fails.
     }

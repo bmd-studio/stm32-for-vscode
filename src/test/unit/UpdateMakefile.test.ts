@@ -1,16 +1,18 @@
 import * as Sinon from 'sinon';
 import * as chaiAsPromised from 'chai-as-promised';
-import * as makefileFunctions from '../../CreateMakefile';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { Uri } from 'vscode';
-import { afterEach, suite, test, beforeEach } from 'mocha';
+import {
+  afterEach, suite, test, beforeEach,
+} from 'mocha';
 import { expect, use } from 'chai';
+import { TextEncoder } from 'util';
 import { stm32ForVSCodeResult, testMakefileInfo } from '../fixtures/testSTMCubeMakefile';
 import updateMakefile, { getCurrentMakefile, writeMakefile } from '../../UpdateMakefile';
 import createMakefile from '../../CreateMakefile';
 
-import { TextEncoder } from 'util';
+import * as makefileFunctions from '../../CreateMakefile';
 import { makefileName } from '../../Definitions';
 import { makeFSOverWritable } from '../helpers/fsOverwriteFunctions';
 
@@ -52,8 +54,8 @@ suite('Update makefile', () => {
     expect(
       writeFileFake.calledOnceWith(
         fileToWriteTo,
-        Buffer.from(makefileString, 'utf-8')
-      )
+        Buffer.from(makefileString, 'utf-8'),
+      ),
     ).to.be.true;
   });
   test('to not update makefile when same makefile is present', async () => {
@@ -81,8 +83,8 @@ suite('Update makefile', () => {
     expect(
       fakeMakefileWriteFile.calledOnceWith(
         Uri.file(path.posix.join('local', makefileName)),
-        Buffer.from(createMakefile(testMakefileInfo), 'utf8')
-      )
+        Buffer.from(createMakefile(testMakefileInfo), 'utf8'),
+      ),
     ).to.be.true;
   });
 
@@ -97,8 +99,8 @@ suite('Update makefile', () => {
     expect(
       fakeMakefileWriteFile.calledOnceWith(
         Uri.file(path.posix.join('local', makefileName)),
-        Buffer.from(createMakefile(testMakefileInfo), 'utf8')
-      )
+        Buffer.from(createMakefile(testMakefileInfo), 'utf8'),
+      ),
     ).to.be.true;
   });
 });

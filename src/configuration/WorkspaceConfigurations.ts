@@ -29,7 +29,9 @@
 
 import * as _ from 'lodash';
 
-import { TaskDefinition, Uri, WorkspaceConfiguration, window, workspace } from 'vscode';
+import {
+  TaskDefinition, Uri, WorkspaceConfiguration, window, workspace,
+} from 'vscode';
 import getLaunchTask, { getAttachTask, getCortexDevice } from './LaunchTasksConfig';
 
 import MakeInfo from '../types/MakeInfo';
@@ -43,24 +45,24 @@ import updateCProperties from './CCCPConfig';
  * @param workspacePathUri Path to the active workspace
  * @param info info gained from the makefile.
  */
-export async function updateLaunch(
-  workspacePathUri: Uri, info: MakeInfo): Promise<void> {
+export async function updateLaunch(workspacePathUri: Uri, info: MakeInfo): Promise<void> {
   const launchFile = workspace.getConfiguration('launch', workspacePathUri);
   const launchConfig: TaskDefinition[] = launchFile.get('configurations', []);
   const config = getLaunchTask(info);
   const attachTask = getAttachTask(info);
-  const hasLaunchTask = !!launchConfig.find(task => task.name === config.name);
-  const hasAttachTask = !!launchConfig.find(task => task.name === attachTask.name);
-  if(!hasLaunchTask || !hasAttachTask) {
-    try{
+  const hasLaunchTask = !!launchConfig.find((task) => task.name === config.name);
+  const hasAttachTask = !!launchConfig.find((task) => task.name === attachTask.name);
+  if (!hasLaunchTask || !hasAttachTask) {
+    try {
       const svdFile = await getSVDFileForChip(getCortexDevice(info));
       config.svdFile.push(svdFile.name);
       attachTask.svdFile.push(svdFile.name);
-    } catch(err) {
+    } catch (err) {
       window.showErrorMessage(
         `Could not find SVD file for the current device: ${getCortexDevice(info)}. 
         If you want to use it for debugging look for it at: https://www.st.com/
-        and add the file name to the .svdFile option in the launch.json configurations`);
+        and add the file name to the .svdFile option in the launch.json configurations`,
+      );
       // eslint-disable-next-line no-console
       console.error(`Could not find an SVD file for the chip ${getCortexDevice(info)}`);
     }
@@ -69,7 +71,7 @@ export async function updateLaunch(
   if (!hasLaunchTask) {
     launchConfig.push(config);
   }
-  if(!hasAttachTask) {
+  if (!hasAttachTask) {
     launchConfig.push(attachTask);
   }
   // only change the launch configuration when none is present
@@ -77,8 +79,6 @@ export async function updateLaunch(
     await launchFile.update('configurations', launchConfig);
   }
 }
-
-
 
 interface TaskConfigCheck {
   hasBuildConfig: boolean;
@@ -88,15 +88,15 @@ interface TaskConfigCheck {
 /**
  * Checks if the required STM32 for VSCode build,flash and build clean tasks are present.
  * @param tasksConfig task definition from vscode.
- * @returns 
+ * @returns
  */
 function checkTasksForRequiredTasks(tasksConfig: TaskDefinition[]): TaskConfigCheck {
-  let taskConfigurationResult: TaskConfigCheck = {
+  const taskConfigurationResult: TaskConfigCheck = {
     hasBuildConfig: false,
     hasCleanBuildConfig: false,
-    hasFlashConfig: false
+    hasFlashConfig: false,
   };
-  tasksConfig.forEach(entry => {
+  tasksConfig.forEach((entry) => {
     if (_.isEqual(buildTasks.buildTask.label, entry.label)) {
       taskConfigurationResult.hasBuildConfig = true;
     }
@@ -114,7 +114,7 @@ function checkTasksForRequiredTasks(tasksConfig: TaskDefinition[]): TaskConfigCh
  * Adds required STM32 for VSCode tasks to a TaskDefinition array when they are missing.
  * @param tasksConfig tasks configuration in the current workspace
  * @param taskConfigurationCheck The object containing the checks for all required check by STM32 for VSCode.
- * @returns 
+ * @returns
  */
 function addTasksWhenMissing(tasksConfig: TaskDefinition[], taskConfigurationCheck: TaskConfigCheck): TaskDefinition[] {
   if (!taskConfigurationCheck.hasBuildConfig) {
@@ -139,11 +139,11 @@ function addTasksWhenMissing(tasksConfig: TaskDefinition[], taskConfigurationChe
 async function updateTasksWhenTasksWhereMissing(
   taskFile: WorkspaceConfiguration,
   tasksConfig: TaskDefinition[],
-  taskConfigurationCheck: TaskConfigCheck
+  taskConfigurationCheck: TaskConfigCheck,
 ): Promise<void> {
   let shouldUpdate = false;
-  let taskConfigurationKeys = Object.keys(taskConfigurationCheck) as (keyof TaskConfigCheck)[];
-  taskConfigurationKeys.forEach(key => {
+  const taskConfigurationKeys = Object.keys(taskConfigurationCheck) as (keyof TaskConfigCheck)[];
+  taskConfigurationKeys.forEach((key) => {
     if (!taskConfigurationCheck[key]) {
       shouldUpdate = true;
     }
@@ -151,7 +151,6 @@ async function updateTasksWhenTasksWhereMissing(
   if (shouldUpdate) {
     await taskFile.update('tasks', tasksConfig);
   }
-
 }
 
 /**
@@ -164,7 +163,7 @@ export function updateTasks(workspacePathUri: Uri): Promise<void> {
   let hasTasks: TaskConfigCheck = {
     hasBuildConfig: false,
     hasCleanBuildConfig: false,
-    hasFlashConfig: false
+    hasFlashConfig: false,
   };
 
   if (tasksConfig && !_.isEmpty(tasksConfig)) {
@@ -181,8 +180,7 @@ export function updateTasks(workspacePathUri: Uri): Promise<void> {
  * @param info Makeinfo which is used for setting the tasks.
  * @returns A void promise
  */
-export default async function updateConfiguration(
-  workspaceRoot: Uri, info: MakeInfo): Promise<void> {
+export default async function updateConfiguration(workspaceRoot: Uri, info: MakeInfo): Promise<void> {
   const tasks: Promise<void>[] = [];
 
   tasks.push(updateLaunch(workspaceRoot, info));

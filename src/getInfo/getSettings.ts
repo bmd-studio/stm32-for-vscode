@@ -24,8 +24,8 @@
 
 import * as _ from 'lodash';
 
-import { ToolChain } from '../types/MakeInfo';
 import { workspace } from 'vscode';
+import { ToolChain } from '../types/MakeInfo';
 
 /**
  * @description returns workspace settings
@@ -49,4 +49,4 @@ export function getExtensionSettings(): ToolChain {
   }
 
   return result;
-}  
+}

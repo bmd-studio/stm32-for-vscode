@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as _ from 'lodash';
 
-
+// TODO: look for a better way to do this without using any
 export function makeFSOverWritable(vscode: any): void {
   const fsOg = { ...vscode.workspace.fs };
   const fsKeys = Object.keys(vscode.workspace.fs);
@@ -19,3 +20,5 @@ export function makeFSOverWritable(vscode: any): void {
   });
   Object.defineProperties(vscode.workspace.fs, fsProperties);
 }
+
+export default makeFSOverWritable;

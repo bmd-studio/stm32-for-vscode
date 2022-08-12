@@ -33,8 +33,8 @@ export function newMakeInfo(info: Partial<MakeInfo>): MakeInfo {
       cSources: [],
       cxxSources: [],
       asmSources: [],
-      headerFiles: []
-    }
+      headerFiles: [],
+    },
   };
   return _.assign(standard, info);
 }

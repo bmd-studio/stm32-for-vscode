@@ -1,11 +1,13 @@
 import * as vscode from 'vscode';
 
 import {
+  afterEach, beforeEach, suite, test,
+} from 'mocha';
+import {
   addTestToolSettingsToWorkspace,
   cleanUpSTM32ForVSCodeArtifacts,
-  waitForWorkspaceFoldersChange
+  waitForWorkspaceFoldersChange,
 } from '../helpers';
-import { afterEach, beforeEach, suite, test } from 'mocha';
 import { readConfigFile, writeConfigFile } from '../../configuration/stm32Config';
 
 import buildSTM from '../../BuildTask';

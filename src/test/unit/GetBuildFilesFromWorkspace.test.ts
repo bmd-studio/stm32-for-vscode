@@ -1,17 +1,15 @@
 import * as Sinon from 'sinon';
 import * as assert from 'assert';
 
+import { afterEach, suite, test } from 'mocha';
+import { expect } from 'chai';
 import { FileListWithRandomFiles, HeaderFiles, SortedBuildFiles } from '../fixtures/testFileLists';
 import {
   // convertToRelative,
   getDirCaseFree,
   getIncludeDirectoriesFromFileList,
-  sortFiles
+  sortFiles,
 } from '../../getInfo/getFiles';
-
-import { afterEach, suite, test } from 'mocha';
-
-import { expect } from 'chai';
 
 suite('GetBuildFilesFromWorkspaceTest', () => {
   afterEach(() => {
@@ -38,8 +36,6 @@ suite('GetBuildFilesFromWorkspaceTest', () => {
 
     const output = getIncludeDirectoriesFromFileList(HeaderFiles);
     expect(output).to.deep.equal(SortedBuildFiles.cIncludes);
-
-
   });
   test('sortFiles', () => {
     const output = sortFiles(FileListWithRandomFiles);

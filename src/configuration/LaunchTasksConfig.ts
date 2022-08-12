@@ -1,5 +1,5 @@
-import MakefileInfo from '../types/MakeInfo';
 import { TaskDefinition } from 'vscode';
+import MakefileInfo from '../types/MakeInfo';
 
 export function getCortexDevice(info: MakefileInfo): string {
   const device = info.asmSources.find((entry) => entry.indexOf('startup_') >= 0);
@@ -8,8 +8,6 @@ export function getCortexDevice(info: MakefileInfo): string {
   }
   return '';
 }
-
-
 
 export default function getLaunchTask(info: MakefileInfo): TaskDefinition {
   const config = {

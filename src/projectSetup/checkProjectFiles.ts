@@ -1,6 +1,6 @@
-import * as Helpers from '../Helpers';
 import * as path from 'path';
 import * as vscode from 'vscode';
+import * as Helpers from '../Helpers';
 
 import { EXTENSION_CONFIG_NAME } from '../Definitions';
 
@@ -44,8 +44,8 @@ export default async function checkProjectFiles(): Promise<HasProjectFilesInterf
   });
 
   return Promise.resolve({
-    makefile: makefileStat ? true : false,
-    config: configStat ? true : false,
-    openocd: openocdConfigStat ? true : false,
+    makefile: !!makefileStat,
+    config: !!configStat,
+    openocd: !!openocdConfigStat,
   });
 }

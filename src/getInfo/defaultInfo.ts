@@ -1,17 +1,16 @@
-
 import MakeInfo from '../types/MakeInfo';
 
 const defaults: Partial<MakeInfo> = {
   libs: ['c', 'm', 'nosys'],
   cxxFlags: ['-feliminate-unused-debug-types'],
   assemblyFlags: [],
-  ldFlags: ['-specs=nosys.specs']
+  ldFlags: ['-specs=nosys.specs'],
 };
 
 /**
  * Adds default library and flags to the MakeInfo.
  * @param info makeInfo to add default libs and flags to
- * @returns 
+ * @returns
  */
 export function addDefaultLibsAndFlagsInfo(info: MakeInfo): MakeInfo {
   if (info.libs === undefined) {
@@ -33,12 +32,11 @@ export function addDefaultLibsAndFlagsInfo(info: MakeInfo): MakeInfo {
     defaults.ldFlags = [];
   }
 
-
   info.libs = info.libs.concat(defaults.libs);
   info.assemblyFlags = info.assemblyFlags.concat(defaults.assemblyFlags);
   info.cxxFlags = info.cxxFlags.concat(defaults.cxxFlags);
   if (info.ldFlags.findIndex(
-    (value) => value.includes('specs=')
+    (value) => value.includes('specs='),
   ) < 0) {
     info.ldFlags = info.ldFlags.concat(defaults.ldFlags);
   }

@@ -1,10 +1,10 @@
-import { workspace, Uri, window } from "vscode";
-import { parseStringPromise } from "xml2js";
-import { scanForFiles } from "../getFiles";
+import { workspace, Uri, window } from 'vscode';
+import { parseStringPromise } from 'xml2js';
 import * as path from 'path';
+import { scanForFiles } from '../getFiles';
 import { projectFilePathsToWorkspacePaths } from './helpers';
-export { getCProjectFile, getInfoFromCProjectFile } from './cProject';
 
+export { getCProjectFile, getInfoFromCProjectFile } from './cProject';
 
 interface CubeIDEProjectLink {
   name: string;
@@ -55,20 +55,18 @@ export async function getProjectFile(): Promise<CubeIDEProject | undefined> {
     // get the .project XML file
     const projectXML = await workspace.fs.readFile(
       Uri.file(
-        path.join(currentWorkspaceFolder.uri.fsPath, projectFile[0])
-      )
+        path.join(currentWorkspaceFolder.uri.fsPath, projectFile[0]),
+      ),
     );
     const projectJSON: CubeIDEProject = await parseStringPromise(
       projectXML,
-      { ignoreAttrs: false, mergeAttrs: true, explicitArray: false }
+      { ignoreAttrs: false, mergeAttrs: true, explicitArray: false },
     );
     projectJSON.location = projectFile[0];
     return projectJSON;
   }
   return undefined;
 }
-
-
 
 /**
  * Get sources files from a CubeIDEProject file
@@ -79,7 +77,7 @@ export function getSourceFilesFromCubeProjectJSON(projectJSON: CubeIDEProject): 
   if (projectJSON && projectJSON?.projectDescription?.linkedResources?.link) {
     const linkFiles: CubeIDEProjectLink[] = projectJSON?.projectDescription?.linkedResources?.link;
     // Loop to retrieve the relative location to the parent.
-    const currentFiles = linkFiles.map((entry => {
+    const currentFiles = linkFiles.map(((entry) => {
       let location = entry.locationURI || entry.location || '';
       const nestingRegex = /^(?:\$%\dB)?PARENT-(\d)-PROJECT_LOC(?:%\dD)?\//;
       const numberSearch = nestingRegex.exec(location);
@@ -96,15 +94,13 @@ export function getSourceFilesFromCubeProjectJSON(projectJSON: CubeIDEProject): 
     }));
     const filteredFiles = currentFiles.filter((entry) => !!entry);
     // need to do this  to get the appropriate  location
-    let dirRoot = path.dirname(projectJSON.location);
+    const dirRoot = path.dirname(projectJSON.location);
     return projectFilePathsToWorkspacePaths(dirRoot, filteredFiles);
-  } else {
-    const errorMessage = 'no source files in .project file found';
-    window.showErrorMessage(errorMessage);
-    throw Error(errorMessage);
   }
+  const errorMessage = 'no source files in .project file found';
+  window.showErrorMessage(errorMessage);
+  throw Error(errorMessage);
 }
-
 
 /**
  * gets project information from  the Cube IDE .project file.
@@ -118,9 +114,8 @@ export default async function getCubeIDEProjectFileInfo(): Promise<CubeIDEProjec
   const sourceFiles = getSourceFilesFromCubeProjectJSON(cubeIDEProjectFile);
   return {
     sourceFiles,
-    target: cubeIDEProjectFile.projectDescription?.name ?
-      cubeIDEProjectFile.projectDescription?.name :
-      'firmware',
+    target: cubeIDEProjectFile.projectDescription?.name
+      ? cubeIDEProjectFile.projectDescription?.name
+      : 'firmware',
   };
 }
-

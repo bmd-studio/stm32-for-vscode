@@ -1,11 +1,13 @@
 import * as vscode from 'vscode';
 
 import {
+  afterEach, beforeEach, suite, test,
+} from 'mocha';
+import {
   addTestToolSettingsToWorkspace,
   cleanUpSTM32ForVSCodeArtifacts,
-  waitForWorkspaceFoldersChange
+  waitForWorkspaceFoldersChange,
 } from '../helpers';
-import { afterEach, beforeEach, suite, test } from 'mocha';
 
 import buildSTM from '../../BuildTask';
 
@@ -41,8 +43,5 @@ suite('build test', () => {
     await buildSTM();
     await buildSTM();
     await buildSTM({ cleanBuild: true });
-
-
   }).timeout(120000);
-
 });

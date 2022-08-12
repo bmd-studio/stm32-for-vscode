@@ -1,16 +1,18 @@
-import * as CCCPConfig from '../../../configuration/CCCPConfig';
 import * as Sinon from 'sinon';
 import * as _ from 'lodash';
 import * as chaiAsPromised from 'chai-as-promised';
-import * as helpers from '../../../Helpers';
 import * as shelljs from 'shelljs';
 import * as vscode from 'vscode';
 import { Uri } from 'vscode';
-import { afterEach, beforeEach, suite, test } from 'mocha';
+import {
+  afterEach, beforeEach, suite, test,
+} from 'mocha';
 import { expect, use } from 'chai';
 
-import MakeInfo from '../../../types/MakeInfo';
 import { TextEncoder } from 'util';
+import MakeInfo from '../../../types/MakeInfo';
+import * as helpers from '../../../Helpers';
+import * as CCCPConfig from '../../../configuration/CCCPConfig';
 import { newMakeInfo } from '../../fixtures/makeInfoFixture';
 import { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
 import { makeFSOverWritable } from '../../helpers/fsOverwriteFunctions';
@@ -22,7 +24,6 @@ const {
   updateCProperties,
   // getAbsoluteCompilerPath,
 } = CCCPConfig;
-
 
 // const fs = workspace.fs;
 use(chaiAsPromised);
@@ -42,13 +43,12 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     const testDefs: { cDefs: string[]; cxxDefs: string[]; asDefs: string[] } = {
       cDefs: ['-DdefSomeC', '-DdefSomeD'],
       cxxDefs: ['-DefineThis', '-Definethat'],
-      asDefs: ['-DasDefinition', '-DescriptiveDef']
+      asDefs: ['-DasDefinition', '-DescriptiveDef'],
     };
     const result = ['defSomeC', 'defSomeD', 'efineThis', 'efinethat', 'asDefinition', 'escriptiveDef'].sort();
     expect(getDefinitions(testDefs).sort()).to.deep.equal(result);
   });
   test('getCProperties', () => {
-
     const ingoing: MakeInfo = newMakeInfo({
       cDefs: ['defSomeC', 'defSomeD'],
       cxxDefs: ['efineThis', 'efinethat'],
@@ -74,7 +74,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     expect(testOutput).to.deep.equal(testDef);
   });
   test('update c properties without earlier file present', async () => {
-    //should test bootstrapping and updating
+    // should test bootstrapping and updating
     const writeFileInWorkspaceFake = Sinon.fake();
     const findFileInWorkspaceFake = Sinon.fake.returns(Promise.resolve([]));
     Sinon.replace(helpers, 'writeFileInWorkspace', writeFileInWorkspaceFake);
@@ -85,7 +85,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
         includePath: _.uniq(testMakefileInfo.cIncludes).sort(),
         defines: _.uniq(getDefinitions(testMakefileInfo)).sort(),
         compilerPath: 'arm-none-eabi-gcc',
-      }
+      },
       ],
       version: 4,
     }, null, 2);
@@ -96,7 +96,8 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     expect(writeFileInWorkspaceFake.calledOnce).to.be.true;
     expect(writeFileInWorkspaceFake.getCall(0).args[2]).to.deep.equal(expectedResult);
     expect(writeFileInWorkspaceFake.calledOnceWith(
-      mockWorkspaceUri, '.vscode/c_cpp_properties.json',
+      mockWorkspaceUri,
+      '.vscode/c_cpp_properties.json',
       expectedResult,
     )).to.be.true;
     Sinon.restore();
@@ -108,42 +109,42 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     const readFileInWorkspaceFake = Sinon.fake.returns(Promise.resolve(new TextEncoder().encode(JSON.stringify({
       configurations: [
         {
-          name: "SomeOtherConfig",
+          name: 'SomeOtherConfig',
           includePath: [
-            "somenonStandard/Include/Path",
+            'somenonStandard/Include/Path',
           ],
           defines: [
-            "iWillNotBeDefined"
+            'iWillNotBeDefined',
           ],
-          compilerPath: "arm-none-eabi-gcc",
-          cStandard: "c11",
-          cppStandard: "c++11"
-        }
+          compilerPath: 'arm-none-eabi-gcc',
+          cStandard: 'c11',
+          cppStandard: 'c++11',
+        },
       ],
-      "version": 4
+      version: 4,
     }, null, 2))));
     const expectedResult = JSON.stringify({
       configurations: [
         {
-          name: "SomeOtherConfig",
+          name: 'SomeOtherConfig',
           includePath: [
-            "somenonStandard/Include/Path",
+            'somenonStandard/Include/Path',
           ],
           defines: [
-            "iWillNotBeDefined"
+            'iWillNotBeDefined',
           ],
-          compilerPath: "arm-none-eabi-gcc",
-          cStandard: "c11",
-          cppStandard: "c++11"
+          compilerPath: 'arm-none-eabi-gcc',
+          cStandard: 'c11',
+          cppStandard: 'c++11',
         },
         {
           name: 'STM32',
           includePath: _.uniq(testMakefileInfo.cIncludes).sort(),
           defines: _.uniq(getDefinitions(testMakefileInfo)).sort(),
-          compilerPath: "arm-none-eabi-gcc",
-        }
+          compilerPath: 'arm-none-eabi-gcc',
+        },
       ],
-      "version": 4
+      version: 4,
     }, null, 2);
     Sinon.replace(helpers, 'writeFileInWorkspace', writeFileInWorkspaceFake);
     Sinon.replace(vscode.workspace, 'findFiles', findFileInWorkspaceFake);
@@ -164,7 +165,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
         includePath: _.uniq(testMakefileInfo.cIncludes).sort(),
         defines: _.uniq(getDefinitions(testMakefileInfo)).sort(),
         compilerPath: 'arm-none-eabi-gcc',
-      }
+      },
       ],
       version: 4,
     }, null, 2);
@@ -176,7 +177,6 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     expect(writeFileInWorkspaceFake.callCount).to.equal(0);
     expect(findFileInWorkspaceFake.calledOnce).to.be.true;
     expect(readFileInWorkspaceFake.calledOnce).to.be.true;
-
   });
   test('update c properties, with several other definitions present', async () => {
     const writeFileInWorkspaceFake = Sinon.fake();
@@ -184,19 +184,19 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     const readFileInWorkspaceFake = Sinon.fake.returns(Promise.resolve(new TextEncoder().encode(JSON.stringify({
       configurations: [
         {
-          name: "STM32",
+          name: 'STM32',
           includePath: [
-            "somenonStandard/Include/Path",
+            'somenonStandard/Include/Path',
           ],
           defines: [
-            "iWillNotBeDefined"
+            'iWillNotBeDefined',
           ],
-          compilerPath: "arm-none-eabi-gcc",
-          cStandard: "c11",
-          cppStandard: "c++11"
-        }
+          compilerPath: 'arm-none-eabi-gcc',
+          cStandard: 'c11',
+          cppStandard: 'c++11',
+        },
       ],
-      "version": 4
+      version: 4,
     }, null, 2))));
     Sinon.replace(helpers, 'writeFileInWorkspace', writeFileInWorkspaceFake);
     Sinon.replace(vscode.workspace, 'findFiles', findFileInWorkspaceFake);
@@ -208,34 +208,35 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     const expectedCallResult = {
       configurations: [
         {
-          name: "STM32",
+          name: 'STM32',
           includePath: [
-            "somenonStandard/Include/Path",
+            'somenonStandard/Include/Path',
           ],
           defines: [
-            "iWillNotBeDefined"
+            'iWillNotBeDefined',
           ],
-          compilerPath: "arm-none-eabi-gcc",
-          cStandard: "c11",
-          cppStandard: "c++11"
-        }
+          compilerPath: 'arm-none-eabi-gcc',
+          cStandard: 'c11',
+          cppStandard: 'c++11',
+        },
       ],
-      "version": 4
+      version: 4,
     };
-    expectedCallResult.configurations[0].includePath =
-      _.uniq(
-        expectedCallResult.configurations[0].includePath.concat(
-          testMakefileInfo.cIncludes
-        )).sort();
-    expectedCallResult.configurations[0].defines =
-      _.uniq(
-        expectedCallResult.configurations[0].defines.concat(
-          getDefinitions(testMakefileInfo)
-        )).sort();
+    expectedCallResult.configurations[0].includePath = _.uniq(
+      expectedCallResult.configurations[0].includePath.concat(
+        testMakefileInfo.cIncludes,
+      ),
+    ).sort();
+    expectedCallResult.configurations[0].defines = _.uniq(
+      expectedCallResult.configurations[0].defines.concat(
+        getDefinitions(testMakefileInfo),
+      ),
+    ).sort();
     expect(writeFileInWorkspaceFake.getCall(0).args[2]).to.deep.equal(JSON.stringify(expectedCallResult, null, 2));
     expect(writeFileInWorkspaceFake.calledOnceWith(
-      mockWorkspaceUri, '.vscode/c_cpp_properties.json',
-      JSON.stringify(expectedCallResult, null, 2)
+      mockWorkspaceUri,
+      '.vscode/c_cpp_properties.json',
+      JSON.stringify(expectedCallResult, null, 2),
     )).to.be.true;
     Sinon.restore();
   });
@@ -259,5 +260,4 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     Sinon.replace(vscode.workspace, 'findFiles', findFilesFake);
     expect(getWorkspaceConfigFile()).to.be.rejected;
   });
-
 });

@@ -1,15 +1,14 @@
-
+import { suite, test } from 'mocha';
+import { expect } from 'chai';
 import createMakefile, {
   createGCCPathOutput,
   createSingleLineStringList,
   createStringList,
 } from '../../CreateMakefile';
-import { suite, test } from 'mocha';
 
 import MakeInfo from '../../types/MakeInfo';
-import { expect } from 'chai';
 
-// TODO: add library testing in the mix. 
+// TODO: add library testing in the mix.
 // TODO: add a test for adding flags.
 suite('CreateMakefile', () => {
   test('check for proper line endings on string list', () => {
@@ -24,7 +23,6 @@ suite('CreateMakefile', () => {
     const expectedResult = 'beautiful hello world ';
     const result = createSingleLineStringList(testArray);
     expect(result).to.equal(expectedResult);
-
   });
   test('outputs empty string on empty array', () => {
     const result = createStringList([]);
@@ -40,7 +38,7 @@ suite('CreateMakefile', () => {
     const customMakefileRules = [
       {
         command: 'sayhi',
-        rule: "echo sayhi"
+        rule: 'echo sayhi',
       },
     ];
     makeInfo.customMakefileRules = customMakefileRules;
@@ -48,5 +46,4 @@ suite('CreateMakefile', () => {
     expect(makefileOutput).to.contain(customMakefileRules[0].command);
     expect(makefileOutput).to.contain(customMakefileRules[0].rule);
   });
-
 });

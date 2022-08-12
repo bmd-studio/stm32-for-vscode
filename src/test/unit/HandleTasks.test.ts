@@ -8,7 +8,7 @@ import { suite, test } from 'mocha';
 import executeTask from '../../HandleTasks';
 
 use(chaiAsPromised);
-suite("Handle Tasks", () => {
+suite('Handle Tasks', () => {
   test('test if shell process is executed at workspaceFolder', () => {
     const localUri = Uri.file('./');
     Sinon.replaceGetter(workspace, 'workspaceFolders', () => [{
@@ -32,7 +32,7 @@ suite("Handle Tasks", () => {
       index: 0,
     }]);
     expect(
-      executeTask('shell', 'test task', ['echo test task && exit 1337'], {})
+      executeTask('shell', 'test task', ['echo test task && exit 1337'], {}),
     ).to.eventually.be.rejectedWith('1337');
     Sinon.restore();
   });
