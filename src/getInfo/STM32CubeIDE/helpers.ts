@@ -7,17 +7,22 @@ import * as path from 'path';
  * @param value value to search for
  * @returns The parent when it has found the key/value pair, otherwise undefined
  */
-export function deepFind(object: Record<string, unknown>, key: string, value: string): undefined | any {
+export function deepFind(
+  object: Record<string, unknown | unknown[]>,
+  key: string,
+  value: string
+): undefined | Record<string, unknown> {
   // the zero index array is included as the XML conversion
   // can have an array with length 1 with the actual value inside.
   const hasOwnProperty = Object.prototype.hasOwnProperty.call(object, key);
-  if (hasOwnProperty && object[key] === value || object?.[key]?.[0] === value) {
+  const valueOfProperty: any = object[key];
+  if (hasOwnProperty && valueOfProperty === value || (Array.isArray(object?.[key]) && valueOfProperty?.[0] === value)) {
     return object;
   }
   for (const objectKey of Object.keys(object)) {
     const typeOfObject = typeof object[objectKey];
     if (typeOfObject === 'object') {
-      const output: any = deepFind(object[objectKey], key, value);
+      const output: any = deepFind(object[objectKey] as Record<string, unknown>, key, value);
       if (output !== undefined) { return output; }
     }
   }

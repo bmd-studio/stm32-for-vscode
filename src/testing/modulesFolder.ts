@@ -29,3 +29,17 @@ export default async function setupModulesFolder(): Promise<void> {
     );
   }
 }
+
+interface SourceFiles {
+  sources: string[],
+  includes: string[]
+}
+
+interface ModuleFolderFiles {
+  c: SourceFiles;
+  cxx: SourceFiles;
+  asm: SourceFiles;
+}
+
+export function getFilesFromModulesFolder(): Promise<ModuleFolderFiles> {
+}
