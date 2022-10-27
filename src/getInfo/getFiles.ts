@@ -164,6 +164,7 @@ export async function globSearch(glob: string, sourceFolder: string): Promise<st
  * @returns array of posix file paths
  */
 export async function scanForFiles(includedFilesGlob: string[]): Promise<string[]> {
+  const startTime = Date.now();
   const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
   if (workspaceFolder === undefined) { return []; }
 
@@ -176,7 +177,7 @@ export async function scanForFiles(includedFilesGlob: string[]): Promise<string[
         if (checkResult.type === vscode.FileType.File) {
           nonGlobFiles.push(filePath);
         }
-      // eslint-disable-next-line no-empty
+        // eslint-disable-next-line no-empty
       } catch (error) {
 
       }
@@ -185,6 +186,8 @@ export async function scanForFiles(includedFilesGlob: string[]): Promise<string[
   const returnedFiles = await Promise.all(filePromises);
   const combinedFiles = returnedFiles.concat(nonGlobFiles);
   const allFiles = _.flattenDeep(combinedFiles);
+  const endTime = Date.now();
+  console.log("file scanning took: ", endTime - startTime);
   return allFiles;
 }
 

@@ -184,7 +184,7 @@ export function convertCProjectTypeToValue(
       return parentValue?.value;
       break;
     case 'dotNotation':
-      if(typeof parentValue?.value === 'string') {
+      if (typeof parentValue?.value === 'string') {
         return parentValue?.value?.split('.')?.pop();
       }
       break;
@@ -193,8 +193,8 @@ export function convertCProjectTypeToValue(
         const paths = parentValue?.listOptionValue?.map(
           (entry: CProjectFileListOption) => entry?.value
         );
-        const filteredPaths: string[] = 
-        paths.filter((entry) => (typeof entry === 'string')) as string[];
+        const filteredPaths: string[] =
+          paths.filter((entry) => (typeof entry === 'string')) as string[];
         return filteredPaths;
       }
       return [];
@@ -205,8 +205,8 @@ export function convertCProjectTypeToValue(
         const definitions = parentValue?.listOptionValue?.map(
           (entry: CProjectFileListOption) => entry?.value
         );
-        const filteredDefinitions: string[] = 
-        definitions.filter((entry) => (typeof entry === 'string')) as string[];
+        const filteredDefinitions: string[] =
+          definitions.filter((entry) => (typeof entry === 'string')) as string[];
         return filteredDefinitions;
       }
       return [];
@@ -216,7 +216,7 @@ export function convertCProjectTypeToValue(
       return parentValue?.value;
       break;
     case 'flags':
-      if(typeof parentValue?.value === 'string') {
+      if (typeof parentValue?.value === 'string') {
         return parentValue?.value?.split(' ');
       }
       break;
@@ -226,6 +226,7 @@ export function convertCProjectTypeToValue(
     default:
       return parentValue?.value;
   }
+  return undefined;
 }
 
 // eslint-disable-next-line max-len
@@ -241,12 +242,12 @@ export function getInfoFromCProjectFile(cProjectFile: Record<string, unknown>): 
 
   const cProjectInfo: { [key: string]: string | string[] } = {};
   infoFromCProjectDefinition.forEach((definition) => {
-    const parentValue = deepFind(cProjectFile, 'superClass', definition.superClass);
+    const parentValue = deepFind(cProjectFile, 'superClass', definition.superClass) as CProjectFileParentValue;
     const value = convertCProjectTypeToValue(parentValue, definition.type);
     cProjectInfo[definition.name] = value || '';
   });
   infoFromCProjectac6Definition.forEach((definition) => {
-    const parentValue = deepFind(cProjectFile, 'superClass', definition.superClass);
+    const parentValue = deepFind(cProjectFile, 'superClass', definition.superClass) as CProjectFileParentValue;
     const value = convertCProjectTypeToValue(parentValue, definition.type);
     if (
       value !== undefined && cProjectInfo[definition.name].length === 0) {
