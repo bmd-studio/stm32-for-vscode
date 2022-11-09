@@ -167,7 +167,7 @@ export async function readConfigFile(): Promise<ExtensionConfiguration> {
     const yamlConfig: ExtensionConfigurationInterface = YAML.parse(file);
     if (!yamlConfig) { return Promise.reject(new Error('Could not parse yaml configuration')); }
     _.forEach(yamlConfig, (entry, key) => {
-      if (_.has(yamlConfig, key) && _.get(yamlConfig, key) !== null && _.get(yamlConfig, key) !== [null]) {
+      if (_.has(yamlConfig, key) && _.get(yamlConfig, key) !== null && _.get(yamlConfig, key)?.[0] !== null) {
         _.set(configuration, key, entry);
       }
     });

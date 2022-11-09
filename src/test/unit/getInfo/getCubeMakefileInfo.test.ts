@@ -4,12 +4,7 @@ import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { afterEach, suite, test, beforeEach } from 'mocha';
 import getMakefileInfo, {
-  extractLibs,
-  extractMakefileInfo,
-  extractMultiLineInfo,
-  extractSingleLineInfo,
   getMakefile,
-  getTargetSTM,
   removePrefixes,
 } from '../../../getInfo/getCubeMakefileInfo';
 import testMakefile, { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
@@ -26,34 +21,6 @@ suite('Get Cube makefile info', () => {
   afterEach(() => {
     Sinon.restore();
   });
-  test('extractSingleLineInfo', () => {
-    // assert.
-    expect(extractSingleLineInfo('target', testMakefile)).to.equal(testMakefileInfo.target);
-    expect(extractSingleLineInfo('C_SOURCES', testMakefile)).to.equal(' \\');
-    expect(extractSingleLineInfo('PREFIX', testMakefile)).to.equal('arm-none-eabi-');
-    expect(extractSingleLineInfo('CPU', testMakefile)).to.equal('-mcpu=cortex-m7');
-    expect(extractSingleLineInfo('LIBS', testMakefile)).to.equal('-lc -lm -lnosys');
-  });
-  test('extractMultiLineInfo', () => {
-    assert.deepEqual(extractMultiLineInfo('C_DEFS', testMakefile),
-      ['-DUSE_HAL_DRIVER', '-DSTM32H743xx', '-DUSE_HAL_DRIVER', '-DSTM32H743xx']);
-    assert.deepEqual(extractMultiLineInfo('c_sources', testMakefile), testMakefileInfo.cSources);
-    assert.deepEqual(extractMultiLineInfo('target', testMakefile), []);
-  });
-  test('getTargetSTM', () => {
-    assert.equal(getTargetSTM(testMakefileInfo.cSources), 'stm32h7x');
-  });
-  test('getLibs', () => {
-    const libLTestString = 'LIBS = -llib -lotherlib -lsomeotherotherLib -lstdc++\n';
-    const result = extractLibs(libLTestString);
-    const expectedResult = [
-      '-llib',
-      '-lotherlib',
-      '-lsomeotherotherLib',
-      '-lstdc++',
-    ];
-    expect(result).to.deep.equal(expectedResult);
-  });
   test('remove prefixes', () => {
     const prefixedList = [
       "-lentry1",
@@ -69,7 +36,7 @@ suite('Get Cube makefile info', () => {
     expect(result).to.deep.equal(unPrefixedList);
   });
   test('extractAllInfo', () => {
-    const output = extractMakefileInfo(testMakefile);
+    const output = getMakefileInfo(testMakefile);
     assert.deepEqual(output.targetMCU, testMakefileInfo.targetMCU);
     assert.deepEqual(output.target, testMakefileInfo.target);
     assert.deepEqual(output.ldscript, testMakefileInfo.ldscript);
@@ -117,7 +84,8 @@ suite('Get Cube makefile info', () => {
       Promise.resolve(new TextEncoder().encode(testMakefile))
     );
     Sinon.replace(vscode.workspace.fs, 'readFile', fakeReadFile);
-    const makefileInfo = await getMakefileInfo(makefilePath);
+    const makefileData = await getMakefile(makefilePath);
+    const makefileInfo = getMakefileInfo(makefileData);
     expect(fakeReadFile.calledOnceWith(vscode.Uri.file('someRelevant/path/Makefile'))).to.be.true;
     const outputInfo = testMakefileInfo;
     outputInfo.tools = new ToolChain();

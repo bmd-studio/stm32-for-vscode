@@ -42,7 +42,7 @@ import {
 
 import { OpenOCDConfiguration } from '../types/OpenOCDConfig';
 import { getBuildToolsFromSettings } from '../buildTools';
-import getMakefileInfo from './getCubeMakefileInfo';
+import getMakefileInfo, { getMakefile } from './getCubeMakefileInfo';
 import * as Micromatch from 'micromatch';
 import getDefinitionsFromFiles from './getDotDefinitions';
 
@@ -114,7 +114,8 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   if (!vscode.workspace.workspaceFolders) { throw Error('No workspace folder was selected'); }
   let cubeMakefileInfo = new MakeInfo();
   try {
-    cubeMakefileInfo = await getMakefileInfo(location);
+    const cubeMakefile = await getMakefile(location);
+    cubeMakefileInfo = await getMakefileInfo(cubeMakefile);
   } catch (e) {
     // do not need to catch anything
   }
