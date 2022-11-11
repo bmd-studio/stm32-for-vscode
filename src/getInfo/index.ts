@@ -27,23 +27,24 @@
  * Created by Jort Band - Bureau Moeilijke Dingen
 */
 
+import * as Micromatch from 'micromatch';
 import * as OpenOCDConfigFile from '../configuration/openOCDConfig';
 import * as STM32ProjectConfiguration from '../configuration/stm32Config';
 import * as _ from 'lodash';
 import * as vscode from 'vscode';
+
 import MakeInfo, { ExtensionConfiguration } from '../types/MakeInfo';
 import {
   getHeaderFiles,
-  getSourceFiles,
-  sortFiles,
   getIncludeDirectoriesFromFileList,
-  getNonGlobIncludeDirectories
+  getNonGlobIncludeDirectories,
+  getSourceFiles,
+  sortFiles
 } from './getFiles';
+import getMakefileInfo, { getMakefileInWorkspace } from './getCubeMakefileInfo';
 
 import { OpenOCDConfiguration } from '../types/OpenOCDConfig';
 import { getBuildToolsFromSettings } from '../buildTools';
-import getMakefileInfo, { getMakefile } from './getCubeMakefileInfo';
-import * as Micromatch from 'micromatch';
 import getDefinitionsFromFiles from './getDotDefinitions';
 
 /**
@@ -114,7 +115,7 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   if (!vscode.workspace.workspaceFolders) { throw Error('No workspace folder was selected'); }
   let cubeMakefileInfo = new MakeInfo();
   try {
-    const cubeMakefile = await getMakefile(location);
+    const cubeMakefile = await getMakefileInWorkspace(location);
     cubeMakefileInfo = await getMakefileInfo(cubeMakefile);
   } catch (e) {
     // do not need to catch anything

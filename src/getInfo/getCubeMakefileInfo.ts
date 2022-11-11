@@ -38,17 +38,21 @@
  * Created by Jort Band- Bureau Moeilijke Dingen
  */
 
-import MakeInfo from '../types/MakeInfo';
-import { workspace, Uri } from 'vscode';
-import { getTargetMCUFromFullName } from '../OpenOcdTargetFiles';
+import { Uri, workspace } from 'vscode';
 
+import MakeInfo from '../types/MakeInfo';
+import { getTargetMCUFromFullName } from '../OpenOcdTargetFiles';
 
 /**
  * @description
  * @param {string} location - location of the makefile e.g. /filepath/Makefile
  */
-export async function getMakefile(location: string): Promise<string> {
-  const makefileFile = await workspace.fs.readFile(Uri.file(location));
+export async function getMakefileInWorkspace(location: string): Promise<string> {
+  let makefileLocation = location;
+  if(!makefileLocation.endsWith('Makefile')) {
+    makefileLocation = `${makefileLocation}/Makefile`;
+  }
+  const makefileFile = await workspace.fs.readFile(Uri.file(makefileLocation));
   const makefile = Buffer.from(makefileFile).toString('utf-8');
   return makefile;
 }
@@ -76,7 +80,10 @@ function extractSingleLineVariablesFromMakefile(makefile: string): { [key: strin
     const variableAndString = variableAndStringMatcher.exec(variableLine);
     return {
       name: variableAndString?.[1],
-      values: variableAndString?.[2].split(' ').filter((entryString) => entryString !== '')
+      values: variableAndString?.[2]
+        .split(' ')
+        .filter((entryString) => entryString !== '')
+        .map((entryString) => entryString.trim())
     };
   });
 
@@ -104,7 +111,7 @@ export function extractBuildSpecification(makefile: string): string[] {
   const output = [];
   let result = specsRegex.exec(makefile);
   while (result) {
-    output.push(result[0]);
+    output.push(result[0].trim());
     result = specsRegex.exec(makefile);
   }
   return output;
@@ -206,14 +213,16 @@ export default function extractMakefileInfo(makefile: string): MakeInfo {
         makefileInfo[infoKey] = extractedVariables[makefileKey] as string & string[];
       } else {
         makefileInfo[infoKey] = extractedVariables[makefileKey].join(' ') as string & string[];
+        makefileInfo[infoKey] = (makefileInfo[infoKey] as string).trim() as string & string[];
       }
     }
   });
   makefileInfo.ldFlags = makefileInfo.ldFlags.concat(extractBuildSpecification(makefile));
   makefileInfo.targetMCU = getOpenocdTargetSTM(makefileInfo.ldscript);
+  removePrefixesFromMakefile(makefileInfo);
+
   // copy the cDefinitions to cPP definitions.
   makefileInfo.cxxDefs = [...makefileInfo.cDefs];
-  removePrefixesFromMakefile(makefileInfo);
 
   return makefileInfo;
 }

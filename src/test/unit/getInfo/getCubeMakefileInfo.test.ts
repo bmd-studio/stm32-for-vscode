@@ -1,10 +1,10 @@
 import * as Sinon from 'sinon';
 import * as assert from 'assert';
-
 import * as vscode from 'vscode';
-import { afterEach, suite, test, beforeEach } from 'mocha';
+
+import { afterEach, beforeEach, suite, test } from 'mocha';
 import getMakefileInfo, {
-  getMakefile,
+  getMakefileInWorkspace,
   removePrefixes,
 } from '../../../getInfo/getCubeMakefileInfo';
 import testMakefile, { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
@@ -61,7 +61,7 @@ suite('Get Cube makefile info', () => {
     );
     Sinon.replace(vscode.workspace.fs, 'readFile', fakeReadFile);
     try {
-      const makefile = await getMakefile('./Makefile');
+      const makefile = await getMakefileInWorkspace('./Makefile');
       expect(fakeReadFile.calledOnceWith(vscode.Uri.file('./Makefile'))).to.be.true;
       expect(makefile).to.equal(returnedMakefile);
     } catch (err) {
@@ -75,7 +75,7 @@ suite('Get Cube makefile info', () => {
       Promise.reject(vscode.FileSystemError.FileNotFound(makefileUri))
     );
     Sinon.replace(vscode.workspace.fs, 'readFile', fakeReadFile);
-    expect(getMakefile('./Makefile')).to.be.rejectedWith(vscode.FileSystemError.FileNotFound(makefileUri));
+    expect(getMakefileInWorkspace('./Makefile')).to.be.rejectedWith(vscode.FileSystemError.FileNotFound(makefileUri));
     expect(fakeReadFile.calledOnceWith(vscode.Uri.file('./Makefile'))).to.be.true;
   });
   test('getMakefileInfo', async () => {
@@ -84,7 +84,7 @@ suite('Get Cube makefile info', () => {
       Promise.resolve(new TextEncoder().encode(testMakefile))
     );
     Sinon.replace(vscode.workspace.fs, 'readFile', fakeReadFile);
-    const makefileData = await getMakefile(makefilePath);
+    const makefileData = await getMakefileInWorkspace(makefilePath);
     const makefileInfo = getMakefileInfo(makefileData);
     expect(fakeReadFile.calledOnceWith(vscode.Uri.file('someRelevant/path/Makefile'))).to.be.true;
     const outputInfo = testMakefileInfo;

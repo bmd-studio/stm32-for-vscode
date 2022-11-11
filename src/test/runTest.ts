@@ -1,4 +1,5 @@
 import * as cp from 'child_process';
+import * as os from 'os';
 import * as path from 'path';
 import * as process from 'process';
 
@@ -46,6 +47,12 @@ async function main(): Promise<void> {
         '../../src/test/workspaces/l5_cpp_test_project/Secure'
       ),
     };
+    const defaultLaunchArguments = [
+      '--extensions-dir',
+      testExtensionPath,
+      '--user-data-dir', 
+      `${os.tmpdir()}`
+    ];
 
     cp.spawnSync(cli, [
       ...args,
@@ -66,8 +73,7 @@ async function main(): Promise<void> {
       extensionTestsPath: testPaths.unit,
       launchArgs: [
         testWorkspaces.empty,
-        '--extensions-dir',
-        testExtensionPath,
+        ...defaultLaunchArguments,
       ]
     });
 
@@ -83,8 +89,7 @@ async function main(): Promise<void> {
       extensionTestsPath: testPaths.buildTools,
       launchArgs: [
         testWorkspaces.makefileH7,
-        '--extensions-dir',
-        testExtensionPath
+        ...defaultLaunchArguments,
       ]
     });
 
@@ -95,8 +100,7 @@ async function main(): Promise<void> {
       extensionTestsPath: testPaths.build,
       launchArgs: [
         testWorkspaces.makefileH7,
-        '--extensions-dir',
-        testExtensionPath
+        ...defaultLaunchArguments
       ]
     });
     // import and build integration test
@@ -106,8 +110,7 @@ async function main(): Promise<void> {
       extensionTestsPath: testPaths.importAndBuild,
       launchArgs: [
         testWorkspaces.cubeIDEExample,
-        '--extensions-dir',
-        testExtensionPath
+        ...defaultLaunchArguments,
       ]
     });
     // import and build l5 import and convert to CPP test
@@ -117,8 +120,7 @@ async function main(): Promise<void> {
       extensionTestsPath: testPaths.cxximportConvertBuild,
       launchArgs: [
         testWorkspaces.l5CxxProject,
-        '--extensions-dir',
-        testExtensionPath
+        ...defaultLaunchArguments,
       ]
     });
 
@@ -129,8 +131,7 @@ async function main(): Promise<void> {
       extensionTestsPath: testPaths.customMakefileRules,
       launchArgs: [
         testWorkspaces.makefileH7,
-        '--extensions-dir',
-        testExtensionPath
+        ...defaultLaunchArguments,
       ]
     });
 
