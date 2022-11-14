@@ -3,12 +3,13 @@ import * as STM32Config from '../../../configuration/stm32Config';
 import * as Sinon from 'sinon';
 import * as vscode from 'vscode';
 
-import { suite, test, beforeEach } from 'mocha';
+import { beforeEach, suite, test } from 'mocha';
 
+import { TextEncoder } from 'util';
 import { configurationFixture } from '../../fixtures/extensionConfigurationFixture';
 import { expect } from 'chai';
 import { makeFSOverWritable } from '../../helpers/fsOverwriteFunctions';
-import { TextEncoder } from 'util';
+
 suite('STM32Config', () => {
   beforeEach(() => {
     makeFSOverWritable(vscode);
@@ -21,7 +22,8 @@ suite('STM32Config', () => {
     Sinon.replace(vscode.workspace.fs, 'readFile', readFileFake);
     Sinon.replace(Helpers, 'getWorkspaceUri', Sinon.fake.returns(vscode.Uri.file('')));
     const configFile = await STM32Config.readConfigFile();
-    expect(configFile).to.deep.equal(configurationFixture);
+    const configuration = STM32Config.parseConfigfile(configFile);
+    expect(configuration).to.deep.equal(configurationFixture);
     Sinon.restore();
   });
 });

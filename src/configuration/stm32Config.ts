@@ -4,8 +4,9 @@ import * as _ from 'lodash';
 import * as path from 'path';
 import * as vscode from 'vscode';
 
-import { EXTENSION_CONFIG_NAME } from '../Definitions';
 import { ExtensionConfiguration, ExtensionConfigurationInterface } from '../types/MakeInfo';
+
+import { EXTENSION_CONFIG_NAME } from '../Definitions';
 
 const DEFAULT_SOURCES = ['Src/**', 'Core/Src/**', 'Core/Lib/**'];
 const DEFAULT_INCLUDES = ['Inc/**', 'Core/Inc/**', 'Core/Lib/**'].concat(DEFAULT_SOURCES);
@@ -112,6 +113,11 @@ customMakefileRules:
 # - command: sayhello
 #   rule: echo "hello"
 #   dependsOn: $(BUILD_DIR)/$(TARGET).elf # can be left out    
+
+# Additional flags which will be used when invoking the make command
+makeFlags:
+# - -O  # use this option when the output of make is mixed up only works for make version 4.0 and upwards
+# - --silent # use this option to silence the output of the build
     `
   );
 }
@@ -141,8 +147,6 @@ export async function writeDefaultConfigFile(config: ExtensionConfiguration): Pr
   return configFileWithAddedDefaults;
 }
 
-const PARSE_YAML_ERROR_MESSAGE = 'Could not parse yaml configuration';
-
 /**
  * read the stm32-for-vscode.config.yaml from disk
  * @returns return the stm32-for-vscode.config.yaml in string format
@@ -160,12 +164,25 @@ export async function getConfigFileFromWorkspace(): Promise<string> {
  * reads and parses the stm32-for-vscode.config.yaml file
  * @returns The configuration of the current project
  */
-export async function readConfigFile(): Promise<ExtensionConfiguration> {
-  const configuration = new ExtensionConfiguration();
+export async function readConfigFile(): Promise<string> {
   try {
     const file = await getConfigFileFromWorkspace();
-    const yamlConfig: ExtensionConfigurationInterface = YAML.parse(file);
-    if (!yamlConfig) { return Promise.reject(new Error('Could not parse yaml configuration')); }
+    return file;
+  } catch (err) {
+    throw err;
+  }
+}
+
+/**
+ * Parses the STM32 for VSCode configuration file.
+ * @param configurationFile The configuration file in string format which will be parsed
+ * @returns ExtensionConfiguration or throws an error when it cannot parse it.
+ */
+export function parseConfigfile(configurationFile: string): ExtensionConfiguration {
+  const configuration = new ExtensionConfiguration();
+  try {
+    const yamlConfig: ExtensionConfigurationInterface = YAML.parse(configurationFile);
+    if (!yamlConfig) { new Error('Could not parse yaml configuration');}
     _.forEach(yamlConfig, (entry, key) => {
       if (_.has(yamlConfig, key) && _.get(yamlConfig, key) !== null && _.get(yamlConfig, key)?.[0] !== null) {
         _.set(configuration, key, entry);
@@ -187,27 +204,27 @@ export async function readConfigFile(): Promise<ExtensionConfiguration> {
 export async function readOrCreateConfigFile(config: ExtensionConfiguration): Promise<ExtensionConfiguration> {
   const workspaceFolderUri = Helpers.getWorkspaceUri();
   if (!workspaceFolderUri) { return config; }
+  let configFile: string = '';
   try {
-    const configFile = await readConfigFile();
-    return configFile;
-  } catch (err) {
-    // no config file present
-    const { message } = err as Error;
-    if (message === PARSE_YAML_ERROR_MESSAGE) {
-      vscode.window.showErrorMessage(
-        `Could not parse: ${EXTENSION_CONFIG_NAME}, please check for Errors or delete it so it can be regenerated`
-      );
-      return config; // returns the standard configuration
+    configFile = await readConfigFile();
+  } catch (error) {
+  // if no config file is present. Create a new one.
+    try {
+      const newConfig = await writeDefaultConfigFile(config);
+      return newConfig;
+    } catch (error) {
+      vscode.window.showErrorMessage(`Something went wrong with writing the configuration file: ${error}`);
+      throw error;
     }
   }
 
-  // if no config file is present. Create a new one.
   try {
-    const newConfig = await writeDefaultConfigFile(config);
-    return newConfig;
-  } catch (err) {
-    vscode.window.showErrorMessage(`Something went wrong with writing the configuration file: ${err}`);
+    const configuration = parseConfigfile(configFile);
+    return configuration;
+  } catch (error) {
+    vscode.window.showErrorMessage(
+      `Could not parse: ${EXTENSION_CONFIG_NAME}, it generated the following error messages: ${error}`
+    );
+    throw error;
   }
-  return config;
-
 }

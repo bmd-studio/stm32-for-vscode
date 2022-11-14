@@ -202,6 +202,7 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   STM32MakeInfo.ldscript = projectConfiguration.ldscript;
   STM32MakeInfo.mcu = cubeMakefileInfo.mcu;
   STM32MakeInfo.targetMCU = projectConfiguration.targetMCU;
+  STM32MakeInfo.makeFlags = projectConfiguration.makeFlags;
   const buildTools = getBuildToolsFromSettings();
   STM32MakeInfo.tools = {
     ...STM32MakeInfo.tools,

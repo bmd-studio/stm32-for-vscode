@@ -4,7 +4,11 @@
 ### Added
   - Add support for unit testing.
   - Add support for more in depth search for SVD files.
-  
+## [3.2.3] - 2022-11-14 
+### Addded
+  - Issue #101 & #119: Added make flags to the configuration file. This allows to add the --silent flag to the build and to prevent output mixing on parallel compilation.
+### Fixed
+  - Issue #116: Fixed issue where the STM32 configuration file would silently delete if there was something wrong while parsing the yaml file.
 ## [3.2.2] - 2022-06-29
 ### Fixed
  - Fixed Issue #96: Fixed issue where debugging for C++ gave no source file error due to missing debugging flags.

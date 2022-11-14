@@ -28,6 +28,7 @@ export function newMakeInfo(info: Partial<MakeInfo>): MakeInfo {
     ldFlags: [],
     cxxFlags: [],
     customMakefileRules: undefined,
+    makeFlags: [],
   };
   return _.assign(standard, info);
 }

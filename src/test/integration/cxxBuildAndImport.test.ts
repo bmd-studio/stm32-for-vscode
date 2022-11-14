@@ -6,7 +6,7 @@ import {
   waitForWorkspaceFoldersChange
 } from '../helpers';
 import { afterEach, beforeEach, suite, test } from 'mocha';
-import { readConfigFile, writeConfigFile } from '../../configuration/stm32Config';
+import { parseConfigfile, readConfigFile, writeConfigFile } from '../../configuration/stm32Config';
 
 import buildSTM from '../../BuildTask';
 import importAndSetupCubeIDEProject from '../../import';
@@ -27,7 +27,8 @@ suite('import and convert to C++ test', () => {
     await importAndSetupCubeIDEProject();
 
     // change the config to c++
-    const projectConfiguration = await readConfigFile();
+    const configurationFile = await readConfigFile();
+    const projectConfiguration = await parseConfigfile(configurationFile);
     projectConfiguration.language = 'C++';
     await writeConfigFile(projectConfiguration);
     await buildSTM();

@@ -88,7 +88,7 @@ export class Libraries implements LibrariesInterface {
   public libraryDirectories: string[] = [];
 }
 
-// NOTE: this differs from the configuration in the shortinening of the DEFS names
+// NOTE: this differs from the configuration in the shortening of the DEFS names
 // This is maintained as this helps in parsing the makefile however should be noted
 // when merging the two information sources.
 export interface MakeInfoInterface extends BuildFilesInterface, TargetInfoInterface {
@@ -102,6 +102,7 @@ export interface MakeInfoInterface extends BuildFilesInterface, TargetInfoInterf
   asDefs: string[];
   tools: ToolChain;
   customMakefileRules?: CustomMakefileRulesInterface[];
+  makeFlags?: string[];
 }
 
 export class ToolChain implements ToolChainInterface {
@@ -124,6 +125,7 @@ export interface ExtensionConfigurationInterface extends TargetInfoInterface, Co
   sourceFiles: string[];
   suppressMakefileWarning: boolean;
   customMakefileRules?: CustomMakefileRulesInterface[];
+  makeFlags: string[];
 }
 
 
@@ -169,6 +171,7 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
   public libraryDirectories: string[] = [];
   public suppressMakefileWarning = false;
   public customMakefileRules: CustomMakefileRulesInterface[] | undefined = undefined;
+  public makeFlags: string[] = [];
 
 
   public importRelevantInfoFromMakefile(makeInfo: MakeInfo): void {
@@ -208,6 +211,7 @@ export default class MakeInfo implements MakeInfoInterface {
   public fpu = '';
   public floatAbi = '';
   public mcu = '';
+
   public ldscript = '';
   public targetMCU = '';
   public language = 'C' as STM32Languages;
@@ -217,4 +221,5 @@ export default class MakeInfo implements MakeInfoInterface {
   public ldFlags: string[] = [];
   public cxxFlags: string[] = [];
   public customMakefileRules: CustomMakefileRulesInterface[] | undefined = undefined;
+  public makeFlags: string[] = [];
 }
