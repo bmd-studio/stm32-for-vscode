@@ -62,7 +62,7 @@ export async function getMakefileInWorkspace(location: string): Promise<string> 
  * @param makefile the makefile
  */
 function convertLineBreaksToSingleLine(makefile: string): string {
-  const matchingPattern = /( +\\[\n\r])/gm;
+  const matchingPattern = /( +\\[\n\r]{1,2})/gm;
   return makefile.replaceAll(matchingPattern, ' ');
 }
 /**
@@ -71,7 +71,7 @@ function convertLineBreaksToSingleLine(makefile: string): string {
  * @returns an object with all the variables name as the key and a string of values as the values.
  */
 function extractSingleLineVariablesFromMakefile(makefile: string): { [key: string]: string[] } {
-  const variableMatchingPattern = /.* \+?= [\w 	/\\\.\-\=$\(\),]*/gm;
+  const variableMatchingPattern = /.* \+?= [\w 	/\\\.\-\=$\(\),]*/g;
   const variables = makefile.match(variableMatchingPattern);
 
   const variableAndStringMatcher = /(.*) \+?= ([\w 	/\\\.\-\=$\(\),]*)/;

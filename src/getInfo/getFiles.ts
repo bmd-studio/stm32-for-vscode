@@ -21,13 +21,16 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 */
+
 import * as _ from 'lodash';
 import * as pth from 'path';
 import * as vscode from 'vscode';
 
 import { BuildFiles } from '../types/MakeInfo';
-import Glob = require('glob');
 import { EXTENSION_CONFIG_NAME } from '../Definitions';
+
+import Glob = require('glob');
+
 
 const path = pth.posix; // did this so everything would be posix.
 
@@ -173,14 +176,14 @@ export async function scanForFiles(includedFilesGlob: string[]): Promise<string[
   });
   const nonGlobFiles: string[] = [];
   includedFilesGlob.forEach(async (filePath) => {
-    if (Glob.hasMagic(filePath)) {
+    if (!Glob.hasMagic(filePath)) {
       try {
-        const checkResult = await vscode.workspace.fs.stat(vscode.Uri.file(filePath));
+        const uriPath = path.isAbsolute(filePath) ? filePath : path.join(workspaceFolder.uri.fsPath, filePath);
+        const checkResult = await vscode.workspace.fs.stat(vscode.Uri.file(uriPath));
         if (checkResult.type === vscode.FileType.File) {
           nonGlobFiles.push(filePath);
         }
       } catch (error) {
-
       }
     }
   });

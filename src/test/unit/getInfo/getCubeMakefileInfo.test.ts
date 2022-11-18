@@ -9,6 +9,7 @@ import getMakefileInfo, {
 } from '../../../getInfo/getCubeMakefileInfo';
 import testMakefile, { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
 
+import H7Fixture from '../../fixtures/H7MakefileFixtures';
 import { TextEncoder } from 'util';
 import { ToolChain } from '../../../types/MakeInfo';
 import { expect } from 'chai';
@@ -91,6 +92,11 @@ suite('Get Cube makefile info', () => {
     outputInfo.tools = new ToolChain();
     expect(makefileInfo).to.deep.equal(testMakefileInfo);
     Sinon.restore();
+  });
+  test('Extract makefile info with mixed multi and single lines', () => {
+    const makefileInfo = getMakefileInfo(H7Fixture.makefile);
+    expect(makefileInfo.cSources).to.deep.equal(H7Fixture.cSources);
+    expect(makefileInfo.libs).to.deep.equal(H7Fixture.libraries);
   });
 
 });

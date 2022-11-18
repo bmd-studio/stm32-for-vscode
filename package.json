@@ -140,7 +140,7 @@
 		"coverage": "nyc --exclude=.vscode-test --exclude=src/test/**  npm run test",
 		"test:unit": "npm run compile:test && npm run lint && TEST_ENVIRONMENT=unit node ./out/test/runTest.js",
 		"vscode:prepublish": "npm run webpack",
-		"compile": "tsc --alwaysStrict true -p ./",
+		"compile": "tsc --alwaysStrict true -p ./ && npm run webpack",
 		"compile:test": "tsc -p ./ ",
 		"webpack": "webpack --mode development",
 		"lint": "eslint src --ext ts",

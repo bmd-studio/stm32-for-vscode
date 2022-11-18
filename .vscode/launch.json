@@ -44,6 +44,22 @@
       "preLaunchTask": "compile tests"
     },
     {
+      "name": "Extension Tests Default build test",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "${workspaceFolder}/src/test/workspaces/H753ZI",
+        "--extensions-dir .vscode-test/extensions",
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionTestsPath=${workspaceFolder}/out/test/integration/build"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/out/test/**/*.js"
+      ],
+      "preLaunchTask": "compile tests"
+    },
+    {
       "name": "Extension Unit Tests",
       "type": "extensionHost",
       "request": "launch",

@@ -4,7 +4,7 @@
       "label": "compile extension",
       "type": "shell",
       // "script": " echo",
-      "command": "yarn webpack",
+      "command": "npm run compile",
       "options": {
         // "cwd": "${workspaceRoot}",
       },
@@ -17,7 +17,7 @@
       "label": "compile tests",
       "type": "shell",
       // "script": " echo",
-      "command": "yarn pretest",
+      "command": "npm run pretest",
       "options": {
         // "cwd": "${workspaceRoot}",
       },
