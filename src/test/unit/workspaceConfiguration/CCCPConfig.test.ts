@@ -102,40 +102,31 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     Sinon.restore();
   });
   test('update c properties, while another config is present', async () => {
+
+    const noneSTM32Configuration = {
+      name: "SomeOtherConfig",
+      includePath: [
+        "somenonStandard/Include/Path",
+      ],
+      defines: [
+        "iWillNotBeDefined"
+      ],
+      compilerPath: "arm-none-eabi-gcc",
+      cStandard: "c11",
+      cppStandard: "c++11"
+    };
     const mockWorkspaceUri = Uri.file('./localworkspace');
     const writeFileInWorkspaceFake = Sinon.fake();
     const findFileInWorkspaceFake = Sinon.fake.returns(Promise.resolve([Uri.file('c_cpp_properties.json')]));
     const readFileInWorkspaceFake = Sinon.fake.returns(Promise.resolve(new TextEncoder().encode(JSON.stringify({
       configurations: [
-        {
-          name: "SomeOtherConfig",
-          includePath: [
-            "somenonStandard/Include/Path",
-          ],
-          defines: [
-            "iWillNotBeDefined"
-          ],
-          compilerPath: "arm-none-eabi-gcc",
-          cStandard: "c11",
-          cppStandard: "c++11"
-        }
+        noneSTM32Configuration
       ],
       "version": 4
     }, null, 2))));
     const expectedResult = JSON.stringify({
       configurations: [
-        {
-          name: "SomeOtherConfig",
-          includePath: [
-            "somenonStandard/Include/Path",
-          ],
-          defines: [
-            "iWillNotBeDefined"
-          ],
-          compilerPath: "arm-none-eabi-gcc",
-          cStandard: "c11",
-          cppStandard: "c++11"
-        },
+        noneSTM32Configuration,
         {
           name: 'STM32',
           includePath: _.uniq(testMakefileInfo.cIncludes).sort(),
@@ -205,37 +196,22 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     const mockWorkspaceUri = Uri.file('./localworkspace');
     await updateCProperties(mockWorkspaceUri, testMakefileInfo);
     expect(writeFileInWorkspaceFake.calledOnce).to.be.true;
-    const expectedCallResult = {
-      configurations: [
-        {
-          name: "STM32",
-          includePath: [
-            "somenonStandard/Include/Path",
-          ],
-          defines: [
-            "iWillNotBeDefined"
-          ],
-          compilerPath: "arm-none-eabi-gcc",
-          cStandard: "c11",
-          cppStandard: "c++11"
-        }
+    const expectedResult = JSON.stringify({
+      configurations: [{
+        name: 'STM32',
+        includePath: _.uniq(testMakefileInfo.cIncludes).sort(),
+        defines: _.uniq(getDefinitions(testMakefileInfo)).sort(),
+        compilerPath: 'arm-none-eabi-gcc',
+        cStandard: "c11",
+        cppStandard: "c++11"
+      }
       ],
-      "version": 4
-    };
-    expectedCallResult.configurations[0].includePath =
-      _.uniq(
-        expectedCallResult.configurations[0].includePath.concat(
-          testMakefileInfo.cIncludes
-        )).sort();
-    expectedCallResult.configurations[0].defines =
-      _.uniq(
-        expectedCallResult.configurations[0].defines.concat(
-          getDefinitions(testMakefileInfo)
-        )).sort();
-    expect(writeFileInWorkspaceFake.getCall(0).args[2]).to.deep.equal(JSON.stringify(expectedCallResult, null, 2));
+      version: 4,
+    }, null, 2);
+    expect(writeFileInWorkspaceFake.getCall(0).args[2]).to.deep.equal(expectedResult);
     expect(writeFileInWorkspaceFake.calledOnceWith(
       mockWorkspaceUri, '.vscode/c_cpp_properties.json',
-      JSON.stringify(expectedCallResult, null, 2)
+      expectedResult
     )).to.be.true;
     Sinon.restore();
   });

@@ -133,11 +133,10 @@ export async function updateCProperties(workspacePathUri: Uri, info: MakeInfo): 
   const definitions = getDefinitions(info);
   const oldConfig = _.cloneDeep(stmConfiguration);
 
-  stmConfiguration.defines =
-    _.uniq(stmConfiguration.defines.concat(definitions)).sort();
-  stmConfiguration.includePath =
-    _.uniq(stmConfiguration.includePath.concat(includes)).sort();
+  stmConfiguration.defines = _.uniq([...definitions]).sort();
+  stmConfiguration.includePath = _.uniq([...includes]).sort();
   stmConfiguration.compilerPath = getAbsoluteCompilerPath(info);
+
   configFile.configurations[stmConfigIndex] = stmConfiguration;
 
   if (!_.isEqual(stmConfiguration.defines, oldConfig.defines) ||
