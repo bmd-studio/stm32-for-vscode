@@ -49,7 +49,7 @@ import { getTargetMCUFromFullName } from '../OpenOcdTargetFiles';
  */
 export async function getMakefileInWorkspace(location: string): Promise<string> {
   let makefileLocation = location;
-  if(!makefileLocation.endsWith('Makefile')) {
+  if (!makefileLocation.endsWith('Makefile')) {
     makefileLocation = `${makefileLocation}/Makefile`;
   }
   const makefileFile = await workspace.fs.readFile(Uri.file(makefileLocation));
@@ -71,10 +71,10 @@ function convertLineBreaksToSingleLine(makefile: string): string {
  * @returns an object with all the variables name as the key and a string of values as the values.
  */
 function extractSingleLineVariablesFromMakefile(makefile: string): { [key: string]: string[] } {
-  const variableMatchingPattern = /.* \+?= [\w 	/\\\.\-\=$\(\),]*/g;
+  const variableMatchingPattern = /.* \+?= .*/g;
   const variables = makefile.match(variableMatchingPattern);
 
-  const variableAndStringMatcher = /(.*) \+?= ([\w 	/\\\.\-\=$\(\),]*)/;
+  const variableAndStringMatcher = /(.*) \+?= (.*)/;
 
   const variablesSplit = variables?.map((variableLine: string) => {
     const variableAndString = variableAndStringMatcher.exec(variableLine);
@@ -136,7 +136,8 @@ const makeInfoPrefixes: [keyof CubeMXMakefile, string][] = [
  */
 export function removePrefixes(information: string[], prefix: string): string[] {
   return information.map((entry) => {
-    return entry.replace(new RegExp("^\\s*" + prefix), '');
+    const trimmedEntry = entry.trim();
+    return trimmedEntry.indexOf(prefix) === 0 ? trimmedEntry.replace(prefix, '') : trimmedEntry;
   });
 }
 /**
