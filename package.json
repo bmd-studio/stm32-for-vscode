@@ -149,7 +149,8 @@
 		"build": "npm run compile && npm run webpack",
 		"pretest": "rm -rf ./out/test && npm run compile:test && npm run lint && npm run compile",
 		"watch:tests": "watch \"npm run test\" ./src --wait=10",
-		"generate-docs": "typedoc --out docs src"
+		"generate-docs": "typedoc --out docs src",
+		"stats": "webpack --json > stats.json"
 	},
 	"devDependencies": {
 		"@babel/cli": "^7.6.0",

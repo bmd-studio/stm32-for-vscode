@@ -16,3 +16,5 @@ openocd.cfg
 STM32Make.make
 STM32-for-VSCode.config.yaml
 **.svd
+stats.json
+webpack-stats.json
