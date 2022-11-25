@@ -17,3 +17,16 @@ tooling
 .nyc_output
 .github
 docs
+out
+.DS_Store
+releases
+*.log
+*.vsix
+**/build/
+openocd.cfg
+STM32Make.make
+STM32-for-VSCode.config.yaml
+stats.json
+webpack-stats.json
+docs/
+dist/extension.js.LICENSE.txt
