@@ -1,8 +1,8 @@
-import * as _ from 'lodash';
 import * as path from 'path';
 import * as shelljs from 'shelljs';
 
 import { Uri, window, workspace } from 'vscode';
+import {isEqual, isString, uniq} from 'lodash';
 
 import MakeInfo from '../types/MakeInfo';
 import { writeFileInWorkspace } from '../Helpers';
@@ -28,11 +28,11 @@ export interface CCppProperties {
  */
 export function getDefinitions(
   info: { cDefs: string[]; cxxDefs: string[]; asDefs: string[] }): string[] {
-  const cDefs = _.map(info.cDefs, entry => _.replace(entry, '-D', ''));
-  const cxxDefs = _.map(info.cxxDefs, entry => _.replace(entry, '-D', ''));
-  const asDefs = _.map(info.asDefs, entry => _.replace(entry, '-D', ''));
-  let defs = _.concat(cDefs, cxxDefs, asDefs);
-  defs = _.uniq(defs);
+  const cDefs = info.cDefs.map(entry => entry.replace('-D', ''));
+  const cxxDefs = info.cxxDefs.map(entry => entry.replace('-D', ''));
+  const asDefs = info.asDefs.map( entry => entry.replace( '-D', ''));
+  let defs = [...cDefs, ...cxxDefs, ...asDefs];
+  defs = uniq(defs);
   defs = defs.sort();
   return defs;
 }
@@ -45,7 +45,7 @@ export function getDefinitions(
 export function getAbsoluteCompilerPath(info: MakeInfo): string {
   const compiler = info.language === 'C' ? 'arm-none-eabi-gcc' : 'arm-none-eabi-g++';
   let armPath = info.tools.armToolchainPath;
-  if (!_.isString(armPath)) {
+  if (!isString(armPath)) {
     armPath = '';
   }
   const relativeCompilerPath = path.join(armPath, compiler);
@@ -109,9 +109,8 @@ export async function updateCProperties(workspacePathUri: Uri, info: MakeInfo): 
   if (currentConfigFile) {
     // configFile = defaultCCPPProperties;
     configFile = currentConfigFile;
-    const index = _.findIndex(
-      currentConfigFile.configurations, { name: stmConfiguration.name }
-    );
+    const index = 
+      currentConfigFile.configurations.findIndex((entry) => entry.name === stmConfiguration.name);
 
     if (index >= 0) {
       stmConfigIndex = index;
@@ -131,17 +130,17 @@ export async function updateCProperties(workspacePathUri: Uri, info: MakeInfo): 
   }
   const includes = info.cIncludes;
   const definitions = getDefinitions(info);
-  const oldConfig = _.cloneDeep(stmConfiguration);
+  const oldConfig = {...stmConfiguration};
 
-  stmConfiguration.defines = _.uniq([...definitions]).sort();
-  stmConfiguration.includePath = _.uniq([...includes]).sort();
+  stmConfiguration.defines = uniq([...definitions]).sort();
+  stmConfiguration.includePath = uniq([...includes]).sort();
   stmConfiguration.compilerPath = getAbsoluteCompilerPath(info);
 
   configFile.configurations[stmConfigIndex] = stmConfiguration;
 
-  if (!_.isEqual(stmConfiguration.defines, oldConfig.defines) ||
-    !_.isEqual(stmConfiguration.includePath, oldConfig.includePath)
-    || !_.isEqual(stmConfiguration.compilerPath, oldConfig.compilerPath)) {
+  if (!isEqual(stmConfiguration.defines, oldConfig.defines) ||
+    !isEqual(stmConfiguration.includePath, oldConfig.includePath)
+    || !isEqual(stmConfiguration.compilerPath, oldConfig.compilerPath)) {
     needsUpdating = true;
   }
   if (!needsUpdating) {

@@ -31,7 +31,7 @@
 
 import 'process';
 
-import * as _ from 'lodash';
+import {isEmpty, isString, uniq} from 'lodash';
 
 import MakeInfo from './types/MakeInfo';
 import { fsPathToPosix } from './Helpers';
@@ -45,8 +45,8 @@ const { platform } = process;
  */
 export function createStringList(arr: string[], prefix?: string): string {
   let output = '';
-  const sortedArray = _.uniq(arr).sort();
-  _.map(sortedArray, (entry: string, ind: number) => {
+  const sortedArray = uniq(arr).sort();
+  sortedArray.map((entry: string, ind: number) => {
     if (prefix) {
       output += prefix;
     }
@@ -66,7 +66,7 @@ export function createStringList(arr: string[], prefix?: string): string {
  */
 export function createSingleLineStringList(arr: string[], prefix?: string): string {
   let output = '';
-  const sortedArray = _.uniq(arr).sort();
+  const sortedArray = uniq(arr).sort();
   sortedArray.map((entry) => {
     if (prefix) {
       output += prefix;
@@ -77,8 +77,8 @@ export function createSingleLineStringList(arr: string[], prefix?: string): stri
 }
 
 export function createGCCPathOutput(makeInfo: MakeInfo): string {
-  if (makeInfo.tools.armToolchainPath && _.isString(makeInfo.tools.armToolchainPath)) {
-    if (makeInfo?.tools?.armToolchainPath && !_.isEmpty(makeInfo.tools.armToolchainPath) && makeInfo.tools.armToolchainPath !== '.') {
+  if (makeInfo.tools.armToolchainPath && isString(makeInfo.tools.armToolchainPath)) {
+    if (makeInfo?.tools?.armToolchainPath && !isEmpty(makeInfo.tools.armToolchainPath) && makeInfo.tools.armToolchainPath !== '.') {
       return `GCC_PATH="${fsPathToPosix(makeInfo.tools.armToolchainPath)}`;
     }
   }

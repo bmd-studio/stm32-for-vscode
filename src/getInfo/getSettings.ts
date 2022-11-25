@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-import * as _ from 'lodash';
+import {isEmpty, isString} from 'lodash';
 
 import { ToolChain } from '../types/MakeInfo';
 import { workspace } from 'vscode';
@@ -38,13 +38,13 @@ export function getExtensionSettings(): ToolChain {
   const openOCDPath = settings.get('openOCDPath');
   const makePath = settings.get('makePath');
 
-  if (!_.isEmpty(armToolchainPath) && _.isString(armToolchainPath)) {
+  if (!isEmpty(armToolchainPath) && isString(armToolchainPath)) {
     result.armToolchainPath = armToolchainPath;
   }
-  if (!_.isEmpty(openOCDPath) && _.isString(openOCDPath)) {
+  if (!isEmpty(openOCDPath) && isString(openOCDPath)) {
     result.openOCDPath = openOCDPath;
   }
-  if (!_.isEmpty(makePath) && _.isString(makePath)) {
+  if (!isEmpty(makePath) && isString(makePath)) {
     result.makePath = makePath;
   }
 

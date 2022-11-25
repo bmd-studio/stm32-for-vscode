@@ -1,10 +1,10 @@
 import * as Helpers from '../Helpers';
 import * as YAML from 'yaml';
-import * as _ from 'lodash';
 import * as path from 'path';
 import * as vscode from 'vscode';
 
 import { ExtensionConfiguration, ExtensionConfigurationInterface } from '../types/MakeInfo';
+import {forEach, get, has, set} from 'lodash';
 
 import { EXTENSION_CONFIG_NAME } from '../Definitions';
 
@@ -137,12 +137,12 @@ export async function writeConfigFile(config: ExtensionConfiguration): Promise<v
  */
 export async function writeDefaultConfigFile(config: ExtensionConfiguration): Promise<ExtensionConfiguration> {
   // default configFiles.
-  const configFileWithAddedDefaults = _.cloneDeep(config);
-  configFileWithAddedDefaults.sourceFiles = _.concat(configFileWithAddedDefaults.sourceFiles, DEFAULT_SOURCES);
-  configFileWithAddedDefaults.includeDirectories = _.concat(
-    configFileWithAddedDefaults.includeDirectories,
-    DEFAULT_INCLUDES
-  );
+  const configFileWithAddedDefaults = Object.assign(new ExtensionConfiguration(), config);
+  configFileWithAddedDefaults.sourceFiles = [...configFileWithAddedDefaults.sourceFiles, ...DEFAULT_SOURCES];
+  configFileWithAddedDefaults.includeDirectories = [
+    ...configFileWithAddedDefaults.includeDirectories,
+    ...DEFAULT_INCLUDES
+  ];
   await writeConfigFile(configFileWithAddedDefaults);
   return configFileWithAddedDefaults;
 }
@@ -183,9 +183,9 @@ export function parseConfigfile(configurationFile: string): ExtensionConfigurati
   try {
     const yamlConfig: ExtensionConfigurationInterface = YAML.parse(configurationFile);
     if (!yamlConfig) { new Error('Could not parse yaml configuration');}
-    _.forEach(yamlConfig, (entry, key) => {
-      if (_.has(yamlConfig, key) && _.get(yamlConfig, key) !== null && _.get(yamlConfig, key)?.[0] !== null) {
-        _.set(configuration, key, entry);
+    forEach(yamlConfig, (entry, key) => {
+      if (has(yamlConfig, key) && get(yamlConfig, key) !== null && get(yamlConfig, key)?.[0] !== null) {
+        set(configuration, key, entry);
       }
     });
   } catch (err) {

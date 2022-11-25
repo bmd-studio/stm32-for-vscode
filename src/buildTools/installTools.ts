@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import * as decompress from 'decompress';
 import * as path from 'path';
 import * as process from 'process';
@@ -41,7 +40,7 @@ type XpmInstallType = Promise<void>;
 export async function xpmInstall(
   toolsStoragePath: vscode.Uri, npx: string, definition: BuildToolDefinition
 ): XpmInstallType {
-  if (!_.has(definition, 'installation.xpm')) {
+  if (!definition?.installation?.xpm) {
     throw new Error('Could not install using xpm');
   }
   const pathToSaveTo = toolsStoragePath.fsPath;
@@ -97,7 +96,7 @@ export async function installMake(toolsStoragePath: vscode.Uri, npx: string): Pr
       executeCmd = makeDefinition.installation.darwin || '';
     } break;
     case "win32": {
-      const win32XPMMakeDefinition = _.cloneDeep(makeDefinition);
+      const win32XPMMakeDefinition = {...makeDefinition};
       win32XPMMakeDefinition.installation.xpm = win32XPMMakeDefinition.installation.windows;
       return xpmInstall(toolsStoragePath, npx, win32XPMMakeDefinition);
     } break;
@@ -273,7 +272,7 @@ export async function getNode(toolsStoragePath: vscode.Uri): Promise<string> {
       path.join(toolsStoragePath.fsPath, 'node')
     );
     const dirContents = await vscode.workspace.fs.readDirectory(vscode.Uri.file(extractedNodeFileLoc));
-    const nodeInstallationFilePath = _.find(dirContents, (file) => { return (file[0].indexOf('node') >= 0); });
+    const nodeInstallationFilePath = dirContents.find((file) => { return (file[0].indexOf('node') >= 0); });
     if (!nodeInstallationFilePath || !nodeInstallationFilePath[0]) {
       throw new Error('No node installation could be found after download and extraction');
     }

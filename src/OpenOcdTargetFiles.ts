@@ -21,7 +21,8 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 */
-import * as _ from 'lodash';
+
+import {trimEnd} from 'lodash';
 
 const configFiles = [
   'stm32f0x.cfg',
@@ -43,15 +44,13 @@ const configFiles = [
 ];
 
 export default function getTargetConfig(target: string): string | boolean {
-  const cleanTarget = _.toLower(
-    _.trimEnd(
-      _.trimEnd(target, 'cfg'),
+  const cleanTarget = 
+    trimEnd(
+      trimEnd(target, 'cfg'),
       'x',
-    ),
-  );
-  const ind = _.findIndex(
-    configFiles, (entry: string) => (_.toLower(entry).indexOf(cleanTarget) >= 0),
-  );
+    ).toLowerCase();
+  const ind = 
+    configFiles.findIndex((entry: string) => (entry.indexOf(cleanTarget) >= 0));
   if (ind >= 0) {
     return configFiles[ind];
   }

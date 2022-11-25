@@ -22,7 +22,7 @@
 * SOFTWARE.
 */
 
-import * as _ from 'lodash';
+import {set, uniq, flattenDeep, intersection, forEach}  from 'lodash';
 import * as pth from 'path';
 import * as vscode from 'vscode';
 
@@ -66,9 +66,9 @@ export const REQUIRED_RESOURCES = [
  * @returns directory name e.g for dirName src and directory name Src it will return Src
  */
 export function getDirCaseFree(dirName: string, directories: string[]): string | null {
-  const lowerDirName = _.toLower(dirName);
+  const lowerDirName = dirName.toLowerCase();
   // should match ends to the required files
-  const index = _.findIndex(directories, (o: string) => (path.basename(_.toLower(o)) === lowerDirName));
+  const index = directories.findIndex((o: string) => (path.basename(o.toLowerCase()) === lowerDirName));
   if (index === -1) { return null; }
   return directories[index];
 }
@@ -98,13 +98,13 @@ export function checkForRequiredFiles(directoryFiles: string[]): { file: string,
  */
 export function getIncludeDirectoriesFromFileList(headerList: string[]): string[] {
   let incList: string[] = [];
-  _.map(headerList, (entry) => {
+  headerList.map((entry) => {
     const incFolder = path.dirname(entry);
     incList.push(incFolder);
   });
-  incList = _.uniq(incList);
+  incList = uniq(incList);
 
-  incList = _.map(incList, entry => `${entry}`);
+  incList = incList.map(entry => `${entry}`);
   incList.sort();
   return incList;
 }
@@ -116,8 +116,8 @@ export function getIncludeDirectoriesFromFileList(headerList: string[]): string[
  */
 export function sortFiles(list: string[]): BuildFiles {
   const output = new BuildFiles();
-  _.map(list, (entry) => {
-    const extension = _.toLower(entry.split('.').pop());
+  list.map((entry) => {
+    const extension = entry.toLowerCase().split('.').pop();
     if (extension === 'cpp' || extension === 'cxx' || extension === 'cc') {
       output.cxxSources.push(entry);
     } else if (extension === 'c') {
@@ -132,9 +132,9 @@ export function sortFiles(list: string[]): BuildFiles {
     }
   });
   // sort arrays and remove possible duplicates.
-  _.forEach(output, (entry, key) => {
-    if (_.isArray(entry)) {
-      _.set(entry, key, _.uniq(entry));
+  forEach(output, (entry, key) => {
+    if (Array.isArray(entry)) {
+      set(entry, key, uniq(entry));
       entry.sort();
     }
   });
@@ -189,7 +189,7 @@ export async function scanForFiles(includedFilesGlob: string[]): Promise<string[
   });
   const returnedFiles = await Promise.all(filePromises);
   const combinedFiles = returnedFiles.concat(nonGlobFiles);
-  const allFiles = _.flattenDeep(combinedFiles);
+  const allFiles = flattenDeep(combinedFiles);
   return allFiles;
 }
 
@@ -201,9 +201,9 @@ export async function scanForFiles(includedFilesGlob: string[]): Promise<string[
 export async function getSourceFiles(sourceFileGlobs: string[]): Promise<string[]> {
   const sourceFileExtensions = ['cpp', 'c', 'a', 's', 'cxx', 'cc'];
   const files = await scanForFiles(sourceFileGlobs);
-  const sourceFiles = _.filter(files, (file) => {
-    const extension = _.last(file.split('.'));
-    if (_.intersection([extension], sourceFileExtensions).length > 0) {
+  const sourceFiles = files.filter((file) => {
+    const extension = file.split('.')[-1];
+    if (intersection([extension], sourceFileExtensions).length > 0) {
       return true;
     }
     return false;
@@ -237,9 +237,9 @@ export async function getHeaderFiles(headerFilesGlobs: string[]): Promise<string
   const headerFileExtensions = ['h', 'hpp', 'hxx'];
   const files = await scanForFiles(headerFilesGlobs);
 
-  const headerFiles = _.filter(files, (file) => {
-    const extension = _.last(file.split('.'));
-    if (_.intersection([extension], headerFileExtensions).length > 0) {
+  const headerFiles = files.filter((file) => {
+    const extension = file.split('.')[-1];
+    if (intersection([extension], headerFileExtensions).length > 0) {
       return true;
     }
     return false;

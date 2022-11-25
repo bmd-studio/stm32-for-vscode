@@ -27,14 +27,13 @@
  * tasks.
  */
 
-import * as _ from 'lodash';
-
 import { TaskDefinition, Uri, WorkspaceConfiguration, window, workspace } from 'vscode';
 import getLaunchTask, { getAttachTask, getCortexDevice } from './LaunchTasksConfig';
 
 import MakeInfo from '../types/MakeInfo';
 import buildTasks from './BuildTasksConfig';
 import { getSVDFileForChip } from '../projectSetup/svdFiles';
+import {isEmpty} from 'lodash';
 import setCortexDebugWorkspaceConfiguration from './cortexDebugConfig';
 import updateCProperties from './CCCPConfig';
 
@@ -97,13 +96,13 @@ function checkTasksForRequiredTasks(tasksConfig: TaskDefinition[]): TaskConfigCh
     hasFlashConfig: false
   };
   tasksConfig.forEach(entry => {
-    if (_.isEqual(buildTasks.buildTask.label, entry.label)) {
+    if (buildTasks.buildTask.label === entry.label) {
       taskConfigurationResult.hasBuildConfig = true;
     }
-    if (_.isEqual(buildTasks.cleanBuild.label, entry.label)) {
+    if (buildTasks.cleanBuild.label === entry.label) {
       taskConfigurationResult.hasCleanBuildConfig = true;
     }
-    if (_.isEqual(buildTasks.flashTask.label, entry.label)) {
+    if (buildTasks.flashTask.label === entry.label) {
       taskConfigurationResult.hasFlashConfig = true;
     }
   });
@@ -167,7 +166,7 @@ export function updateTasks(workspacePathUri: Uri): Promise<void> {
     hasFlashConfig: false
   };
 
-  if (tasksConfig && !_.isEmpty(tasksConfig)) {
+  if (tasksConfig && !isEmpty(tasksConfig)) {
     hasTasks = checkTasksForRequiredTasks(tasksConfig);
   }
 

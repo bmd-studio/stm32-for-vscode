@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import * as path from 'path';
 import * as process from 'process';
 import * as shelljs from 'shelljs';
@@ -11,6 +10,7 @@ import {
   validateArmToolchainPath,
   validateXPMToolchainPath
 } from './extensionToolchainHelpers';
+import {forEach, get, set} from 'lodash';
 
 import { ToolChain } from '../types/MakeInfo';
 import { getExtensionSettings } from '../getInfo/getSettings';
@@ -54,11 +54,11 @@ export function checkSettingsForBuildTools(): ToolChain {
 }
 
 export function compareAndUpdateMissingBuildTools(startSettings: ToolChain, additionalSettings: ToolChain): ToolChain {
-  const newSettings = _.cloneDeep(startSettings);
+  const newSettings = {...startSettings};
 
-  _.forEach(startSettings, (setting, key) => {
+  forEach(startSettings, (setting, key) => {
     if (!setting) {
-      _.set(newSettings, key, _.get(additionalSettings, key));
+      set(newSettings, key, get(additionalSettings, key));
     }
   });
   return newSettings;

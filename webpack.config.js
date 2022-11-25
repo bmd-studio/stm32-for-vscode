@@ -25,17 +25,17 @@
 
 
 const path = require('path');
-
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
 const config = {
   target: 'node', // vscode extensions run in a Node.js-context 📖 -> https://webpack.js.org/configuration/node/
 
-  entry: ['babel-polyfill', './src/extension.ts'], // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
+  entry: './src/extension.ts', // the entry point of this extension, 📖 -> https://webpack.js.org/configuration/entry-context/
   output: {
     // the bundle is stored in the 'dist' folder (check package.json), 📖 -> https://webpack.js.org/configuration/output/
     path: path.resolve(__dirname, 'dist'),
     filename: 'extension.js',
     libraryTarget: 'commonjs2',
-    devtoolModuleFilenameTemplate: '../[resource-path]',
   },
   devtool: 'source-map',
   externals: {
@@ -43,25 +43,25 @@ const config = {
   },
   resolve: {
     // support reading TypeScript and JavaScript files, 📖 -> https://github.com/TypeStrong/ts-loader
-    extensions: ['.ts', '.js', 'tsx'],
+    extensions: ['.ts', '.js'],
   },
   module: {
-    rules: [{
-      test: /\.js$/,
-      exclude: /node_modules/,
-      use: [{
-        loader: 'babel-loader',
-        options: {
-          presets: ['@babel/preset-env'],
-        },
-      }],
-    },
-    {
-      test: /\.tsx?$/,
-      use: 'ts-loader',
-      exclude: /node_modules/,
-    },
+    rules: [
+      {
+        test: /\.ts$/,
+        use: 'ts-loader',
+        exclude: /node_modules/
+      },
+     
     ],
   },
+  plugins: [
+    new BundleAnalyzerPlugin({
+      analyzerMode: 'disabled',
+      generateStatsFile: true,
+      // Excludes module sources from stats file so there won't be any sensitive data
+    }),
+    new LodashModuleReplacementPlugin
+  ]
 };
 module.exports = config;

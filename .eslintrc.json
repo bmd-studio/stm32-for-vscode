@@ -39,5 +39,10 @@
 				"code": 120
 			}
 		]
-	}
+	},
+	"ignorePatterns": [
+		"out",
+		"dist",
+		"**/*.d.ts"
+	]
 }

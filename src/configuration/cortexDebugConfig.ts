@@ -1,6 +1,7 @@
-import { workspace, ConfigurationTarget } from 'vscode';
+import { ConfigurationTarget, workspace } from 'vscode';
+
 import MakeInfo from '../types/MakeInfo';
-import _ = require('lodash');
+import {isString} from 'lodash';
 
 export default function setCortexDebugWorkspaceConfiguration(info: MakeInfo): void {
   const cortexConfig = workspace.getConfiguration('cortex-debug');
@@ -10,10 +11,10 @@ export default function setCortexDebugWorkspaceConfiguration(info: MakeInfo): vo
   const posixArmToolchainPath = `${info.tools.armToolchainPath}`;
   const posixOpenOCDPath = `${info.tools.openOCDPath}`;
 
-  if (_.isString(info.tools.armToolchainPath) && currentArmToolchainPath !== posixArmToolchainPath) {
+  if (isString(info.tools.armToolchainPath) && currentArmToolchainPath !== posixArmToolchainPath) {
     cortexConfig.update('armToolchainPath', posixArmToolchainPath, ConfigurationTarget.Workspace);
   }
-  if (_.isString(info.tools.openOCDPath) && currentOpenOCDPath !== posixOpenOCDPath) {
+  if (isString(info.tools.openOCDPath) && currentOpenOCDPath !== posixOpenOCDPath) {
     cortexConfig.update('openocdPath', posixOpenOCDPath, ConfigurationTarget.Workspace);
   }
 }

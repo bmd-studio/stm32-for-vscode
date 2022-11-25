@@ -1,7 +1,8 @@
-import * as _ from 'lodash';
 import * as path from 'path';
 import * as toolChainValidation from './validateToolchain';
 import * as vscode from 'vscode';
+
+import  {forEach, isEqual, set} from 'lodash';
 
 import { ToolChain } from '../types/MakeInfo';
 import { which } from 'shelljs';
@@ -51,8 +52,8 @@ export async function checkBuildTools(context: vscode.ExtensionContext): Promise
   // these settings will be used for compilation.
   const extensionSettings = vscode.workspace.getConfiguration('stm32-for-vscode');
   const globalSettingsUpdatePromises: Thenable<void>[] = [];
-  _.forEach(finalBuildTools, (toolPath, key) => {
-    if (!_.isEqual(toolPath, extensionSettings.get(key))) {
+  forEach(finalBuildTools, (toolPath, key) => {
+    if (!isEqual(toolPath, extensionSettings.get(key))) {
       globalSettingsUpdatePromises.push(extensionSettings.update(key, toolPath, vscode.ConfigurationTarget.Global));
     }
   });
@@ -66,14 +67,14 @@ export async function checkBuildTools(context: vscode.ExtensionContext): Promise
 
     const localExtensionSettings =
       vscode.workspace.getConfiguration('stm32-for-vscode', vscode.Uri.file(localSettingsPath));
-    _.forEach(finalBuildTools, (toolPath, key) => {
+    forEach(finalBuildTools, (toolPath, key) => {
       const localPath = localExtensionSettings.get(key);
       if (localPath === undefined) { return; }
       let localWhichPath = which(localPath);
       if (key === 'armToolchainPath') {
         localWhichPath = which(path.join(`${localPath}`, 'arm-none-eabi-gcc'));
       }
-      if ((!_.isEqual(toolPath, localPath) && !localWhichPath) || !localPath) {
+      if ((!isEqual(toolPath, localPath) && !localWhichPath) || !localPath) {
         localUpdatePromises.push(localExtensionSettings.update(key, toolPath, vscode.ConfigurationTarget.Workspace));
       }
     });
@@ -98,8 +99,8 @@ export async function checkBuildTools(context: vscode.ExtensionContext): Promise
 export function getBuildToolsFromSettings(): ToolChain {
   const extensionSettings = vscode.workspace.getConfiguration('stm32-for-vscode');
   const toolChain = new ToolChain();
-  _.forEach(toolChain, (_value, key) => {
-    _.set(toolChain, key, extensionSettings.get(key));
+  forEach(toolChain, (_value, key) => {
+    set(toolChain, key, extensionSettings.get(key));
   });
   return toolChain;
 }
