@@ -8,6 +8,7 @@ import MakeInfo from "../../types/MakeInfo";
 
 // TODO: add linker definitions
 // TODO: add the cDefinitions to the CXX definitions.
+// TODO: checkout xmldoc as it has a smaller bundle size
 
 /**
  * 

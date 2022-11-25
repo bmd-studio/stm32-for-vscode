@@ -246,6 +246,7 @@ export function downloadLatestNode(toolsStoragePath: vscode.Uri, fileDownloadNam
  * @param outPath path to the output directory
  */
 export async function extractFile(filePath: string, outPath: string): Promise<string> {
+  // TODO: replace this with the node native zlib
   try {
     await decompress(filePath, outPath);
   } catch (err: any) {

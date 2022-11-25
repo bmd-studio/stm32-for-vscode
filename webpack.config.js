@@ -56,11 +56,11 @@ const config = {
     ],
   },
   plugins: [
-    new BundleAnalyzerPlugin({
-      analyzerMode: 'disabled',
-      generateStatsFile: true,
-      // Excludes module sources from stats file so there won't be any sensitive data
-    }),
+    // new BundleAnalyzerPlugin({
+    //   analyzerMode: 'disabled',
+    //   generateStatsFile: true,
+    //   // Excludes module sources from stats file so there won't be any sensitive data
+    // }),
     new LodashModuleReplacementPlugin
   ]
 };
