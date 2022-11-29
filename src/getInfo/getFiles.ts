@@ -202,7 +202,7 @@ export async function getSourceFiles(sourceFileGlobs: string[]): Promise<string[
   const sourceFileExtensions = ['cpp', 'c', 'a', 's', 'cxx', 'cc'];
   const files = await scanForFiles(sourceFileGlobs);
   const sourceFiles = files.filter((file) => {
-    const extension = file.split('.')[-1];
+    const extension = file.split('.').pop();
     if (intersection([extension], sourceFileExtensions).length > 0) {
       return true;
     }
@@ -238,7 +238,7 @@ export async function getHeaderFiles(headerFilesGlobs: string[]): Promise<string
   const files = await scanForFiles(headerFilesGlobs);
 
   const headerFiles = files.filter((file) => {
-    const extension = file.split('.')[-1];
+    const extension = file.split('.').pop();
     if (intersection([extension], headerFileExtensions).length > 0) {
       return true;
     }
