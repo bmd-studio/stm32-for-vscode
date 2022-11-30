@@ -6,7 +6,7 @@ export const targetsMCUs = [
   'stm32f4x',
   'stm32f7x',
   'stm32h7x',
-  'stm32l0x',
+  'stm32l0',
   'stm32l1x',
   'stm32l4x',
   'stm32g0x',
