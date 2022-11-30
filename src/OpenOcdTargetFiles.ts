@@ -22,34 +22,42 @@
 * SOFTWARE.
 */
 
-import {trimEnd} from 'lodash';
+import { trimEnd } from 'lodash';
 
 const configFiles = [
-  'stm32f0x.cfg',
-  'stm32f1x.cfg',
-  'stm32f2x.cfg',
-  'stm32f3x.cfg',
-  'stm32f4x.cfg',
-  'stm32f7x.cfg', 'stm32g0x.cfg',
-  'stm32g0x_alt.cfg', 'stm32g4x.cfg',
-  'stm32g4x_alt.cfg', 'stm32h7x.cfg',
-  'stm32h7x_dual_bank.cfg', 'stm32h7x_dual_core.cfg',
-  'stm32l0.cfg', 'stm32l0_dual_bank.cfg',
-  'stm32l1.cfg', 'stm32l1x_dual_bank.cfg',
-  'stm32l4x.cfg', 'stm32l5x.cfg', 'stm32mp15x.cfg',
-  'stm32lx_stlink.cfg', 'stm32w108xx.cfg',
-  'stm32w108_stlink.cfg', 'stm32wbx.cfg',
-  'stm32wlx.cfg', 'stm32xl.cfg',
-  'stm32_stlink.cfg',
+  "stm32f0x.cfg",
+  "stm32f1x.cfg",
+  "stm32f2x.cfg",
+  "stm32f3x.cfg",
+  "stm32f4x.cfg",
+  "stm32f7x.cfg",
+  "stm32g0x.cfg",
+  "stm32g4x.cfg",
+  "stm32h7x.cfg",
+  "stm32h7x_dual_bank.cfg",
+  "stm32l0.cfg",
+  "stm32l0_dual_bank.cfg",
+  "stm32l1.cfg",
+  "stm32l1x_dual_bank.cfg",
+  "stm32l4x.cfg",
+  "stm32l5x.cfg",
+  "stm32mp13x.cfg",
+  "stm32mp15x.cfg",
+  "stm32u5x.cfg",
+  "stm32w108xx.cfg",
+  "stm32wbx.cfg",
+  "stm32wlx.cfg",
+  "stm32x5x_common.cfg",
+  "stm32xl.cfg",
 ];
 
 export default function getTargetConfig(target: string): string | boolean {
-  const cleanTarget = 
+  const cleanTarget =
     trimEnd(
       trimEnd(target, 'cfg'),
       'x',
     ).toLowerCase();
-  const ind = 
+  const ind =
     configFiles.findIndex((entry: string) => (entry.indexOf(cleanTarget) >= 0));
   if (ind >= 0) {
     return configFiles[ind];

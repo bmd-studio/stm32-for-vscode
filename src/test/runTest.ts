@@ -33,6 +33,7 @@ async function main(): Promise<void> {
       importAndBuild: path.resolve(__dirname, './integration/importAndBuild'),
       cxximportConvertBuild: path.resolve(__dirname, './integration/cxxBuildAndImport'),
       customMakefileRules: path.resolve(__dirname, './integration/customMakefileRulesTest'),
+      l0Test: path.resolve(__dirname, './integration/l0'),
     };
 
     const testWorkspaces = {
@@ -46,11 +47,15 @@ async function main(): Promise<void> {
         __dirname,
         '../../src/test/workspaces/l5_cpp_test_project/Secure'
       ),
+      l0Project: path.resolve(
+        __dirname,
+        '../../src/test/workspaces/l0_project'
+      ),
     };
     const defaultLaunchArguments = [
       '--extensions-dir',
       testExtensionPath,
-      '--user-data-dir', 
+      '--user-data-dir',
       `${os.tmpdir()}`
     ];
 
@@ -135,6 +140,16 @@ async function main(): Promise<void> {
       ]
     });
 
+    // test for l0 and openocd configuration
+    await runTests({
+      vscodeExecutablePath,
+      extensionDevelopmentPath,
+      extensionTestsPath: testPaths.l0Test,
+      launchArgs: [
+        testWorkspaces.l0Project,
+        ...defaultLaunchArguments,
+      ]
+    });
 
     // TODO: implement tooling clean-up.
   } catch (err) {
