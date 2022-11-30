@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import * as _ from "lodash";
+import { forEach } from "lodash";
 
 export interface BuildCommandDefinition {
   label: string;
@@ -59,7 +59,6 @@ class BuildCommand extends vscode.TreeItem {
     args?: string[],
   ) {
     super(label, collapsibleState);
-    // this.id = id;
     this.tooltip = `${this.label}: ${explanation}`;
     this.description = '';
     this.command = {
@@ -89,7 +88,7 @@ export default class CommandMenuProvider implements vscode.TreeDataProvider<Buil
     }
 
     const commands: BuildCommand[] = [];
-    _.forEach(COMMANDS, (command: BuildCommandDefinition) => {
+    forEach(COMMANDS, (command: BuildCommandDefinition) => {
       commands.push(
         new BuildCommand(
           command.label,

@@ -30,7 +30,7 @@
 import * as Micromatch from 'micromatch';
 import * as OpenOCDConfigFile from '../configuration/openOCDConfig';
 import * as STM32ProjectConfiguration from '../configuration/stm32Config';
-import * as _ from 'lodash';
+import { uniq, forEach, set } from 'lodash';
 import * as vscode from 'vscode';
 
 import MakeInfo, { ExtensionConfiguration } from '../types/MakeInfo';
@@ -71,7 +71,7 @@ export async function checkAndConvertCpp(
   totalInfo: MakeInfo,
   projectConfiguration: ExtensionConfiguration
 ): Promise<MakeInfo> {
-  const newInfo = _.cloneDeep(totalInfo);
+  const newInfo = { ...totalInfo };
 
   if (projectConfiguration.language === 'C++') {
     if (checkForFileNameInArray('main.cpp', newInfo.cxxSources) !== -1) {
@@ -82,12 +82,7 @@ export async function checkAndConvertCpp(
         newInfo.cSources.splice(indMain, 1);
       }
     }
-    // else {
 
-    //   vscode.window.showWarningMessage('No main.cpp file found, will try to compile this as a C project');
-    //   newInfo.cxxSources = [];
-    //   newInfo.cxxDefs = [];
-    // }
   } else {
     if (checkForFileNameInArray('main.cpp', newInfo.cxxSources) !== -1) {
       const result = await vscode.window.showWarningMessage(
@@ -132,13 +127,16 @@ export async function getInfo(location: string): Promise<MakeInfo> {
     new OpenOCDConfiguration(cubeMakefileInfo.targetMCU)
   );
 
-  const combinedSourceFiles = _.concat(
-    projectConfiguration.sourceFiles,
-    cubeMakefileInfo.cxxSources,
-    cubeMakefileInfo.cSources,
-    cubeMakefileInfo.asmSources
-  );
-  const combinedHeaderFiles = _.concat(projectConfiguration.includeDirectories, cubeMakefileInfo.cIncludes);
+  const combinedSourceFiles = [
+    ...projectConfiguration.sourceFiles,
+    ...cubeMakefileInfo.cxxSources,
+    ...cubeMakefileInfo.cSources,
+    ...cubeMakefileInfo.asmSources
+  ];
+  const combinedHeaderFiles = [
+    ...projectConfiguration.includeDirectories,
+    ...cubeMakefileInfo.cIncludes,
+  ];
 
   const sourceFilePromise = getSourceFiles(combinedSourceFiles);
   const headerFilePromise = getHeaderFiles(combinedHeaderFiles);
@@ -169,32 +167,32 @@ export async function getInfo(location: string): Promise<MakeInfo> {
 
   // replace spaces with underscores, to prevent spaces in path issues.
   STM32MakeInfo.target = projectConfiguration.target.split(' ').join('_');
-  STM32MakeInfo.cIncludes = _.uniq(_.concat(includeDirectories, filteredIncludeDirectories));
+  STM32MakeInfo.cIncludes = uniq([...includeDirectories, ...filteredIncludeDirectories]);
   STM32MakeInfo.cxxSources = sortedSourceFiles.cxxSources;
   STM32MakeInfo.cSources = sortedSourceFiles.cSources;
   STM32MakeInfo.asmSources = sortedSourceFiles.asmSources;
-  STM32MakeInfo.libs = _.uniq(_.concat(projectConfiguration.libraries, cubeMakefileInfo.libs));
-  STM32MakeInfo.libdir = _.uniq(_.concat(projectConfiguration.libraryDirectories, cubeMakefileInfo.libdir));
-  STM32MakeInfo.asDefs = _.uniq(_.concat(
-    cubeMakefileInfo.asDefs,
-    projectConfiguration.asDefinitions,
-    asDefinitionsFromFile
-  ));
-  STM32MakeInfo.assemblyFlags = _.uniq(_.concat(cubeMakefileInfo.assemblyFlags, projectConfiguration.assemblyFlags));
-  STM32MakeInfo.ldFlags = _.uniq(_.concat(cubeMakefileInfo.ldFlags, projectConfiguration.linkerFlags));
-  STM32MakeInfo.cDefs = _.uniq(_.concat(
-    cubeMakefileInfo.cDefs,
-    projectConfiguration.cDefinitions,
-    cDefinitionsFromFile
-  ));
-  STM32MakeInfo.cFlags = _.uniq(_.concat(cubeMakefileInfo.cFlags, projectConfiguration.cFlags));
+  STM32MakeInfo.libs = uniq([...projectConfiguration.libraries, ...cubeMakefileInfo.libs]);
+  STM32MakeInfo.libdir = uniq([...projectConfiguration.libraryDirectories, ...cubeMakefileInfo.libdir]);
+  STM32MakeInfo.asDefs = uniq([
+    ...cubeMakefileInfo.asDefs,
+    ...projectConfiguration.asDefinitions,
+    ...asDefinitionsFromFile
+  ]);
+  STM32MakeInfo.assemblyFlags = uniq([...cubeMakefileInfo.assemblyFlags, ...projectConfiguration.assemblyFlags]);
+  STM32MakeInfo.ldFlags = uniq([...cubeMakefileInfo.ldFlags, ...projectConfiguration.linkerFlags]);
+  STM32MakeInfo.cDefs = uniq([
+    ...cubeMakefileInfo.cDefs,
+    ...projectConfiguration.cDefinitions,
+    ...cDefinitionsFromFile
+  ]);
+  STM32MakeInfo.cFlags = uniq([...cubeMakefileInfo.cFlags, ...projectConfiguration.cFlags]);
   STM32MakeInfo.cpu = projectConfiguration.cpu;
-  STM32MakeInfo.cxxDefs = _.uniq(_.concat(
-    cubeMakefileInfo.cxxDefs,
-    projectConfiguration.cxxDefinitions,
-    cxxDefinitionsFromFile
-  ));
-  STM32MakeInfo.cxxFlags = _.uniq(_.concat(cubeMakefileInfo.cxxFlags, projectConfiguration.cxxFlags));
+  STM32MakeInfo.cxxDefs = uniq([
+    ...cubeMakefileInfo.cxxDefs,
+    ...projectConfiguration.cxxDefinitions,
+    ...cxxDefinitionsFromFile
+  ]);
+  STM32MakeInfo.cxxFlags = uniq([...cubeMakefileInfo.cxxFlags, ...projectConfiguration.cxxFlags]);
   STM32MakeInfo.floatAbi = projectConfiguration.floatAbi;
   STM32MakeInfo.fpu = projectConfiguration.fpu;
   STM32MakeInfo.language = projectConfiguration.language;
@@ -209,9 +207,9 @@ export async function getInfo(location: string): Promise<MakeInfo> {
     ...buildTools,
   };
   // set empty string, as sometimes float-abi or FPU are not included in the STM Makefile
-  _.forEach(STM32MakeInfo, (entry, key) => {
+  forEach(STM32MakeInfo, (entry, key) => {
     if (entry === null || entry === undefined) {
-      _.set(STM32MakeInfo, key, '');
+      set(STM32MakeInfo, key, '');
     }
   });
   STM32MakeInfo.customMakefileRules = projectConfiguration.customMakefileRules;

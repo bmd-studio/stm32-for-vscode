@@ -1,9 +1,8 @@
 import * as Sinon from 'sinon';
-import * as _ from 'lodash';
+import { forEach, get, set } from 'lodash';
 
-import { Stm32SettingsInterface, ToolChain } from '../../types/MakeInfo';
+import { ToolChain, ToolChainInterface } from '../../types/MakeInfo';
 import { afterEach, suite, test } from 'mocha';
-
 import { expect } from 'chai';
 import { getExtensionSettings } from '../../getInfo/getSettings';
 import { workspace, WorkspaceConfiguration } from 'vscode';
@@ -21,7 +20,7 @@ import { workspace, WorkspaceConfiguration } from 'vscode';
 //     return _.get(this, key);
 //   }
 // }
-interface MockWorkspaceConfig extends Stm32SettingsInterface {
+interface MockWorkspaceConfig extends ToolChainInterface {
   get: (key: string) => string;
 }
 
@@ -29,13 +28,13 @@ interface MockWorkspaceConfig extends Stm32SettingsInterface {
 
 function mockConfig(options?: object): MockWorkspaceConfig {
   const defaultToolchain = new ToolChain();
-  const configuration: MockWorkspaceConfig = {} as MockWorkspaceConfig;
-  _.assign(configuration, defaultToolchain);
+  let configuration: MockWorkspaceConfig = {} as MockWorkspaceConfig;
+  configuration = { ...configuration, ...defaultToolchain };
   if (options) {
-    _.assign(configuration, options);
+    configuration = { ...configuration, ...options };
   }
   configuration.get = function (this: MockWorkspaceConfig, key: string) {
-    return _.get(this, key);
+    return get(this, key);
   };
   return configuration;
 }
@@ -53,8 +52,8 @@ suite('get settings', () => {
   });
   test('test all empty settings, expect them to be ToolChain defaults', () => {
     const emptySettings = new ToolChain();
-    _.forEach(emptySettings, (_entry, key) => {
-      _.set(emptySettings, key, '');
+    forEach(emptySettings, (_entry, key) => {
+      set(emptySettings, key, '');
     });
 
     const getConfigurationFake = Sinon.fake.returns(mockConfig(emptySettings) as unknown as WorkspaceConfiguration);

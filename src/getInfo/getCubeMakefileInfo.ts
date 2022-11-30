@@ -196,8 +196,8 @@ export function getOpenocdTargetSTM(linkerScript: string): string {
 }
 /**
  * 
- * @param makefileLocation location to the makefile
- * @note throws error to the upper scope if it cannot find a makefile. 
+ * @param makefile: the makefile in string format
+ * @note 
  * @returns 
  */
 export default function extractMakefileInfo(makefile: string): MakeInfo {

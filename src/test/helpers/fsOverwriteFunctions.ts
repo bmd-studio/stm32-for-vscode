@@ -1,5 +1,5 @@
-import * as _ from 'lodash';
 
+import { get } from 'lodash';
 
 export function makeFSOverWritable(vscode: any): void {
   const fsOg = { ...vscode.workspace.fs };
@@ -8,7 +8,7 @@ export function makeFSOverWritable(vscode: any): void {
   const fsProperties: { [key: string]: any } = {};
   fsKeys.forEach((key) => {
     fsProperties[key] = {
-      value: _.get(vscode.workspace.fs, key),
+      value: get(vscode.workspace.fs, key),
       writeable: true,
       configurable: true,
     };

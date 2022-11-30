@@ -1,6 +1,6 @@
 import * as CCCPConfig from '../../../configuration/CCCPConfig';
 import * as Sinon from 'sinon';
-import * as _ from 'lodash';
+import { uniq } from 'lodash';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as helpers from '../../../Helpers';
 import * as shelljs from 'shelljs';
@@ -23,8 +23,6 @@ const {
   // getAbsoluteCompilerPath,
 } = CCCPConfig;
 
-
-// const fs = workspace.fs;
 use(chaiAsPromised);
 suite('CCCPConfig test (c_cpp_properties configuration', () => {
   beforeEach(() => {
@@ -82,8 +80,8 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     const expectedResult = JSON.stringify({
       configurations: [{
         name: 'STM32',
-        includePath: _.uniq(testMakefileInfo.cIncludes).sort(),
-        defines: _.uniq(getDefinitions(testMakefileInfo)).sort(),
+        includePath: uniq(testMakefileInfo.cIncludes).sort(),
+        defines: uniq(getDefinitions(testMakefileInfo)).sort(),
         compilerPath: 'arm-none-eabi-gcc',
       }
       ],
@@ -129,8 +127,8 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
         noneSTM32Configuration,
         {
           name: 'STM32',
-          includePath: _.uniq(testMakefileInfo.cIncludes).sort(),
-          defines: _.uniq(getDefinitions(testMakefileInfo)).sort(),
+          includePath: uniq(testMakefileInfo.cIncludes).sort(),
+          defines: uniq(getDefinitions(testMakefileInfo)).sort(),
           compilerPath: "arm-none-eabi-gcc",
         }
       ],
@@ -152,8 +150,8 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     const expectedResult = JSON.stringify({
       configurations: [{
         name: 'STM32',
-        includePath: _.uniq(testMakefileInfo.cIncludes).sort(),
-        defines: _.uniq(getDefinitions(testMakefileInfo)).sort(),
+        includePath: uniq(testMakefileInfo.cIncludes).sort(),
+        defines: uniq(getDefinitions(testMakefileInfo)).sort(),
         compilerPath: 'arm-none-eabi-gcc',
       }
       ],
@@ -199,8 +197,8 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     const expectedResult = JSON.stringify({
       configurations: [{
         name: 'STM32',
-        includePath: _.uniq(testMakefileInfo.cIncludes).sort(),
-        defines: _.uniq(getDefinitions(testMakefileInfo)).sort(),
+        includePath: uniq(testMakefileInfo.cIncludes).sort(),
+        defines: uniq(getDefinitions(testMakefileInfo)).sort(),
         compilerPath: 'arm-none-eabi-gcc',
         cStandard: "c11",
         cppStandard: "c++11"

@@ -1,5 +1,3 @@
-import * as _ from 'lodash';
-
 import MakeInfo, { ToolChain } from '../../types/MakeInfo';
 
 export function newMakeInfo(info: Partial<MakeInfo>): MakeInfo {
@@ -30,5 +28,5 @@ export function newMakeInfo(info: Partial<MakeInfo>): MakeInfo {
     customMakefileRules: undefined,
     makeFlags: [],
   };
-  return _.assign(standard, info);
+  return { ...standard, ...info };
 }
