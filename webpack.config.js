@@ -49,18 +49,18 @@ const config = {
     rules: [
       {
         test: /\.ts$/,
-        use: 'ts-loader',
-        exclude: /node_modules/
+        use: 'swc-loader',
+        exclude: /node_modules/,
+        include: path.resolve(__dirname, 'src'),
       },
-     
     ],
   },
   plugins: [
-    // new BundleAnalyzerPlugin({
-    //   analyzerMode: 'disabled',
-    //   generateStatsFile: true,
-    //   // Excludes module sources from stats file so there won't be any sensitive data
-    // }),
+    new BundleAnalyzerPlugin({
+      analyzerMode: 'disabled',
+      generateStatsFile: true,
+      // Excludes module sources from stats file so there won't be any sensitive data
+    }),
     new LodashModuleReplacementPlugin
   ]
 };
