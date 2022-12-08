@@ -9,6 +9,9 @@
   - Issue #101 & #119: Added make flags to the configuration file. This allows to add the --silent flag to the build and to prevent output mixing on parallel compilation.
 ### Fixed
   - Issue #116: Fixed issue where the STM32 configuration file would silently delete if there was something wrong while parsing the yaml file.
+  - c_cpp_properties.json would have reflect the current configuration. Changed it so it is regenerated upon each new build.
+  - Issues #125: Issue with the openocd configuration for the STM32l0 line. With thanks to: signorettae.
+  - Issue #91: LIBS variabel in the cube generated makefile was not read correctly.
 ## [3.2.2] - 2022-06-29
 ### Fixed
  - Fixed Issue #96: Fixed issue where debugging for C++ gave no source file error due to missing debugging flags.
