@@ -22,7 +22,7 @@
 * SOFTWARE.
 */
 
-import {set, uniq, flattenDeep, intersection, forEach}  from 'lodash';
+import { set, uniq, flattenDeep, intersection, forEach } from 'lodash';
 import * as pth from 'path';
 import * as vscode from 'vscode';
 
@@ -31,6 +31,8 @@ import { EXTENSION_CONFIG_NAME } from '../Definitions';
 
 import Glob = require('glob');
 
+export const SOURCE_FILE_EXTENSIONS = ['cpp', 'c', 'a', 's', 'cxx', 'cc'];
+export const HEADER_FILE_EXTENSIONS = ['h', 'hpp', 'hxx'];
 
 const path = pth.posix; // did this so everything would be posix.
 
@@ -199,11 +201,10 @@ export async function scanForFiles(includedFilesGlob: string[]): Promise<string[
  * @returns array of posix relative sourcefile paths
  */
 export async function getSourceFiles(sourceFileGlobs: string[]): Promise<string[]> {
-  const sourceFileExtensions = ['cpp', 'c', 'a', 's', 'cxx', 'cc'];
   const files = await scanForFiles(sourceFileGlobs);
   const sourceFiles = files.filter((file) => {
     const extension = file.split('.').pop();
-    if (intersection([extension], sourceFileExtensions).length > 0) {
+    if (intersection([extension], SOURCE_FILE_EXTENSIONS).length > 0) {
       return true;
     }
     return false;
@@ -234,12 +235,11 @@ export function getNonGlobIncludeDirectories(headerFilesGlobs: string[]): string
  * @returns array of posix relative header file paths
  */
 export async function getHeaderFiles(headerFilesGlobs: string[]): Promise<string[]> {
-  const headerFileExtensions = ['h', 'hpp', 'hxx'];
   const files = await scanForFiles(headerFilesGlobs);
 
   const headerFiles = files.filter((file) => {
     const extension = file.split('.').pop();
-    if (intersection([extension], headerFileExtensions).length > 0) {
+    if (intersection([extension], HEADER_FILE_EXTENSIONS).length > 0) {
       return true;
     }
     return false;
