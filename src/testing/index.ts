@@ -7,8 +7,8 @@ const TEST_MAP = "tests";
 const DOCTEST_FOLDER = `${TEST_MAP}/doctest`;
 const DOCTEST_PATH = `${DOCTEST_FOLDER}/doctest.h`;
 const TEST_README_PATH = `${TEST_MAP}/README.md`;
-import executeTask from '../HandleTasks';
-import setupLibrariesFolder from './libariesFolder';
+// import executeTask from '../HandleTasks';
+// import setupLibrariesFolder from './libariesFolder';
 import { workspace, Uri, window } from 'vscode';
 import getTestFiles from './getFiles';
 // import testsReadmeMD from './testsMapReadme';
@@ -53,34 +53,16 @@ export default async function buildTest(info: MakeInfo): Promise<void> {
   if (!workspacUri) {
     return;
   }
-  // try {
-  //   await addDoctestFileToProject();
-  //   await setupLibrariesFolder();
-  //   // 
-  //   await checkIfFileExitsIfNotWrite(path.join(fsPathToPosix(workspacUri.fsPath), TEST_README_PATH), testsReadmeMD);
-  // } catch (error) {
-  //   window.showErrorMessage(`Something went wrong with setting up the test folder. Error: ${error}`);
-  //   return;
-  // }
+  console.log({ info });
+  // TODO: add libraries folder automatically (should be done in general configuration)
+  // TODO: add tests folder automatically (should be done in general configuration)
+  // TODO: add watch functionality. 
+  // TODO: add individual tests to the sidebar and allow them all to be run or watch a single test.
+  // TODO: create a good way to do a watch build cycle
+  // TODO: create a way to configure a test e.g. another config file in the specific test folder.
+  const testFiles = await getTestFiles(workspacUri);
+  const testKeys = Object.keys(testFiles.tests);
 
 
-  // const filteredSourcesFiles = info.cSources.filter(
-  //   (entry) => !(entry.includes('main.c') || entry.toLowerCase().includes('stm32'))
-  // );
-  // const filteredHeaderFiles = info.cIncludes.filter(
-  //   (includePath) => !(includePath.includes('Middlewares') || includePath.includes('Drivers'))
-  // );
-
-
-  // const testSourceFiles = filteredSourcesFiles.concat(info.testInfo.sourceFiles);
-  // const testHeaderFiles = filteredHeaderFiles.concat(info.testInfo.headerFiles);
-
-  // const sourceFileListString = testSourceFiles.join(' ');
-  // let testHeaderFilesListString = testHeaderFiles.map((headerDir) => `-I${headerDir}`).join(' ');
-  // testHeaderFilesListString += ` -I${TEST_MAP}`;
-
-
-  // const buildCommand = `${sourceFileListString} ${testHeaderFilesListString} -DTEST -o unitTests`;
-  // await executeTask('build', 'build test', ['g++', buildCommand], {}, 'gcc');
-  const testFiles = getTestFiles(workspacUri);
+  console.log({ testFiles });
 }

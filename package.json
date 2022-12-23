@@ -108,6 +108,10 @@
 			{
 				"command": "stm32-for-vscode.setProgrammer",
 				"title": "STM32: Set programmer for the STM32 chip"
+			},
+			{
+				"command": "stm32-for-vscode.testCommand",
+				"title": "STM32: test command"
 			}
 		],
 		"configuration": {
@@ -143,6 +147,7 @@
 		"vscode:prepublish": "webpack --mode production && rm dist/extension.js.map",
 		"compile:dev": "webpack --mode development",
 		"compile:test": "tsc -p ./ ",
+		"compile": "npm run compile:dev",
 		"lint": "eslint src --ext ts",
 		"watch": "tsc -watch -p ./",
 		"precompile": "npm run lint && tsc --alwaysStrict true -p ./",

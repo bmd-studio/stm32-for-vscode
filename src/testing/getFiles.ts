@@ -1,6 +1,6 @@
 import { workspace, Uri, FileType } from 'vscode';
 import { join, basename } from 'path';
-import { scanForFiles, sortFiles, SOURCE_FILE_EXTENSIONS, HEADER_FILE_EXTENSIONS } from '../getInfo/getFiles';
+import { scanForFiles, sortFiles, SOURCE_FILE_EXTENSIONS, HEADER_FILE_EXTENSIONS, getIncludeDirectoriesFromFileList } from '../getInfo/getFiles';
 import { BuildFiles } from '../types';
 export const TEST_FOLDER = 'tests';
 
@@ -19,15 +19,21 @@ export default async function getTestFiles(workspaceUri: Uri): Promise<TestProje
   const testFolderPath = join(workspaceUri.fsPath, TEST_FOLDER);
   const testDirectory = await workspace.fs.readDirectory(Uri.file(testFolderPath));
   const testFolders = testDirectory.filter((entry) => entry[1] === FileType.Directory);
-  const topLevelFiles = sortFiles(testDirectory.map(entry => entry[0]));
-  let fileGlobs = SOURCE_FILE_EXTENSIONS.concat(HEADER_FILE_EXTENSIONS).reduce((previous, current) => {
-    return `${previous} | ${current}`;
+  const topLevelUnsortedFiled = testDirectory.map(entry => entry[0]);
+  const topLevelFiles = sortFiles(topLevelUnsortedFiled);
+  topLevelFiles.cIncludes = getIncludeDirectoriesFromFileList(topLevelUnsortedFiled);
+  let fileGlobs = SOURCE_FILE_EXTENSIONS.concat(HEADER_FILE_EXTENSIONS).reduce((previous, current, currentIndex) => {
+    if (currentIndex === 0) {
+      return (`${current}`);
+    }
+    return `${previous}|${current}`;
   }, "");
-  fileGlobs = `**/*(${fileGlobs})`;
+  fileGlobs = `**/*.(${fileGlobs})`;
 
   const scanForFilePromises = testFolders.map(folder => {
+    const filePath = join(TEST_FOLDER, folder[0], '**');
     return scanForFiles([
-      join(folder[0], fileGlobs),
+      filePath
     ]);
   });
   const output: TestProjects = {
@@ -38,6 +44,7 @@ export default async function getTestFiles(workspaceUri: Uri): Promise<TestProje
   filesPerDirectory.forEach((files, index) => {
     const name = basename(testFolders[index][0]);
     const sorted = sortFiles(files);
+    sorted.cIncludes = getIncludeDirectoriesFromFileList(files);
     output.tests[name] = sorted;
   });
   return output;
