@@ -155,7 +155,7 @@
 		"watch:tests": "watch \"npm run test\" ./src --wait=10",
 		"generate-docs": "typedoc --out docs src",
 		"stats": "webpack --json > stats.json",
-		"stats:production": "webpack --mode production --json > stats.json"
+		"stats:production": "webpack --mode production --json"
 	},
 	"devDependencies": {
 		"@babel/cli": "^7.6.0",
@@ -197,13 +197,14 @@
 		"webpack-cli": "^4.10.0"
 	},
 	"dependencies": {
+		"@types/which": "^2.0.1",
 		"axios": "^0.27.2",
 		"decompress": "^4.2.1",
-		"json5": "^2.1.0",
 		"lodash": "^4.17.21",
 		"micromatch": "^4.0.2",
 		"shelljs": "^0.8.4",
 		"strip-comments": "^2.0.1",
+		"which": "^3.0.0",
 		"xml2js": "^0.4.23",
 		"yaml": "^2.1.1"
 	}

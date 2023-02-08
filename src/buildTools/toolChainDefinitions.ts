@@ -82,3 +82,23 @@ export const armNoneEabiDefinition: BuildToolDefinition = {
   requiredByCortexDebug: true,
   xpmName: 'arm-none-eabi-gcc',
 };
+export const gccDefinition: BuildToolDefinition = {
+  name: 'GCC toolchain',
+  standardCmd: 'gcc',
+  otherCmds: [],
+  folder: tru       e,
+  installation: {
+    xpm: '@xpack-dev-tools/gcc@latest',
+  },
+  xpmPath: './.content/bin',
+  requiredByCortexDebug: true,
+  xpmName: 'gcc',
+}
+
+const BUILD_TOOL_DEFINITIONS: Record<string, BuildToolDefinition> = {
+  arm: armNoneEabiDefinition,
+  make: makeDefinition,
+  openOCD: openocdDefinition,
+  gcc: gccDefinition,
+}
+export default BUILD_TOOL_DEFINITIONS;

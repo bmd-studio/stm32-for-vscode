@@ -33,7 +33,6 @@ import buildSTM from './BuildTask';
 import { checkBuildTools } from './buildTools';
 import importAndSetupCubeIDEProject from './import';
 import { installBuildToolsCommand } from './buildTools/installTools';
-import buildTest from './testing';
 import MakeInfo from './types/MakeInfo';
 
 // this method is called when your extension is activated
@@ -124,7 +123,7 @@ export function activate(context: vscode.ExtensionContext): { installTools: () =
     'stm32-for-vscode.testCommand',
     async () => {
       const defaultMakeInfo = new MakeInfo();
-      await buildTest(defaultMakeInfo);
+      // await buildTest(defaultMakeInfo);
     }
   );
   context.subscriptions.push(testCommand);

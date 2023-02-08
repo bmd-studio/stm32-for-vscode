@@ -48,6 +48,7 @@ import {
 import updateConfiguration from './configuration/WorkspaceConfigurations';
 import updateMakefile from './UpdateMakefile';
 import { writeConfigFile } from './configuration/stm32Config';
+import { setupTesting } from './testing';
 
 /**
  * Checks if the language is C++ and that there is no main.cpp present. 
@@ -148,6 +149,7 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
 
   try {
     currentWorkspaceFolder = fsPathToPosix(workspace.workspaceFolders[0].uri.fsPath);
+    await setupTesting();
 
     info = await getInfo(currentWorkspaceFolder);
     const makeFlags = info.makeFlags.length > 0 ? ` ${info.makeFlags.join(' ')}` : '';

@@ -1,11 +1,22 @@
 import * as Definitions from '../../Definitions';
 import * as path from 'path';
 import * as vscode from 'vscode';
+import {
+  COMMON_DIRECTORY,
+  TEST_DIRECTORY,
+  TEST_COMMON_DIRECTORY,
+  EXAMPLE_FILE_NAME,
+  EXAMPLE_FILE_DIRECTORY,
+  COMMON_README_PATH,
+  DOCTEST_FILE_NAME,
+  DOCTEST_README_FILE_NAME,
+} from '../../testing';
 
 import {
   checkAutomaticallyInstalledBuildTools,
   hasRelevantAutomaticallyInstalledBuildTools
 } from '../../buildTools/validateToolchain';
+import { checkIfFileExists } from '../../Helpers';
 
 export async function waitForWorkspaceFoldersChange(timeoutMs?: number): Promise<void> {
   let rejectTimeout = timeoutMs || 500;
@@ -50,6 +61,47 @@ export async function removeTestToolsFolder(): Promise<void> {
   }
 }
 
+export async function hasExtensionTestFiles(): Promise<boolean> {
+  if (!vscode.workspace.workspaceFolders || !vscode.workspace.workspaceFolders?.[0]) {
+    return false;
+  }
+  const currentWorkspaceFolderUri = vscode.workspace.workspaceFolders[0];
+  const workspaceFSPath = currentWorkspaceFolderUri.uri.fsPath;
+
+  const commonDirectoryPath = path.join(workspaceFSPath, COMMON_DIRECTORY);
+  const testDirectoryPath = path.join(workspaceFSPath, TEST_DIRECTORY);
+  const commonReadmePath = path.join(commonDirectoryPath, COMMON_README_PATH);
+  const testCommonDirectoryPath = path.join(testDirectoryPath, TEST_COMMON_DIRECTORY);
+  const testDoctestPath = path.join(testCommonDirectoryPath, DOCTEST_FILE_NAME);
+  const testDoctestReadmePath = path.join(testCommonDirectoryPath, DOCTEST_README_FILE_NAME);
+  const testExampleDirectory = path.join(testDirectoryPath, EXAMPLE_FILE_DIRECTORY);
+  const testExamplePath = path.join(testExampleDirectory, EXAMPLE_FILE_NAME);
+
+  const pathChecks = [
+    commonReadmePath,
+    testDoctestPath,
+    testDoctestReadmePath,
+    testExamplePath,
+  ].map((path) => {
+    return checkIfFileExists(path);
+  });
+  try {
+    const result = await Promise.all(pathChecks);
+    const hasPaths = result.reduce((accumulator, hasPath) => {
+      if (!hasPath) {
+        accumulator = false;
+      }
+      return accumulator;
+    }, true);
+    return hasPaths;
+  } catch (error) {
+    throw error;
+  }
+}
+
+/**
+ * Cleans up all the artifacts that are created by the STM32 for VSCode extension.
+ */
 export async function cleanUpSTM32ForVSCodeArtifacts(): Promise<void> {
   if (!vscode.workspace.workspaceFolders || !vscode.workspace.workspaceFolders?.[0]) {
     return;
@@ -60,7 +112,8 @@ export async function cleanUpSTM32ForVSCodeArtifacts(): Promise<void> {
   const workspaceSettingsPath = path.join(currentWorkspaceFolderUri.uri.fsPath, ".vscode");
   const openocdConfigPath = path.join(currentWorkspaceFolderUri.uri.fsPath, "openocd.cfg");
   const buildDirectoryPath = path.join(currentWorkspaceFolderUri.uri.fsPath, "build");
-
+  const commonDirectoryPath = path.join(currentWorkspaceFolderUri.uri.fsPath, COMMON_DIRECTORY);
+  const testDirectoryPath = path.join(currentWorkspaceFolderUri.uri.fsPath, TEST_DIRECTORY);
 
   const fileDeletePromises = [
     vscode.workspace.fs.delete(vscode.Uri.file(makefilePath), { useTrash: false }),
@@ -68,6 +121,8 @@ export async function cleanUpSTM32ForVSCodeArtifacts(): Promise<void> {
     vscode.workspace.fs.delete(vscode.Uri.file(openocdConfigPath), { useTrash: false }),
     vscode.workspace.fs.delete(vscode.Uri.file(workspaceSettingsPath), { useTrash: false, recursive: true }),
     vscode.workspace.fs.delete(vscode.Uri.file(buildDirectoryPath), { useTrash: false, recursive: true }),
+    vscode.workspace.fs.delete(vscode.Uri.file(commonDirectoryPath), { useTrash: false, recursive: true }),
+    vscode.workspace.fs.delete(vscode.Uri.file(testDirectoryPath), { useTrash: false, recursive: true }),
   ];
   try {
     await Promise.all(fileDeletePromises);

@@ -71,6 +71,18 @@ export async function checkIfFileExitsIfNotWrite(filePath: string, file: string)
     await writeFile(filePath, file);
   }
 }
+
+/**
+ * @brief creates a directory/folder when it does not exists
+ * @param directory: the directory to create.
+ */
+export async function checkIfDirectoryExistsIfNotWrite(directory: string): Promise<void> {
+  const hasDirectory = await checkIfFileExists(directory);
+  if (!hasDirectory) {
+    await workspace.fs.createDirectory(Uri.file(directory));
+  }
+}
+
 export function getWorkspaceUri(): Uri | null {
   const workspaces = workspace.workspaceFolders;
   if (workspaces && workspaces.length > 0) {
