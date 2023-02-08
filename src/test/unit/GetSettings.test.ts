@@ -33,7 +33,7 @@ function mockConfig(options?: object): MockWorkspaceConfig {
   if (options) {
     configuration = { ...configuration, ...options };
   }
-  configuration.get = function (this: MockWorkspaceConfig, key: string) {
+  configuration.get = function(this: MockWorkspaceConfig, key: string) {
     return get(this, key);
   };
   return configuration;

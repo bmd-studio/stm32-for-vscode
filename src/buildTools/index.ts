@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as toolChainValidation from './validateToolchain';
 import * as vscode from 'vscode';
 
-import  {forEach, isEqual, set} from 'lodash';
+import { forEach, isEqual, set } from 'lodash';
 
 import { ToolChain } from '../types/MakeInfo';
 import { which } from 'shelljs';
@@ -28,9 +28,10 @@ export function setCortexDebugSettingsInWorkspace(tools: ToolChain): void {
 
 /**
  * Checks build tools and updates settings accordingly. Priority of assignment is: 
- * highest: build tools in setting,
- * mid: build tools installed by the extension
- * low: build tools in path
+ * 1: workspace settings
+ * 2: global settings
+ * 3: default installation location
+ * 4: default tools in PATH
  * @param context vscode extension context
  */
 export async function checkBuildTools(context: vscode.ExtensionContext): Promise<boolean> {
@@ -58,8 +59,8 @@ export async function checkBuildTools(context: vscode.ExtensionContext): Promise
     }
   });
   await Promise.all(globalSettingsUpdatePromises);
-  // check if there is a local settings file and update if neccessary.
-  // NOTE: settings should not be added or editted in the workspace for STM32 for vscode,
+  // check if there is a local settings file and update if necessary.
+  // NOTE: settings should not be added or edited in the workspace for STM32 for vscode,
   // however old version of STM32 for VSCode did put it in the workspace folder
   const localUpdatePromises: Thenable<void>[] = [];
   if (vscode?.workspace?.workspaceFolders?.[0]) {

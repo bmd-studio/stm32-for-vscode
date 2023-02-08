@@ -1,19 +1,55 @@
-import * as path from 'path';
 import * as process from 'process';
-import * as shelljs from 'shelljs';
 import * as vscode from 'vscode';
+import { dirname, join } from 'path';
+import which from 'which';
 
-import { armNoneEabiDefinition, makeDefinition, openocdDefinition } from './toolChainDefinitions';
+import BUILD_TOOL_DEFINITIONS, { armNoneEabiDefinition, makeDefinition, openocdDefinition } from './toolChainDefinitions';
 import {
   checkSettingsPathValidity,
   checkToolchainPathForTool,
   validateArmToolchainPath,
   validateXPMToolchainPath
 } from './extensionToolchainHelpers';
-import {forEach, get, set} from 'lodash';
+import { forEach, get, set } from 'lodash';
 
 import { ToolChain } from '../types/MakeInfo';
 import { getExtensionSettings } from '../getInfo/getSettings';
+
+/**
+ *  Checks a list of key values pairs to see if they return a path for which.
+ *  @param executablesToCheck: An object where the keys are paths to exectables e.g. {armNoneEabi: 'arm-none-eabi-gcc'}
+ *  @returns  returns and object with the original keys 
+ *  however the value is undefined when no path is found or the found path if found
+ */
+async function executablesWhichCheck(
+  executablesToCheck: Record<string, string | undefined>
+): Promise<Record<string, string | undefined>> {
+  const checks = Object.entries(executablesToCheck).map(async ([key, value]) => {
+    // check if value is defined if so check with which otherwise return undefined
+    const result = !value ? undefined : await which(value, { nothrow: true });
+    return [key, !result ? undefined : result];
+  });
+  const checkResults = await Promise.all(checks);
+  return Object.fromEntries(checkResults);
+}
+
+/*
+ * The steps for validating the toolchain are as follows
+ * 1. Check settings paths
+ * 2. Check for automatically installed tools by STM32 for VSCode
+ * 3. Check the pre-installed tool paths in PATH 
+*/
+export async function getBuildTools(): Promise<Record<string, string | undefined>> {
+  const settings = getExtensionSettings();
+  const settingsExecutables = {
+    // TODO: create a function to append the standard command to the end or return undefined.
+    armNoneEabi: typeof settings.armToolchainPath === 'boolean' ? undefined :
+      join(settings.armToolchainPath, BUILD_TOOL_DEFINITIONS.armNoneEabi.standardCmd),
+
+  };
+}
+
+
 
 /*
  * The steps for validating the toolchain are as follows
@@ -54,7 +90,7 @@ export function checkSettingsForBuildTools(): ToolChain {
 }
 
 export function compareAndUpdateMissingBuildTools(startSettings: ToolChain, additionalSettings: ToolChain): ToolChain {
-  const newSettings = {...startSettings};
+  const newSettings = { ...startSettings };
 
   forEach(startSettings, (setting, key) => {
     if (!setting) {

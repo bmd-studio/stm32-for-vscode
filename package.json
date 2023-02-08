@@ -158,9 +158,6 @@
 		"stats:production": "webpack --mode production --json"
 	},
 	"devDependencies": {
-		"@babel/cli": "^7.6.0",
-		"@babel/core": "^7.6.0",
-		"@babel/preset-env": "^7.6.0",
 		"@types/axios": "^0.14.0",
 		"@types/chai": "^4.2.11",
 		"@types/chai-as-promised": "^7.1.2",
@@ -172,7 +169,6 @@
 		"@types/node": "^18.0.0",
 		"@types/sinon": "^10.0.2",
 		"@types/strip-comments": "^2.0.0",
-		"@types/unzipper": "^0.10.3",
 		"@types/vscode": "^1.44",
 		"@types/xml2js": "^0.4.9",
 		"@typescript-eslint/eslint-plugin": "^5.42.1",
