@@ -33,6 +33,7 @@ import {
 } from './Definitions';
 import MakeInfo, { ExtensionConfiguration } from './types/MakeInfo';
 import {
+  ExtensionContext,
   Uri,
   window,
   workspace
@@ -84,7 +85,7 @@ async function checkForMainCPPOrAddWhenNecessary(info: MakeInfo): Promise<MakeIn
   return info;
 }
 
-export default async function buildSTM(options?: { flash?: boolean; cleanBuild?: boolean }): Promise<void> {
+export default async function buildSTM(context: ExtensionContext, options?: { flash?: boolean; cleanBuild?: boolean }): Promise<void> {
   const {
     flash,
     cleanBuild,
@@ -151,7 +152,7 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
     currentWorkspaceFolder = fsPathToPosix(workspace.workspaceFolders[0].uri.fsPath);
     await setupTesting();
 
-    info = await getInfo(currentWorkspaceFolder);
+    info = await getInfo(context, currentWorkspaceFolder);
     const makeFlags = info.makeFlags.length > 0 ? ` ${info.makeFlags.join(' ')}` : '';
     const makeArguments = `-j16${makeFlags} -f ${makefileName}`;
     if (cleanBuild) {

@@ -86,19 +86,21 @@ export const gccDefinition: BuildToolDefinition = {
   name: 'GCC toolchain',
   standardCmd: 'gcc',
   otherCmds: [],
-  folder: tru       e,
+  folder: true,
   installation: {
     xpm: '@xpack-dev-tools/gcc@latest',
   },
   xpmPath: './.content/bin',
   requiredByCortexDebug: true,
   xpmName: 'gcc',
-}
+};
 
-const BUILD_TOOL_DEFINITIONS: Record<string, BuildToolDefinition> = {
+export type BuildToolDefinitionKey = 'arm' | 'make' | 'openOCD' | 'gcc';
+
+const BUILD_TOOL_DEFINITIONS: Record<BuildToolDefinitionKey, BuildToolDefinition> = {
   arm: armNoneEabiDefinition,
   make: makeDefinition,
   openOCD: openocdDefinition,
   gcc: gccDefinition,
-}
+};
 export default BUILD_TOOL_DEFINITIONS;

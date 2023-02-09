@@ -94,7 +94,7 @@ export function activate(context: vscode.ExtensionContext): { installTools: () =
   const buildCmd = vscode.commands.registerCommand(
     'stm32-for-vscode.build',
     async () => {
-      await buildSTM({});
+      await buildSTM(context, {});
 
     }
   );
@@ -102,7 +102,7 @@ export function activate(context: vscode.ExtensionContext): { installTools: () =
   const flashCmd = vscode.commands.registerCommand(
     'stm32-for-vscode.flash',
     async () => {
-      await buildSTM({
+      await buildSTM(context, {
         flash: true,
       });
     }
@@ -112,7 +112,7 @@ export function activate(context: vscode.ExtensionContext): { installTools: () =
   const cleanBuildCmd = vscode.commands.registerCommand(
     'stm32-for-vscode.cleanBuild',
     async () => {
-      await buildSTM({
+      await buildSTM(context, {
         cleanBuild: true,
       });
     }

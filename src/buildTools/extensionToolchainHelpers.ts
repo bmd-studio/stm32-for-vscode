@@ -1,13 +1,13 @@
-import * as path from 'path';
-import * as shelljs from 'shelljs';
+import { join, normalize } from 'path';
 import * as vscode from 'vscode';
+import which from 'which';
 
 import {
   BuildToolDefinition,
   XPACKS_DEV_TOOL_PATH,
   armNoneEabiDefinition
 } from './toolChainDefinitions';
-import {forEach, isBoolean, isEmpty, isString} from 'lodash';
+import { forEach, isBoolean, isEmpty, isString } from 'lodash';
 
 export interface XPMToolVersion {
   toolVersion: number[];
@@ -15,11 +15,11 @@ export interface XPMToolVersion {
   fileName: string;
 }
 
-export function checkSettingsPathValidity(path: string | boolean): boolean {
+export function checkSettingsPathValidity(path: string | undefined): string | undefined {
   if (path && isString(path) && !isEmpty(path)) {
-    return true;
+    return path;
   }
-  return false;
+  return undefined;
 }
 
 
@@ -80,7 +80,7 @@ export function compareVersions(version1: XPMToolVersion | null, version2: XPMTo
  * @param xpmPath The path to the xpm install location e.g. context.globalStoragePath
  */
 export function getToolBasePath(tool: BuildToolDefinition, xpmPath: string): string {
-  return path.join(xpmPath, XPACKS_DEV_TOOL_PATH, tool.xpmName);
+  return join(xpmPath, XPACKS_DEV_TOOL_PATH, tool.xpmName);
 }
 export async function getToolVersionFolders(
   tool: BuildToolDefinition, xpmPath: string): Promise<[string, vscode.FileType][] | null> {
@@ -98,7 +98,7 @@ export async function getToolVersionFolders(
 
 /**
  * Function which returns 
- * @param tool build tool defintion
+ * @param tool build tool definition
  * @param xpmPath the path to which the xpm install was performed.
  * @returns 
  */
@@ -123,73 +123,32 @@ export async function getNewestToolchainVersion(
   return newest;
 }
 
-export async function validateXPMToolchainPath(tool: BuildToolDefinition, xpmPath: string): Promise<string | boolean> {
+/**
+ * validates the xpm installed extension
+ * @param tool: the XPM definition of the build tool found in toolChainDefinitions.ts
+ * @param xpmInstallationDirectory: the installation directory for XPM 
+ */
+export async function validateXPMToolchainPath(
+  tool: BuildToolDefinition,
+  xpmInstallationDirectory: string
+): Promise<string | undefined> {
   try {
-    const value = await getNewestToolchainVersion(tool, xpmPath);
+    const value = await getNewestToolchainVersion(tool, xpmInstallationDirectory);
     if (!value || isBoolean(value)) {
-      return false;
+      return undefined;
     }
-    const versionPath = path.join(xpmPath, XPACKS_DEV_TOOL_PATH, tool.xpmName, value.fileName);
-    const toolPath = path.join(versionPath, tool.xpmPath);
-    const fullPath = path.join(toolPath, tool.standardCmd);
-    const shellPath = shelljs.which(fullPath);
+    const versionPath = join(xpmInstallationDirectory, XPACKS_DEV_TOOL_PATH, tool.xpmName, value.fileName);
+    const toolPath = join(versionPath, tool.xpmPath);
+    const fullPath = join(toolPath, tool.standardCmd);
+    const shellPath = (await which(fullPath, { nothrow: true })) || undefined;
     if (checkSettingsPathValidity(shellPath)) {
       if (tool.name === armNoneEabiDefinition.name) {
         return toolPath;
       }
       return shellPath;
     }
-    return false;
+    return undefined;
   } catch (err) {
-    return false;
+    return undefined;
   }
-}
-
-
-export function validateArmToolchainPath(armToolChainPath: string | boolean): string | false {
-  if (!armToolChainPath || isEmpty(armToolChainPath) || !isString(armToolChainPath)) { return false; }
-  const immediatePath = shelljs.which(armToolChainPath);
-  let armPath: string | false = false;
-  if (immediatePath) {
-    armPath = path.normalize(path.join(immediatePath, '..'));
-  } else {
-    const appendedArmPath = path.normalize(path.join(armToolChainPath, 'arm-none-eabi-gcc'));
-    if (shelljs.which(appendedArmPath)) {
-      armPath = armToolChainPath;
-    }
-  }
-  return armPath;
-}
-
-export function checkToolchainPathForTool(
-  toolPath: string | boolean,
-  definition: BuildToolDefinition
-): string | boolean {
-  if (!checkSettingsPathValidity(toolPath)) {
-    return false;
-  }
-  const regularPath = shelljs.which(toolPath);
-  if (checkSettingsPathValidity(regularPath)) {
-    return regularPath;
-  }
-  // after this check the path with the standard command
-  if (isString(toolPath)) {
-    const standardCommandPath = shelljs.which(path.join(toolPath, definition.standardCmd));
-    if (checkSettingsPathValidity(standardCommandPath)) {
-      return standardCommandPath;
-    }
-    // after this check the path with the non standard commands
-    let nonStandardPath = false;
-    forEach(definition.otherCmds, (entry) => {
-      const tryPath = path.join(toolPath, entry);
-      const whichedTryPath = shelljs.which(tryPath);
-      if (checkSettingsPathValidity(whichedTryPath)) {
-        nonStandardPath = whichedTryPath;
-      }
-    });
-    if (nonStandardPath) {
-      return nonStandardPath;
-    }
-  }
-  return false;
 }

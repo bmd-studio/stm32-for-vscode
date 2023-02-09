@@ -44,7 +44,7 @@ import {
 import getMakefileInfo, { getMakefileInWorkspace } from './getCubeMakefileInfo';
 
 import { OpenOCDConfiguration } from '../types/OpenOCDConfig';
-import { getBuildToolsFromSettings } from '../buildTools';
+import { getToolChainFromGlobalState } from '../buildTools';
 import getDefinitionsFromFiles from './getDotDefinitions';
 
 /**
@@ -106,7 +106,7 @@ export async function checkAndConvertCpp(
  * if a project is a C or C++ project and converts accordingly.
  * @param {string} location location of the workspace
  */
-export async function getInfo(location: string): Promise<MakeInfo> {
+export async function getInfo(context: vscode.ExtensionContext, location: string): Promise<MakeInfo> {
   if (!vscode.workspace.workspaceFolders) { throw Error('No workspace folder was selected'); }
   let cubeMakefileInfo = new MakeInfo();
   try {
@@ -201,7 +201,7 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   STM32MakeInfo.mcu = cubeMakefileInfo.mcu;
   STM32MakeInfo.targetMCU = projectConfiguration.targetMCU;
   STM32MakeInfo.makeFlags = projectConfiguration.makeFlags;
-  const buildTools = getBuildToolsFromSettings();
+  const buildTools = getToolChainFromGlobalState(context);
   STM32MakeInfo.tools = {
     ...STM32MakeInfo.tools,
     ...buildTools,

@@ -8,9 +8,10 @@ export interface Stm32SettingsInterface {
 }
 
 export interface ToolChainInterface {
-  openOCDPath: string | boolean;
-  makePath: string | boolean;
-  armToolchainPath: string | boolean;
+  openOCDPath?: string;
+  makePath?: string;
+  armToolchainPath?: string;
+  gccPath?: string;
 }
 
 export interface BuildFilesInterface {
@@ -106,9 +107,10 @@ export interface MakeInfoInterface extends BuildFilesInterface, TargetInfoInterf
 }
 
 export class ToolChain implements ToolChainInterface {
-  public openOCDPath: string | boolean = false;
-  public makePath: string | boolean = false;
-  public armToolchainPath: string | boolean = false;
+  public openOCDPath?: string = undefined;
+  public makePath?: string = undefined;
+  public armToolchainPath?: string = undefined;
+  public gccPath?: string;
 }
 export class BuildFiles implements BuildFilesInterface {
   public cIncludes: string[] = [];
