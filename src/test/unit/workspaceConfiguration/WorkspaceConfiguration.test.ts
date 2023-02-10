@@ -1,6 +1,6 @@
 import * as Sinon from 'sinon';
 // import { workspace, Uri, WorkspaceFolder, window } from 'vscode';
-import * as chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
 import * as helpers from '../../../Helpers';
 
 import LaunchTestFile, { attachFixture, debugFixture, } from '../../fixtures/launchTaskFixture';
@@ -96,7 +96,7 @@ suite('WorkspaceConfiguration', () => {
     expect(getWorkspaceConfigFake.calledOnce).to.be.true;
     // expect(getConfigInWorkspaceFake.calledOnceWith('launch', testUri)).to.be.true;
     expect(updateConfigFake.calledOnce).to.be.true;
-    expect(updateConfigFake.getCall(0).args[1].find((task: any)=> debugFixture.name === task?.name)).to.deep.equal({
+    expect(updateConfigFake.getCall(0).args[1].find((task: any) => debugFixture.name === task?.name)).to.deep.equal({
       ...debugFixture,
       executable: "./build/othertesttarget.elf"
     });

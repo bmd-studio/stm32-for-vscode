@@ -1,13 +1,13 @@
 import * as CCCPConfig from '../../../configuration/CCCPConfig';
 import * as Sinon from 'sinon';
 import { uniq } from 'lodash';
-import * as chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
 import * as helpers from '../../../Helpers';
-import * as shelljs from 'shelljs';
 import * as vscode from 'vscode';
 import { Uri } from 'vscode';
 import { afterEach, beforeEach, suite, test } from 'mocha';
 import { expect, use } from 'chai';
+import which from 'which';
 
 import MakeInfo from '../../../types/MakeInfo';
 import { TextEncoder } from 'util';
@@ -32,7 +32,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     Sinon.restore();
   });
   beforeEach(() => {
-    Sinon.replace(shelljs, 'which', Sinon.fake.returns('arm-none-eabi-gcc'));
+    Sinon.replace(which, 'sync', Sinon.fake.returns('arm-none-eabi-gcc') as any);
     Sinon.replace(CCCPConfig, 'getAbsoluteCompilerPath', Sinon.fake.returns('arm-none-eabi-gcc'));
   });
 
@@ -54,8 +54,8 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
       cIncludes: ['someInclude/Path', 'Some/other/1nclud3p@th/w1th5omeW135DCh@r$'],
       tools: {
         armToolchainPath: 'start/somelocation/',
-        openOCDPath: true,
-        makePath: true,
+        openOCDPath: 'someloc',
+        makePath: 'hello',
       },
     });
 

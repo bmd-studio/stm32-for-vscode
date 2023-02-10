@@ -1,5 +1,5 @@
 import * as Sinon from 'sinon';
-import { getPlatformSpecificNodeLink } from '../../../buildTools/installTools';
+import { getPlatformSpecificNodeLink } from '../../../buildTools/installNode';
 
 import { afterEach } from 'mocha';
 import { expect } from 'chai';

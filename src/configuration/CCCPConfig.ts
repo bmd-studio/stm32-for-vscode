@@ -1,8 +1,8 @@
 import * as path from 'path';
-import * as shelljs from 'shelljs';
+import which from 'which';
 
 import { Uri, window, workspace } from 'vscode';
-import {isEqual, isString, uniq} from 'lodash';
+import { isEqual, isString, uniq } from 'lodash';
 
 import MakeInfo from '../types/MakeInfo';
 import { writeFileInWorkspace } from '../Helpers';
@@ -30,7 +30,7 @@ export function getDefinitions(
   info: { cDefs: string[]; cxxDefs: string[]; asDefs: string[] }): string[] {
   const cDefs = info.cDefs.map(entry => entry.replace('-D', ''));
   const cxxDefs = info.cxxDefs.map(entry => entry.replace('-D', ''));
-  const asDefs = info.asDefs.map( entry => entry.replace( '-D', ''));
+  const asDefs = info.asDefs.map(entry => entry.replace('-D', ''));
   let defs = [...cDefs, ...cxxDefs, ...asDefs];
   defs = uniq(defs);
   defs = defs.sort();
@@ -49,7 +49,7 @@ export function getAbsoluteCompilerPath(info: MakeInfo): string {
     armPath = '';
   }
   const relativeCompilerPath = path.join(armPath, compiler);
-  const compilerPath = shelljs.which(relativeCompilerPath);
+  const compilerPath = which.sync(relativeCompilerPath);
   return compilerPath;
 }
 
@@ -93,7 +93,7 @@ export async function getWorkspaceConfigFile(): Promise<null | CCppProperties> {
 
 /**
  * Updates the c_cpp_properties.json file if there are changes.Currently it
- * works additively so once an include path or definition is added it wil not
+ * works additively so once an include path or definition is added it will not
  * disappear
  * @param workspacePathUri Uri to the current workspace
  * @param info  MakeInfo containing all the info required for building the
@@ -109,7 +109,7 @@ export async function updateCProperties(workspacePathUri: Uri, info: MakeInfo): 
   if (currentConfigFile) {
     // configFile = defaultCCPPProperties;
     configFile = currentConfigFile;
-    const index = 
+    const index =
       currentConfigFile.configurations.findIndex((entry) => entry.name === stmConfiguration.name);
 
     if (index >= 0) {
@@ -130,7 +130,7 @@ export async function updateCProperties(workspacePathUri: Uri, info: MakeInfo): 
   }
   const includes = info.cIncludes;
   const definitions = getDefinitions(info);
-  const oldConfig = {...stmConfiguration};
+  const oldConfig = { ...stmConfiguration };
 
   stmConfiguration.defines = uniq([...definitions]).sort();
   stmConfiguration.includePath = uniq([...includes]).sort();

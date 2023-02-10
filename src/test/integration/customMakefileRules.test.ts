@@ -3,6 +3,7 @@ import { execSync } from 'child_process';
 import {
   addTestToolSettingsToWorkspace,
   cleanUpSTM32ForVSCodeArtifacts,
+  getContext,
   waitForWorkspaceFoldersChange
 } from '../helpers';
 import { afterEach, beforeEach, suite, test } from 'mocha';
@@ -11,6 +12,7 @@ import buildSTM from '../../BuildTask';
 import { getConfigFileFromWorkspace } from '../../configuration/stm32Config';
 import * as Helpers from '../../Helpers';
 import { EXTENSION_CONFIG_NAME } from '../../Definitions';
+const extensionContext = getContext();
 
 suite('customMakefileRules test', () => {
   afterEach(() => {
@@ -25,7 +27,7 @@ suite('customMakefileRules test', () => {
   });
 
   test('Custom makefile rule integration test', async () => {
-    await buildSTM();
+    await buildSTM(extensionContext);
     let stm32ConfigFile = await getConfigFileFromWorkspace();
     stm32ConfigFile = stm32ConfigFile.replace('customMakefileRules:', `
 customMakefileRules:
@@ -37,7 +39,7 @@ customMakefileRules:
       throw Error('something went wrong with getting the workspace folder URI');
     }
     await Helpers.writeFileInWorkspace(workspaceFolderUri, EXTENSION_CONFIG_NAME, stm32ConfigFile);
-    await buildSTM();
+    await buildSTM(extensionContext);
 
     execSync('make -f STM32Make.make sayhello',
       {

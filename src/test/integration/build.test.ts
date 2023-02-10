@@ -5,11 +5,14 @@ import {
   cleanUpSTM32ForVSCodeArtifacts,
   waitForWorkspaceFoldersChange,
   hasExtensionTestFiles,
+  getContext,
 } from '../helpers';
 import { afterEach, beforeEach, suite, test } from 'mocha';
 import { expect } from 'chai';
 
 import buildSTM from '../../BuildTask';
+
+const extensionContext = getContext();
 
 suite('build test', () => {
   afterEach(async () => {
@@ -25,14 +28,14 @@ suite('build test', () => {
   });
   test('default build test', async () => {
     // execute the test build.
-    await buildSTM();
+    await buildSTM(extensionContext);
     const hasTestFiles = await hasExtensionTestFiles();
     expect(hasTestFiles).to.be.true;
   }).timeout(120000);
 
   test('do clean build on fresh project test', async () => {
     // execute the test build.
-    await buildSTM({ cleanBuild: true });
+    await buildSTM(extensionContext, { cleanBuild: true });
     const hasTestFiles = await hasExtensionTestFiles();
     expect(hasTestFiles).to.be.true;
   }).timeout(120000);
@@ -44,9 +47,9 @@ suite('build test', () => {
       // wait for the folder to be loaded
     }
     // execute the test build here
-    await buildSTM();
-    await buildSTM();
-    await buildSTM({ cleanBuild: true });
+    await buildSTM(extensionContext);
+    await buildSTM(extensionContext);
+    await buildSTM(extensionContext, { cleanBuild: true });
 
     const hasTestFiles = await hasExtensionTestFiles();
     expect(hasTestFiles).to.be.true;

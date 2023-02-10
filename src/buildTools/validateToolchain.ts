@@ -1,6 +1,5 @@
 import { Uri } from 'vscode';
 import { join } from 'path';
-import '../@types/typename.d.ts';
 import which from 'which';
 
 import BUILD_TOOL_DEFINITIONS, {
@@ -191,5 +190,7 @@ export async function getBuildTools(toolInstallationLocation: Uri): Promise<Tool
   return updatedToolchain;
 }
 
-
+export async function hasBuildTools(toolInstallationLocation: Uri): Promise<boolean> {
+  return checkIfAllBuildToolsArePresent(await getBuildTools(toolInstallationLocation));
+}
 

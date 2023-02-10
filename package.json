@@ -175,6 +175,7 @@
 		"@types/sinon": "^10.0.2",
 		"@types/strip-comments": "^2.0.0",
 		"@types/vscode": "^1.44",
+		"@types/which": "^2.0.1",
 		"@types/xml2js": "^0.4.9",
 		"@typescript-eslint/eslint-plugin": "^5.42.1",
 		"@typescript-eslint/parser": "^5.42.1",

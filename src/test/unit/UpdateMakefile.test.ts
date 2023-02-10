@@ -1,5 +1,5 @@
 import * as Sinon from 'sinon';
-import * as chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
 import * as makefileFunctions from '../../CreateMakefile';
 import * as path from 'path';
 import * as vscode from 'vscode';

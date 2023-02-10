@@ -1,6 +1,6 @@
 import * as path from 'path';
-import * as shelljs from 'shelljs';
 const { platform } = process;
+import which from 'which';
 
 import { Uri, workspace, env } from 'vscode';
 
@@ -23,7 +23,7 @@ export function fsPathToPosix(fsPath: string, escapeSpaces?: boolean): string {
 }
 
 export function convertToolPathToAbsolutePath(toolPath: string, dir?: boolean): string {
-  const absolutePAth = shelljs.which(toolPath);
+  const absolutePAth = which.sync(toolPath);
   let returnPath = absolutePAth;
   returnPath = fsPathToPosix(returnPath);
   if (dir) {

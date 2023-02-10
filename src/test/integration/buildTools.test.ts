@@ -1,13 +1,9 @@
 import * as vscode from 'vscode';
 
-import {
-  checkAutomaticallyInstalledBuildTools,
-  hasRelevantAutomaticallyInstalledBuildTools
-} from '../../buildTools/validateToolchain';
 import { suite, test, before } from 'mocha';
 
 import { installAllTools } from '../../buildTools/installTools';
-import { waitForWorkspaceFoldersChange, getTestToolsFolder } from '../helpers';
+import { waitForWorkspaceFoldersChange, addTestToolSettingsToWorkspace, getTestToolsFolder } from '../helpers';
 
 suite('build tools test', () => {
   before(async () => {
@@ -32,12 +28,7 @@ suite('build tools test', () => {
       // eslint-disable-next-line no-console
       console.error(err);
     }
-
-    // checks if the build tools are installed and adds them 
-    const result = await checkAutomaticallyInstalledBuildTools(vscode.Uri.file(getTestToolsFolder()));
-    if (!hasRelevantAutomaticallyInstalledBuildTools(result)) {
-      throw new Error('build tools did not install properly');
-    }
+    await addTestToolSettingsToWorkspace();
 
   }).timeout(10 * 60 * 1000);
 });

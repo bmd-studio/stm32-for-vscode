@@ -24,6 +24,7 @@ export interface BuildToolDefinition {
   };
   xpmPath: string;
   xpmName: string;
+  settingName: string;
 }
 
 
@@ -38,6 +39,7 @@ export const openocdDefinition: BuildToolDefinition = {
   },
   xpmPath: './.content/bin',
   xpmName: 'openocd',
+  settingName: 'openOCDPath',
 };
 
 // NOTE: only one which isx not installed through xpm on all platforms
@@ -53,7 +55,8 @@ export const makeDefinition: BuildToolDefinition = {
     linux: ['sudo', '-S apt-get install build-essential'],
   },
   xpmPath: './.content/bin',
-  xpmName: 'windows-build-tools'
+  xpmName: 'windows-build-tools',
+  settingName: 'makePath',
 };
 
 export const cMakeDefinition: BuildToolDefinition = {
@@ -67,7 +70,8 @@ export const cMakeDefinition: BuildToolDefinition = {
     url: "https://cmake.org/download/",
   },
   xpmName: 'cmake',
-  xpmPath: './.content/bin'
+  xpmPath: './.content/bin',
+  settingName: 'cmakePath',
 };
 
 export const armNoneEabiDefinition: BuildToolDefinition = {
@@ -81,6 +85,7 @@ export const armNoneEabiDefinition: BuildToolDefinition = {
   xpmPath: './.content/bin',
   requiredByCortexDebug: true,
   xpmName: 'arm-none-eabi-gcc',
+  settingName: 'armToolchainPath',
 };
 export const gccDefinition: BuildToolDefinition = {
   name: 'GCC toolchain',
@@ -93,6 +98,7 @@ export const gccDefinition: BuildToolDefinition = {
   xpmPath: './.content/bin',
   requiredByCortexDebug: true,
   xpmName: 'gcc',
+  settingName: 'gccPath',
 };
 
 export type BuildToolDefinitionKey = 'arm' | 'make' | 'openOCD' | 'gcc';
@@ -103,4 +109,6 @@ const BUILD_TOOL_DEFINITIONS: Record<BuildToolDefinitionKey, BuildToolDefinition
   openOCD: openocdDefinition,
   gcc: gccDefinition,
 };
+
+
 export default BUILD_TOOL_DEFINITIONS;

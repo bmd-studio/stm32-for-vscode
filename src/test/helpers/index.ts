@@ -14,9 +14,18 @@ import {
 
 import {
   checkAutomaticallyInstalledBuildTools,
-  hasRelevantAutomaticallyInstalledBuildTools
+  checkIfAllBuildToolsArePresent,
 } from '../../buildTools/validateToolchain';
 import { checkIfFileExists } from '../../Helpers';
+import { platform } from 'process';
+
+export function getContext(): vscode.ExtensionContext {
+  const context = vscode.extensions.getExtension(Definitions.FULL_EXTENSION_NAME);
+  if (context === undefined) {
+    console.log('COULD NOT FIND CONTEXT');
+  }
+  return context as unknown as vscode.ExtensionContext;
+}
 
 export async function waitForWorkspaceFoldersChange(timeoutMs?: number): Promise<void> {
   let rejectTimeout = timeoutMs || 500;
@@ -39,7 +48,11 @@ export async function addTestToolSettingsToWorkspace(): Promise<void> {
   // await installAllTools(vscode.Uri.file(getTestToolsFolder()));
   // checks if the build tools are installed and adds them 
   const result = await checkAutomaticallyInstalledBuildTools(vscode.Uri.file(getTestToolsFolder()));
-  if (!hasRelevantAutomaticallyInstalledBuildTools(result)) {
+  if (platform !== 'win32') {
+    delete result.makePath;
+  }
+  const hasAllBuildTools = checkIfAllBuildToolsArePresent(result);
+  if (!hasAllBuildTools) {
     throw new Error('Could not find the correct build tools');
   }
   if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders?.[0]) {

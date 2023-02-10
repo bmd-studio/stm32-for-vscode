@@ -1,9 +1,10 @@
-import * as vscode from 'vscode';
+import { workspace, } from 'vscode';
 
 import {
   addTestToolSettingsToWorkspace,
   cleanUpSTM32ForVSCodeArtifacts,
-  waitForWorkspaceFoldersChange
+  waitForWorkspaceFoldersChange,
+  getContext
 } from '../helpers';
 import { afterEach, beforeEach, suite, test } from 'mocha';
 import { parseConfigfile, readConfigFile, writeConfigFile } from '../../configuration/stm32Config';
@@ -11,13 +12,15 @@ import { parseConfigfile, readConfigFile, writeConfigFile } from '../../configur
 import buildSTM from '../../BuildTask';
 import importAndSetupCubeIDEProject from '../../import';
 
+const extensionContext = getContext();
+
 suite('import and convert to C++ test', () => {
   afterEach(() => {
     cleanUpSTM32ForVSCodeArtifacts();
   });
   beforeEach(async () => {
     // wait for the folder to be loaded
-    if (!vscode.workspace.workspaceFolders || !vscode.workspace.workspaceFolders?.[0]) {
+    if (!workspace.workspaceFolders || !workspace.workspaceFolders?.[0]) {
       await waitForWorkspaceFoldersChange(2000);
     }
     await addTestToolSettingsToWorkspace();
@@ -28,9 +31,9 @@ suite('import and convert to C++ test', () => {
 
     // change the config to c++
     const configurationFile = await readConfigFile();
-    const projectConfiguration = await parseConfigfile(configurationFile);
+    const projectConfiguration = parseConfigfile(configurationFile);
     projectConfiguration.language = 'C++';
     await writeConfigFile(projectConfiguration);
-    await buildSTM();
+    await buildSTM(extensionContext);
   }).timeout(120000);
 });

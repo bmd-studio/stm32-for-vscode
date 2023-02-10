@@ -1,5 +1,5 @@
 import * as Sinon from 'sinon';
-import * as chaiAsPromised from 'chai-as-promised';
+import chaiAsPromised from 'chai-as-promised';
 
 import { Uri, workspace } from 'vscode';
 import { expect, use } from 'chai';
@@ -24,7 +24,7 @@ suite("Handle Tasks", () => {
     expect(executeTask('shell', 'test task', ['echo test task'], {})).to.eventually.be.rejected;
     Sinon.restore();
   });
-  test('test if it rejects when an unexepcted exitcode is provided', () => {
+  test('test if it rejects when an unexpected exitcode is provided', () => {
     const localUri = Uri.file('./');
     Sinon.replaceGetter(workspace, 'workspaceFolders', () => [{
       uri: localUri,
