@@ -2,7 +2,7 @@
 	"name": "stm32-for-vscode",
 	"displayName": "stm32-for-vscode",
 	"description": "An extension for: setting up, compiling, uploading and debugging STM32 applications",
-	"version": "3.2.3",
+	"version": "3.2.4",
 	"engines": {
 		"vscode": "^1.44.0"
 	},
@@ -194,7 +194,6 @@
 	"dependencies": {
 		"axios": "^0.27.2",
 		"decompress": "^4.2.1",
-		"json5": "^2.1.0",
 		"lodash": "^4.17.21",
 		"micromatch": "^4.0.2",
 		"shelljs": "^0.8.4",

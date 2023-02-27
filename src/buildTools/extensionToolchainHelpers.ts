@@ -7,7 +7,7 @@ import {
   XPACKS_DEV_TOOL_PATH,
   armNoneEabiDefinition
 } from './toolChainDefinitions';
-import {forEach, isBoolean, isEmpty, isString} from 'lodash';
+import { forEach, isBoolean, isEmpty, isString } from 'lodash';
 
 export interface XPMToolVersion {
   toolVersion: number[];
@@ -111,7 +111,7 @@ export async function getNewestToolchainVersion(
     return undefined;
   }
   let newest: XPMToolVersion | null = null;
-  files.map((file) => {
+  files.forEach((file) => {
     const [fileName, fileType] = file;
     if (fileType === vscode.FileType.Directory) {
       newest = compareVersions(newest, parseXPMVersionNumbers(fileName));

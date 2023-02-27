@@ -42,6 +42,7 @@ import { Uri, workspace } from 'vscode';
 
 import MakeInfo from '../types/MakeInfo';
 import { getTargetMCUFromFullName } from '../OpenOcdTargetFiles';
+import { basename, join } from 'path';
 
 /**
  * @description
@@ -49,8 +50,8 @@ import { getTargetMCUFromFullName } from '../OpenOcdTargetFiles';
  */
 export async function getMakefileInWorkspace(location: string): Promise<string> {
   let makefileLocation = location;
-  if (!makefileLocation.endsWith('Makefile')) {
-    makefileLocation = `${makefileLocation}/Makefile`;
+  if (basename(makefileLocation) !== 'Makefile') {
+    makefileLocation = join(makefileLocation, 'Makefile');
   }
   const makefileFile = await workspace.fs.readFile(Uri.file(makefileLocation));
   const makefile = Buffer.from(makefileFile).toString('utf-8');
@@ -63,7 +64,7 @@ export async function getMakefileInWorkspace(location: string): Promise<string> 
  */
 function convertLineBreaksToSingleLine(makefile: string): string {
   const matchingPattern = /( +\\[\n\r]{1,2})/gm;
-  return makefile.replaceAll(matchingPattern, ' ');
+  return makefile.replace(matchingPattern, ' ');
 }
 /**
  * Extracts the variables from te makefile.

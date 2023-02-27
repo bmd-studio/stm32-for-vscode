@@ -4,7 +4,7 @@
       "label": "compile extension",
       "type": "shell",
       // "script": " echo",
-      "command": "npm run compile",
+      "command": "npm run compile:dev",
       "options": {
         // "cwd": "${workspaceRoot}",
       },

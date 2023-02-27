@@ -111,9 +111,11 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   let cubeMakefileInfo = new MakeInfo();
   try {
     const cubeMakefile = await getMakefileInWorkspace(location);
-    cubeMakefileInfo = await getMakefileInfo(cubeMakefile);
+    cubeMakefileInfo = getMakefileInfo(cubeMakefile);
   } catch (e) {
     // do not need to catch anything
+    // eslint-disable-next-line no-console
+    console.error(e);
   }
 
   // eslint-disable-next-line @typescript-eslint/naming-convention
