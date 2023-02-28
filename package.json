@@ -178,7 +178,7 @@
 		"eslint": "^8.28.0",
 		"eslint-config-airbnb-base": "^15.0.0",
 		"eslint-plugin-import": "^2.26.0",
-		"glob": "^8.0.3",
+		"glob": "^8.1.0",
 		"lodash-webpack-plugin": "^0.11.6",
 		"mocha": "^10.0.0",
 		"nyc": "^15.1.0",
