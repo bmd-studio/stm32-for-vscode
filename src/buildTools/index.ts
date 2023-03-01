@@ -39,10 +39,11 @@ export function getToolChainFromGlobalState(context: ExtensionContext): ToolChai
  */
 export async function checkBuildTools(context: ExtensionContext): Promise<boolean> {
   // first get the configured installation location (default is the globalStorageUri path)
-
+  // TODO: the globalState is persistent should be able to clear and check. might be nicer to do the workspaceState
   if (context.globalState.get('hasBuildTools', false)) {
     const storedToolchain = getToolChainFromGlobalState(context);
     if (storedToolchain) {
+      console.log({ storedToolchain });
       return true;
     }
   }

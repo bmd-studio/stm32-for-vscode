@@ -230,13 +230,6 @@ export function installAllTools(toolsStoragePath: Uri): Promise<void | Error> {
         await installTools(toolsStoragePath, npxInstallation);
 
 
-        progress.report({ increment: 50, message: 'Installation done. Cleaning up node' });
-        // clean-up
-        if (nodeInstallLocation) {
-          // remove the node location
-          workspace.fs.delete(Uri.file(nodeInstallLocation), { recursive: true });
-          workspace.fs.delete(Uri.file(join(toolsStoragePath.fsPath, 'tmp')), { recursive: true });
-        }
         progress.report({ increment: 10, message: 'Cleaning up old tools' });
         await cleanUpOldTools(toolsStoragePath);
 
@@ -251,6 +244,13 @@ export function installAllTools(toolsStoragePath: Uri): Promise<void | Error> {
         while (Date.now() - startTime < 60000 && !hasBuildToolsInstalled) {
           await checkAutomaticallyInstalledBuildTools(toolsStoragePath);
           hasBuildToolsInstalled = await hasBuildTools(toolsStoragePath);
+        }
+        progress.report({ increment: 50, message: 'Installation done. Cleaning up node' });
+        // clean-up
+        if (nodeInstallLocation) {
+          // remove the node location
+          workspace.fs.delete(Uri.file(nodeInstallLocation), { recursive: true });
+          workspace.fs.delete(Uri.file(join(toolsStoragePath.fsPath, 'tmp')), { recursive: true });
         }
 
       } catch (err) {
@@ -271,7 +271,30 @@ export async function installBuildToolsCommand(
   commandMenu: CommandMenu | undefined,
 ): Promise<void> {
   try {
-    await installAllTools(context.globalStorageUri);
+    let installLocation: Uri = context.globalStorageUri;
+    const dialogResult = await window.showInformationMessage(
+      'In which location should the build tools be installed',
+      { modal: true },
+      'Default',
+      'Custom',
+      'Cancel'
+    );
+    switch (dialogResult) {
+      case 'Default':
+        break;
+      case 'Custom':
+        installLocation = (await window.showOpenDialog({
+          canSelectFolders: true,
+          canSelectFiles: false,
+          canSelectMany: false,
+          title: 'Please select the installation location'
+        }))?.[0] || installLocation;
+        break;
+      case 'Cancel':
+        return;
+        break;
+    }
+    await installAllTools(installLocation);
     const hasBuildTools = await checkBuildTools(context);
     if (hasBuildTools && commandMenu) {
       commandMenu.refresh();
