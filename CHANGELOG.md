@@ -3,12 +3,11 @@
 ## [Unreleased]
 ### Added
   - Add support for unit testing.
-  - Add support for more in depth search for SVD files.
-
 
 ## [3.2.4] - 2023-02-27 
 ### Fixed
  - Issue #139: Fixed issue where after generation something went wrong with getting new information from the makefile.
+ - Better SVD file finding using Levenstein distance.
 ## [3.2.3] - 2022-11-14 
 ### Addded
   - Issue #101 & #119: Added make flags to the configuration file. This allows to add the --silent flag to the build and to prevent output mixing on parallel compilation.

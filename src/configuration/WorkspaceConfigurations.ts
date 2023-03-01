@@ -33,9 +33,10 @@ import getLaunchTask, { getAttachTask, getCortexDevice } from './LaunchTasksConf
 import MakeInfo from '../types/MakeInfo';
 import buildTasks from './BuildTasksConfig';
 import { getSVDFileForChip } from '../projectSetup/svdFiles';
-import {isEmpty} from 'lodash';
+import { isEmpty } from 'lodash';
 import setCortexDebugWorkspaceConfiguration from './cortexDebugConfig';
 import updateCProperties from './CCCPConfig';
+import { writeFileInWorkspace } from '../Helpers';
 
 /**
  * Function for updating the launch.json file to include debugging information.
@@ -50,25 +51,28 @@ export async function updateLaunch(
   const attachTask = getAttachTask(info);
   const hasLaunchTask = !!launchConfig.find(task => task.name === config.name);
   const hasAttachTask = !!launchConfig.find(task => task.name === attachTask.name);
-  if(!hasLaunchTask || !hasAttachTask) {
-    try{
+  if (!hasLaunchTask || !hasAttachTask) {
+    try {
       const svdFile = await getSVDFileForChip(getCortexDevice(info));
-      config.svdFile.push(svdFile.name);
-      attachTask.svdFile.push(svdFile.name);
-    } catch(err) {
+      writeFileInWorkspace(workspacePathUri, svdFile.name, svdFile.data);
+      config.svdFile = svdFile.name;
+      attachTask.svdFile = svdFile.name;
+    } catch (err) {
       window.showErrorMessage(
         `Could not find SVD file for the current device: ${getCortexDevice(info)}. 
         If you want to use it for debugging look for it at: https://www.st.com/
         and add the file name to the .svdFile option in the launch.json configurations`);
       // eslint-disable-next-line no-console
       console.error(`Could not find an SVD file for the chip ${getCortexDevice(info)}`);
+      // eslint-disable-next-line no-console
+      console.error(err);
     }
   }
 
   if (!hasLaunchTask) {
     launchConfig.push(config);
   }
-  if(!hasAttachTask) {
+  if (!hasAttachTask) {
     launchConfig.push(attachTask);
   }
   // only change the launch configuration when none is present

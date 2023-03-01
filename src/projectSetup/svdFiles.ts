@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import axios from 'axios';
+import nearestString from 'nearest-string';
 
 const SVDFilesURL = 'https://api.github.com/repos/posborne/cmsis-svd/contents/data/STMicro';
 
@@ -40,10 +41,19 @@ export interface SVDLocalFile {
   name: string,
   data: string;
 }
+
 export async function getSVDFileForChip(chip: string): Promise<SVDLocalFile> {
   const svdFileList = await getSVDFileList();
-  const svdFile = svdFileList.find(file => file.name.toUpperCase().includes(chip.toUpperCase()));
-  if (!svdFile) { throw new Error('Could not find desired SVD file for the chip'); }
+  const svdFileStringList = svdFileList.map((e) => e.name);
+  const searchResults = nearestString(svdFileStringList, chip, true);
+  let svdSearchResult = searchResults.distance <= 10 ? searchResults.value : undefined;
+  let svdFile = undefined;
+  if (svdSearchResult) {
+    svdFile = svdFileList.find((file) => file.name === svdSearchResult);
+  }
+
+  // const svdFile = svdFileList.find(file => file.name.toUpperCase().includes(chip.toUpperCase()));
+  if (!svdFile) { throw new Error('Could not find desired SVD file for the chip '); }
   const fileBuffer = (await axios.get(svdFile.download_url)).data;
   return {
     name: svdFile.name,
