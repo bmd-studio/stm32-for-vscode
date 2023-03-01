@@ -122,7 +122,7 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   const STM32MakeInfo = new MakeInfo();
 
   const standardConfig: ExtensionConfiguration = new ExtensionConfiguration();
-  standardConfig.importRelevantInfoFromMakefile(cubeMakefileInfo);
+  standardConfig.importRequiredInfoFromMakefile(cubeMakefileInfo);
   const projectConfiguration = await STM32ProjectConfiguration.readOrCreateConfigFile(standardConfig);
 
   await OpenOCDConfigFile.readOrCreateConfigFile(

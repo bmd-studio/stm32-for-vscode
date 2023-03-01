@@ -193,6 +193,15 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
     this.sourceFiles = this.sourceFiles.concat(makeInfo.asmSources, makeInfo.cSources, makeInfo.cxxSources);
     this.includeDirectories = this.includeDirectories.concat(makeInfo.cIncludes);
   }
+  public importRequiredInfoFromMakefile(makeInfo: MakeInfo): void {
+    this.cpu = makeInfo.cpu;
+    this.floatAbi = makeInfo.floatAbi;
+    this.fpu = makeInfo.fpu;
+    this.optimization = makeInfo.optimization;
+    this.ldscript = makeInfo.ldscript;
+    this.targetMCU = makeInfo.targetMCU;
+    this.target = makeInfo.target;
+  }
 }
 
 export default class MakeInfo implements MakeInfoInterface {
