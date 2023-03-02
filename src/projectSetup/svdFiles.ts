@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import axios from 'axios';
-import nearestString from 'nearest-string';
+import * as nearestString from 'nearest-string';
 
 const SVDFilesURL = 'https://api.github.com/repos/posborne/cmsis-svd/contents/data/STMicro';
 

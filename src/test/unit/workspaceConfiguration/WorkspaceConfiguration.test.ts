@@ -1,9 +1,13 @@
 import * as Sinon from 'sinon';
-// import { workspace, Uri, WorkspaceFolder, window } from 'vscode';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as helpers from '../../../Helpers';
 
-import LaunchTestFile, { attachFixture, debugFixture, } from '../../fixtures/launchTaskFixture';
+import LaunchTestFile, {
+  attachFixture,
+  attachFixtureWithSVD,
+  debugFixture,
+  debugFixtureWithSVD,
+} from '../../fixtures/launchTaskFixture';
 import { TaskDefinition, Uri, workspace } from 'vscode';
 import { afterEach, beforeEach, suite, test } from 'mocha';
 import { assert, expect, use } from 'chai';
@@ -18,7 +22,6 @@ import GithubSVDSResponseFixture from '../projectSetup/githubSVDResponseFixture'
 import h7SVDResponseFixture from '../projectSetup/h7SVDFileFixture';
 import { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
 
-// import {SinonFake } from '@types/sinon';
 
 use(chaiAsPromised);
 suite('WorkspaceConfiguration', () => {
@@ -94,14 +97,13 @@ suite('WorkspaceConfiguration', () => {
     expect(axiosGetStub.calledTwice).to.be.true;
     expect(getWorkspaceConfigFake.callCount).to.equal(1);
     expect(getWorkspaceConfigFake.calledOnce).to.be.true;
-    // expect(getConfigInWorkspaceFake.calledOnceWith('launch', testUri)).to.be.true;
     expect(updateConfigFake.calledOnce).to.be.true;
-    expect(updateConfigFake.getCall(0).args[1].find((task: any)=> debugFixture.name === task?.name)).to.deep.equal({
-      ...debugFixture,
+    expect(updateConfigFake.getCall(0).args[1].find((task: any) => debugFixture.name === task?.name)).to.deep.equal({
+      ...debugFixtureWithSVD,
       executable: "./build/othertesttarget.elf"
     });
     expect(updateConfigFake.getCall(0).args[1].find((task: any) => attachFixture.name === task?.name)).to.deep.equal({
-      ...attachFixture,
+      ...attachFixtureWithSVD,
       executable: "./build/othertesttarget.elf"
     });
   });
