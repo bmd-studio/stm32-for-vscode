@@ -22,7 +22,7 @@
 * SOFTWARE.
 */
 
-import {set, uniq, flattenDeep, intersection, forEach}  from 'lodash';
+import { set, uniq, flattenDeep, intersection, forEach } from 'lodash';
 import * as pth from 'path';
 import * as vscode from 'vscode';
 
@@ -199,7 +199,7 @@ export async function scanForFiles(includedFilesGlob: string[]): Promise<string[
  * @returns array of posix relative sourcefile paths
  */
 export async function getSourceFiles(sourceFileGlobs: string[]): Promise<string[]> {
-  const sourceFileExtensions = ['cpp', 'c', 'a', 's', 'cxx', 'cc'];
+  const sourceFileExtensions = ['cpp', 'c', 'a', 's', 'S', 'cxx', 'cc'];
   const files = await scanForFiles(sourceFileGlobs);
   const sourceFiles = files.filter((file) => {
     const extension = file.split('.').pop();

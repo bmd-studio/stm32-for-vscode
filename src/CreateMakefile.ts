@@ -31,7 +31,7 @@
 
 import 'process';
 
-import {isEmpty, isString, uniq} from 'lodash';
+import { isEmpty, isString, uniq } from 'lodash';
 
 import MakeInfo from './types/MakeInfo';
 import { fsPathToPosix } from './Helpers';
@@ -285,9 +285,11 @@ vpath %.cpp $(sort $(dir $(CPP_SOURCES)))
 # list of C objects
 OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
 vpath %.c $(sort $(dir $(C_SOURCES)))
+
 # list of ASM program objects
-OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(ASM_SOURCES:.s=.o)))
-vpath %.s $(sort $(dir $(ASM_SOURCES)))
+OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(UPPER_CASE_ASM_SOURCES:.S=.o)))
+OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(LOWER_CASE_ASM_SOURCES:.s=.o)))
+vpath %.[s] $(sort $(dir $(ASM_SOURCES)))
 
 $(BUILD_DIR)/%.o: %.cpp ${makefileName} | $(BUILD_DIR) 
 \t$(CXX) -c $(CXXFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.cpp=.lst)) $< -o $@
@@ -298,7 +300,7 @@ $(BUILD_DIR)/%.o: %.cxx ${makefileName} | $(BUILD_DIR)
 $(BUILD_DIR)/%.o: %.c ${makefileName} | $(BUILD_DIR) 
 \t$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
 
-$(BUILD_DIR)/%.o: %.s ${makefileName} | $(BUILD_DIR)
+$(BUILD_DIR)/%.o: %.[sS] ${makefileName} | $(BUILD_DIR)
 \t$(AS) -c $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) ${makefileName}
