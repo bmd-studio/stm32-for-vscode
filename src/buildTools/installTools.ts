@@ -59,8 +59,8 @@ export async function xpmInstall(
   env['XPACKS_SYSTEM_FOLDER'] = pathToSaveTo;
   env['XPACKS_REPO_FOLDER'] = pathToSaveTo;
   env['npm_config_yes'] = `${true}`;
-  env['PATH'] = env['PATH']
-    .split(pathSeparator)
+  env['PATH'] = env?.['PATH']
+    ?.split(pathSeparator)
     .filter((pathValue) => (!pathValue.includes('node') && !pathValue.includes('nvm')))
     .join(pathSeparator);
   env['PATH'] = `${nodePath}${pathSeparator}${env.PATH}`;
