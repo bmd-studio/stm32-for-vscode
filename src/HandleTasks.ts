@@ -7,6 +7,7 @@ import {
   ShellExecutionOptions,
   TaskScope,
   WorkspaceFolder,
+  ProcessExecution,
 } from 'vscode';
 import { getAutomationShell } from './Helpers';
 

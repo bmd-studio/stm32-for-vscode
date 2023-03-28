@@ -2,20 +2,25 @@
 
 ## [Unreleased]
 ### Added
-  - Add support for unit testing.
+	- Add support for unit testing.
+	- Create a way to embed these types of projects into a CI/CD environment
 
-## [3.2.4] - 2023-02-27 
+## [3.2.4] - 2023-03-24 
 ### Fixed
  - Issue #139: Fixed issue where after generation something went wrong with getting new information from the makefile.
  - Better SVD file finding using Levenstein distance.
+ - Issue #147: Fixed issue where build tools were not installing due to pre-installed node.
+### Added
+ - Issue #143: Added support for capitalized assembly file extensions (.S) as it is required for AzureRTOS.
+
 ## [3.2.3] - 2022-11-14 
 ### Addded
-  - Issue #101 & #119: Added make flags to the configuration file. This allows to add the --silent flag to the build and to prevent output mixing on parallel compilation.
+	- Issue #101 & #119: Added make flags to the configuration file. This allows to add the --silent flag to the build and to prevent output mixing on parallel compilation.
 ### Fixed
-  - Issue #116: Fixed issue where the STM32 configuration file would silently delete if there was something wrong while parsing the yaml file.
-  - c_cpp_properties.json would have reflect the current configuration. Changed it so it is regenerated upon each new build.
-  - Issues #125: Issue with the openocd configuration for the STM32l0 line. With thanks to: signorettae.
-  - Issue #91: LIBS variabel in the cube generated makefile was not read correctly.
+	- Issue #116: Fixed issue where the STM32 configuration file would silently delete if there was something wrong while parsing the yaml file.
+	- c_cpp_properties.json would have reflect the current configuration. Changed it so it is regenerated upon each new build.
+	- Issues #125: Issue with the openocd configuration for the STM32l0 line. With thanks to: signorettae.
+	- Issue #91: LIBS variabel in the cube generated makefile was not read correctly.
 ## [3.2.2] - 2022-06-29
 ### Fixed
  - Fixed Issue #96: Fixed issue where debugging for C++ gave no source file error due to missing debugging flags.
@@ -25,7 +30,7 @@
  - Issue #94: Extension will try and find the SVD file for the specific MCU, add it to the workspace folder and add it to the cortex-debug launch configuration.
  - Added attach debug configuration
  - Issue #109: Added custom makefile rule option to the STM32-for-VSCode.config.yaml file which allows for custom makefile rules to be included.
-  
+	
 ## [3.2.1] - 2022-03-08
 ### Fixed
  - Issue #97: Fixed issue where the default values of fpu and float-abi were not correct. These are now left empty and will not be included as compiler flags when not set.
@@ -63,7 +68,7 @@
  - There was an issue with the npx/npm cache which did not have read/write permissions when no earlier version of node was installed. This has been fixed.
 ## [3.1.0] - 2021-06-16
 ### Added
-  - Issue #73: Added support for a separate input definition file in the config file.
+	- Issue #73: Added support for a separate input definition file in the config file.
 ### Changes
  - Added the STM32: prefix to all the STM32 for VSCode commands.
 ## [3.0.7] - 2021-05-22
@@ -72,7 +77,7 @@
  - Issue #70: Launch and tasks configurations are not overwritten anymore when present. 
 ## [3.0.6] - 2021-05-06
 ### Fixed
-  - Issue #65: There were issue with building on linux due to pathing, sudo when installing make. This has been fixed with this update.
+	- Issue #65: There were issue with building on linux due to pathing, sudo when installing make. This has been fixed with this update.
 ## [3.0.5] - 2021-22-04
 ### Fixed
  - Issue #55 persisted. Due to not implementing a fix besides the make command. The pathing issues were also present when using makefile commands like flash and clean.
@@ -142,7 +147,7 @@ On top of this a lot of the internal structure has changes so it should be more 
 ## [2.2.1] - 2020-09-07
 ### Added
  - Issue #11 & Issue #33 : Add support for different programmers.
-  
+	
 ## [2.2.0] - 2020-09-04
 ### Fixed
  - Issue #32: Switched to g++ linker when linking C++ project.

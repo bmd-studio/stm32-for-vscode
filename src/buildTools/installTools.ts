@@ -45,11 +45,29 @@ export async function xpmInstall(
   }
   const pathToSaveTo = toolsStoragePath.fsPath;
   const nodePath = path.join(npx, '../');
-  const env: { [key: string]: string } = process.env as { [key: string]: string };
+  const pathSeparator = platform === 'win32' ? ';' : ':';
+  let env: { [key: string]: string } = process.env as { [key: string]: string };
+  env = Object.fromEntries(
+    Object.entries(env)
+      .map(([key, value]) => {
+        if (key.includes('npm') || key.toUpperCase().includes('NVM')) {
+          return [key, ''];
+        }
+        return [key, value];
+      })
+  );
   env['XPACKS_SYSTEM_FOLDER'] = pathToSaveTo;
   env['XPACKS_REPO_FOLDER'] = pathToSaveTo;
   env['npm_config_yes'] = `${true}`;
-  env['PATH'] = `${env.PATH}${platform === 'win32' ? ';' : ':'}${nodePath}`;
+  env['PATH'] = env?.['PATH']
+    ?.split(pathSeparator)
+    .filter((pathValue) => (!pathValue.includes('node') && !pathValue.includes('nvm')))
+    .join(pathSeparator);
+  env['PATH'] = `${nodePath}${pathSeparator}${env.PATH}`;
+
+  env['npm_config_cache'] = path.join(toolsStoragePath.fsPath, 'cache');
+  env['NODE'] = nodePath;
+
   const execOptions = {
     env,
     cwd: path.join(npx, '../'),
@@ -96,7 +114,7 @@ export async function installMake(toolsStoragePath: vscode.Uri, npx: string): Pr
       executeCmd = makeDefinition.installation.darwin || '';
     } break;
     case "win32": {
-      const win32XPMMakeDefinition = {...makeDefinition};
+      const win32XPMMakeDefinition = { ...makeDefinition };
       win32XPMMakeDefinition.installation.xpm = win32XPMMakeDefinition.installation.windows;
       return xpmInstall(toolsStoragePath, npx, win32XPMMakeDefinition);
     } break;
@@ -281,7 +299,7 @@ export async function getNode(toolsStoragePath: vscode.Uri): Promise<string> {
   } catch (error) {
     vscode.window.showErrorMessage(
       `An error occurred during the node installation process, 
-        please try again or create an issue at: ${GITHUB_ISSUES_URL}, with stating error: ${error}`
+				please try again or create an issue at: ${GITHUB_ISSUES_URL}, with stating error: ${error}`
     );
     throw error;
   }

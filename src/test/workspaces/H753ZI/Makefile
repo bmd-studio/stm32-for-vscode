@@ -68,7 +68,7 @@ Core/Src/system_stm32h7xx.c
 
 # ASM sources
 ASM_SOURCES =  \
-startup_stm32h753xx.s
+startup_stm32h753xx.S
 
 
 #######################################

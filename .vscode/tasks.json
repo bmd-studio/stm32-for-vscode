@@ -3,11 +3,8 @@
     {
       "label": "compile extension",
       "type": "shell",
-      // "script": " echo",
       "command": "npm run compile:dev",
-      "options": {
-        // "cwd": "${workspaceRoot}",
-      },
+      "options": {},
       "group": {
         "kind": "build",
         "isDefault": true
@@ -16,16 +13,13 @@
     {
       "label": "compile tests",
       "type": "shell",
-      // "script": " echo",
       "command": "npm run pretest",
-      "options": {
-        // "cwd": "${workspaceRoot}",
-      },
+      "options": {},
       "group": {
         "kind": "build",
         "isDefault": true
       },
       "problemMatcher": "$tsc"
-    },
+    }
   ]
 }
