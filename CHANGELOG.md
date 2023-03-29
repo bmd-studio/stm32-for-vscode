@@ -4,7 +4,11 @@
 ### Added
 	- Add support for unit testing.
 	- Create a way to embed these types of projects into a CI/CD environment
+	- Full support for CubeIDE imports.
 
+## [3.2.5] - 2023-03-25
+### Fixed
+- Issue #150: hot fix for makefile generation issues due to feature added by #143.
 ## [3.2.4] - 2023-03-24 
 ### Fixed
  - Issue #139: Fixed issue where after generation something went wrong with getting new information from the makefile.
