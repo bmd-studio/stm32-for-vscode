@@ -4,7 +4,8 @@
 ### Added
 	- Add support for unit testing.
 	- Create a way to embed these types of projects into a CI/CD environment
-
+	- Add -fno-rtti and -fno-exceptions as default for C++ builds.
+	- Add option to select installation location for the tooling.
 ## [3.2.4] - 2023-03-24 
 ### Fixed
  - Issue #139: Fixed issue where after generation something went wrong with getting new information from the makefile.
