@@ -23,14 +23,14 @@
 */
 export const makefileName = 'STM32Make.make';
 export const ignoreFileName = '.stm32ignore';
-export const stm32EnvironmentFile = '.stm32env';
+export const STM32_ENVIRONMENT_VARIABLE_NAME = '.stm32env';
 export const EXTENSION_CONFIG_NAME = 'STM32-for-VSCode.config.yaml';
 export const standardOpenOCDInterface = 'stlink';
 export const EXTENSION_NAME = 'stm32-for-vscode';
 export const TOOL_SETTINGS = {
-	openOCDPath: 'openOCDPath',
-	makePath: 'makePath',
-	armToolchainPath: 'armToolchainPath',
-	openOCDInterface: 'openOCDInterface',
+  openOCDPath: 'openOCDPath',
+  makePath: 'makePath',
+  armToolchainPath: 'armToolchainPath',
+  openOCDInterface: 'openOCDInterface',
 };
 export const GITHUB_ISSUES_URL = 'https://github.com/bmd-studio/stm32-for-vscode/issues';

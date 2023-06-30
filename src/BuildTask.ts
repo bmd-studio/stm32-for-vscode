@@ -83,21 +83,15 @@ async function checkForMainCPPOrAddWhenNecessary(info: MakeInfo): Promise<MakeIn
   return info;
 }
 
-export default async function buildSTM(options?: { flash?: boolean; cleanBuild?: boolean }): Promise<void> {
-  const {
-    flash,
-    cleanBuild,
-  } = options || {};
 
-
-  let currentWorkspaceFolder;
-  let info = {} as MakeInfo;
-  if (!workspace.workspaceFolders || !workspace.workspaceFolders?.[0]) {
-    window.showErrorMessage('No workspace folder is open. Stopped build');
-    return Promise.reject(Error('no workspace folder is open'));
-  }
+/**
+ * Checks if the project is set-up and if not it will prompt the user to setup the project
+ * @param Uri workspace folder
+ * @returns true when the project is setup. If false is returned the project is not setup and cannot be build
+ */
+export async function createProjectSetupWhenRequired(workspaceFolder: Uri): Promise<boolean> {
   // check for makefiles
-  const rootFileList = await workspace.fs.readDirectory(workspace.workspaceFolders[0].uri);
+  const rootFileList = await workspace.fs.readDirectory(workspaceFolder);
   const filesInDir: string[] = rootFileList.map((entry) => {
     return entry[0];
   });
@@ -142,9 +136,27 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
       }
       await writeConfigFile(standardConfig);
     } else {
-      return;
+      return false;
     }
   }
+  return true;
+}
+
+export default async function buildSTM(options?: { flash?: boolean; cleanBuild?: boolean }): Promise<void> {
+  const {
+    flash,
+    cleanBuild,
+  } = options || {};
+
+
+  let currentWorkspaceFolder;
+  let info = {} as MakeInfo;
+  if (!workspace.workspaceFolders || !workspace.workspaceFolders?.[0]) {
+    window.showErrorMessage('No workspace folder is open. Stopped build');
+    return Promise.reject(Error('no workspace folder is open'));
+  }
+
+  await projectSetup(workspace.workspaceFolders[0].uri);
 
   try {
     currentWorkspaceFolder = fsPathToPosix(workspace.workspaceFolders[0].uri.fsPath);
