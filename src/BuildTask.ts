@@ -29,10 +29,9 @@ import * as path from 'path';
 
 import {
   EXTENSION_CONFIG_NAME,
-  STM32_ENVIRONMENT_VARIABLE_NAME,
   makefileName,
 } from './Definitions';
-import MakeInfo, { ToolChain, oolChain } from './types/MakeInfo';
+import MakeInfo, { ToolChain } from './types/MakeInfo';
 import {
   Uri,
   window,

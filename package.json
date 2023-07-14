@@ -144,6 +144,7 @@
 		"compile:dev": "webpack --mode development",
 		"compile:test": "tsc -p ./ ",
 		"lint": "eslint src --ext ts",
+		"lint:fix": "eslint src --ext ts --fix",
 		"watch": "tsc -watch -p ./",
 		"precompile": "npm run lint && tsc --alwaysStrict true -p ./",
 		"pretest": "rm -rf ./out/test && npm run compile:test && npm run lint && npm run compile:production",

@@ -21,7 +21,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 */
-export const makefileName = 'STM32Make.make';
+export const makefileName = 'STM32Make.mk';
 export const ignoreFileName = '.stm32ignore';
 export const STM32_ENVIRONMENT_FILE_NAME = '.stm32env';
 export const EXTENSION_CONFIG_NAME = 'STM32-for-VSCode.config.yaml';

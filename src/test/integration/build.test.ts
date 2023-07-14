@@ -27,6 +27,7 @@ suite('build test', () => {
 
       await buildSTM();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
       throw error;
     }
