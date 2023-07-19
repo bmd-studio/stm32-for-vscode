@@ -10,7 +10,7 @@ import { afterEach, beforeEach, suite, test } from 'mocha';
 import buildSTM from '../../BuildTask';
 import { getConfigFileFromWorkspace } from '../../configuration/stm32Config';
 import * as Helpers from '../../Helpers';
-import { EXTENSION_CONFIG_NAME } from '../../Definitions';
+import { EXTENSION_CONFIG_NAME, makefileName } from '../../Definitions';
 
 suite('customMakefileRules test', () => {
   afterEach(() => {
@@ -39,7 +39,7 @@ customMakefileRules:
     await Helpers.writeFileInWorkspace(workspaceFolderUri, EXTENSION_CONFIG_NAME, stm32ConfigFile);
     await buildSTM();
 
-    execSync('make -f STM32Make.make sayhello',
+    execSync(`make -f ${makefileName} sayhello`,
       {
         cwd: vscode.workspace.workspaceFolders?.[0].uri.fsPath
       }

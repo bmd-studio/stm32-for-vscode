@@ -23,6 +23,7 @@
 */
 export const makefileName = 'STM32Make.mk';
 export const ignoreFileName = '.stm32ignore';
+export const GITIGNORE_FILE_NAME = '.gitignore';
 export const STM32_ENVIRONMENT_FILE_NAME = '.stm32env';
 export const EXTENSION_CONFIG_NAME = 'STM32-for-VSCode.config.yaml';
 export const standardOpenOCDInterface = 'stlink';

@@ -30,6 +30,7 @@ import * as path from 'path';
 import {
   EXTENSION_CONFIG_NAME,
   makefileName,
+  STM32_ENVIRONMENT_FILE_NAME,
 } from './Definitions';
 import MakeInfo, { ToolChain } from './types/MakeInfo';
 import {
@@ -124,7 +125,7 @@ async function createSTM32EnvironmentFileWhenRequired(tools: ToolChain): Promise
     }
   } catch (err) {
     // eslint-disable-next-line max-len
-    window.showErrorMessage(`Something went wrong with creating the file ${STM32_ENVIRONMENT_VARIABLE_NAME}, please create your own or retry. Error: ${err}`);
+    window.showErrorMessage(`Something went wrong with creating the file ${STM32_ENVIRONMENT_FILE_NAME}, please create your own or retry. Error: ${err}`);
   }
 }
 

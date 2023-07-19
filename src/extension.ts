@@ -33,7 +33,7 @@ import buildSTM from './BuildTask';
 import { checkBuildTools } from './buildTools';
 import importAndSetupCubeIDEProject from './import';
 import { installBuildToolsCommand } from './buildTools/installTools';
-
+import { registerGitignoreCommand } from './configuration/gitignoreConfig';
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext): { installTools: () => Promise<void> } {
@@ -73,16 +73,6 @@ export function activate(context: vscode.ExtensionContext): { installTools: () =
   context.subscriptions.push(openExtension);
   const installBuildTools = vscode.commands.registerCommand('stm32-for-vscode.installBuildTools', async () => {
     await installBuildToolsCommand(context, commandMenu);
-    // try {
-    //   await installAllTools(context);
-    //   const hasBuildTools = await checkBuildTools(context);
-    //   if (hasBuildTools && commandMenu) {
-    //     commandMenu.refresh();
-    //   }
-
-    // } catch (error) {
-    //   vscode.window.showErrorMessage(`Something went wrong with installing the build tools. Error:${error}`);
-    // }
   });
   context.subscriptions.push(installBuildTools);
 
@@ -117,6 +107,7 @@ export function activate(context: vscode.ExtensionContext): { installTools: () =
     }
   );
   context.subscriptions.push(cleanBuildCmd);
+  context.subscriptions.push(registerGitignoreCommand());
   return {
     installTools: async () => { await installBuildToolsCommand(context, commandMenu); }
   };
