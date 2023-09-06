@@ -134,6 +134,7 @@ const fileExtensions = {
     'sx'
   ],
   headers: [
+    'h',
     'hh',
     'H',
     'hp',
@@ -307,7 +308,6 @@ export function getNonGlobIncludeDirectories(headerFilesGlobs: string[]): string
 export async function getHeaderFiles(headerFilesGlobs: string[]): Promise<string[]> {
   const headerFileExtensions = fileExtensions.headers;
   const files = await scanForFiles(headerFilesGlobs);
-
   const headerFiles = files.filter((file) => {
     const extension = file.split('.').pop();
     if (intersection([extension], headerFileExtensions).length > 0) {
