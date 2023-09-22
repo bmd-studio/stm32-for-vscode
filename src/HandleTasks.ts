@@ -10,6 +10,10 @@ import {
   ProcessExecution,
 } from 'vscode';
 import { getAutomationShell } from './Helpers';
+import { BUILD_TASK_NAME } from './configuration/BuildTasksConfig';
+import { getBuildToolsFromSettings } from './buildTools';
+import { makefileName } from './Definitions';
+import { type } from 'os';
 
 // NOTE: good reference for powershell: https://ss64.com/ps/syntax-esc.html
 /**
@@ -65,3 +69,41 @@ export default function executeTask(
     });
   });
 }
+
+
+const DEFAULT_BUILD_STRING = `-f ${makefileName} -j16`;
+function getSTMBuildTask(): Task {
+  // TODO: add extra makefile flags options to this.
+  let currentTaskScope = TaskScope.Workspace;
+  const tooling = getBuildToolsFromSettings();
+  const automationShell = getAutomationShell();
+  const shellSpecificToolPath = automationShell.includes('powershell') ? `& '${tooling.makePath}'` : `"${tooling.makePath}"`;
+  let totalPath = `${shellSpecificToolPath} ${DEFAULT_BUILD_STRING}`;
+  const shellExec = new ShellExecution(totalPath, {});
+  return new Task(
+    {
+      type: BUILD_TASK_NAME,
+    },
+    currentTaskScope,
+    'build',
+    BUILD_TASK_NAME,
+    shellExec
+  );
+}
+
+// implement tasks as described in the following doucmentation: https://code.visualstudio.com/api/extension-guides/task-provider
+// should have a taskproder with providetask and resolvetask
+const buildTaskProvider = tasks.registerTaskProvider(BUILD_TASK_NAME, {
+  provideTasks: () => {
+    return [
+      getSTMBuildTask(),
+    ];
+  },
+  resolveTask(task): Task | undefined {
+    if (task.name === BUILD_TASK_NAME) {
+      return getSTMBuildTask();
+    }
+    return undefined;
+  },
+}
+);

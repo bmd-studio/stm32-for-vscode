@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { forEach } from "lodash";
+import { BUILD_CLEAN_TASK_NAME, BUILD_TASK_NAME } from "../configuration/BuildTasksConfig";
 
 export interface BuildCommandDefinition {
   label: string;
@@ -10,12 +11,14 @@ export interface BuildCommandDefinition {
 
 const buildCommand: BuildCommandDefinition = {
   label: 'Build',
-  command: 'stm32-for-vscode.build',
+  command: 'workbench.action.tasks.runTask',
+  arguments: [BUILD_TASK_NAME],
   explanation: 'Builds the firmware for te STM32 project',
 };
 const cleanBuildCommand: BuildCommandDefinition = {
   label: 'Clean build',
-  command: 'stm32-for-vscode.cleanBuild',
+  command: 'workbench.action.tasks.runTask',
+  arguments: [BUILD_CLEAN_TASK_NAME],
   explanation: 'Performs a clean build, by removing earlier build files and build from scratch.',
 };
 const flashCommand: BuildCommandDefinition = {

@@ -1,11 +1,13 @@
 import { TaskDefinition } from 'vscode';
 
+export const BUILD_TASK_NAME = 'Build STM';
+export const BUILD_CLEAN_TASK_NAME = 'Build Clean STM';
 /**
  * Gives the default build task for the STM32VScode extension
  */
 export function getBuildTask(): TaskDefinition {
   const buildTask = {
-    label: 'Build STM',
+    label: BUILD_TASK_NAME,
     type: 'process',
     // eslint-disable-next-line no-template-curly-in-string
     command: '${command:stm32-for-vscode.build}',
@@ -29,7 +31,7 @@ export function getBuildTask(): TaskDefinition {
  */
 export function getCleanBuildTask(): TaskDefinition {
   const buildTask = {
-    label: 'Build Clean STM',
+    label: BUILD_CLEAN_TASK_NAME,
     type: 'process',
     // eslint-disable-next-line no-template-curly-in-string
     command: '${command:stm32-for-vscode.cleanBuild}',

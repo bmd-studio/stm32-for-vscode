@@ -44,6 +44,28 @@
 				"type": "STM32",
 				"required": [],
 				"properties": {}
+			},
+			{
+				"type": "build",
+				"required": [],
+				"properties": {
+					"task": {
+						"type": "string",
+						"description": "The build task"
+					}
+				}
+			},
+			{
+				"type": "STM32 Build",
+				"required": [
+					"task"
+				],
+				"properties": {
+					"task": {
+						"type": "string",
+						"description": "STM32 Build task"
+					}
+				}
 			}
 		],
 		"viewsContainers": {
