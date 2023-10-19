@@ -14,7 +14,9 @@ tooling
 **/build/
 openocd.cfg
 STM32Make.make
+STM32Make.mk
 STM32-for-VSCode.config.yaml
 **.svd
 stats.json
 webpack-stats.json
+.stm32env

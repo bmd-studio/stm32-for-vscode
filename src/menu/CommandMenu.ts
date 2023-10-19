@@ -8,10 +8,17 @@ export interface BuildCommandDefinition {
   arguments?: string[];
 }
 
-const buildCommand: BuildCommandDefinition = {
-  label: 'Build',
+const debugBuildCommand: BuildCommandDefinition = {
+  label: 'Build Debug',
   command: 'stm32-for-vscode.build',
-  explanation: 'Builds the firmware for te STM32 project',
+  explanation: 'Builds the debug firmware for te STM32 project',
+};
+
+const releaseBuildCommand: BuildCommandDefinition = {
+  label: 'Build release',
+  command: 'stm32-for-vscode.build',
+  arguments: ['release'],
+  explanation: 'Builds the release firmware for te STM32 project',
 };
 const cleanBuildCommand: BuildCommandDefinition = {
   label: 'Clean build',
@@ -42,7 +49,8 @@ const importCubeProject: BuildCommandDefinition = {
 };
 
 const COMMANDS: { [key: string]: BuildCommandDefinition } = {
-  buildCommand,
+  debugBuildCommand,
+  releaseBuildCommand,
   cleanBuildCommand,
   flashCommand,
   debugCommand,
