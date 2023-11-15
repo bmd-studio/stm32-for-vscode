@@ -7,6 +7,18 @@
 	- Full support for CubeIDE imports.
 	- Add -fno-rtti and -fno-exceptions as default for C++ builds.
 	- Add option to select installation location for the tooling.
+	- Create a standalone executable.
+	- Issue #153 turn off automatic openocd.cfg configuration
+### Fixed
+	- Issue #161 and #164 fix build task implementation
+
+
+## [3.3.0] - 2023-11-15
+### Added
+	- Out of source build where it keeps the current folder structure
+	- Release and debug builds
+	- Issue #157 Use .env files to set the build tooling and other variables
+	- Issue #144: Be able to chnage the output/build directory
 
 ## [3.2.5] - 2023-03-25
 ### Fixed
