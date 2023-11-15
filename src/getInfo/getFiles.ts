@@ -134,6 +134,7 @@ const fileExtensions = {
     'sx'
   ],
   headers: [
+    'h',
     'hh',
     'H',
     'hp',
