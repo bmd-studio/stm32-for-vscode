@@ -19,7 +19,7 @@ export function setCortexDebugSettingsInWorkspace(tools: ToolChain): void {
   ) {
     cortexDebugSetting.update('armToolchainPath', tools.armToolchainPath, vscode.ConfigurationTarget.Workspace);
   }
-  if (cortexDebugSetting.get('openocdPath') && cortexDebugSetting.get('openocdPath') !== tools.openOCDPath) {
+  if (cortexDebugSetting.get('openocdPath') && cortexDebugSetting.get('openocdPath') !== tools.openOCDPath.toString()) {
     cortexDebugSetting.update('openocdPath', tools.openOCDPath, vscode.ConfigurationTarget.Workspace);
   }
 }
