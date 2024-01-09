@@ -168,7 +168,11 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
     '-fdata-sections',
     '-ffunction-sections'
   ];
-  public cxxFlags: string[] = [];
+  public cxxFlags: string[] = [
+    // flags to disable rtti and exceptions for smaller builds.
+    '-fno-rtti',
+    '-fno-exceptions',
+  ];
   public sourceFiles: string[] = [];
   public libraries: string[] = ['c', 'm'];
   public libraryDirectories: string[] = [];

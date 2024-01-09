@@ -5,8 +5,11 @@
 	- Add support for unit testing.
 	- Create a way to embed these types of projects into a CI/CD environment
 	- Full support for CubeIDE imports.
-	- Add -fno-rtti and -fno-exceptions as default for C++ builds.
 	- Add option to select installation location for the tooling.
+
+## [3.2.7] - 2024-01-09
+### Added
+- Issue #84 Add -fno-rtti and -fno-exceptions as default for C++ builds.
 
 ## [3.2.6] - 2024-01-09
 ### Fixed
