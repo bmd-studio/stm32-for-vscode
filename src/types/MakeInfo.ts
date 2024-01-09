@@ -156,7 +156,8 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
   public language = 'C' as STM32Languages;
   public optimization = 'Og';
   public linkerFlags: string[] = [
-    '-Wl,--print-memory-usage'
+    // adds data analysis
+    '-Wl,--print-memory-usage',
   ];
   // be aware that more flags are present in the Makefile. However these seem to be mandatory
   public cFlags: string[] = [

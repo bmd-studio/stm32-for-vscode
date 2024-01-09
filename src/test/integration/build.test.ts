@@ -23,13 +23,7 @@ suite('build test', () => {
   });
   test('default build test', async () => {
     // execute the test build.
-    try {
-
-      await buildSTM();
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
+    await buildSTM();
   }).timeout(120000);
 
   test('do clean build on fresh project test', async () => {

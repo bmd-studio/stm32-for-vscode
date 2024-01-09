@@ -8,6 +8,12 @@
 	- Add -fno-rtti and -fno-exceptions as default for C++ builds.
 	- Add option to select installation location for the tooling.
 
+## [3.2.6] - 2024-01-09
+### Fixed
+- Issue #81: The extension would add settings to random projects for which it did not need to add settings. Cvanbeek13 fixed this issue and created a pull request.
+### Added
+- Issue #168: added -Wl,--print-memory-usage as a default flag for initial project generation.
+
 ## [3.2.5] - 2023-03-25
 ### Fixed
 - Issue #150: hot fix for makefile generation issues due to feature added by #143.
