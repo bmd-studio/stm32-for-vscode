@@ -56,7 +56,7 @@ import { writeConfigFile } from './configuration/stm32Config';
  */
 async function checkForMainCPPOrAddWhenNecessary(info: MakeInfo): Promise<MakeInfo> {
   if (!workspace.workspaceFolders) {
-    window.showErrorMessage('No workspace folder is open. Stopped build');
+    window.showErrorMessage('No workspace folder is open. Stopped build.');
     return Promise.reject(Error('no workspace folder is open'));
   }
   // if language is C++ and the main.c file is not converted to a main.cpp file
@@ -93,7 +93,7 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
   let currentWorkspaceFolder;
   let info = {} as MakeInfo;
   if (!workspace.workspaceFolders || !workspace.workspaceFolders?.[0]) {
-    window.showErrorMessage('No workspace folder is open. Stopped build');
+    window.showErrorMessage('No workspace folder is open. Stopped build.');
     return Promise.reject(Error('no workspace folder is open'));
   }
   // check for makefiles
@@ -115,11 +115,11 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
   if (!makefileIsPresent && !configFileIsPresent) {
     const response = await window.showInformationMessage(
       // eslint-disable-next-line max-len
-      'Makefile was not found. If using CubeMX please select generate makefile under:Project Manager>Project/Toolchain IDE. Or do you want to generate a blank stm32-config-yaml file, so a custom project can be configured?',
+      'Makefile was not found. If using CubeMX, please select: "Project Manager > Project/Toolchain IDE > Generate Makefile". Alternatively, would you like to generate a blank "STM32-for-VSCode.config.yaml" file, so a custom project can be configured?',
       'Cancel',
-      'Generate config file'
+      'Generate YAML config file'
     );
-    if (response === 'Generate config file') {
+    if (response === 'Generate YAML config file') {
       const targetMCU = await window.showQuickPick(targetsMCUs, {
         title: 'Pick a target MCU',
       });

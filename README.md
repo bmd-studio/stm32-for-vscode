@@ -23,10 +23,10 @@ There are a few command line tools that need to be installed for this extension 
 ## Configuring CubeMX
 This extension assumes the project is initialized with CubeMX and the option to create a Makefile project under "Project Manager -> Project -> Toolchain/IDE".
 
-Also, please leave the default on Copy all used libraries into the project folder.
+Also, please leave the default on "Copy all used libraries into the project folder" when creating the new project.
 
 ## How to Use
-Click on the ST icon and select the command you want to run. Once this is done for the first time you can also use the shortcut cmd/ctrl+shift+b to start building.
+Click on the ST icon and select the command you want to run. Once this is done for the first time, you can also use the shortcut `Cmd/Ctrl+Shift+B` to start building.
 
 ## Features
 - Creating a makefile and building and STM32 project.
@@ -38,9 +38,10 @@ Click on the ST icon and select the command you want to run. Once this is done f
 - Searches for .c/.cpp and .h/.hpp files in your project.
 - Add static libraries for compilation.
 - Import existing CubeIDE projects or STM32CubeMX examples.
+- Configuration automatically generated and stored in `STM32-for-VSCode.config.yaml` file.
 
 ### Build Process
-The build process uses the information of the CubeMX makefile and the STM32-for-VSCode.config.yaml file to search for dependencies and set flags. The makefile is optional, however the STM32-for-VSCode.config.yaml will always be present when building. After it has gathered all the files and information it will check if the STM32 for VSCode specific makefile needs to be updated, if so it will update the makefile and run the make/build process.
+The build process uses the information of the CubeMX makefile and the `STM32-for-VSCode.config.yaml` file to search for dependencies and set flags. The makefile is optional; however, the `STM32-for-VSCode.config.yaml` will always be present when building. After it has gathered all the files and information it will check if the STM32 for VSCode specific makefile needs to be updated, if so it will update the makefile and run the make/build process.
 
 ### Configuration
 The recommended way of configuring the build (i.e., adding flags, adding files/directories) is by means of the `STM32-for-VSCode.config.yaml` file. The yaml file contains comments and explanations of each part of the file and should be self explanatory. If its use is non-obvious, or if you require additional parameters, feel free to open an issue at: https://github.com/bmd-studio/stm32-for-vscode/issues.
