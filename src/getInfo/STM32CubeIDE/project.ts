@@ -107,7 +107,7 @@ export function getSourceFilesFromCubeProjectJSON(projectJSON: CubeIDEProject): 
 
 
 /**
- * gets project information from  the Cube IDE .project file.
+ * gets project information from  the CubeIDE .project file.
  * @returns the target and sourcefiles of a CubeIDE project
  */
 export default async function getCubeIDEProjectFileInfo(): Promise<CubeIDEProjectFileInfo> {

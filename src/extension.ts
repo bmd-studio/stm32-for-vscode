@@ -52,7 +52,7 @@ export function activate(context: vscode.ExtensionContext): { installTools: () =
       try {
         await importAndSetupCubeIDEProject();
       } catch (error) {
-        vscode.window.showErrorMessage(`Something went wrong with importing the Cube IDE project: ${error}`);
+        vscode.window.showErrorMessage(`Something went wrong with importing the CubeIDE project: ${error}`);
       }
     }
   );
