@@ -187,7 +187,7 @@ export function getPlatformSpecificNodeLink(
   if (!regexPattern) {
     throw new Error(
       // eslint-disable-next-line max-len
-      `Could not find the NodeJS link for your specific platform: platform: ${process.platform}, arch: ${process.arch}. Please open an issue on our Github: ${GITHUB_ISSUES_URL}`);
+      `Could not find the NodeJS link for your specific platform: platform: ${process.platform}, arch: ${process.arch}. Please open a GitHub Issue: ${GITHUB_ISSUES_URL}`);
   }
   const platformRegex = new RegExp(
     regexPattern,
@@ -222,9 +222,9 @@ export function getLatestNodeLink(): Promise<string> {
       } else {
         reject(
           new Error(
-            'No link found for this specific platform, ' +
-            'please open a new issue to ask for support for your specific platform at: ' +
-            'https://github.com/bmd-studio/stm32-for-vscode/issues'
+            'No link found for this specific platform. ' +
+            'Please open a new issue to ask for support for your specific platform at: ' +
+            GITHUB_ISSUES_URL
           )
         );
       }
@@ -298,8 +298,8 @@ export async function getNode(toolsStoragePath: vscode.Uri): Promise<string> {
     return path.join(extractedNodeFileLoc, nodeInstallationFilePath[0]);
   } catch (error) {
     vscode.window.showErrorMessage(
-      `An error occurred during the node installation process, 
-				please try again or create an issue at: ${GITHUB_ISSUES_URL}, with stating error: ${error}`
+      `An error occurred during the node installation process.
+				Please try again, or create an issue at: ${GITHUB_ISSUES_URL}. Include the error: ${error}`
     );
     throw error;
   }
@@ -370,20 +370,20 @@ export function installAllTools(toolsStoragePath: vscode.Uri): Promise<void | Er
       // FIXME: VSCode for X32 does not work as it is converted to iar32. This does not work for XPack
       try {
         // Node
-        progress.report({ increment: 0, message: 'installing local copy of node' });
+        progress.report({ increment: 0, message: 'Installing local copy of node' });
         const nodeInstallLocation = await getNode(toolsStoragePath);
         const nodeBinLocation = platform === 'win32' ? nodeInstallLocation : path.join(nodeInstallLocation, 'bin');
         const npxInstallation = path.join(nodeBinLocation, 'npx');
         progress.report({ increment: 10, message: 'Node installed' });
 
         // OPEN OCD
-        progress.report({ increment: 10, message: 'installing openOCD' });
+        progress.report({ increment: 10, message: 'Installing openOCD' });
         await installOpenOcd(toolsStoragePath, npxInstallation);
         // Make
-        progress.report({ increment: 20, message: 'installing make' });
+        progress.report({ increment: 20, message: 'Installing make' });
         await installMake(toolsStoragePath, npxInstallation);
         // arm-none-eabi
-        progress.report({ increment: 20, message: 'installing arm-none-eabi' });
+        progress.report({ increment: 20, message: 'Installing arm-none-eabi' });
         await installArmNonEabi(toolsStoragePath, npxInstallation);
         progress.report({ increment: 20, message: 'Finished installing build tools' });
 
@@ -403,7 +403,7 @@ export function installAllTools(toolsStoragePath: vscode.Uri): Promise<void | Er
           }
         }
         await addExtensionInstalledToolsToSettings(toolsStoragePath);
-        progress.report({ increment: 10, message: 'awaiting for all to be installed' });
+        progress.report({ increment: 10, message: 'Awaiting for all to be installed' });
         // check if build tool installation is finished
         const startTime = Date.now();
         let hasBuildToolsInstalled = false;
@@ -436,6 +436,6 @@ export async function installBuildToolsCommand(
       commandMenu.refresh();
     }
   } catch (error) {
-    vscode.window.showErrorMessage(`Something went wrong with installing the build tools. Error:${error}`);
+    vscode.window.showErrorMessage(`Something went wrong while installing the build tools. Error:${error}`);
   }
 }

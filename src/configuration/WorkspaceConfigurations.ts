@@ -60,8 +60,8 @@ export async function updateLaunch(
     } catch (err) {
       window.showErrorMessage(
         `Could not find SVD file for the current device: ${getCortexDevice(info)}. 
-        If you want to use it for debugging look for it at: https://www.st.com/
-        and add the file name to the .svdFile option in the launch.json configurations`);
+        If you want to use it for debugging, look for it at: https://www.st.com/,
+        and add the file name to the .svdFile option in the launch.json configurations.`);
       // eslint-disable-next-line no-console
       console.error(`Could not find an SVD file for the chip ${getCortexDevice(info)}`);
       // eslint-disable-next-line no-console

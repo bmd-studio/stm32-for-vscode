@@ -13,7 +13,7 @@ export default async function importAndSetupCubeIDEProject(): Promise<void> {
     if (configFile.cpu === undefined || configFile.cpu === 'undefined') {
       const core = await vscode.window.showQuickPick([
         'cortex-m0', 'cortex-m0+', 'cortex-m3', 'cortex-m4', 'cortex-m7', 'cortex-m33', 'cortex-m55'
-      ], { title: 'please select a processor core type' });
+      ], { title: 'Please select a processor core type' });
       if (core) {
         configFile.cpu = core;
       }

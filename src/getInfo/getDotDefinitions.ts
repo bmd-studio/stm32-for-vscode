@@ -3,7 +3,7 @@ import * as stripComments from 'strip-comments';
 import { join } from 'path';
 /**
  * Gets NAME=VALUE pairs from a file and ignores comments.
- * @param file input include file, which is a DEFINTION=VALUE file separated by new lines. Can have # comments
+ * @param file input include file, which is a DEFINITION=VALUE file separated by new lines. Can have # comments
  * @returns the include name value pairs in an array
  */
 export function getDefinitionsFromFile(file: string): string[] {

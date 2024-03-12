@@ -11,34 +11,34 @@ export interface BuildCommandDefinition {
 const buildCommand: BuildCommandDefinition = {
   label: 'Build',
   command: 'stm32-for-vscode.build',
-  explanation: 'Builds the firmware for te STM32 project',
+  explanation: 'Builds the firmware for the STM32 project.',
 };
 const cleanBuildCommand: BuildCommandDefinition = {
-  label: 'Clean build',
+  label: 'Clean Build',
   command: 'stm32-for-vscode.cleanBuild',
-  explanation: 'Performs a clean build, by removing earlier build files and build from scratch.',
+  explanation: 'Performs a clean build by removing earlier build files and building from scratch.',
 };
 const flashCommand: BuildCommandDefinition = {
   label: 'Flash STM32',
   command: 'stm32-for-vscode.flash',
-  explanation: 'Builds and subsequently flashes the firmware to the STM32 MCU',
+  explanation: 'Builds and subsequently flashes the firmware to the STM32 MCU.',
 };
 const debugCommand: BuildCommandDefinition = {
   label: 'Debug STM32',
   command: 'workbench.action.debug.start',
   arguments: ['Debug STM32'],
-  explanation: 'Starts a debugging session for the STM32 MCU',
+  explanation: 'Starts a debugging session for the STM32 MCU.',
 };
 const changeProgrammerCommand: BuildCommandDefinition = {
-  label: 'Change programmer',
+  label: 'Change Programmer',
   command: 'stm32-for-vscode.setProgrammer',
   explanation: `Changes the programming interface in the openocd.cfg file. 
-  A list with available programmers will be provided`,
+  Select from a list of available programmers.`,
 };
 const importCubeProject: BuildCommandDefinition = {
-  label: "run CubeIDE importer",
+  label: "Run CubeIDE Importer",
   command: 'stm32-for-vscode.importCubeIDEProject',
-  explanation: 'Will import a CubeIDE project or example project when present in the current workspace.'
+  explanation: 'Imports a CubeIDE project or example project when present in the current workspace.'
 };
 
 const COMMANDS: { [key: string]: BuildCommandDefinition } = {
