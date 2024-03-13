@@ -41,9 +41,21 @@
 	"contributes": {
 		"taskDefinitions": [
 			{
-				"type": "STM32",
-				"required": [],
-				"properties": {}
+				"type": "stm32-for-vscode",
+				"required": [
+					"task"
+				],
+				"properties": {
+					"task": {
+						"type": "string",
+						"description": "STM32 taks to run"
+					},
+					"command": {
+						"type": "string",
+						"description": "the command to be run"
+					}
+
+				}
 			}
 		],
 		"viewsContainers": {

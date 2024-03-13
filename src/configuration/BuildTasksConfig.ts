@@ -14,7 +14,7 @@ export function getBuildTask(): TaskDefinition {
       cwd: '${workspaceRoot}',
     },
     group: {
-      kind: 'build',
+      kind: 'stm32-for-vscode',
       isDefault: true,
     },
     problemMatcher: [

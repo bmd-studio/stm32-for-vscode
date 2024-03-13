@@ -155,7 +155,7 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
     if (cleanBuild) {
       try {
         await executeTask(
-          'build',
+          'stm32-for-vscode',
           'STM32 clean',
           [
             `${info.tools.makePath}`,
@@ -185,7 +185,7 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
     }
 
     await executeTask(
-      'build',
+      'stm32-for-vscode',
       'STM32 build',
       [
         `${info.tools.makePath}`,

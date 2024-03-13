@@ -33,6 +33,7 @@ import buildSTM from './BuildTask';
 import { checkBuildTools } from './buildTools';
 import importAndSetupCubeIDEProject from './import';
 import { installBuildToolsCommand } from './buildTools/installTools';
+import  './taskProvider';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
