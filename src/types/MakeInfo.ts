@@ -161,7 +161,9 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
   ];
   // be aware that more flags are present in the Makefile. However these seem to be mandatory
   public cFlags: string[] = [
-    '-Wall', '-fdata-sections', '-ffunction-sections',
+    '-Wall',
+    '-fdata-sections',
+    '-ffunction-sections',
   ];
   public assemblyFlags: string[] = [
     '-Wall',
@@ -169,9 +171,12 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
     '-ffunction-sections'
   ];
   public cxxFlags: string[] = [
-    // flags to disable rtti and exceptions for smaller builds.
+    '-Wall',
+    '-fdata-sections',
+    '-ffunction-sections',
+    '-feliminate-unused-debug-types',
     '-fno-rtti',
-    '-fno-exceptions',
+    '-fno-exceptions'
   ];
   public sourceFiles: string[] = [];
   public libraries: string[] = ['c', 'm'];
