@@ -35,7 +35,7 @@ import { isEmpty, isString, uniq } from 'lodash';
 
 import MakeInfo from './types/MakeInfo';
 import { fsPathToPosix } from './Helpers';
-import { STM32_ENVIRONMENT_FILE_NAME, makefileName, stm32EnvironmentFile } from './Definitions';
+import { STM32_ENVIRONMENT_FILE_NAME, makefileName } from './Definitions';
 
 
 /**
@@ -131,91 +131,129 @@ export default function createMakefile(makeInfo: MakeInfo): string {
 ##########################################################################################################################
 
 # ------------------------------------------------
-# Generic Makefile (based on gcc)
+# Makefile used by STM32 For VSCode
+# WARNING: This file can be overwritten when project settings change
+# This Makefile can be used for CI/CD purposes to use it please make sure
+# you setup an environment file with the following name: ${STM32_ENVIRONMENT_FILE_NAME}.
+# This file is sourced at the start of this Makefile and will be used to set
+# compiler paths and other tooling paths.
+# Do note that most variables can also be overwritten when invoking make
+# e.g to change the optimization flags
+# make -j 16 -f ${makefileName} DEBUG=0 OPTIMIZATION=-Os
 #
 # ChangeLog :
 #\t2017-02-10 - Several enhancements + project update mode
 #   2015-07-22 - first version
 #   2023-06-16 - Added .stm32env file inclusion
+#   2023-07-14 - Added file directory in the build folder
+#							 - Added debug and release build options
+#							 - Added multi platform support
+#							 - Added help target
+#							 - Added more documentation
 # ------------------------------------------------
 
 ######################################
-# environment variables
+# Environment Variables
 ######################################
-include ${stm32EnvironmentFile}
+# Imports the environment file in which the compiler and other tooling is set
+# for the build machine.
+# This can also be used to overwrite some makefile variables
+include ${STM32_ENVIRONMENT_FILE_NAME}
 
 ######################################
-# target
+# Target 
 ######################################
-TARGET = ${makeInfo.target}
+# This is the name of the embedded target which will be build
+# The final file name will also have debug or release appended to it.
+TARGET ?= ${makeInfo.target}
+
+#######################################
+# Build directories
+#######################################
+# Build path can be overwritten when calling make or setting the environment variable
+# in ${STM32_ENVIRONMENT_FILE_NAME}
+
+BUILD_DIRECTORY ?= build
+
 
 ######################################
-# building variables
+# Optimization
 ######################################
-# debug build?
-# can be overwritten using the environment variable
+# Optimization is switched based upon the DEBUG variable. If set to 1
+# it will be build in debug mode with the Og optimization flag (optimized for debugging).
+# If set to 0 (false) then by default the variable is used in the configuration yaml
+# This can also be overwritten using the environment variable or by overwriting it
+# by calling make with the OPTIMIZATION variable e.g.: 
+# make -f ${makefileName} -j 16  OPTIMIZATION=Os
+
+# variable which determines if it is a debug build
 DEBUG ?= 1
 
-# optimization
-# can be overwritten using environment variables. If this is not done
-# the default optimization in the configuration yaml file is used
+# debug flags when debug is defined
+OPTIMIZATION ?= ${makeInfo.optimization}
 
-OPT ?= ${makeInfo.optimization}
-
-#######################################
-# paths
-#######################################
-# Build path
-BUILD_DIR ?= build
+ifeq ($(DEBUG),1)
+	# Sets debugging optimization -Og and the debug information output
+	OPTIMIZATION_FLAGS += -Og -g -gdwarf -ggdb
+	TARGET += -debug 
+	RELEASE_DIRECTORY ?= $(BUILD_DIRECTORY)/debug
+else
+	OPTIMIZATION_FLAGS += $(OPTIMIZATION)
+	TARGET += -release
+	RELEASE_DIRECTORY ?= $(BUILD_DIRECTORY)/release
+endif
 
 ######################################
-# source
+# Definitions
 ######################################
+
+# C definitions
+C_DEFINITIONS =  ${'\\'}
+${createStringList(makeInfo.cDefs, '-D')}
+
+# C++ definitions
+CXX_DEFINITIONS =  ${'\\'}
+${createStringList(makeInfo.cxxDefs, '-D')}
+
+# Assembly definitions
+AS_DEFINITIONS =  ${'\\'}
+${createStringList(makeInfo.asDefs, '-D')}
+
+######################################
+# Source Files
+######################################
+
+
 # C sources
 C_SOURCES +=  ${'\\'}
 ${createStringList(makeInfo.cSources)}
 
-CPP_SOURCES += ${'\\'}
+CXX_SOURCES += ${'\\'}
 ${createStringList(makeInfo.cxxSources)}
 
 # ASM sources
-ASM_SOURCES +=  ${'\\'}
+AS_SOURCES +=  ${'\\'}
 ${createStringList(makeInfo.asmSources)}
 
 
-#######################################
-# Tools
-#######################################
-ARM_PREFIX = arm-none-eabi-
-POSTFIX = "
-PREFIX = "
-# The gcc compiler bin path can be defined in the make command via GCC_PATH variable (e.g.: $make GCC_PATH=xxx)
-# or it can be added to the PATH environment variable.
-# By default the variable be used from the environment file: ${STM32_ENVIRONMENT_FILE_NAME}.
+######################################
+# Include Directories
+######################################
+# AS includes
+AS_INCLUDES = ${'\\'}
 
-ifdef ARM_GCC_PATH
-		CC = $(PREFIX)$(GCC_PATH)/$(ARM_PREFIX)gcc$(POSTFIX)
-		CXX = $(PREFIX)$(GCC_PATH)/$(ARM_PREFIX)g++$(POSTFIX)
-		AS = $(PREFIX)$(GCC_PATH)/$(ARM_PREFIX)gcc$(POSTFIX) -x assembler-with-cpp
-		CP = $(PREFIX)$(GCC_PATH)/$(ARM_PREFIX)objcopy$(POSTFIX)
-		SZ = $(PREFIX)$(GCC_PATH)/$(ARM_PREFIX)size$(POSTFIX)
-else
-	CC ?= $(ARM_PREFIX)gcc
-	CXX ?= $(ARM_PREFIX)g++$
-  AS ?= $(ARM_PREFIX)gcc -x assembler-with-cpp
-  CP ?= $(ARM_PREFIX)objcopy
-  SZ ?= $(ARM_PREFIX)size
-endif
+# C includes
+C_INCLUDES =  ${'\\'}
+${createStringList(makeInfo.cIncludes, '-I')}
 
-HEX = $(CP) -O ihex
-BIN = $(CP) -O binary -S
 
-#Flash and debug tools
-OPENOCD ?= openocd
+######################################
+# Target System Flags
+######################################
+# The specific flags for the target system
+# This sets things like hardware floating point and
+# which version a specific Cortex-M processor is.
 
-#######################################
-# CFLAGS
-#######################################
 # cpu
 CPU = ${createPrefixWhenNoneExists(makeInfo.cpu, '-mcpu=')}
 
@@ -226,120 +264,239 @@ FPU = ${createPrefixWhenNoneExists(makeInfo.fpu, '-mfpu=')}
 FLOAT-ABI = ${createPrefixWhenNoneExists(makeInfo.floatAbi, '-mfloat-abi=')}
 
 # mcu
-MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
+MCU_FLAGS = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
 
-# macros for gcc
-# AS defines
-AS_DEFS = 
 
-# C defines
-C_DEFS =  ${'\\'}
-${createStringList(makeInfo.cDefs, '-D')}
+######################################
+# C and CPP Flags
+######################################
 
-# CXX defines
-CXX_DEFS =  ${'\\'}
-${createStringList(makeInfo.cxxDefs, '-D')}
+# additional flags provided by the STM32 for VSCode configuration file
+ADDITIONAL_C_FLAGS := ${createSingleLineStringList(makeInfo.cFlags)}
+ADDITIONAL_CXX_FLAGS := ${createSingleLineStringList(makeInfo.cxxFlags)}
+ADDITIONAL_AS_FLAGS := ${createSingleLineStringList(makeInfo.assemblyFlags)}
 
-# AS includes
-AS_INCLUDES = ${'\\'}
+# Provides dependency information about header files
+# This is used to recompile when a source file depends on
+# information from a header file
+DEPENDENCY_FLAGS = -MMD -MP -MF"$(@:%.o=%.d)"
 
-# C includes
-C_INCLUDES =  ${'\\'}
-${createStringList(makeInfo.cIncludes, '-I')}
-
+# Output a list file for the compiled source file.
+# This is a representative of the source code in assembly
+ASSEMBLER_LIST_OUTPUT_FLAG = -Wa,-a,-ad,-alms=$(@D)/$($(notdir $@):%.o=%.lst)
 
 # Combining the compilation flags with language specific flags and MCU specific flags
-ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) 
-CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) 
-CXXFLAGS = $(MCU) $(CXX_DEFS) $(C_INCLUDES) $(OPT) 
+C_FLAGS = ${'\\'}
+	$(MCU_FLAGS) ${'\\'}
+	$(C_DEFINITIONS) ${'\\'}
+	$(C_INCLUDES) ${'\\'}
+	$(OPTIMIZATION_FLAGS) ${'\\'}
+	$(DEPENDENCY_FLAGS) ${'\\'}
+	$(ADDITIONAL_C_FLAGS) ${'\\'}
+	$(ASSEMBLER_LIST_OUTPUT_FLAG)
 
-# debug flags when debug is defined
-ifeq ($(DEBUG), 1)
-CFLAGS += -g -gdwarf -ggdb
-CXXFLAGS += -g -gdwarf -ggdb
-endif
+CXX_FLAGS = ${'\\'} 
+	$(MCU_FLAGS) ${'\\'}
+	$(CXX_DEFINITIONS) ${'\\'}
+	$(C_INCLUDES) ${'\\'}
+	$(OPTIMIZATION_FLAGS) ${'\\'}
+	$(DEPENDENCY_FLAGS) ${'\\'}
+	$(ADDITIONAL_CXX_FLAGS) ${'\\'}
+	$(ASSEMBLER_LIST_OUTPUT_FLAG)
 
-# Add additional flags
-CFLAGS += ${createSingleLineStringList(makeInfo.cFlags)}
-ASFLAGS += ${createSingleLineStringList(makeInfo.assemblyFlags)}
-CXXFLAGS += ${createSingleLineStringList(makeInfo.cxxFlags)}
+AS_FLAGS = $(C_FLAGS) $(AS_DEFINITIONS) $(ADDITIONAL_AS_FLAGS)
 
-# Generate dependency information
-CFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
-CXXFLAGS += -MMD -MP -MF"$(@:%.o=%.d)"
-
-#######################################
-# LDFLAGS
-#######################################
-# link script
-LDSCRIPT = ${makeInfo.ldscript}
+######################################
+# Linker Flags
+######################################
+# linker script. This script will determine where certain sections will
+# be place in memory.
+# For a good reference look at: https://blog.thea.codes/the-most-thoroughly-commented-linker-script/
+LINKER_SCRIPT := -T${makeInfo.ldscript}
 
 # libraries
-LIBS = ${createSingleLineStringList(makeInfo.libs, '-l')}
-LIBDIR = ${'\\'}
+LIBRARIES := ${'\\'}
+${createStringList(makeInfo.libs, '-l')}
+
+# library directories
+LIBRARY_DIRECTORIES := ${'\\'}
 ${createStringList(makeInfo.libdir, '-L')}
 
-# Additional LD Flags from config file
-ADDITIONALLDFLAGS = ${createSingleLineStringList(makeInfo.ldFlags)}
+# Additional linker flags Flags from the yaml configuration file
+# can be overwritten in the environment file
+ADDITIONAL_LINKER_FLAGS ?= ${createSingleLineStringList(makeInfo.ldFlags)}
 
-LDFLAGS = $(MCU) $(ADDITIONALLDFLAGS) -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+# Flags for outputting a map file
+# -Wl,-Map= flag will output the map file to the specified file
+# --cref will generate a cross reference table in the map file
+LINKER_MAP_FLAGS ?= -Wl,-Map=$(RELEASE_DIRECTORY)/$(TARGET).map,--cref
 
+# Flags for cleaning up code at link time
+# --gc-sections will eliminate dead code e.g. unused functions
+LINKER_CLEAN_UP_FLAGS ?= -Wl,--gc-sections
+
+LINKER_FLAGS = ${'\\'}
+	$(MCU_FLAGS) ${'\\'}
+	$(LINKER_SCRIPT) ${'\\'}
+	$(LIBRARY_DIRECTORIES) ${'\\'}
+	$(LIBRARIES) ${'\\'}
+	$(LINKER_MAP_FLAGS) ${'\\'}
+	$(LINKER_CLEAN_UP_FLAGS)
+
+#######################################
+# Tools
+#######################################
+ARM_PREFIX = arm-none-eabi-
+POSTFIX = "
+PREFIX = "
+# The gcc compiler bin path can be defined in the make command via ARM_GCC_PATH variable (e.g.: make ARM_GCC_PATH=xxx)
+# or it can be added to the PATH environment variable.
+# By default the variable be used from the environment file: ${STM32_ENVIRONMENT_FILE_NAME}.
+# if it is not defined 
+
+ifdef ARM_GCC_PATH
+		CC = $(PREFIX)$(ARM_GCC_PATH)/$(ARM_PREFIX)gcc$(POSTFIX)
+		CXX = $(PREFIX)$(ARM_GCC_PATH)/$(ARM_PREFIX)g++$(POSTFIX)
+		AS = $(PREFIX)$(ARM_GCC_PATH)/$(ARM_PREFIX)gcc$(POSTFIX) -x assembler-with-cpp
+		CP = $(PREFIX)$(ARM_GCC_PATH)/$(ARM_PREFIX)objcopy$(POSTFIX)
+		SZ = $(PREFIX)$(ARM_GCC_PATH)/$(ARM_PREFIX)size$(POSTFIX)
+else
+	CC ?= $(ARM_PREFIX)gcc
+	CXX ?= $(ARM_PREFIX)g++$
+	AS ?= $(ARM_PREFIX)gcc -x assembler-with-cpp
+	CP ?= $(ARM_PREFIX)objcopy
+	SZ ?= $(ARM_PREFIX)size
+endif
+
+HEX = $(CP) -O ihex
+BIN = $(CP) -O binary -S
+
+# Flash and debug tools
+# Default is openocd however will be gotten from the 
+OPENOCD ?= openocd
+
+REMOVE_DIRECTORY_COMMAND = rm -fR
+MKDIR_COMMAND = mkdir
+ifeq ($(OS),Windows_NT)
+	REMOVE_DIRECTORY_COMMAND = cmd /c rd /s /q
+else
+	MKDIR_COMMAND += -p
+endif
+
+#######################################
+# Build rules 
+#######################################
+
+# Create object list
+# Create object list
+OBJECTS = $(addprefix $(RELEASE_DIRECTORY)/,$(addsuffix .o,$(basename $(C_SOURCES))))
+# objects for the different C++ file extensions
+OBJECTS += $(addprefix $(RELEASE_DIRECTORY)/,$(addsuffix .o,$(basename $(CXX_SOURCES))))
+# Objects for assembly code
+OBJECTS += $(addprefix $(RELEASE_DIRECTORY)/,$(addsuffix .o,$(basename $(AS_SOURCES))))
+
+# Dependency files
+DEPENDENCY_FILES = $(OBJECTS:.o=.d)
+
+
+# the tree of folders which needs to be present based on the object files
+BUILD_TREE = $(sort $(dir $(OBJECTS)))
+
+
+
+#######################################
+# Build targets
+#######################################
 # default action: build all
+.PHONY: all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
 
+# Makes the build directory
+$(BUILD_DIRECTORY):
+\t$(MKDIR_COMMAND) $@
+
+# Makes the release folder
+$(RELEASE_DIRECTORY): | $(BUILD_DIRECTORY)
+\t$(MKDIR_COMMAND) $@
+
+$(BUILD_TREE):
+\t$(MKDIR_COMMAND) $@
+
 
 #######################################
-# build the application
+# Build Firmware
 #######################################
-# list of cpp program objects
-OBJECTS = $(addprefix $(BUILD_DIR)/,$(notdir $(CPP_SOURCES:.cpp=.o)))
-vpath %.cpp $(sort $(dir $(CPP_SOURCES)))
 
-# list of C objects
-OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
-vpath %.c $(sort $(dir $(C_SOURCES)))
+FINAL_TARGET_NAME = $(RELEASE_DIRECTORY)/$(TARGET)
+ELF_TARGET = $(FINAL_TARGET_NAME).elf
 
-# list of ASM program objects
-UPPER_CASE_ASM_SOURCES = $(filter %.S,$(ASM_SOURCES))
-LOWER_CASE_ASM_SOURCES = $(filter %.s,$(ASM_SOURCES))
-
-OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(UPPER_CASE_ASM_SOURCES:.S=.o)))
-OBJECTS += $(addprefix $(BUILD_DIR)/,$(notdir $(LOWER_CASE_ASM_SOURCES:.s=.o)))
-vpath %.s $(sort $(dir $(ASM_SOURCES)))
-
-$(BUILD_DIR)/%.o: %.cpp ${makefileName} | $(BUILD_DIR) 
-\t$(CXX) -c $(CXXFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.cpp=.lst)) $< -o $@
-
-$(BUILD_DIR)/%.o: %.cxx ${makefileName} | $(BUILD_DIR) 
-\t$(CXX) -c $(CXXFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.cxx=.lst)) $< -o $@
-
-$(BUILD_DIR)/%.o: %.c ${makefileName} | $(BUILD_DIR) 
-\t$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(BUILD_DIR)/$(notdir $(<:.c=.lst)) $< -o $@
-
-$(BUILD_DIR)/%.o: %.s STM32Make.make | $(BUILD_DIR)
-	$(AS) -c $(CFLAGS) $< -o $@
-
-$(BUILD_DIR)/%.o: %.S STM32Make.make | $(BUILD_DIR)
-	$(AS) -c $(CFLAGS) $< -o $@
-
-$(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) ${makefileName}
-\t$(${makeInfo.language === 'C' ? 'CC' : 'CXX'}) $(OBJECTS) $(LDFLAGS) -o $@
+$(FINAL_TARGET_NAME).elf: $(OBJECTS) ${makefileName} 
+\t$(CC) $(OBJECTS) $(LDFLAGS) -o $@
 \t$(SZ) $@
 
-$(BUILD_DIR)/%.hex: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
+$(FINAL_TARGET_NAME).hex: $(FINAL_TARGET_NAME).elf 
 \t$(HEX) $< $@
 
-$(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
+$(FINAL_TARGET_NAME).bin: $(FINAL_TARGET_NAME).elf 
 \t$(BIN) $< $@
 
-$(BUILD_DIR):
-\tmkdir $@
+
+#######################################
+# Build rules
+#######################################
+
+sourcefile = $(patsubst $(RELEASE_FOLDER)/%.o,%.c,$(1))
+# Rules for creating the object files from the source files
+# c files
+$(RELEASE_DIRECTORY)/%.o: %.c $(RELEASE_DIRECTORY)/%.d | $(BUILD_TREE)
+\t$(CC) $(C_FLAGS) -c $< -o $@
+
+# cpp files
+$(RELEASE_DIRECTORY)/%.o: %.cpp $(RELEASE_DIRECTORY)/%.d | $(BUILD_TREE)
+\t$(CXX) $(CXX_FLAGS) -c $< -o $@
+$(RELEASE_DIRECTORY)/%.o: %.cc $(RELEASE_DIRECTORY)/%.d | $(BUILD_TREE)
+\t$(CXX) $(CXX_FLAGS) -c $< -o $@
+$(RELEASE_DIRECTORY)/%.o: %.cp $(RELEASE_DIRECTORY)/%.d | $(BUILD_TREE)
+\t$(CXX) $(CXX_FLAGS) -c $< -o $@
+$(RELEASE_DIRECTORY)/%.o: %.CPP $(RELEASE_DIRECTORY)/%.d | $(BUILD_TREE)
+\t$(CXX) $(CXX_FLAGS) -c $< -o $@
+$(RELEASE_DIRECTORY)/%.o: %.c++ $(RELEASE_DIRECTORY)/%.d | $(BUILD_TREE)
+\t$(CXX) $(CXX_FLAGS) -c $< -o $@
+$(RELEASE_DIRECTORY)/%.o: %.C++ $(RELEASE_DIRECTORY)/%.d | $(BUILD_TREE)
+\t$(CXX) $(CXX_FLAGS) -c $< -o $@
+
+# assembly files
+$(RELEASE_DIRECTORY)/%.o: %.s $(RELEASE_DIRECTORY)/%.d | $(BUILD_TREE)
+\t$(CXX) $(CXX_FLAGS) -c $< -o $@
+$(RELEASE_DIRECTORY)/%.o: %.S $(RELEASE_DIRECTORY)/%.d | $(BUILD_TREE)
+\t$(CXX) $(CXX_FLAGS) -c $< -o $@
+
+#######################################
+# Build targets
+#######################################
+# Makes the build directory
+$(BUILD_DIRECTORY):
+\t$(MKDIR_COMMAND) $@
+
+# Makes the release folder
+$(RELEASE_DIRECTORY): | $(BUILD_DIRECTORY)
+\t$(MKDIR_COMMAND) $@
+
+$(BUILD_TREE):
+\t$(MKDIR_COMMAND) $@
+
+#######################################
+# All
+#######################################
+# default action: build all
+.PHONY: all
+all: $(FINAL_TARGET_NAME).elf $(FINAL_TARGET_NAME).hex $(FINAL_TARGET_NAME).bin
 
 #######################################
 # flash
 #######################################
-flash: $(BUILD_DIR)/$(TARGET).elf
-\t$(OPENOCD) -f ./openocd.cfg -c "program $(BUILD_DIR)/$(TARGET).elf verify reset exit"
+flash: $(FINAL_TARGET_NAME).elf
+\t$(OPENOCD) -f ./openocd.cfg -c "program $(FINAL_TARGET_NAME).elf verify reset exit"
 
 #######################################
 # erase
@@ -350,10 +507,6 @@ erase: $(BUILD_DIR)/$(TARGET).elf
 #######################################
 # clean up
 #######################################
-REMOVE_DIRECTORY_COMMAND = rm -fR
-ifeq ($(OS),Windows_NT)
-	REMOVE_DIRECTORY_COMMAND = cmd /c rd /s /q
-endif
 
 clean:
 \t$(REMOVE_DIRECTORY_COMMAND) $(BUILD_DIR)
@@ -367,7 +520,7 @@ ${customMakefileRules(makeInfo)}
 #######################################
 # dependencies
 #######################################
--include $(wildcard $(BUILD_DIR)/*.d)
+-include $(wildcard $(RELEASE_DIRECTORY)/*.d)
 
 # *** EOF ***`;
 }

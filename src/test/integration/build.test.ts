@@ -23,7 +23,14 @@ suite('build test', () => {
   });
   test('default build test', async () => {
     // execute the test build.
-    await buildSTM();
+    try {
+
+      await buildSTM();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      throw error;
+    }
   }).timeout(120000);
 
   test('do clean build on fresh project test', async () => {
