@@ -48,7 +48,7 @@ export function activate(context: vscode.ExtensionContext): { installTools: () =
     commandMenu = addCommandMenu(context);
     vscode.commands.executeCommand('setContext', 'stm32ForVSCodeReady', true);
   });
-  vscode.commands.registerCommand('stm32-for-vscode.importCubeIDEProject',
+  const importCubeIDECommand = vscode.commands.registerCommand('stm32-for-vscode.importCubeIDEProject',
     async () => {
       try {
         await importAndSetupCubeIDEProject();
@@ -57,6 +57,8 @@ export function activate(context: vscode.ExtensionContext): { installTools: () =
       }
     }
   );
+  context.subscriptions.push(importCubeIDECommand);
+
   const setProgrammerCommand = vscode.commands.registerCommand(
     'stm32-for-vscode.setProgrammer',
     (programmer?: string
