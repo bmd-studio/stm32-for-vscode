@@ -27,7 +27,7 @@ import * as pth from 'path';
 import * as vscode from 'vscode';
 
 import { BuildFiles } from '../types/MakeInfo';
-import { EXTENSION_CONFIG_NAME } from '../Definitions';
+import { EXTENSION_CONFIG_NAME, STM32_ENVIRONMENT_VARIABLE_NAME } from '../Definitions';
 
 import Glob = require('glob');
 
@@ -43,6 +43,10 @@ export const REQUIRED_RESOURCES = [
   {
     file: EXTENSION_CONFIG_NAME,
     warning: '',
+  },
+  {
+    file: STM32_ENVIRONMENT_VARIABLE_NAME
+    warning: `Environment variables for this local machine are not set-up. Please ad an ${STM32_ENVIRONMENT_VARIABLE_NAME} file with paths to ARM_GCC_PATH and OPENOCD`,
   }
 ];
 
@@ -109,6 +113,55 @@ export function getIncludeDirectoriesFromFileList(headerList: string[]): string[
   return incList;
 }
 
+
+const fileExtensions = {
+  c: [
+    'c'
+  ],
+  cpp: [
+    'cc',
+    'cp',
+    'cxx',
+    'cpp',
+    'c++',
+    'C',
+    'CPP'
+  ],
+  assembly: [
+    's',
+    'S',
+    'sx'
+  ],
+  headers: [
+    'hh',
+    'H',
+    'hp',
+    'hxx',
+    'hpp',
+    'HPP',
+    'h++',
+    'tcc',
+  ],
+
+  libraries: [
+    'a',
+  ],
+  dynamicLibraries: [
+    // below are dynamic libraries. These will probably not be used
+    'so',
+    'dylib',
+    'dll',
+  ]
+};
+
+
+const fileExtensionLookup: Record<string, keyof typeof fileExtensions> = {};
+(Object.keys(fileExtensions) as (keyof typeof fileExtensions)[]).forEach((type) => {
+  fileExtensions[type].forEach((extension) => {
+    fileExtensionLookup[extension] = type;
+  });
+});
+
 /**
  * @description Sorts files according to their extension.
  * @param BuildFilesList fileObj
@@ -116,19 +169,31 @@ export function getIncludeDirectoriesFromFileList(headerList: string[]): string[
  */
 export function sortFiles(list: string[]): BuildFiles {
   const output = new BuildFiles();
-  list.map((entry) => {
-    const extension = entry.toLowerCase().split('.').pop();
-    if (extension === 'cpp' || extension === 'cxx' || extension === 'cc') {
-      output.cxxSources.push(entry);
-    } else if (extension === 'c') {
-      output.cSources.push(entry);
-    } else if (extension === 'h' || extension === 'hpp') {
-      // output.cIncludes.push(path.dirname(entry));
-      // removed this as sourcefiles and include directories are split up
-    } else if (extension === 's') {
-      output.asmSources.push(entry);
-    } else if (extension === 'a') {
-      output.libdir.push(path.dirname(entry));
+  list.forEach((entry) => {
+    const extension = entry.split('.').pop();
+    if (!extension) {
+      return;
+    }
+    switch (fileExtensionLookup?.[extension]) {
+      case 'c':
+        output.cSources.push(entry);
+        break;
+      case 'cpp':
+        output.cxxSources.push(entry);
+        break;
+      case 'assembly':
+        output.asmSources.push(entry);
+        break;
+      case 'headers':
+        // not used is handled somewhere else
+        break;
+      case 'libraries':
+        // push the library directory
+        output.libdir.push(path.dirname(entry));
+        break;
+      case 'dynamicLibraries':
+        // not handled for now this is unsupported 
+        break;
     }
   });
   // sort arrays and remove possible duplicates.
@@ -199,7 +264,12 @@ export async function scanForFiles(includedFilesGlob: string[]): Promise<string[
  * @returns array of posix relative sourcefile paths
  */
 export async function getSourceFiles(sourceFileGlobs: string[]): Promise<string[]> {
-  const sourceFileExtensions = ['cpp', 'c', 'a', 's', 'S', 'cxx', 'cc'];
+  const sourceFileExtensions = [
+    ...fileExtensions.c,
+    ...fileExtensions.cpp,
+    ...fileExtensions.assembly,
+    ...fileExtensions.libraries
+  ];
   const files = await scanForFiles(sourceFileGlobs);
   const sourceFiles = files.filter((file) => {
     const extension = file.split('.').pop();
@@ -234,7 +304,7 @@ export function getNonGlobIncludeDirectories(headerFilesGlobs: string[]): string
  * @returns array of posix relative header file paths
  */
 export async function getHeaderFiles(headerFilesGlobs: string[]): Promise<string[]> {
-  const headerFileExtensions = ['h', 'hpp', 'hxx'];
+  const headerFileExtensions = fileExtensions.headers;
   const files = await scanForFiles(headerFilesGlobs);
 
   const headerFiles = files.filter((file) => {
