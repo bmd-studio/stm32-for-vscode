@@ -29,7 +29,7 @@ import * as vscode from 'vscode';
 
 import CommandMenu from './menu/CommandMenu';
 import addCommandMenu from './menu';
-import buildSTM from './BuildTask';
+import buildSTM, { BuildSTMOptions } from './BuildTask';
 import { checkBuildTools } from './buildTools';
 import importAndSetupCubeIDEProject from './import';
 import { installBuildToolsCommand } from './buildTools/installTools';
@@ -83,9 +83,12 @@ export function activate(context: vscode.ExtensionContext): { installTools: () =
   context.subscriptions.push(buildToolsCommand);
   const buildCmd = vscode.commands.registerCommand(
     'stm32-for-vscode.build',
-    async () => {
-      await buildSTM({});
-
+    async (args: string) => {
+      const options: BuildSTMOptions = {};
+      if (args === 'release') {
+        options.release = true;
+      };
+      await buildSTM(options);
     }
   );
   context.subscriptions.push(buildCmd);

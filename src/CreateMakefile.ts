@@ -96,6 +96,7 @@ function createPrefixWhenNoneExists(input: string, prefix: string): string {
   return `${prefix}${input}`;
 }
 
+// FIXME: double check that the quotes around $(OPENOCD) also works for regular openocd command
 /**
  * Create a string with compatible makefile rules.
  * @param makeInfo makeInfo
@@ -164,7 +165,7 @@ ifeq ($(call file_exists,${STM32_ENVIRONMENT_FILE_NAME}),1)
 endif
 
 ######################################
-# Target 
+# Target
 ######################################
 # This is the name of the embedded target which will be build
 # The final file name will also have debug or release appended to it.
@@ -186,7 +187,7 @@ BUILD_DIRECTORY ?= build
 # it will be build in debug mode with the Og optimization flag (optimized for debugging).
 # If set to 0 (false) then by default the variable is used in the configuration yaml
 # This can also be overwritten using the environment variable or by overwriting it
-# by calling make with the OPTIMIZATION variable e.g.: 
+# by calling make with the OPTIMIZATION variable e.g.:
 # make -f ${makefileName} -j 16  OPTIMIZATION=Os
 
 # variable which determines if it is a debug build
@@ -357,7 +358,7 @@ PREFIX = "
 # The gcc compiler bin path can be defined in the make command via ARM_GCC_PATH variable (e.g.: make ARM_GCC_PATH=xxx)
 # or it can be added to the PATH environment variable.
 # By default the variable be used from the environment file: ${STM32_ENVIRONMENT_FILE_NAME}.
-# if it is not defined 
+# if it is not defined
 
 ifdef ARM_GCC_PATH
     CC = $(PREFIX)$(ARM_GCC_PATH)/$(ARM_PREFIX)gcc$(POSTFIX)
@@ -377,7 +378,7 @@ HEX = $(CP) -O ihex
 BIN = $(CP) -O binary -S
 
 # Flash and debug tools
-# Default is openocd however will be gotten from the 
+# Default is openocd however will be gotten from the
 OPENOCD ?= openocd
 
 REMOVE_DIRECTORY_COMMAND = rm -fR
@@ -389,7 +390,7 @@ ifeq ($(OS),Windows_NT)
 endif
 
 #######################################
-# Build rules 
+# Build rules
 #######################################
 
 add_release_directory = $(sort $(addprefix $(RELEASE_DIRECTORY)/,$(addsuffix .$(2),$(basename $(1)))))
@@ -419,7 +420,7 @@ ELF_TARGET = $(FINAL_TARGET_NAME).elf
 # All
 #######################################
 # default action: build all
-all: $(BUILD_TREE) 
+all: $(BUILD_TREE)
 all: $(FINAL_TARGET_NAME).elf
 all: $(FINAL_TARGET_NAME).hex
 all: $(FINAL_TARGET_NAME).bin
@@ -460,10 +461,10 @@ $(RELEASE_DIRECTORY)/$(TARGET).elf: $(OBJECTS) ${makefileName} | $(BUILD_TREE)
 
 $(RELEASE_DIRECTORY)/%.hex: $(RELEASE_DIRECTORY)/%.elf | $(BUILD_TREE)
 \t$(HEX) $< $@
-  
+
 $(RELEASE_DIRECTORY)/%.bin: $(RELEASE_DIRECTORY)/%.elf | $(BUILD_TREE)
-\t$(BIN) $< $@	
-  
+\t$(BIN) $< $@
+
 $(BUILD_DIR):
 \t$(call mkdir_function, $@)
 
@@ -475,13 +476,13 @@ $(BUILD_TREE):
 # flash
 #######################################
 flash: $(FINAL_TARGET_NAME).elf
-\t$(OPENOCD) -f ./openocd.cfg -c "program $(FINAL_TARGET_NAME).elf verify reset exit"
+\t"$(OPENOCD)" -f ./openocd.cfg -c "program $(FINAL_TARGET_NAME).elf verify reset exit"
 
 #######################################
 # erase
 #######################################
 erase: $(BUILD_DIRECTORY)/$(TARGET).elf
-\t$(OPENOCD) -f ./openocd.cfg -c "init; reset halt; ${makeInfo.targetMCU} mass_erase 0; exit"
+\t"$(OPENOCD)" -f ./openocd.cfg -c "init; reset halt; ${makeInfo.targetMCU} mass_erase 0; exit"
 
 #######################################
 # clean up
@@ -495,7 +496,7 @@ clean:
 #######################################
 
 ${customMakefileRules(makeInfo)}
-  
+
 #######################################
 # dependencies
 #######################################

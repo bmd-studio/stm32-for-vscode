@@ -131,12 +131,17 @@ async function createSTM32EnvironmentFileWhenRequired(tools: ToolChain): Promise
   }
 }
 
-export default async function buildSTM(options?: { flash?: boolean; cleanBuild?: boolean }): Promise<void> {
+export interface BuildSTMOptions {
+  flash?: boolean;
+  cleanBuild?: boolean;
+  release?: boolean
+};
+export default async function buildSTM(options?: BuildSTMOptions): Promise<void> {
   const {
     flash,
     cleanBuild,
+    release = false,
   } = options || {};
-
 
   let currentWorkspaceFolder;
   let info = {} as MakeInfo;
@@ -152,7 +157,8 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
 
     info = await getInfo(currentWorkspaceFolder);
     await createSTM32EnvironmentFileWhenRequired(info.tools);
-    const makeFlags = info.makeFlags.length > 0 ? ` ${info.makeFlags.join(' ')}` : '';
+    let makeFlags = info.makeFlags.length > 0 ? ` ${info.makeFlags.join(' ')}` : '';
+    makeFlags += release ? ' DEBUG=0' : ' DEBUG=1';
     const makeArguments = `-j16${makeFlags} -f ${makefileName}`;
     if (cleanBuild) {
       try {
