@@ -35,7 +35,8 @@
 		"workspaceContains:*.ioc",
 		"workspaceContains:STM32-for-VSCode.config.yaml",
 		"onView:stm32ForVSCodeCommands",
-		"onCommand:stm32-for-vscode.openExtension"
+		"onCommand:stm32-for-vscode.openExtension",
+		"onCommand:stm32-for-vscode.createGitIgnoreFile"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
@@ -119,6 +120,10 @@
 			{
 				"command": "stm32-for-vscode.setProgrammer",
 				"title": "STM32: Set programmer for the STM32 chip"
+			},
+			{
+				"command": "stm32-for-vscode.createGitIgnoreFile",
+				"title": "STM32: Create a STM32 for VSCode specific gitignore file"
 			}
 		],
 		"configuration": {

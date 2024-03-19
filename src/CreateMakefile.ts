@@ -158,7 +158,10 @@ export default function createMakefile(makeInfo: MakeInfo): string {
 # Imports the environment file in which the compiler and other tooling is set
 # for the build machine.
 # This can also be used to overwrite some makefile variables
-include ${STM32_ENVIRONMENT_FILE_NAME}
+file_exists = $(or $(and $(wildcard $(1)),1),0)
+ifeq ($(call file_exists,${STM32_ENVIRONMENT_FILE_NAME}),1)
+  include ${STM32_ENVIRONMENT_FILE_NAME}
+endif
 
 ######################################
 # Target 
@@ -378,11 +381,11 @@ BIN = $(CP) -O binary -S
 OPENOCD ?= openocd
 
 REMOVE_DIRECTORY_COMMAND = rm -fR
-MKDIR_COMMAND = mkdir
+mkdir_function = mkdir -p $(1)
 ifeq ($(OS),Windows_NT)
+  convert_to_windows_path = $(strip $(subst /,\\,$(patsubst %/,%,$(1))))
   REMOVE_DIRECTORY_COMMAND = cmd /c rd /s /q
-else
-  MKDIR_COMMAND += -p
+  mkdir_function = cmd /e:on /c md $(call convert_to_windows_path,$(1))
 endif
 
 #######################################
@@ -426,31 +429,31 @@ all: $(FINAL_TARGET_NAME).bin
 #######################################
 
 # C Files
-$(RELEASE_DIRECTORY)/%.o: %.c Makefile | $(BUILD_DIR) $(BUILD_TREE)
+$(RELEASE_DIRECTORY)/%.o: %.c ${makefileName} | $(BUILD_DIR) $(BUILD_TREE)
 \t$(CC) -c $(C_FLAGS) $< -o $@
 
 # C++ files
-$(RELEASE_DIRECTORY)/%.o: %.cpp Makefile | $(BUILD_DIR) $(BUILD_TREE)
+$(RELEASE_DIRECTORY)/%.o: %.cpp ${makefileName} | $(BUILD_DIR) $(BUILD_TREE)
 \t$(CXX) -c $(CXX_FLAGS) $< -o $@
-$(RELEASE_DIRECTORY)/%.o: %.cc Makefile | $(BUILD_DIR) $(BUILD_TREE)
+$(RELEASE_DIRECTORY)/%.o: %.cc ${makefileName} | $(BUILD_DIR) $(BUILD_TREE)
 \t$(CXX) -c $(CXX_FLAGS) $< -o $@
-$(RELEASE_DIRECTORY)/%.o: %.cp Makefile | $(BUILD_DIR) $(BUILD_TREE)
+$(RELEASE_DIRECTORY)/%.o: %.cp ${makefileName} | $(BUILD_DIR) $(BUILD_TREE)
 \t$(CXX) -c $(CXX_FLAGS) $< -o $@
-$(RELEASE_DIRECTORY)/%.o: %.CPP Makefile | $(BUILD_DIR) $(BUILD_TREE)
+$(RELEASE_DIRECTORY)/%.o: %.CPP ${makefileName} | $(BUILD_DIR) $(BUILD_TREE)
 \t$(CXX) -c $(CXX_FLAGS) $< -o $@
-$(RELEASE_DIRECTORY)/%.o: %.c++ Makefile | $(BUILD_DIR) $(BUILD_TREE)
+$(RELEASE_DIRECTORY)/%.o: %.c++ ${makefileName} | $(BUILD_DIR) $(BUILD_TREE)
 \t$(CXX) -c $(CXX_FLAGS) $< -o $@
-$(RELEASE_DIRECTORY)/%.o: %.C Makefile | $(BUILD_DIR) $(BUILD_TREE)
+$(RELEASE_DIRECTORY)/%.o: %.C ${makefileName} | $(BUILD_DIR) $(BUILD_TREE)
 \t$(CXX) -c $(CXX_FLAGS) $< -o $@
 
 # Assembly files
-$(RELEASE_DIRECTORY)/%.o: %.s Makefile | $(BUILD_DIR) $(BUILD_TREE)
+$(RELEASE_DIRECTORY)/%.o: %.s ${makefileName} | $(BUILD_DIR) $(BUILD_TREE)
 \t$(AS) -c $(ASM_FLAGS) $< -o $@
-$(RELEASE_DIRECTORY)/%.o: %.S Makefile | $(BUILD_DIR) $(BUILD_TREE)
+$(RELEASE_DIRECTORY)/%.o: %.S ${makefileName} | $(BUILD_DIR) $(BUILD_TREE)
 \t$(AS) -c $(ASM_FLAGS) $< -o $@
 
 # ELF Firmware
-$(RELEASE_DIRECTORY)/$(TARGET).elf: $(OBJECTS) Makefile | $(BUILD_TREE)
+$(RELEASE_DIRECTORY)/$(TARGET).elf: $(OBJECTS) ${makefileName} | $(BUILD_TREE)
 \t$(CC) $(OBJECTS) $(LINKER_FLAGS) -o $@
 \t$(SZ) $@
 
@@ -462,10 +465,10 @@ $(RELEASE_DIRECTORY)/%.bin: $(RELEASE_DIRECTORY)/%.elf | $(BUILD_TREE)
 \t$(BIN) $< $@	
   
 $(BUILD_DIR):
-\t$(MKDIR_COMMAND) $@
+\t$(call mkdir_function, $@)
 
 $(BUILD_TREE):
-\t$(MKDIR_COMMAND) $@
+\t$(call mkdir_function, $@)
 
 
 #######################################
