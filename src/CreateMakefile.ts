@@ -35,7 +35,7 @@ import { isEmpty, isString, uniq } from 'lodash';
 
 import MakeInfo from './types/MakeInfo';
 import { fsPathToPosix } from './Helpers';
-import { STM32_ENVIRONMENT_VARIABLE_NAME, makefileName, stm32EnvironmentFile } from './Definitions';
+import { STM32_ENVIRONMENT_FILE_NAME, makefileName, stm32EnvironmentFile } from './Definitions';
 
 
 /**
@@ -191,7 +191,7 @@ POSTFIX = "
 PREFIX = "
 # The gcc compiler bin path can be defined in the make command via GCC_PATH variable (e.g.: $make GCC_PATH=xxx)
 # or it can be added to the PATH environment variable.
-# By default the variable be used from the environment file: ${STM32_ENVIRONMENT_VARIABLE_NAME}.
+# By default the variable be used from the environment file: ${STM32_ENVIRONMENT_FILE_NAME}.
 
 ifdef ARM_GCC_PATH
 		CC = $(PREFIX)$(GCC_PATH)/$(ARM_PREFIX)gcc$(POSTFIX)

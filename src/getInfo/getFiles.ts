@@ -27,7 +27,7 @@ import * as pth from 'path';
 import * as vscode from 'vscode';
 
 import { BuildFiles } from '../types/MakeInfo';
-import { EXTENSION_CONFIG_NAME, STM32_ENVIRONMENT_VARIABLE_NAME } from '../Definitions';
+import { EXTENSION_CONFIG_NAME, STM32_ENVIRONMENT_FILE_NAME } from '../Definitions';
 
 import Glob = require('glob');
 
@@ -45,8 +45,9 @@ export const REQUIRED_RESOURCES = [
     warning: '',
   },
   {
-    file: STM32_ENVIRONMENT_VARIABLE_NAME
-    warning: `Environment variables for this local machine are not set-up. Please ad an ${STM32_ENVIRONMENT_VARIABLE_NAME} file with paths to ARM_GCC_PATH and OPENOCD`,
+    file: STM32_ENVIRONMENT_FILE_NAME,
+    // eslint-disable-next-line max-len
+    warning: `Environment variables for this local machine are not set-up. Please ad an ${STM32_ENVIRONMENT_FILE_NAME} file with paths to ARM_GCC_PATH and OPENOCD`,
   }
 ];
 

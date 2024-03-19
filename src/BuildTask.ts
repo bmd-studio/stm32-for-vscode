@@ -30,15 +30,15 @@ import * as path from 'path';
 import {
   EXTENSION_CONFIG_NAME,
   EXTENSION_TASK_TYPE_NAME,
+  STM32_ENVIRONMENT_FILE_NAME,
   makefileName,
 } from './Definitions';
-import MakeInfo, { ExtensionConfiguration } from './types/MakeInfo';
+import MakeInfo, { ToolChain } from './types/MakeInfo';
 import {
   Uri,
   window,
   workspace
 } from 'vscode';
-import { cpus, targetsMCUs } from './configuration/ConfigInfo';
 
 import { checkForRequiredFiles } from './getInfo/getFiles';
 import executeTask from './HandleTasks';
@@ -48,7 +48,8 @@ import {
 } from './getInfo';
 import updateConfiguration from './configuration/WorkspaceConfigurations';
 import updateMakefile from './UpdateMakefile';
-import { writeConfigFile } from './configuration/stm32Config';
+import { createProjectEnvironmentFile, hasProjectEnvironmentFile } from './projectSetup/projectEnvironment';
+import { emptyProjectSetupPrompt } from './projectSetup';
 
 /**
  * Checks if the language is C++ and that there is no main.cpp present. 
@@ -85,6 +86,8 @@ async function checkForMainCPPOrAddWhenNecessary(info: MakeInfo): Promise<MakeIn
 }
 
 
+
+
 /**
  * Checks if the project is set-up and if not it will prompt the user to setup the project
  * @param Uri workspace folder
@@ -100,47 +103,31 @@ export async function createProjectSetupWhenRequired(workspaceFolder: Uri): Prom
   let makefileIsPresent = false;
   let configFileIsPresent = false;
   requiredFilesInDir.forEach((file) => {
-    if (file.file === 'Makefile') {
-      makefileIsPresent = file.isPresent;
-    }
-    if (file.file === EXTENSION_CONFIG_NAME) {
-      configFileIsPresent = file.isPresent;
+    switch (file.file) {
+      case 'Makefile':
+        makefileIsPresent = file.isPresent;
+        break;
+      case EXTENSION_CONFIG_NAME:
+        configFileIsPresent = file.isPresent;
+        break;
     }
   });
   if (!makefileIsPresent && !configFileIsPresent) {
-    const response = await window.showInformationMessage(
-      // eslint-disable-next-line max-len
-      'Makefile was not found. If using CubeMX please select generate makefile under:Project Manager>Project/Toolchain IDE. Or do you want to generate a blank stm32-config-yaml file, so a custom project can be configured?',
-      'Cancel',
-      'Generate config file'
-    );
-    if (response === 'Generate config file') {
-      const targetMCU = await window.showQuickPick(targetsMCUs, {
-        title: 'Pick a target MCU',
-      });
-      const targetCPU = await window.showQuickPick(cpus, {
-        title: 'pick a target cpu architecture',
-      });
-      const ldScript = await window.showInputBox({
-        title: 'linker script',
-        prompt: 'please enter the name/path to the linker script'
-      });
-      const standardConfig: ExtensionConfiguration = new ExtensionConfiguration();
-      if (targetMCU) {
-        standardConfig.targetMCU = targetMCU;
-      }
-      if (targetCPU) {
-        standardConfig.cpu = targetCPU;
-      }
-      if (ldScript) {
-        standardConfig.ldscript = ldScript;
-      }
-      await writeConfigFile(standardConfig);
-    } else {
-      return false;
-    }
+    return await emptyProjectSetupPrompt();
   }
   return true;
+}
+
+async function createSTM32EnvironmentFileWhenRequired(tools: ToolChain): Promise<void> {
+  try {
+    const hasFile = await hasProjectEnvironmentFile();
+    if (!hasFile) {
+      await createProjectEnvironmentFile(tools);
+    }
+  } catch (err) {
+    // eslint-disable-next-line max-len
+    window.showErrorMessage(`Something went wrong with creating the file ${STM32_ENVIRONMENT_FILE_NAME}, please create your own or retry. Error: ${err}`);
+  }
 }
 
 export default async function buildSTM(options?: { flash?: boolean; cleanBuild?: boolean }): Promise<void> {
@@ -152,17 +139,18 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
 
   let currentWorkspaceFolder;
   let info = {} as MakeInfo;
-  if (!workspace.workspaceFolders || !workspace.workspaceFolders?.[0]) {
+  if (!workspace?.workspaceFolders?.[0]) {
     window.showErrorMessage('No workspace folder is open. Stopped build');
     return Promise.reject(Error('no workspace folder is open'));
   }
 
-  await projectSetup(workspace.workspaceFolders[0].uri);
+  await createProjectSetupWhenRequired(workspace.workspaceFolders[0].uri);
 
   try {
     currentWorkspaceFolder = fsPathToPosix(workspace.workspaceFolders[0].uri.fsPath);
 
     info = await getInfo(currentWorkspaceFolder);
+    await createSTM32EnvironmentFileWhenRequired(info.tools);
     const makeFlags = info.makeFlags.length > 0 ? ` ${info.makeFlags.join(' ')}` : '';
     const makeArguments = `-j16${makeFlags} -f ${makefileName}`;
     if (cleanBuild) {
