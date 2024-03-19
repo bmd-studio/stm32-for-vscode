@@ -16,6 +16,10 @@
 - Issue #81: The extension would add settings to random projects for which it did not need to add settings. Cvanbeek13 fixed this issue and created a pull request.
 ### Added
 - Issue #168: added -Wl,--print-memory-usage as a default flag for initial project generation.
+	- Out of source build where it keeps the current folder structure
+	- Release and debug builds
+	- Issue #157 Use .env files to set the build tooling and other variables
+	- Issue #144: Be able to change the output/build directory
 
 ## [3.2.5] - 2023-03-25
 ### Fixed
