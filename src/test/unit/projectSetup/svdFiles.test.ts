@@ -1,7 +1,7 @@
 import * as Sinon from 'sinon';
 
 import { afterEach, beforeEach } from 'mocha';
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { getSVDFileForChip, getSVDFileList } from '../../../projectSetup/svdFiles';
 
 import GithubSVDSResponseFixture from './githubSVDResponseFixture';
@@ -9,12 +9,13 @@ import { expect } from 'chai';
 import h7SVDResponseFixture from './githubSVDResponseFixture';
 
 suite('SVD files', () => {
-  const svdResponse: AxiosResponse = {
+  // FIXME: any is not the nicest thing. Need to fix the SVD retrieval anyhow.
+  const svdResponse: AxiosResponse<any, any> = {
     data: GithubSVDSResponseFixture,
     status: 200,
     statusText: 'success',
     headers: {},
-    config: {} as AxiosRequestConfig,
+    config: {} as InternalAxiosRequestConfig<any>,
   };
   beforeEach(() => {
 

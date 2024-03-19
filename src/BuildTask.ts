@@ -32,7 +32,6 @@ import {
   EXTENSION_TASK_TYPE_NAME,
   STM32_ENVIRONMENT_FILE_NAME,
   makefileName,
-  STM32_ENVIRONMENT_FILE_NAME,
 } from './Definitions';
 import MakeInfo, { ToolChain } from './types/MakeInfo';
 import {

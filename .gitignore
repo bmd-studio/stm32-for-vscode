@@ -20,3 +20,6 @@ STM32-for-VSCode.config.yaml
 stats.json
 webpack-stats.json
 .stm32env
+**.o
+**.d
+**.lst

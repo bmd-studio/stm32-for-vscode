@@ -11,7 +11,7 @@ import LaunchTestFile, {
 import { TaskDefinition, Uri, workspace } from 'vscode';
 import { afterEach, beforeEach, suite, test } from 'mocha';
 import { assert, expect, use } from 'chai';
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import updateConfiguration, {
   updateLaunch,
   updateTasks
@@ -80,12 +80,12 @@ suite('WorkspaceConfiguration', () => {
     setWorkspaceConfigFakeOutput([]);
 
     const { getWorkspaceConfigFake, updateConfigFake } = launchFixtures;
-    const svdResponse: AxiosResponse = {
+    const svdResponse: AxiosResponse<any, any> = {
       data: GithubSVDSResponseFixture,
       status: 200,
       statusText: 'success',
       headers: {},
-      config: {} as AxiosRequestConfig,
+      config: {} as InternalAxiosRequestConfig<any>,
     };
     const axiosGetStub = Sinon.stub(axios, 'get').resolves(Promise.resolve(svdResponse));
     const h7Response = { ...svdResponse, data: h7SVDResponseFixture };
@@ -98,13 +98,14 @@ suite('WorkspaceConfiguration', () => {
     expect(getWorkspaceConfigFake.callCount).to.equal(1);
     expect(getWorkspaceConfigFake.calledOnce).to.be.true;
     expect(updateConfigFake.calledOnce).to.be.true;
+    // FIXME: the /debug/ should be added based on release or debug type
     expect(updateConfigFake.getCall(0).args[1].find((task: any) => debugFixture.name === task?.name)).to.deep.equal({
       ...debugFixtureWithSVD,
-      executable: "./build/othertesttarget.elf"
+      executable: "./build/debug/othertesttarget.elf"
     });
     expect(updateConfigFake.getCall(0).args[1].find((task: any) => attachFixture.name === task?.name)).to.deep.equal({
       ...attachFixtureWithSVD,
-      executable: "./build/othertesttarget.elf"
+      executable: "./build/debug/othertesttarget.elf"
     });
   });
 
