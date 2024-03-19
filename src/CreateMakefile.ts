@@ -115,7 +115,7 @@ function customMakefileRules(makeInfo: MakeInfo): string {
 #######################################
 ${command}: ${dependsOn}
 \t${rule}
-			`;
+      `;
         return `${previousString}\n\n${newRule}`;
       }, '');
 
@@ -190,17 +190,18 @@ BUILD_DIRECTORY ?= build
 DEBUG ?= 1
 
 # debug flags when debug is defined
-OPTIMIZATION ?= ${makeInfo.optimization}
+OPTIMIZATION ?= ${createPrefixWhenNoneExists(makeInfo.optimization, '-')}
 
+RELEASE_DIRECTORY = $(BUILD_DIRECTORY)/debug
 ifeq ($(DEBUG),1)
-	# Sets debugging optimization -Og and the debug information output
-	OPTIMIZATION_FLAGS += -Og -g -gdwarf -ggdb
-	TARGET += -debug 
-	RELEASE_DIRECTORY ?= $(BUILD_DIRECTORY)/debug
+  # Sets debugging optimization -Og and the debug information output
+  OPTIMIZATION_FLAGS += -Og -g -gdwarf -ggdb
+  $(TARGET) := $(TARGET)-debug
+  RELEASE_DIRECTORY := $(BUILD_DIRECTORY)/debug
 else
-	OPTIMIZATION_FLAGS += $(OPTIMIZATION)
-	TARGET += -release
-	RELEASE_DIRECTORY ?= $(BUILD_DIRECTORY)/release
+  OPTIMIZATION_FLAGS += $(OPTIMIZATION)
+  $(TARGET) := $(TARGET)-release
+  RELEASE_DIRECTORY := $(BUILD_DIRECTORY)/release
 endif
 
 ######################################
@@ -216,7 +217,7 @@ CXX_DEFINITIONS =  ${'\\'}
 ${createStringList(makeInfo.cxxDefs, '-D')}
 
 # Assembly definitions
-AS_DEFINITIONS =  ${'\\'}
+ASM_DEFINITIONS =  ${'\\'}
 ${createStringList(makeInfo.asDefs, '-D')}
 
 ######################################
@@ -232,15 +233,15 @@ CXX_SOURCES += ${'\\'}
 ${createStringList(makeInfo.cxxSources)}
 
 # ASM sources
-AS_SOURCES +=  ${'\\'}
+ASM_SOURCES +=  ${'\\'}
 ${createStringList(makeInfo.asmSources)}
 
 
 ######################################
 # Include Directories
 ######################################
-# AS includes
-AS_INCLUDES = ${'\\'}
+# assembly includes
+ASM_INCLUDES = ${'\\'}
 
 # C includes
 C_INCLUDES =  ${'\\'}
@@ -274,7 +275,7 @@ MCU_FLAGS = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
 # additional flags provided by the STM32 for VSCode configuration file
 ADDITIONAL_C_FLAGS := ${createSingleLineStringList(makeInfo.cFlags)}
 ADDITIONAL_CXX_FLAGS := ${createSingleLineStringList(makeInfo.cxxFlags)}
-ADDITIONAL_AS_FLAGS := ${createSingleLineStringList(makeInfo.assemblyFlags)}
+ADDITIONAL_ASM_FLAGS := ${createSingleLineStringList(makeInfo.assemblyFlags)}
 
 # Provides dependency information about header files
 # This is used to recompile when a source file depends on
@@ -283,28 +284,28 @@ DEPENDENCY_FLAGS = -MMD -MP -MF"$(@:%.o=%.d)"
 
 # Output a list file for the compiled source file.
 # This is a representative of the source code in assembly
-ASSEMBLER_LIST_OUTPUT_FLAG = -Wa,-a,-ad,-alms=$(@D)/$($(notdir $@):%.o=%.lst)
+ASSEMBLER_LIST_OUTPUT_FLAG = -Wa,-a,-ad,-alms=$(call add_release_directory,$<,lst)
 
 # Combining the compilation flags with language specific flags and MCU specific flags
 C_FLAGS = ${'\\'}
-	$(MCU_FLAGS) ${'\\'}
-	$(C_DEFINITIONS) ${'\\'}
-	$(C_INCLUDES) ${'\\'}
-	$(OPTIMIZATION_FLAGS) ${'\\'}
-	$(DEPENDENCY_FLAGS) ${'\\'}
-	$(ADDITIONAL_C_FLAGS) ${'\\'}
-	$(ASSEMBLER_LIST_OUTPUT_FLAG)
+$(MCU_FLAGS) ${'\\'}
+$(C_DEFINITIONS) ${'\\'}
+$(C_INCLUDES) ${'\\'}
+$(OPTIMIZATION_FLAGS) ${'\\'}
+$(DEPENDENCY_FLAGS) ${'\\'}
+$(ADDITIONAL_C_FLAGS) ${'\\'}
+$(ASSEMBLER_LIST_OUTPUT_FLAG)
 
-CXX_FLAGS = ${'\\'} 
-	$(MCU_FLAGS) ${'\\'}
-	$(CXX_DEFINITIONS) ${'\\'}
-	$(C_INCLUDES) ${'\\'}
-	$(OPTIMIZATION_FLAGS) ${'\\'}
-	$(DEPENDENCY_FLAGS) ${'\\'}
-	$(ADDITIONAL_CXX_FLAGS) ${'\\'}
-	$(ASSEMBLER_LIST_OUTPUT_FLAG)
+CXX_FLAGS = ${'\\'}
+$(MCU_FLAGS) ${'\\'}
+$(CXX_DEFINITIONS) ${'\\'}
+$(C_INCLUDES) ${'\\'}
+$(OPTIMIZATION_FLAGS) ${'\\'}
+$(DEPENDENCY_FLAGS) ${'\\'}
+$(ADDITIONAL_CXX_FLAGS) ${'\\'}
+$(ASSEMBLER_LIST_OUTPUT_FLAG)
 
-AS_FLAGS = $(C_FLAGS) $(AS_DEFINITIONS) $(ADDITIONAL_AS_FLAGS)
+ASM_FLAGS = $(C_FLAGS) $(ASM_DEFINITIONS) $(ADDITIONAL_ASM_FLAGS)
 
 ######################################
 # Linker Flags
@@ -329,19 +330,20 @@ ADDITIONAL_LINKER_FLAGS ?= ${createSingleLineStringList(makeInfo.ldFlags)}
 # Flags for outputting a map file
 # -Wl,-Map= flag will output the map file to the specified file
 # --cref will generate a cross reference table in the map file
-LINKER_MAP_FLAGS ?= -Wl,-Map=$(RELEASE_DIRECTORY)/$(TARGET).map,--cref
+LINKER_MAP_FLAGS ?= -Wl,-Map=$(addsuffix .map,$(basename $(@))),--cref
 
 # Flags for cleaning up code at link time
 # --gc-sections will eliminate dead code e.g. unused functions
 LINKER_CLEAN_UP_FLAGS ?= -Wl,--gc-sections
 
 LINKER_FLAGS = ${'\\'}
-	$(MCU_FLAGS) ${'\\'}
-	$(LINKER_SCRIPT) ${'\\'}
-	$(LIBRARY_DIRECTORIES) ${'\\'}
-	$(LIBRARIES) ${'\\'}
-	$(LINKER_MAP_FLAGS) ${'\\'}
-	$(LINKER_CLEAN_UP_FLAGS)
+  $(MCU_FLAGS) ${'\\'}
+  $(LINKER_SCRIPT) ${'\\'}
+  $(LIBRARY_DIRECTORIES) ${'\\'}
+  $(LIBRARIES) ${'\\'}
+  $(LINKER_MAP_FLAGS) ${'\\'}
+  $(LINKER_CLEAN_UP_FLAGS) ${'\\'}
+  $(ADDITIONAL_LINKER_FLAGS)
 
 #######################################
 # Tools
@@ -355,17 +357,17 @@ PREFIX = "
 # if it is not defined 
 
 ifdef ARM_GCC_PATH
-		CC = $(PREFIX)$(ARM_GCC_PATH)/$(ARM_PREFIX)gcc$(POSTFIX)
-		CXX = $(PREFIX)$(ARM_GCC_PATH)/$(ARM_PREFIX)g++$(POSTFIX)
-		AS = $(PREFIX)$(ARM_GCC_PATH)/$(ARM_PREFIX)gcc$(POSTFIX) -x assembler-with-cpp
-		CP = $(PREFIX)$(ARM_GCC_PATH)/$(ARM_PREFIX)objcopy$(POSTFIX)
-		SZ = $(PREFIX)$(ARM_GCC_PATH)/$(ARM_PREFIX)size$(POSTFIX)
+    CC = $(PREFIX)$(ARM_GCC_PATH)/$(ARM_PREFIX)gcc$(POSTFIX)
+    CXX = $(PREFIX)$(ARM_GCC_PATH)/$(ARM_PREFIX)g++$(POSTFIX)
+    AS = $(PREFIX)$(ARM_GCC_PATH)/$(ARM_PREFIX)gcc$(POSTFIX) -x assembler-with-cpp
+    CP = $(PREFIX)$(ARM_GCC_PATH)/$(ARM_PREFIX)objcopy$(POSTFIX)
+    SZ = $(PREFIX)$(ARM_GCC_PATH)/$(ARM_PREFIX)size$(POSTFIX)
 else
-	CC ?= $(ARM_PREFIX)gcc
-	CXX ?= $(ARM_PREFIX)g++$
-	AS ?= $(ARM_PREFIX)gcc -x assembler-with-cpp
-	CP ?= $(ARM_PREFIX)objcopy
-	SZ ?= $(ARM_PREFIX)size
+  CC ?= $(ARM_PREFIX)gcc
+  CXX ?= $(ARM_PREFIX)g++$
+  AS ?= $(ARM_PREFIX)gcc -x assembler-with-cpp
+  CP ?= $(ARM_PREFIX)objcopy
+  SZ ?= $(ARM_PREFIX)size
 endif
 
 HEX = $(CP) -O ihex
@@ -378,49 +380,28 @@ OPENOCD ?= openocd
 REMOVE_DIRECTORY_COMMAND = rm -fR
 MKDIR_COMMAND = mkdir
 ifeq ($(OS),Windows_NT)
-	REMOVE_DIRECTORY_COMMAND = cmd /c rd /s /q
+  REMOVE_DIRECTORY_COMMAND = cmd /c rd /s /q
 else
-	MKDIR_COMMAND += -p
+  MKDIR_COMMAND += -p
 endif
 
 #######################################
 # Build rules 
 #######################################
 
-# Create object list
-# Create object list
-OBJECTS = $(addprefix $(RELEASE_DIRECTORY)/,$(addsuffix .o,$(basename $(C_SOURCES))))
+add_release_directory = $(sort $(addprefix $(RELEASE_DIRECTORY)/,$(addsuffix .$(2),$(basename $(1)))))
+
+OBJECTS = $(call add_release_directory,$(C_SOURCES),o)
 # objects for the different C++ file extensions
-OBJECTS += $(addprefix $(RELEASE_DIRECTORY)/,$(addsuffix .o,$(basename $(CXX_SOURCES))))
+OBJECTS += $(call add_release_directory,$(CXX_SOURCES),o)
 # Objects for assembly code
-OBJECTS += $(addprefix $(RELEASE_DIRECTORY)/,$(addsuffix .o,$(basename $(AS_SOURCES))))
+OBJECTS += $(call add_release_directory,$(ASM_SOURCES),o)
 
 # Dependency files
-DEPENDENCY_FILES = $(OBJECTS:.o=.d)
-
+DEPENDENCY_FILES = $(sort $(OBJECTS:.o=.d))
 
 # the tree of folders which needs to be present based on the object files
 BUILD_TREE = $(sort $(dir $(OBJECTS)))
-
-
-
-#######################################
-# Build targets
-#######################################
-# default action: build all
-.PHONY: all
-all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin
-
-# Makes the build directory
-$(BUILD_DIRECTORY):
-\t$(MKDIR_COMMAND) $@
-
-# Makes the release folder
-$(RELEASE_DIRECTORY): | $(BUILD_DIRECTORY)
-\t$(MKDIR_COMMAND) $@
-
-$(BUILD_TREE):
-\t$(MKDIR_COMMAND) $@
 
 
 #######################################
@@ -430,67 +411,62 @@ $(BUILD_TREE):
 FINAL_TARGET_NAME = $(RELEASE_DIRECTORY)/$(TARGET)
 ELF_TARGET = $(FINAL_TARGET_NAME).elf
 
-$(FINAL_TARGET_NAME).elf: $(OBJECTS) ${makefileName} 
-\t$(CC) $(OBJECTS) $(LDFLAGS) -o $@
-\t$(SZ) $@
-
-$(FINAL_TARGET_NAME).hex: $(FINAL_TARGET_NAME).elf 
-\t$(HEX) $< $@
-
-$(FINAL_TARGET_NAME).bin: $(FINAL_TARGET_NAME).elf 
-\t$(BIN) $< $@
-
-
-#######################################
-# Build rules
-#######################################
-
-sourcefile = $(patsubst $(RELEASE_FOLDER)/%.o,%.c,$(1))
-# Rules for creating the object files from the source files
-# c files
-$(RELEASE_DIRECTORY)/%.o: %.c $(RELEASE_DIRECTORY)/%.d | $(BUILD_TREE)
-\t$(CC) $(C_FLAGS) -c $< -o $@
-
-# cpp files
-$(RELEASE_DIRECTORY)/%.o: %.cpp $(RELEASE_DIRECTORY)/%.d | $(BUILD_TREE)
-\t$(CXX) $(CXX_FLAGS) -c $< -o $@
-$(RELEASE_DIRECTORY)/%.o: %.cc $(RELEASE_DIRECTORY)/%.d | $(BUILD_TREE)
-\t$(CXX) $(CXX_FLAGS) -c $< -o $@
-$(RELEASE_DIRECTORY)/%.o: %.cp $(RELEASE_DIRECTORY)/%.d | $(BUILD_TREE)
-\t$(CXX) $(CXX_FLAGS) -c $< -o $@
-$(RELEASE_DIRECTORY)/%.o: %.CPP $(RELEASE_DIRECTORY)/%.d | $(BUILD_TREE)
-\t$(CXX) $(CXX_FLAGS) -c $< -o $@
-$(RELEASE_DIRECTORY)/%.o: %.c++ $(RELEASE_DIRECTORY)/%.d | $(BUILD_TREE)
-\t$(CXX) $(CXX_FLAGS) -c $< -o $@
-$(RELEASE_DIRECTORY)/%.o: %.C++ $(RELEASE_DIRECTORY)/%.d | $(BUILD_TREE)
-\t$(CXX) $(CXX_FLAGS) -c $< -o $@
-
-# assembly files
-$(RELEASE_DIRECTORY)/%.o: %.s $(RELEASE_DIRECTORY)/%.d | $(BUILD_TREE)
-\t$(CXX) $(CXX_FLAGS) -c $< -o $@
-$(RELEASE_DIRECTORY)/%.o: %.S $(RELEASE_DIRECTORY)/%.d | $(BUILD_TREE)
-\t$(CXX) $(CXX_FLAGS) -c $< -o $@
-
-#######################################
-# Build targets
-#######################################
-# Makes the build directory
-$(BUILD_DIRECTORY):
-\t$(MKDIR_COMMAND) $@
-
-# Makes the release folder
-$(RELEASE_DIRECTORY): | $(BUILD_DIRECTORY)
-\t$(MKDIR_COMMAND) $@
-
-$(BUILD_TREE):
-\t$(MKDIR_COMMAND) $@
 
 #######################################
 # All
 #######################################
 # default action: build all
-.PHONY: all
-all: $(FINAL_TARGET_NAME).elf $(FINAL_TARGET_NAME).hex $(FINAL_TARGET_NAME).bin
+all: $(BUILD_TREE) 
+all: $(FINAL_TARGET_NAME).elf
+all: $(FINAL_TARGET_NAME).hex
+all: $(FINAL_TARGET_NAME).bin
+
+#######################################
+# Build rules
+#######################################
+
+# C Files
+$(RELEASE_DIRECTORY)/%.o: %.c Makefile | $(BUILD_DIR) $(BUILD_TREE)
+\t$(CC) -c $(C_FLAGS) $< -o $@
+
+# C++ files
+$(RELEASE_DIRECTORY)/%.o: %.cpp Makefile | $(BUILD_DIR) $(BUILD_TREE)
+\t$(CXX) -c $(CXX_FLAGS) $< -o $@
+$(RELEASE_DIRECTORY)/%.o: %.cc Makefile | $(BUILD_DIR) $(BUILD_TREE)
+\t$(CXX) -c $(CXX_FLAGS) $< -o $@
+$(RELEASE_DIRECTORY)/%.o: %.cp Makefile | $(BUILD_DIR) $(BUILD_TREE)
+\t$(CXX) -c $(CXX_FLAGS) $< -o $@
+$(RELEASE_DIRECTORY)/%.o: %.CPP Makefile | $(BUILD_DIR) $(BUILD_TREE)
+\t$(CXX) -c $(CXX_FLAGS) $< -o $@
+$(RELEASE_DIRECTORY)/%.o: %.c++ Makefile | $(BUILD_DIR) $(BUILD_TREE)
+\t$(CXX) -c $(CXX_FLAGS) $< -o $@
+$(RELEASE_DIRECTORY)/%.o: %.C Makefile | $(BUILD_DIR) $(BUILD_TREE)
+\t$(CXX) -c $(CXX_FLAGS) $< -o $@
+
+# Assembly files
+$(RELEASE_DIRECTORY)/%.o: %.s Makefile | $(BUILD_DIR) $(BUILD_TREE)
+\t$(AS) -c $(ASM_FLAGS) $< -o $@
+$(RELEASE_DIRECTORY)/%.o: %.S Makefile | $(BUILD_DIR) $(BUILD_TREE)
+\t$(AS) -c $(ASM_FLAGS) $< -o $@
+
+# ELF Firmware
+$(RELEASE_DIRECTORY)/$(TARGET).elf: $(OBJECTS) Makefile | $(BUILD_TREE)
+\t$(CC) $(OBJECTS) $(LINKER_FLAGS) -o $@
+\t$(SZ) $@
+
+
+$(RELEASE_DIRECTORY)/%.hex: $(RELEASE_DIRECTORY)/%.elf | $(BUILD_TREE)
+\t$(HEX) $< $@
+  
+$(RELEASE_DIRECTORY)/%.bin: $(RELEASE_DIRECTORY)/%.elf | $(BUILD_TREE)
+\t$(BIN) $< $@	
+  
+$(BUILD_DIR):
+\t$(MKDIR_COMMAND) $@
+
+$(BUILD_TREE):
+\t$(MKDIR_COMMAND) $@
+
 
 #######################################
 # flash
@@ -501,7 +477,7 @@ flash: $(FINAL_TARGET_NAME).elf
 #######################################
 # erase
 #######################################
-erase: $(BUILD_DIR)/$(TARGET).elf
+erase: $(BUILD_DIRECTORY)/$(TARGET).elf
 \t$(OPENOCD) -f ./openocd.cfg -c "init; reset halt; ${makeInfo.targetMCU} mass_erase 0; exit"
 
 #######################################
@@ -509,18 +485,18 @@ erase: $(BUILD_DIR)/$(TARGET).elf
 #######################################
 
 clean:
-\t$(REMOVE_DIRECTORY_COMMAND) $(BUILD_DIR)
+\t$(REMOVE_DIRECTORY_COMMAND) $(BUILD_DIRECTORY)
 
 #######################################
 # custom makefile rules
 #######################################
 
 ${customMakefileRules(makeInfo)}
-	
+  
 #######################################
 # dependencies
 #######################################
--include $(wildcard $(RELEASE_DIRECTORY)/*.d)
+-include $(DEPENDENCY_FILES)
 
 # *** EOF ***`;
 }
