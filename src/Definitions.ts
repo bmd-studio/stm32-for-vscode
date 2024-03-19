@@ -33,3 +33,4 @@ export const TOOL_SETTINGS = {
   openOCDInterface: 'openOCDInterface',
 };
 export const GITHUB_ISSUES_URL = 'https://github.com/bmd-studio/stm32-for-vscode/issues';
+export const EXTENSION_TASK_TYPE_NAME = 'stm32-for-vscode';

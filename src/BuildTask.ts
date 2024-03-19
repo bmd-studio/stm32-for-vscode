@@ -29,6 +29,7 @@ import * as path from 'path';
 
 import {
   EXTENSION_CONFIG_NAME,
+  EXTENSION_TASK_TYPE_NAME,
   makefileName,
 } from './Definitions';
 import MakeInfo, { ExtensionConfiguration } from './types/MakeInfo';
@@ -155,7 +156,7 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
     if (cleanBuild) {
       try {
         await executeTask(
-          'stm32-for-vscode',
+          EXTENSION_TASK_TYPE_NAME,
           'STM32 clean',
           [
             `${info.tools.makePath}`,
@@ -185,7 +186,7 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
     }
 
     await executeTask(
-      'stm32-for-vscode',
+      EXTENSION_TASK_TYPE_NAME,
       'STM32 build',
       [
         `${info.tools.makePath}`,

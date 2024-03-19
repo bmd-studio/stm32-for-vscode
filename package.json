@@ -48,13 +48,12 @@
 				"properties": {
 					"task": {
 						"type": "string",
-						"description": "STM32 taks to run"
+						"description": "STM32 tasks to run"
 					},
 					"command": {
 						"type": "string",
 						"description": "the command to be run"
 					}
-
 				}
 			}
 		],
@@ -204,14 +203,14 @@
 		"webpack-cli": "^4.10.0"
 	},
 	"dependencies": {
-		"axios": "^0.27.2",
+		"axios": "^1.6.8",
 		"decompress": "^4.2.1",
 		"lodash": "^4.17.21",
 		"micromatch": "^4.0.2",
 		"nearest-string": "^1.0.6",
 		"shelljs": "^0.8.4",
 		"strip-comments": "^2.0.1",
-		"xml2js": "^0.4.23",
+		"xml2js": "^0.6.2",
 		"yaml": "^2.1.1"
 	}
 }

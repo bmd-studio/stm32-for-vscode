@@ -78,7 +78,7 @@ export async function xpmInstall(
 
   const npxCommand = platform === 'win32' ? `${npx}.cmd` : npx;
   await executeTask(
-    'installation',
+    'shell',
     `installing: ${definition.name}`,
     [
       // adding the .cmd for windows, otherwise it will open in a different window for powershell.
