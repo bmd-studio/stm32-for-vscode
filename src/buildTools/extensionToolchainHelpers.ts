@@ -98,7 +98,7 @@ export async function getToolVersionFolders(
 
 /**
  * Function which returns 
- * @param tool build tool defintion
+ * @param tool build tool definition
  * @param xpmPath the path to which the xpm install was performed.
  * @returns 
  */

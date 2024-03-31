@@ -33,7 +33,7 @@ export async function getSVDFileList(): Promise<SVDFile[]> {
     ));
     return files;
   } else {
-    throw new Error('Could not get SVD Files from Github');
+    throw new Error('Could not get SVD Files from GitHub');
   }
 }
 
@@ -53,7 +53,7 @@ export async function getSVDFileForChip(chip: string): Promise<SVDLocalFile> {
   }
 
   // const svdFile = svdFileList.find(file => file.name.toUpperCase().includes(chip.toUpperCase()));
-  if (!svdFile) { throw new Error('Could not find desired SVD file for the chip '); }
+  if (!svdFile) { throw new Error('Could not find desired SVD file for the chip'); }
   const fileBuffer = (await axios.get(svdFile.download_url)).data;
   return {
     name: svdFile.name,

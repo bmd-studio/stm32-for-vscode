@@ -38,7 +38,7 @@ export const REQUIRED_RESOURCES = [
   {
     file: 'Makefile',
     // eslint-disable-next-line max-len
-    warning: 'No Makefile is present, please initialize your project using CubeMX, with the toolchain set to Makefile under the project manager'
+    warning: 'No Makefile is present. Please initialize your project using CubeMX, with the toolchain set to Makefile under the Project Manager.'
   },
   {
     file: EXTENSION_CONFIG_NAME,

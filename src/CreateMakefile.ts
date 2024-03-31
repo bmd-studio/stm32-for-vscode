@@ -135,7 +135,7 @@ export default function createMakefile(makeInfo: MakeInfo): string {
 # Generic Makefile (based on gcc)
 #
 # ChangeLog :
-#\t2017-02-10 - Several enhancements + project update mode
+#   2017-02-10 - Several enhancements + project update mode
 #   2015-07-22 - first version
 # ------------------------------------------------
 

@@ -27,8 +27,8 @@ export function noMakefileAndConfigFileDialogue(): Promise<boolean> {
           if (buttonMessage === 'Create custom setup') {
             // should make an "empty config file"
             vscode.window.showInformationMessage(
-              `Are you sure that you want to create a custom project?\n
-              This means that you will have to fill in all the MCU defintions ` +
+              `Are you sure you want to create a custom project?\n
+              This means that you will have to fill in all the MCU definitions ` +
               `and file locations in: ${EXTENSION_CONFIG_NAME} before the project ` +
               `will compile with the STM32 for VSCode extension`,
               "Yes", "Cancel"
@@ -85,7 +85,7 @@ export async function checkProjectFilesAndCreate(): Promise<boolean> {
     if (!configFile.suppressMakefileWarning) {
       vscode.window.showWarningMessage(
         // eslint-disable-next-line max-len
-        "No CubeMX Makefile was found. Please configure your project to generate a Makefile project under Project Manager>Toolchain/IDE"
+        "No CubeMX Makefile was found. Please configure your project to generate a Makefile project under Project Manager > Toolchain/IDE"
       );
       // return Promise.resolve(true); // should continue despite this, worst case scenario the compilation fails.
     }
