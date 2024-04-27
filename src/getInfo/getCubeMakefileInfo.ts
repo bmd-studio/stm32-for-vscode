@@ -165,6 +165,7 @@ const makeInfoKeysToMakefileKeys: [keyof CubeMXMakefile, string][] = [
   ['cIncludes', 'C_INCLUDES'],
   ['cSources', 'C_SOURCES'],
   ['asmSources', 'ASM_SOURCES'],
+  ['asmmSources', 'ASMM_SOURCES'],
   ['libdir', 'LIBDIR'],
   ['libs', 'LIBS'],
   ['target', 'TARGET'],

@@ -219,6 +219,7 @@ export default class MakeInfo implements MakeInfoInterface {
   public cSources: string[] = [];
   public cxxSources: string[] = [];
   public asmSources: string[] = [];
+  public asmmSources: string[] = [];
   public libdir: string[] = [];
   public libs: string[] = [];
   public tools: ToolChain = new ToolChain();

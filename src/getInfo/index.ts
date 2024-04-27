@@ -215,6 +215,7 @@ export async function getInfo(location: string): Promise<MakeInfo> {
     }
   });
   STM32MakeInfo.customMakefileRules = projectConfiguration.customMakefileRules;
+  STM32MakeInfo.asmmSources = cubeMakefileInfo.asmmSources;
 
   // check for CPP project
   const finalInfo = await checkAndConvertCpp(STM32MakeInfo, projectConfiguration);
