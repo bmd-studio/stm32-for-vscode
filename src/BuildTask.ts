@@ -30,8 +30,9 @@ import * as path from 'path';
 import {
   EXTENSION_CONFIG_NAME,
   makefileName,
+  STM32_ENVIRONMENT_FILE_NAME,
 } from './Definitions';
-import MakeInfo, { ExtensionConfiguration } from './types/MakeInfo';
+import MakeInfo, { ExtensionConfiguration, ToolChain } from './types/MakeInfo';
 import {
   Uri,
   window,
@@ -48,6 +49,7 @@ import {
 import updateConfiguration from './configuration/WorkspaceConfigurations';
 import updateMakefile from './UpdateMakefile';
 import { writeConfigFile } from './configuration/stm32Config';
+import { createProjectEnvironmentFile, hasProjectEnvironmentFile } from './projectSetup/projectEnvironment';
 
 /**
  * Checks if the language is C++ and that there is no main.cpp present. 
@@ -81,6 +83,18 @@ async function checkForMainCPPOrAddWhenNecessary(info: MakeInfo): Promise<MakeIn
     }
   }
   return info;
+}
+
+async function createSTM32EnvironmentFileWhenRequired(tools: ToolChain): Promise<void> {
+  try {
+    const hasFile = await hasProjectEnvironmentFile();
+    if (!hasFile) {
+      await createProjectEnvironmentFile(tools);
+    }
+  } catch (err) {
+    // eslint-disable-next-line max-len
+    window.showErrorMessage(`Something went wrong with creating the file ${STM32_ENVIRONMENT_FILE_NAME}, please create your own or retry. Error: ${err}`);
+  }
 }
 
 export default async function buildSTM(options?: { flash?: boolean; cleanBuild?: boolean }): Promise<void> {
@@ -150,6 +164,7 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
     currentWorkspaceFolder = fsPathToPosix(workspace.workspaceFolders[0].uri.fsPath);
 
     info = await getInfo(currentWorkspaceFolder);
+    await createSTM32EnvironmentFileWhenRequired(info.tools);
     const makeFlags = info.makeFlags.length > 0 ? ` ${info.makeFlags.join(' ')}` : '';
     const makeArguments = `-j16${makeFlags} -f ${makefileName}`;
     if (cleanBuild) {

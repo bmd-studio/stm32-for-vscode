@@ -133,7 +133,7 @@ export async function getInfo(location: string): Promise<MakeInfo> {
     ...projectConfiguration.sourceFiles,
     ...cubeMakefileInfo.cxxSources,
     ...cubeMakefileInfo.cSources,
-    ...cubeMakefileInfo.asmSources
+    ...cubeMakefileInfo.asmSources,
   ];
   const combinedHeaderFiles = [
     ...projectConfiguration.includeDirectories,

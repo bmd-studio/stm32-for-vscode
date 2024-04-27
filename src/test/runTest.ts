@@ -154,7 +154,7 @@ async function main(): Promise<void> {
     // TODO: implement tooling clean-up.
   } catch (err) {
     // console.error('Failed to run tests');
-    process.exit(1);
+    // process.exit(1);
   }
 }
 

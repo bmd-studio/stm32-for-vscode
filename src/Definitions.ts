@@ -26,6 +26,7 @@ export const ignoreFileName = '.stm32ignore';
 export const EXTENSION_CONFIG_NAME = 'STM32-for-VSCode.config.yaml';
 export const standardOpenOCDInterface = 'stlink';
 export const EXTENSION_NAME = 'stm32-for-vscode';
+export const STM32_ENVIRONMENT_FILE_NAME = '.stm32env';
 export const TOOL_SETTINGS = {
   openOCDPath: 'openOCDPath',
   makePath: 'makePath',

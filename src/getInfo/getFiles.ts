@@ -109,6 +109,55 @@ export function getIncludeDirectoriesFromFileList(headerList: string[]): string[
   return incList;
 }
 
+const fileExtensions = {
+  c: [
+    'c'
+  ],
+  cpp: [
+    'cc',
+    'cp',
+    'cxx',
+    'cpp',
+    'c++',
+    'C',
+    'CPP'
+  ],
+  assembly: [
+    's',
+    'S',
+    'sx'
+  ],
+  headers: [
+    'h',
+    'hh',
+    'H',
+    'hp',
+    'hxx',
+    'hpp',
+    'HPP',
+    'h++',
+    'tcc',
+  ],
+
+  libraries: [
+    'a',
+  ],
+  dynamicLibraries: [
+    // below are dynamic libraries. These will probably not be used
+    'so',
+    'dylib',
+    'dll',
+  ]
+};
+
+
+const fileExtensionLookup: Record<string, keyof typeof fileExtensions> = {};
+(Object.keys(fileExtensions) as (keyof typeof fileExtensions)[]).forEach((type) => {
+  fileExtensions[type].forEach((extension) => {
+    fileExtensionLookup[extension] = type;
+  });
+});
+
 /**
  * @description Sorts files according to their extension.
  * @param BuildFilesList fileObj
@@ -116,19 +165,31 @@ export function getIncludeDirectoriesFromFileList(headerList: string[]): string[
  */
 export function sortFiles(list: string[]): BuildFiles {
   const output = new BuildFiles();
-  list.map((entry) => {
-    const extension = entry.toLowerCase().split('.').pop();
-    if (extension === 'cpp' || extension === 'cxx' || extension === 'cc') {
-      output.cxxSources.push(entry);
-    } else if (extension === 'c') {
-      output.cSources.push(entry);
-    } else if (extension === 'h' || extension === 'hpp') {
-      // output.cIncludes.push(path.dirname(entry));
-      // removed this as sourcefiles and include directories are split up
-    } else if (extension === 's') {
-      output.asmSources.push(entry);
-    } else if (extension === 'a') {
-      output.libdir.push(path.dirname(entry));
+  list.forEach((entry) => {
+    const extension = entry.split('.').pop();
+    if (!extension) {
+      return;
+    }
+    switch (fileExtensionLookup?.[extension]) {
+      case 'c':
+        output.cSources.push(entry);
+        break;
+      case 'cpp':
+        output.cxxSources.push(entry);
+        break;
+      case 'assembly':
+        output.asmSources.push(entry);
+        break;
+      case 'headers':
+        // not used is handled somewhere else
+        break;
+      case 'libraries':
+        // push the library directory
+        output.libdir.push(path.dirname(entry));
+        break;
+      case 'dynamicLibraries':
+        // not handled for now this is unsupported 
+        break;
     }
   });
   // sort arrays and remove possible duplicates.

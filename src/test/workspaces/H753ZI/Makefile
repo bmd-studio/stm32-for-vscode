@@ -68,7 +68,7 @@ Core/Src/system_stm32h7xx.c
 
 # ASM sources
 ASM_SOURCES =  \
-startup_stm32h753xx.S
+startup_stm32h753xx.s
 
 
 #######################################
@@ -129,7 +129,7 @@ C_INCLUDES =  \
 
 
 # compile gcc flags
-ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
+ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
 CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
