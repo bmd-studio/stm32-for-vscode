@@ -106,6 +106,8 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
 
   let currentWorkspaceFolder;
   let info = {} as MakeInfo;
+  // TODO: add project scanner in here so it can find the first project.
+  // Or create a way to use multiple projects and targets
   if (!workspace.workspaceFolders || !workspace.workspaceFolders?.[0]) {
     window.showErrorMessage('No workspace folder is open. Stopped build.');
     return Promise.reject(Error('no workspace folder is open'));
@@ -134,6 +136,10 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
       'Generate YAML config file'
     );
     if (response === 'Generate YAML config file') {
+
+      const targetName = await window.showInputBox({
+        title: 'Pick a name for the project',
+      });
       const targetMCU = await window.showQuickPick(targetsMCUs, {
         title: 'Pick a target MCU',
       });
@@ -145,6 +151,7 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
         prompt: 'please enter the name/path to the linker script'
       });
       const standardConfig: ExtensionConfiguration = new ExtensionConfiguration();
+      standardConfig.target = targetName || 'projectName';
       if (targetMCU) {
         standardConfig.targetMCU = targetMCU;
       }

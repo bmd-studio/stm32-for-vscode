@@ -35,6 +35,7 @@ export function noMakefileAndConfigFileDialogue(): Promise<boolean> {
             ).then((infoMessage) => {
               if (infoMessage === 'Yes') {
                 const emptyConfig = new ExtensionConfiguration();
+                emptyConfig.target = 'e.g. projectName';
                 emptyConfig.targetMCU = 'e.g. stm32f7x';
                 emptyConfig.cpu = "e.g. -mcpu=cortex-m7";
                 emptyConfig.fpu = "e.g. -mfpu=fpv4-sp-d16";

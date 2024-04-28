@@ -342,7 +342,16 @@ export async function addExtensionInstalledToolsToSettings(toolsStoragePath: vsc
       await extensionConfiguration.update('makePath', make, vscode.ConfigurationTarget.Global);
     }
   }
-
+  vscode.window.showInformationMessage(
+    'Do you want to set the same openOCD path and arm tools path for the Cortex Debug extension as well?'
+    , 'yes'
+  ).then((button) => {
+    if (button === 'yes') {
+      const cortexConfig = vscode.workspace.getConfiguration('cortex-debug');
+      cortexConfig.update('openocdPath', openocd, vscode.ConfigurationTarget.Global);
+      cortexConfig.update('armToolchainPath', armEabi, vscode.ConfigurationTarget.Global);
+    }
+  });
 }
 /**
  * Install all relevant tools for compiling for a specific platform
