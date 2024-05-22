@@ -5,6 +5,7 @@ import { EXTENSION_NAME, STM32_ENVIRONMENT_FILE_NAME, makefileName } from '../De
 import { ToolChain } from '../types/MakeInfo';
 import { writeFileInWorkspace, getWorkspaceUri } from '../Helpers';
 import { workspace, Uri } from 'vscode';
+import { join } from 'path';
 
 
 
@@ -18,7 +19,7 @@ export async function createProjectEnvironmentFile(tools: ToolChain): Promise<vo
 # configure the following variables: GCC_PATH, OPENOCD
 
 ARM_GCC_PATH = ${tools.armToolchainPath}
-OPENOCD = ${tools.openOCDPath}
+OPENOCD = "${tools.openOCDPath}"
  `;
 
   await writeFileInWorkspace(workspaceUri, STM32_ENVIRONMENT_FILE_NAME, envFile);
@@ -30,7 +31,13 @@ export async function hasProjectEnvironmentFile(): Promise<boolean> {
     throw new Error('No current workspace selected');
   }
   try {
-    const currentEnvFile = await workspace.fs.readFile(Uri.file(STM32_ENVIRONMENT_FILE_NAME));
+    const currentEnvFile = await workspace.fs.readFile(
+      Uri.file(
+        join(
+          workspaceUri.fsPath, STM32_ENVIRONMENT_FILE_NAME
+        )
+      )
+    );
     if (currentEnvFile.length > 0) {
       return true;
     }

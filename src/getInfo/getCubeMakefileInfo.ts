@@ -213,10 +213,15 @@ export default function extractMakefileInfo(makefile: string): MakeInfo {
   makeInfoKeysToMakefileKeys.forEach(([infoKey, makefileKey]) => {
     if (extractedVariables[makefileKey]) {
       if (Array.isArray(makefileInfo[infoKey])) {
-        makefileInfo[infoKey] = extractedVariables[makefileKey] as string & string[];
+        if (Array.isArray(extractedVariables[makefileKey])) {
+          (makefileInfo[infoKey] as string[]) = [...makefileInfo[infoKey], ...extractedVariables[makefileKey]];
+        } else {
+          (makefileInfo[infoKey] as string[]).push(extractedVariables[makefileKey] as unknown as string);
+        }
       } else {
-        makefileInfo[infoKey] = extractedVariables[makefileKey].join(' ') as string & string[];
-        makefileInfo[infoKey] = (makefileInfo[infoKey] as string).trim() as string & string[];
+        makefileInfo[infoKey] = (extractedVariables[makefileKey]
+          .join(' ') as unknown as string)
+          .trim() as string & string[];
       }
     }
   });
@@ -224,7 +229,7 @@ export default function extractMakefileInfo(makefile: string): MakeInfo {
   makefileInfo.targetMCU = getOpenocdTargetSTM(makefileInfo.ldscript);
   removePrefixesFromMakefile(makefileInfo);
 
-  // copy the cDefinitions to cPP definitions.
+  // copy the cDefinitions to CPP definitions.
   makefileInfo.cxxDefs = [...makefileInfo.cDefs];
 
   return makefileInfo;

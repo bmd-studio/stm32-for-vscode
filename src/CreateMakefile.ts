@@ -281,11 +281,11 @@ ${createStringList(makeInfo.cIncludes, '-I')}
 
 
 # compile gcc flags
-ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(C_INCLUDES) $(C_DEFS) $(OPTIMIZATION) 
+ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(C_INCLUDES) $(C_DEFS) $(OPTIMIZATION_FLAGS) 
 
-CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPTIMIZATION)
+CFLAGS = $(MCU) $(C_DEFS) $(C_INCLUDES) $(OPTIMIZATION_FLAGS)
 
-CXXFLAGS = $(MCU) $(CXX_DEFS) $(C_INCLUDES) $(OPTIMIZATION)
+CXXFLAGS = $(MCU) $(CXX_DEFS) $(C_INCLUDES) $(OPTIMIZATION_FLAGS)
 
 # Add additional flags
 CFLAGS += ${createSingleLineStringList(makeInfo.cFlags)}
