@@ -25,6 +25,7 @@
 import { trimEnd } from 'lodash';
 
 const configFiles = [
+  "stm32c0x.cfg",
   "stm32f0x.cfg",
   "stm32f1x.cfg",
   "stm32f2x.cfg",
@@ -49,6 +50,17 @@ const configFiles = [
   "stm32wlx.cfg",
   "stm32x5x_common.cfg",
   "stm32xl.cfg",
+  "stm8l.cfg",
+  "stm8l151x2.cfg",
+  "stm8l151x3.cfg",
+  "stm8l152.cfg",
+  "stm8l15xx4.cfg",
+  "stm8l15xx6.cfg",
+  "stm8l15xx8.cfg",
+  "stm8s.cfg",
+  "stm8s003.cfg",
+  "stm8s103.cfg",
+  "stm8s105.cfg",
 ];
 
 export default function getTargetConfig(target: string): string | boolean {
