@@ -1,0 +1,12 @@
+{
+    "[javascript][typescript]": {
+        "editor.tabSize": 2,
+        "editor.insertSpaces": true,
+
+        // Auto-Formatting currently disabled in this repo.
+        // "editor.formatOnSave": true,
+        // "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+        "editor.rulers": [120], // 120 chars is the default eslint max length.
+    },
+}
