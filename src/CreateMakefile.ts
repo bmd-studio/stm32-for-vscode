@@ -228,16 +228,19 @@ ifdef ARM_GCC_PATH
     AS = $(PREFIX)$(ARM_GCC_PATH)/$(ARM_PREFIX)gcc$(POSTFIX) -x assembler-with-cpp
     CP = $(PREFIX)$(ARM_GCC_PATH)/$(ARM_PREFIX)objcopy$(POSTFIX)
     SZ = $(PREFIX)$(ARM_GCC_PATH)/$(ARM_PREFIX)size$(POSTFIX)
+    DP = $(PREFIX)$(ARM_GCC_PATH)/$(ARM_PREFIX)objdump$(POSTFIX)
 else
   CC ?= $(ARM_PREFIX)gcc
   CXX ?= $(ARM_PREFIX)g++$
   AS ?= $(ARM_PREFIX)gcc -x assembler-with-cpp
   CP ?= $(ARM_PREFIX)objcopy
   SZ ?= $(ARM_PREFIX)size
+  DP ?= $(ARM_PREFIX)objdump
 endif
 
 HEX = $(CP) -O ihex
 BIN = $(CP) -O binary -S
+LSS = $(DP) -h -S
 
 # Flash and debug tools
 # Default is openocd however will be gotten from the env file when existing
@@ -396,6 +399,9 @@ $(BUILD_DIRECTORY)/%.hex: $(BUILD_DIRECTORY)/%.elf | $(BUILD_DIRECTORY)
 $(BUILD_DIRECTORY)/%.bin: $(BUILD_DIRECTORY)/%.elf | $(BUILD_DIRECTORY)
 \t$(BIN) $< $@
 
+$(BUILD_DIRECTORY)/%.lss: $(BUILD_DIRECTORY)/%.elf | $(BUILD_DIRECTORY)
+\t$(LSS) $< $@
+
 $(BUILD_DIRECTORY):
 \t$(call mkdir_function, $@)
 
@@ -410,6 +416,7 @@ all:
 \t$(BUILD_DIRECTORY)/$(TARGET).elf 
 \t$(BUILD_DIRECTORY)/$(TARGET).hex 
 \t$(BUILD_DIRECTORY)/$(TARGET).bin 
+\t$(BUILD_DIRECTORY)/$(TARGET).lss 
 
 
 flash: $(BUILD_DIRECTORY)/$(TARGET).elf
