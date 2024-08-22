@@ -400,7 +400,7 @@ $(BUILD_DIRECTORY)/%.bin: $(BUILD_DIRECTORY)/%.elf | $(BUILD_DIRECTORY)
 \t$(BIN) $< $@
 
 $(BUILD_DIRECTORY)/%.lss: $(BUILD_DIRECTORY)/%.elf | $(BUILD_DIRECTORY)
-\t$(LSS) $< $@
+\t$(LSS) $< > $@
 
 $(BUILD_DIRECTORY):
 \t$(call mkdir_function, $@)
