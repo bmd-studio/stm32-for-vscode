@@ -45,10 +45,14 @@ export function createStringList(arr: string[], prefix?: string): string {
   let output = '';
   const sortedArray = uniq(arr).sort();
   sortedArray.map((entry: string, ind: number) => {
+    // Replace '#' with '\#' (for escaping in Makefile).
+    // Backslash replacement is because CodeQL complained about incomplete escaping.
+    const escapedEntry = entry.replace(/\\/g, '\\\\').replace(/#/g, '\\#');
+    
     if (prefix) {
       output += prefix;
     }
-    output += `${entry}`;
+    output += escapedEntry;
     if (ind < sortedArray.length - 1) {
       output += ' \\';
     }
