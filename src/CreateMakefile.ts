@@ -424,13 +424,13 @@ all:
 
 
 flash: $(BUILD_DIRECTORY)/$(TARGET).elf
-\t$(OPENOCD) -f ./openocd.cfg -c "program $(BUILD_DIRECTORY)/$(TARGET).elf verify reset exit"
+\t"$(OPENOCD)" -f ./openocd.cfg -c "program $(BUILD_DIRECTORY)/$(TARGET).elf verify reset exit"
 
 #######################################
 # erase
 #######################################
 erase: $(BUILD_DIRECTORY)/$(TARGET).elf
-\t$(OPENOCD) -f ./openocd.cfg -c "init; reset halt; ${makeInfo.targetMCU} mass_erase 0; exit"
+\t"$(OPENOCD)" -f ./openocd.cfg -c "init; reset halt; ${makeInfo.targetMCU} mass_erase 0; exit"
 
 #######################################
 # clean up

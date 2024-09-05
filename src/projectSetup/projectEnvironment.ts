@@ -19,7 +19,7 @@ export async function createProjectEnvironmentFile(tools: ToolChain): Promise<vo
 # configure the following variables: GCC_PATH, OPENOCD
 
 ARM_GCC_PATH = ${tools.armToolchainPath}
-OPENOCD = "${tools.openOCDPath}"
+OPENOCD = ${tools.openOCDPath}
  `;
 
   await writeFileInWorkspace(workspaceUri, STM32_ENVIRONMENT_FILE_NAME, envFile);
