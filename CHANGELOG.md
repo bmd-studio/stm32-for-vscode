@@ -7,13 +7,22 @@
 	- Full support for CubeIDE imports.
 	- Add option to select installation location for the tooling.
 
+## [3.2.8] - 2024-09-05
+### Added
+ - Issue #197: Added CONTRIBUTING.md files thanks to DeflateAwning
+ - Issue #201: Dissambly was added to the build output. This was thanks to DeucalionMK. 
+
+### Fixed
+- Issue #199: Deleted docs folder, as it was not updated regularly and did not add anything. DeflateAwning fixed this and put in a merge request.
+- Issue #204: Hash symbol within library name breaks compilation. Has symbol is now escaped. Merge request by DeflateAwning.
+
 ## [3.2.7] - 2024-04-28
 ### Added
 - Issue #84 Add -fno-rtti and -fno-exceptions as default for C++ builds.
 - Added an .stm32env file which set-up the paths to openocd and the ARM toolchain. This can also be used to change other things in the build in a local setup.
 - Issue #144 Added a way to change the build folder using the .stm32env file.
 
-### Fix
+### Fixed
 - Issue #181 added a way to extract the asmm part of files from the ST Makefile. 
 - Issue #179 now create a prompt to save cortex debug info to the global space, so is should not create a local workspace setting each time.
 - Issue #176 Added a project name field for the blank setup wizard so the project has a default name.

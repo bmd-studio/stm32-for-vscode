@@ -1,205 +1,205 @@
 {
-	"name": "stm32-for-vscode",
-	"displayName": "stm32-for-vscode",
-	"description": "An extension for: setting up, compiling, uploading and debugging STM32 applications",
-	"version": "3.2.7",
-	"engines": {
-		"vscode": "^1.44.0"
-	},
-	"license": "MIT",
-	"author": {
-		"name": "Bureau Moeilijke Dingen",
-		"email": "bureau@moeilijkedingen.nl",
-		"url": "https://bmd.studio"
-	},
-	"icon": "media/STM32-for-VSCode-logo.png",
-	"keywords": [
-		"STM32",
-		"stm",
-		"Nucleo",
-		"CubeMX"
-	],
-	"publisher": "bmd",
-	"repository": "https://github.com/bmd-studio/stm32-for-vscode",
-	"categories": [
-		"Other"
-	],
-	"activationEvents": [
-		"onCommand:stm32-for-vscode.build",
-		"onCommand:stm32-for-vscode.flash",
-		"onCommand:stm32-for-vscode.cleanBuild",
-		"onCommand:stm32-for-vscode.buildTest",
-		"onCommand:stm32-for-vscode.setProgrammer",
-		"onCommand:stm32-for-vscode.importCubeIDEProject",
-		"onCommand:stm32-for-vscode.installBuildTools",
-		"workspaceContains:*.ioc",
-		"workspaceContains:STM32-for-VSCode.config.yaml",
-		"onView:stm32ForVSCodeCommands",
-		"onCommand:stm32-for-vscode.openExtension"
-	],
-	"main": "./dist/extension.js",
-	"contributes": {
-		"taskDefinitions": [
-			{
-				"type": "STM32",
-				"required": [],
-				"properties": {}
-			}
-		],
-		"viewsContainers": {
-			"activitybar": [
-				{
-					"id": "stm32-for-vscode-commands",
-					"icon": "media/STM32-for-VSCode-logo.svg",
-					"title": "STM32 For VSCode",
-					"when": "stm32ForVSCodeReady"
-				}
-			]
-		},
-		"views": {
-			"stm32-for-vscode-commands": [
-				{
-					"id": "stm32ForVSCodeCommands",
-					"name": "STM32 For VSCode commands",
-					"contextualTitle": "STM32 For VSCode commands",
-					"when": "stm32ForVSCodeReady"
-				}
-			]
-		},
-		"viewsWelcome": [
-			{
-				"view": "stm32ForVSCodeCommands",
-				"contents": "One or more build tools have not been found. Either let them be installed automatically or manually enter the path to these build tools\n[Enter path to build tools](command:stm32-for-vscode.openSettings)\n[Install Build tools](command:stm32-for-vscode.installBuildTools)\n[Check Build tools](command:stm32-for-vscode.checkBuildTools)"
-			}
-		],
-		"commands": [
-			{
-				"command": "stm32-for-vscode.importCubeIDEProject",
-				"title": "STM32: Import CubeIDEProject"
-			},
-			{
-				"command": "stm32-for-vscode.build",
-				"title": "STM32: Build STM32 project"
-			},
-			{
-				"command": "stm32-for-vscode.flash",
-				"title": "STM32: Build and flash to an STM32 platform"
-			},
-			{
-				"command": "stm32-for-vscode.cleanBuild",
-				"title": "STM32: Build clean STM32 project"
-			},
-			{
-				"command": "stm32-for-vscode.installBuildTools",
-				"title": "STM32: Install all the build tools for the STM32 for VSCode extension"
-			},
-			{
-				"command": "stm32-for-vscode.openSettings",
-				"title": "STM32: Open the settings editor for STM32 for VSCode"
-			},
-			{
-				"command": "stm32-for-vscode.checkBuildTools",
-				"title": "STM32: Check if the required build tools are present for STM32 for VSCode"
-			},
-			{
-				"command": "stm32-for-vscode.openExtension",
-				"title": "STM32: Open the STM32 for VSCode extension"
-			},
-			{
-				"command": "stm32-for-vscode.setProgrammer",
-				"title": "STM32: Set programmer for the STM32 chip"
-			}
-		],
-		"configuration": {
-			"type": "object",
-			"title": "STM32 for VSCode configuration",
-			"properties": {
-				"stm32-for-vscode.openOCDPath": {
-					"type": "string",
-					"default": "",
-					"description": "Path to openOCD, will use the one in PATH or the cortex-debug settings automatically"
-				},
-				"stm32-for-vscode.makePath": {
-					"type": "string",
-					"default": "",
-					"description": "Path to the make executable (e.g. make or ~/usr/bin/make), will use the one in PATH as standard."
-				},
-				"stm32-for-vscode.armToolchainPath": {
-					"type": "string",
-					"default": "",
-					"description": "Path to the GCC Arm Toolchain (prefix arm-none-eabi) to use, will use the one in PATH or the cortex-debug settings as default"
-				}
-			}
-		}
-	},
-	"extensionDependencies": [
-		"marus25.cortex-debug"
-	],
-	"scripts": {
-		"compile:production": "webpack --mode production",
-		"test": "node ./out/test/runTest.js",
-		"coverage": "nyc --exclude=.vscode-test --exclude=src/test/**  npm run test",
-		"test:unit": "npm run compile:test && npm run lint && TEST_ENVIRONMENT=unit node ./out/test/runTest.js",
-		"vscode:prepublish": "webpack --mode production && rm dist/extension.js.map",
-		"compile:dev": "webpack --mode development",
-		"compile:test": "tsc -p ./ ",
-		"lint": "eslint src --ext ts",
-		"watch": "tsc -watch -p ./",
-		"precompile": "npm run lint && tsc --alwaysStrict true -p ./",
-		"pretest": "rm -rf ./out/test && npm run compile:test && npm run lint && npm run compile:production",
-		"watch:tests": "watch \"npm run test\" ./src --wait=10",
-		"generate-docs": "typedoc --out docs src",
-		"stats": "webpack --json > stats.json",
-		"stats:production": "webpack --mode production --json > stats.json"
-	},
-	"devDependencies": {
-		"@babel/cli": "^7.6.0",
-		"@babel/core": "^7.6.0",
-		"@babel/preset-env": "^7.6.0",
-		"@types/axios": "^0.14.0",
-		"@types/chai": "^4.2.11",
-		"@types/chai-as-promised": "^7.1.2",
-		"@types/decompress": "^4.2.3",
-		"@types/glob": "^7.1.1",
-		"@types/lodash": "^4.14.190",
-		"@types/micromatch": "^4.0.1",
-		"@types/mocha": "^9.1.1",
-		"@types/node": "^18.0.0",
-		"@types/sinon": "^10.0.2",
-		"@types/strip-comments": "^2.0.0",
-		"@types/unzipper": "^0.10.3",
-		"@types/vscode": "^1.44",
-		"@types/xml2js": "^0.4.9",
-		"@typescript-eslint/eslint-plugin": "^5.42.1",
-		"@typescript-eslint/parser": "^5.42.1",
-		"@vscode/test-electron": "^2.3.8",
-		"chai": "^4.2.0",
-		"chai-as-promised": "^7.1.1",
-		"eslint": "^8.28.0",
-		"eslint-config-airbnb-base": "^15.0.0",
-		"eslint-plugin-import": "^2.26.0",
-		"glob": "^8.1.0",
-		"lodash-webpack-plugin": "^0.11.6",
-		"mocha": "^10.0.0",
-		"nyc": "^15.1.0",
-		"sinon": "^14.0.0",
-		"swc-loader": "^0.2.3",
-		"typedoc": "^0.23.20",
-		"typescript": "^4.8.4",
-		"watch": "^0.13.0",
-		"webpack": "^5.74.0",
-		"webpack-bundle-analyzer": "^4.7.0",
-		"webpack-cli": "^4.10.0"
-	},
-	"dependencies": {
-		"axios": "^0.27.2",
-		"decompress": "^4.2.1",
-		"lodash": "^4.17.21",
-		"micromatch": "^4.0.2",
-		"nearest-string": "^1.0.6",
-		"shelljs": "^0.8.4",
-		"strip-comments": "^2.0.1",
-		"xml2js": "^0.4.23",
-		"yaml": "^2.1.1"
-	}
+  "name": "stm32-for-vscode",
+  "displayName": "stm32-for-vscode",
+  "description": "An extension for: setting up, compiling, uploading and debugging STM32 applications",
+  "version": "3.2.8",
+  "engines": {
+    "vscode": "^1.44.0"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Bureau Moeilijke Dingen",
+    "email": "bureau@moeilijkedingen.nl",
+    "url": "https://bmd.studio"
+  },
+  "icon": "media/STM32-for-VSCode-logo.png",
+  "keywords": [
+    "STM32",
+    "stm",
+    "Nucleo",
+    "CubeMX"
+  ],
+  "publisher": "bmd",
+  "repository": "https://github.com/bmd-studio/stm32-for-vscode",
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:stm32-for-vscode.build",
+    "onCommand:stm32-for-vscode.flash",
+    "onCommand:stm32-for-vscode.cleanBuild",
+    "onCommand:stm32-for-vscode.buildTest",
+    "onCommand:stm32-for-vscode.setProgrammer",
+    "onCommand:stm32-for-vscode.importCubeIDEProject",
+    "onCommand:stm32-for-vscode.installBuildTools",
+    "workspaceContains:*.ioc",
+    "workspaceContains:STM32-for-VSCode.config.yaml",
+    "onView:stm32ForVSCodeCommands",
+    "onCommand:stm32-for-vscode.openExtension"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "taskDefinitions": [
+      {
+        "type": "STM32",
+        "required": [],
+        "properties": {}
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "stm32-for-vscode-commands",
+          "icon": "media/STM32-for-VSCode-logo.svg",
+          "title": "STM32 For VSCode",
+          "when": "stm32ForVSCodeReady"
+        }
+      ]
+    },
+    "views": {
+      "stm32-for-vscode-commands": [
+        {
+          "id": "stm32ForVSCodeCommands",
+          "name": "STM32 For VSCode commands",
+          "contextualTitle": "STM32 For VSCode commands",
+          "when": "stm32ForVSCodeReady"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "stm32ForVSCodeCommands",
+        "contents": "One or more build tools have not been found. Either let them be installed automatically or manually enter the path to these build tools\n[Enter path to build tools](command:stm32-for-vscode.openSettings)\n[Install Build tools](command:stm32-for-vscode.installBuildTools)\n[Check Build tools](command:stm32-for-vscode.checkBuildTools)"
+      }
+    ],
+    "commands": [
+      {
+        "command": "stm32-for-vscode.importCubeIDEProject",
+        "title": "STM32: Import CubeIDEProject"
+      },
+      {
+        "command": "stm32-for-vscode.build",
+        "title": "STM32: Build STM32 project"
+      },
+      {
+        "command": "stm32-for-vscode.flash",
+        "title": "STM32: Build and flash to an STM32 platform"
+      },
+      {
+        "command": "stm32-for-vscode.cleanBuild",
+        "title": "STM32: Build clean STM32 project"
+      },
+      {
+        "command": "stm32-for-vscode.installBuildTools",
+        "title": "STM32: Install all the build tools for the STM32 for VSCode extension"
+      },
+      {
+        "command": "stm32-for-vscode.openSettings",
+        "title": "STM32: Open the settings editor for STM32 for VSCode"
+      },
+      {
+        "command": "stm32-for-vscode.checkBuildTools",
+        "title": "STM32: Check if the required build tools are present for STM32 for VSCode"
+      },
+      {
+        "command": "stm32-for-vscode.openExtension",
+        "title": "STM32: Open the STM32 for VSCode extension"
+      },
+      {
+        "command": "stm32-for-vscode.setProgrammer",
+        "title": "STM32: Set programmer for the STM32 chip"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "STM32 for VSCode configuration",
+      "properties": {
+        "stm32-for-vscode.openOCDPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to openOCD, will use the one in PATH or the cortex-debug settings automatically"
+        },
+        "stm32-for-vscode.makePath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the make executable (e.g. make or ~/usr/bin/make), will use the one in PATH as standard."
+        },
+        "stm32-for-vscode.armToolchainPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the GCC Arm Toolchain (prefix arm-none-eabi) to use, will use the one in PATH or the cortex-debug settings as default"
+        }
+      }
+    }
+  },
+  "extensionDependencies": [
+    "marus25.cortex-debug"
+  ],
+  "scripts": {
+    "compile:production": "webpack --mode production",
+    "test": "node ./out/test/runTest.js",
+    "coverage": "nyc --exclude=.vscode-test --exclude=src/test/**  npm run test",
+    "test:unit": "npm run compile:test && npm run lint && TEST_ENVIRONMENT=unit node ./out/test/runTest.js",
+    "vscode:prepublish": "webpack --mode production && rm dist/extension.js.map",
+    "compile:dev": "webpack --mode development",
+    "compile:test": "tsc -p ./ ",
+    "lint": "eslint src --ext ts",
+    "watch": "tsc -watch -p ./",
+    "precompile": "npm run lint && tsc --alwaysStrict true -p ./",
+    "pretest": "rm -rf ./out/test && npm run compile:test && npm run lint && npm run compile:production",
+    "watch:tests": "watch \"npm run test\" ./src --wait=10",
+    "generate-docs": "typedoc --out docs src",
+    "stats": "webpack --json > stats.json",
+    "stats:production": "webpack --mode production --json > stats.json"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.6.0",
+    "@babel/core": "^7.6.0",
+    "@babel/preset-env": "^7.6.0",
+    "@types/axios": "^0.14.0",
+    "@types/chai": "^4.2.11",
+    "@types/chai-as-promised": "^7.1.2",
+    "@types/decompress": "^4.2.3",
+    "@types/glob": "^7.1.1",
+    "@types/lodash": "^4.14.190",
+    "@types/micromatch": "^4.0.1",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "^18.0.0",
+    "@types/sinon": "^10.0.2",
+    "@types/strip-comments": "^2.0.0",
+    "@types/unzipper": "^0.10.3",
+    "@types/vscode": "^1.44",
+    "@types/xml2js": "^0.4.9",
+    "@typescript-eslint/eslint-plugin": "^5.42.1",
+    "@typescript-eslint/parser": "^5.42.1",
+    "@vscode/test-electron": "^2.3.8",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "eslint": "^8.28.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "glob": "^8.1.0",
+    "lodash-webpack-plugin": "^0.11.6",
+    "mocha": "^10.0.0",
+    "nyc": "^15.1.0",
+    "sinon": "^14.0.0",
+    "swc-loader": "^0.2.3",
+    "typedoc": "^0.23.20",
+    "typescript": "^4.8.4",
+    "watch": "^0.13.0",
+    "webpack": "^5.74.0",
+    "webpack-bundle-analyzer": "^4.7.0",
+    "webpack-cli": "^4.10.0"
+  },
+  "dependencies": {
+    "axios": "^0.27.2",
+    "decompress": "^4.2.1",
+    "lodash": "^4.17.21",
+    "micromatch": "^4.0.2",
+    "nearest-string": "^1.0.6",
+    "shelljs": "^0.8.4",
+    "strip-comments": "^2.0.1",
+    "xml2js": "^0.4.23",
+    "yaml": "^2.1.1"
+  }
 }
