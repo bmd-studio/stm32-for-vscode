@@ -246,6 +246,16 @@ HEX = $(CP) -O ihex
 BIN = $(CP) -O binary -S
 LSS = $(DP) -h -S
 
+
+REMOVE_DIRECTORY_COMMAND = rm -fR
+mkdir_function = mkdir -p $(1)
+ifeq ($(OS),Windows_NT)
+  convert_to_windows_path = $(strip $(subst /,\\,$(patsubst %/,%,$(1))))
+  REMOVE_DIRECTORY_COMMAND = cmd /c rd /s /q
+  mkdir_function = cmd /e:on /c md $(call convert_to_windows_path,$(1))
+endif
+
+
 # Flash and debug tools
 # Default is openocd however will be gotten from the env file when existing
 OPENOCD ?= openocd
@@ -328,15 +338,7 @@ LDFLAGS = $(MCU) $(ADDITIONALLDFLAGS) -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$
 #######################################
 # build the application
 #######################################
-add_release_directory = $(sort $(addprefix $(RELEASE_DIRECTORY)/,$(addsuffix .$(2),$(basename $(subst ../,parent,$(1))))))
-
-REMOVE_DIRECTORY_COMMAND = rm -fR
-mkdir_function = mkdir -p $(1)
-ifeq ($(OS),Windows_NT)
-  convert_to_windows_path = $(strip $(subst /,\\,$(patsubst %/,%,$(1))))
-  REMOVE_DIRECTORY_COMMAND = cmd /c rd /s /q
-  mkdir_function = cmd /e:on /c md $(call convert_to_windows_path,$(1))
-endif
+add_release_directory = $(sort $(addprefix $(RELEASE_DIRECTORY)/,$(addsuffix .$(2),$(basename $(subst ../,/parent,$(1))))))
 
 
 
@@ -356,6 +358,14 @@ vpath %.S $(sort $(dir $(ASM_SOURCES)))
 
 # the tree of folders which needs to be present based on the object files
 BUILD_TREE = $(sort $(dir $(OBJECTS)))
+
+
+#######################################
+# all
+#######################################
+# note needs to be located as the first rule to be the default build rule
+# default action: build all
+all: $(BUILD_DIRECTORY)/$(TARGET).elf $(BUILD_DIRECTORY)/$(TARGET).hex $(BUILD_DIRECTORY)/$(TARGET).bin $(BUILD_DIRECTORY)/$(TARGET).lss 
 
 # C build
 $(RELEASE_DIRECTORY)/%.o: %.c ${makefileName} | $(BUILD_TREE)
@@ -412,24 +422,17 @@ $(BUILD_DIRECTORY):
 $(BUILD_TREE):
 \t$(call mkdir_function, $@)
 
-#######################################
-# all
-#######################################
-# default action: build all
-all:
-\t$(BUILD_DIRECTORY)/$(TARGET).elf 
-\t$(BUILD_DIRECTORY)/$(TARGET).hex 
-\t$(BUILD_DIRECTORY)/$(TARGET).bin 
-\t$(BUILD_DIRECTORY)/$(TARGET).lss 
 
-
-flash: $(BUILD_DIRECTORY)/$(TARGET).elf
+#######################################
+# flash
+#######################################
+flash: all
 \t"$(OPENOCD)" -f ./openocd.cfg -c "program $(BUILD_DIRECTORY)/$(TARGET).elf verify reset exit"
 
 #######################################
 # erase
 #######################################
-erase: $(BUILD_DIRECTORY)/$(TARGET).elf
+erase: all
 \t"$(OPENOCD)" -f ./openocd.cfg -c "init; reset halt; ${makeInfo.targetMCU} mass_erase 0; exit"
 
 #######################################
