@@ -355,7 +355,7 @@ vpath %.s $(sort $(dir $(ASM_SOURCES)))
 vpath %.S $(sort $(dir $(ASM_SOURCES)))
 
 # the tree of folders which needs to be present based on the object files
-BUILD_TREE = $(sort $(dir $(OBJECTS)))
+BUILD_TREE = $(sort $(patsubst %/,%,$(dir $(OBJECTS))))
 
 # C build
 $(RELEASE_DIRECTORY)/%.o: %.c ${makefileName} | $(BUILD_TREE)
@@ -416,11 +416,7 @@ $(BUILD_TREE):
 # all
 #######################################
 # default action: build all
-all:
-\t$(BUILD_DIRECTORY)/$(TARGET).elf 
-\t$(BUILD_DIRECTORY)/$(TARGET).hex 
-\t$(BUILD_DIRECTORY)/$(TARGET).bin 
-\t$(BUILD_DIRECTORY)/$(TARGET).lss 
+all: $(BUILD_DIRECTORY)/$(TARGET).elf $(BUILD_DIRECTORY)/$(TARGET).hex $(BUILD_DIRECTORY)/$(TARGET).bin $(BUILD_DIRECTORY)/$(TARGET).lss 
 
 
 flash: $(BUILD_DIRECTORY)/$(TARGET).elf
