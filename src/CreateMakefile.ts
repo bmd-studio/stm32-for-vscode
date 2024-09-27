@@ -48,7 +48,7 @@ export function createStringList(arr: string[], prefix?: string): string {
     // Replace '#' with '\#' (for escaping in Makefile).
     // Backslash replacement is because CodeQL complained about incomplete escaping.
     const escapedEntry = entry.replace(/\\/g, '\\\\').replace(/#/g, '\\#');
-    
+
     if (prefix) {
       output += prefix;
     }
@@ -252,7 +252,7 @@ mkdir_function = mkdir -p $(1)
 ifeq ($(OS),Windows_NT)
   convert_to_windows_path = $(strip $(subst /,\\,$(patsubst %/,%,$(1))))
   REMOVE_DIRECTORY_COMMAND = cmd /c rd /s /q
-  mkdir_function = cmd /e:on /c md $(call convert_to_windows_path,$(1))
+  mkdir_function = cmd /e:on /c if not exist $(call convert_to_windows_path,$(1)) md $(call convert_to_windows_path,$(1))
 endif
 
 
