@@ -363,6 +363,7 @@ vpath %.S $(sort $(dir $(ASM_SOURCES)))
 # default action: build all
 all: $(RELEASE_DIRECTORY)/$(TARGET).elf $(RELEASE_DIRECTORY)/$(TARGET).hex $(RELEASE_DIRECTORY)/$(TARGET).bin $(RELEASE_DIRECTORY)/$(TARGET).lss 
 
+
 # C build
 $(RELEASE_DIRECTORY)/%.o: %.c ${makefileName} | $(RELEASE_DIRECTORY)
 \t$(CC) -c $(CFLAGS) $< -o $@
