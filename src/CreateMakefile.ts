@@ -401,7 +401,8 @@ $(RELEASE_DIRECTORY)/%.o: %.sx ${makefileName} | $(RELEASE_DIRECTORY)
 \t$(AS) -c $(ASFLAGS) $< -o $@
 
 $(RELEASE_DIRECTORY)/$(TARGET).elf: $(OBJECTS) ${makefileName} | $(RELEASE_DIRECTORY)
-\t$(${makeInfo.language === 'C' ? 'CC' : 'CXX'}) $(OBJECTS) $(LDFLAGS) -o $@
+\t$(file >$@.in,$(OBJECTS))
+\t$(${makeInfo.language === 'C' ? 'CC' : 'CXX'}) @$@.in $(LDFLAGS) -o $@
 \t$(SZ) $@
 
 $(RELEASE_DIRECTORY)/%.hex: $(RELEASE_DIRECTORY)/%.elf | $(RELEASE_DIRECTORY)
