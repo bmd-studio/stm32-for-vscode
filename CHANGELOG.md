@@ -12,6 +12,10 @@
  - Issue #206: Did not build anything else than elf files due to the all recipe not being correct.
  - Issue #212: On Windows threw an error because the build folder was already there. Now checks before using the md command. Thanks to: qwertym88 
 
+### Fix
+ - Reverted to single name build instead of a file tree based build output.
+ - Linkerscript now uses a file for the objects it needs to link to prevent Windows based command line length issues.
+
 ## [3.2.8] - 2024-09-05
 ### Added
  - Issue #197: Added CONTRIBUTING.md files thanks to DeflateAwning
