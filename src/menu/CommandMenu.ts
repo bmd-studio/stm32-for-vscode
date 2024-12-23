@@ -13,6 +13,11 @@ const buildCommand: BuildCommandDefinition = {
   command: 'stm32-for-vscode.build',
   explanation: 'Builds the firmware for the STM32 project.',
 };
+const buildReleaseCommand: BuildCommandDefinition = {
+  label: 'Build Release',
+  command: 'stm32-for-vscode.buildRelease',
+  explanation: 'Builds the firmware for the STM32 project, using the specified optimisation in the configuration file.',
+};
 const cleanBuildCommand: BuildCommandDefinition = {
   label: 'Clean Build',
   command: 'stm32-for-vscode.cleanBuild',
@@ -43,6 +48,7 @@ const importCubeProject: BuildCommandDefinition = {
 
 const COMMANDS: { [key: string]: BuildCommandDefinition } = {
   buildCommand,
+  buildReleaseCommand,
   cleanBuildCommand,
   flashCommand,
   debugCommand,
