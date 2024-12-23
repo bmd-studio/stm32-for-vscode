@@ -12,11 +12,11 @@
  - Issue #206: Did not build anything else than elf files due to the all recipe not being correct.
  - Issue #212: On Windows threw an error because the build folder was already there. Now checks before using the md command. Thanks to: qwertym88 
  - Issue #209: Added an option to set the amount of concurrent jobs while running make
- - Issue #165: Added Build release option to the context menu and as a command
+ - Issue #165: Added Build and flash release option to the context menu and as a command
 
 ### Fixed
  - Reverted to single name build instead of a file tree based build output. Should resolve issues: #206, #205
- - Linkerscript now uses a file for the objects it needs to link to prevent Windows based command line length issues. Fixes issue #210
+ - Linkerscript now uses a file for the objects it needs to link to prevent Windows based command line length issues. Fixes issues #210, #149, #95
  - Issue #217 when using a number as the target it is converted to a number in the yaml spec. Now convert it to a string to prevent this.
  - Issue #162: Powershell paths with spaces in them were not escaped properly.
 
