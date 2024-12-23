@@ -437,7 +437,7 @@ erase: all
 # clean up
 #######################################
 clean:
-\t$(REMOVE_DIRECTORY_COMMAND) $(RELEASE_DIRECTORY)
+\t$(REMOVE_DIRECTORY_COMMAND) $(BUILD_DIRECTORY)
 
 #######################################
 # custom makefile rules
