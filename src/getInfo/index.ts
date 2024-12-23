@@ -168,7 +168,7 @@ export async function getInfo(location: string): Promise<MakeInfo> {
   }
 
   // replace spaces with underscores, to prevent spaces in path issues.
-  STM32MakeInfo.target = projectConfiguration.target.split(' ').join('_');
+  STM32MakeInfo.target = `${projectConfiguration.target}`.split(' ').join('_');
   STM32MakeInfo.cIncludes = uniq([...includeDirectories, ...filteredIncludeDirectories]);
   STM32MakeInfo.cxxSources = sortedSourceFiles.cxxSources;
   STM32MakeInfo.cSources = sortedSourceFiles.cSources;

@@ -207,7 +207,7 @@ export class ExtensionConfiguration implements ExtensionConfigurationInterface {
     this.optimization = makeInfo.optimization;
     this.ldscript = makeInfo.ldscript;
     this.targetMCU = makeInfo.targetMCU;
-    this.target = makeInfo.target;
+    this.target = `${makeInfo.target}`;
   }
 }
 

@@ -12,9 +12,10 @@
  - Issue #206: Did not build anything else than elf files due to the all recipe not being correct.
  - Issue #212: On Windows threw an error because the build folder was already there. Now checks before using the md command. Thanks to: qwertym88 
 
-### Fix
+### Fixed
  - Reverted to single name build instead of a file tree based build output.
  - Linkerscript now uses a file for the objects it needs to link to prevent Windows based command line length issues.
+ - Issue #217 when using a number as the target it is converted to a number in the yaml spec. Now convert it to a string to prevent this.
 
 ## [3.2.8] - 2024-09-05
 ### Added
