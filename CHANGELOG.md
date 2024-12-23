@@ -18,6 +18,7 @@
  - Reverted to single name build instead of a file tree based build output. Should resolve issues: #206, #205
  - Linkerscript now uses a file for the objects it needs to link to prevent Windows based command line length issues. Fixes issue #210
  - Issue #217 when using a number as the target it is converted to a number in the yaml spec. Now convert it to a string to prevent this.
+ - Issue #162: Powershell paths with spaces in them were not escaped properly.
 
 ## [3.2.8] - 2024-09-05
 ### Added

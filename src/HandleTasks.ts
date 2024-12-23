@@ -40,7 +40,8 @@ export default function executeTask(
 
     }
     const automationShell = getAutomationShell();
-    const shellSpecificToolPath = automationShell.includes('powershell') ? `& '${cmd[0]}'` : `"${cmd[0]}"`;
+    const powershellIsAutomationShell =automationShell.toLowerCase().includes('pwsh') || automationShell.toLowerCase().includes('powershell');
+    const shellSpecificToolPath = powershellIsAutomationShell ? `& '${cmd[0]}'` : `"${cmd[0]}"`;
     cmd.shift();
     const options = cmd.reduce((accumulator, option) => `${accumulator} ${option}`, '');
     let totalPath = `${shellSpecificToolPath}${options}`;
