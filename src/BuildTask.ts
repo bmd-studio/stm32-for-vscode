@@ -29,6 +29,7 @@ import * as path from 'path';
 
 import {
   EXTENSION_CONFIG_NAME,
+  MAKE_DEFAULT_CONCURRENT_JOBS,
   makefileName,
   STM32_ENVIRONMENT_FILE_NAME,
 } from './Definitions';
@@ -173,7 +174,10 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
     info = await getInfo(currentWorkspaceFolder);
     await createSTM32EnvironmentFileWhenRequired(info.tools);
     const makeFlags = info.makeFlags.length > 0 ? ` ${info.makeFlags.join(' ')}` : '';
-    const makeArguments = `-j16${makeFlags} -f ${makefileName}`;
+    const extensionConfiguration = workspace.getConfiguration('stm32-for-vscode');
+    const concurrentJobs = extensionConfiguration.get('makeConcurrentJobs', MAKE_DEFAULT_CONCURRENT_JOBS);
+
+    const makeArguments = `-j${concurrentJobs}${makeFlags} -f ${makefileName}`;
     if (cleanBuild) {
       try {
         await executeTask(

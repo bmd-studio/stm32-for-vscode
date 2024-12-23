@@ -124,6 +124,12 @@
           "default": "",
           "description": "Path to the make executable (e.g. make or ~/usr/bin/make), will use the one in PATH as standard."
         },
+
+        "stm32-for-vscode.makeConcurrentJobs": {
+          "type": "number",
+          "default": "16",
+          "description": "The amount of concurrent jobs make is allowed to do."
+        },
         "stm32-for-vscode.armToolchainPath": {
           "type": "string",
           "default": "",
