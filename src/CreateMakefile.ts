@@ -48,7 +48,7 @@ export function createStringList(arr: string[], prefix?: string): string {
     // Replace '#' with '\#' (for escaping in Makefile).
     // Backslash replacement is because CodeQL complained about incomplete escaping.
     const escapedEntry = entry.replace(/\\/g, '\\\\').replace(/#/g, '\\#');
-    
+
     if (prefix) {
       output += prefix;
     }
@@ -246,6 +246,16 @@ HEX = $(CP) -O ihex
 BIN = $(CP) -O binary -S
 LSS = $(DP) -h -S
 
+
+REMOVE_DIRECTORY_COMMAND = rm -fR
+mkdir_function = mkdir -p $(1)
+ifeq ($(OS),Windows_NT)
+  convert_to_windows_path = $(strip $(subst /,\\,$(patsubst %/,%,$(1))))
+  REMOVE_DIRECTORY_COMMAND = cmd /c rd /s /q
+  mkdir_function = cmd /e:on /c if not exist $(call convert_to_windows_path,$(1)) md $(call convert_to_windows_path,$(1))
+endif
+
+
 # Flash and debug tools
 # Default is openocd however will be gotten from the env file when existing
 OPENOCD ?= openocd
@@ -328,15 +338,7 @@ LDFLAGS = $(MCU) $(ADDITIONALLDFLAGS) -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$
 #######################################
 # build the application
 #######################################
-add_release_directory = $(sort $(addprefix $(RELEASE_DIRECTORY)/,$(addsuffix .$(2),$(basename $(subst ../,parent,$(1))))))
-
-REMOVE_DIRECTORY_COMMAND = rm -fR
-mkdir_function = mkdir -p $(1)
-ifeq ($(OS),Windows_NT)
-  convert_to_windows_path = $(strip $(subst /,\\,$(patsubst %/,%,$(1))))
-  REMOVE_DIRECTORY_COMMAND = cmd /c rd /s /q
-  mkdir_function = cmd /e:on /c md $(call convert_to_windows_path,$(1))
-endif
+add_release_directory = $(sort $(addprefix $(RELEASE_DIRECTORY)/,$(addsuffix .$(2),$(basename $(notdir $(1))))))
 
 
 
@@ -354,85 +356,88 @@ vpath %.CPP $(sort $(dir $(CXX_SOURCES)))
 vpath %.s $(sort $(dir $(ASM_SOURCES)))
 vpath %.S $(sort $(dir $(ASM_SOURCES)))
 
-# the tree of folders which needs to be present based on the object files
-BUILD_TREE = $(sort $(patsubst %/,%,$(dir $(OBJECTS))))
-
-# C build
-$(RELEASE_DIRECTORY)/%.o: %.c ${makefileName} | $(BUILD_TREE)
-\t$(CC) -c $(CFLAGS) $< -o $@
-
-# C++ build 
-$(RELEASE_DIRECTORY)/%.o: %.cc ${makefileName} | $(BUILD_TREE)
-\t$(CXX) -c $(CXXFLAGS) $< -o $@
-
-$(RELEASE_DIRECTORY)/%.o: %.cp ${makefileName} | $(BUILD_TREE)
-\t$(CXX) -c $(CXXFLAGS) $< -o $@
-
-$(RELEASE_DIRECTORY)/%.o: %.cxx ${makefileName} | $(BUILD_TREE)
-\t$(CXX) -c $(CXXFLAGS) $< -o $@
-
-$(RELEASE_DIRECTORY)/%.o: %.cpp ${makefileName} | $(BUILD_TREE)
-\t$(CXX) -c $(CXXFLAGS) $< -o $@
-
-$(RELEASE_DIRECTORY)/%.o: %.c++ ${makefileName} | $(BUILD_TREE)
-\t$(CXX) -c $(CXXFLAGS) $< -o $@
-
-$(RELEASE_DIRECTORY)/%.o: %.C ${makefileName} | $(BUILD_TREE)
-\t$(CXX) -c $(CXXFLAGS) $< -o $@
-
-$(RELEASE_DIRECTORY)/%.o: %.CPP ${makefileName} | $(BUILD_TREE)
-\t$(CXX) -c $(CXXFLAGS) $< -o $@
-
-#Assembly build
-$(RELEASE_DIRECTORY)/%.o: %.s ${makefileName} | $(BUILD_TREE)
-\t$(AS) -c $(ASFLAGS) $< -o $@
-
-$(RELEASE_DIRECTORY)/%.o: %.S ${makefileName} | $(BUILD_TREE)
-\t$(AS) -c $(ASFLAGS) $< -o $@
-
-$(RELEASE_DIRECTORY)/%.o: %.sx ${makefileName} | $(BUILD_TREE)
-\t$(AS) -c $(ASFLAGS) $< -o $@
-
-$(BUILD_DIRECTORY)/$(TARGET).elf: $(OBJECTS) ${makefileName} | $(BUILD_DIRECTORY)
-\t$(${makeInfo.language === 'C' ? 'CC' : 'CXX'}) $(OBJECTS) $(LDFLAGS) -o $@
-\t$(SZ) $@
-
-$(BUILD_DIRECTORY)/%.hex: $(BUILD_DIRECTORY)/%.elf | $(BUILD_DIRECTORY)
-\t$(HEX) $< $@
-
-$(BUILD_DIRECTORY)/%.bin: $(BUILD_DIRECTORY)/%.elf | $(BUILD_DIRECTORY)
-\t$(BIN) $< $@
-
-$(BUILD_DIRECTORY)/%.lss: $(BUILD_DIRECTORY)/%.elf | $(BUILD_DIRECTORY)
-\t$(LSS) $< > $@
-
-$(BUILD_DIRECTORY):
-\t$(call mkdir_function, $@)
-
-$(BUILD_TREE):
-\t$(call mkdir_function, $@)
-
 #######################################
 # all
 #######################################
+# note needs to be located as the first rule to be the default build rule
 # default action: build all
-all: $(BUILD_DIRECTORY)/$(TARGET).elf $(BUILD_DIRECTORY)/$(TARGET).hex $(BUILD_DIRECTORY)/$(TARGET).bin $(BUILD_DIRECTORY)/$(TARGET).lss 
+all: $(RELEASE_DIRECTORY)/$(TARGET).elf $(RELEASE_DIRECTORY)/$(TARGET).hex $(RELEASE_DIRECTORY)/$(TARGET).bin $(RELEASE_DIRECTORY)/$(TARGET).lss 
 
 
-flash: $(BUILD_DIRECTORY)/$(TARGET).elf
-\t"$(OPENOCD)" -f ./openocd.cfg -c "program $(BUILD_DIRECTORY)/$(TARGET).elf verify reset exit"
+# C build
+$(RELEASE_DIRECTORY)/%.o: %.c ${makefileName} | $(RELEASE_DIRECTORY)
+\t$(CC) -c $(CFLAGS) $< -o $@
+
+# C++ build 
+$(RELEASE_DIRECTORY)/%.o: %.cc ${makefileName} | $(RELEASE_DIRECTORY)
+\t$(CXX) -c $(CXXFLAGS) $< -o $@
+
+$(RELEASE_DIRECTORY)/%.o: %.cp ${makefileName} | $(RELEASE_DIRECTORY)
+\t$(CXX) -c $(CXXFLAGS) $< -o $@
+
+$(RELEASE_DIRECTORY)/%.o: %.cxx ${makefileName} | $(RELEASE_DIRECTORY)
+\t$(CXX) -c $(CXXFLAGS) $< -o $@
+
+$(RELEASE_DIRECTORY)/%.o: %.cpp ${makefileName} | $(RELEASE_DIRECTORY)
+\t$(CXX) -c $(CXXFLAGS) $< -o $@
+
+$(RELEASE_DIRECTORY)/%.o: %.c++ ${makefileName} | $(RELEASE_DIRECTORY)
+\t$(CXX) -c $(CXXFLAGS) $< -o $@
+
+$(RELEASE_DIRECTORY)/%.o: %.C ${makefileName} | $(RELEASE_DIRECTORY)
+\t$(CXX) -c $(CXXFLAGS) $< -o $@
+
+$(RELEASE_DIRECTORY)/%.o: %.CPP ${makefileName} | $(RELEASE_DIRECTORY)
+\t$(CXX) -c $(CXXFLAGS) $< -o $@
+
+#Assembly build
+$(RELEASE_DIRECTORY)/%.o: %.s ${makefileName} | $(RELEASE_DIRECTORY)
+\t$(AS) -c $(ASFLAGS) $< -o $@
+
+$(RELEASE_DIRECTORY)/%.o: %.S ${makefileName} | $(RELEASE_DIRECTORY)
+\t$(AS) -c $(ASFLAGS) $< -o $@
+
+$(RELEASE_DIRECTORY)/%.o: %.sx ${makefileName} | $(RELEASE_DIRECTORY)
+\t$(AS) -c $(ASFLAGS) $< -o $@
+
+$(RELEASE_DIRECTORY)/$(TARGET).elf: $(OBJECTS) ${makefileName} | $(RELEASE_DIRECTORY)
+\t$(file >$@.in,$(OBJECTS))
+\t$(${makeInfo.language === 'C' ? 'CC' : 'CXX'}) @$@.in $(LDFLAGS) -o $@
+\t$(SZ) $@
+
+$(RELEASE_DIRECTORY)/%.hex: $(RELEASE_DIRECTORY)/%.elf | $(RELEASE_DIRECTORY)
+\t$(HEX) $< $@
+
+$(RELEASE_DIRECTORY)/%.bin: $(RELEASE_DIRECTORY)/%.elf | $(RELEASE_DIRECTORY)
+\t$(BIN) $< $@
+
+$(RELEASE_DIRECTORY)/%.lss: $(RELEASE_DIRECTORY)/%.elf | $(RELEASE_DIRECTORY)
+\t$(LSS) $< > $@
+
+$(RELEASE_DIRECTORY):
+\t$(call mkdir_function, $@)
+
+$(BUILD_DIRECTORY): | $(RELEASE_DIRECTORY)
+\t$(call mkdir_function, $@)
+
+
+#######################################
+# flash
+#######################################
+flash: all
+\t"$(OPENOCD)" -f ./openocd.cfg -c "program $(RELEASE_DIRECTORY)/$(TARGET).elf verify reset exit"
 
 #######################################
 # erase
 #######################################
-erase: $(BUILD_DIRECTORY)/$(TARGET).elf
+erase: all
 \t"$(OPENOCD)" -f ./openocd.cfg -c "init; reset halt; ${makeInfo.targetMCU} mass_erase 0; exit"
 
 #######################################
 # clean up
 #######################################
 clean:
-\t$(REMOVE_DIRECTORY_COMMAND) $(BUILD_DIRECTORY)
+\t$(REMOVE_DIRECTORY_COMMAND) $(RELEASE_DIRECTORY)
 
 #######################################
 # custom makefile rules
@@ -442,7 +447,7 @@ ${customMakefileRules(makeInfo)}
 #######################################
 # dependencies
 #######################################
--include $(wildcard $(BUILD_DIRECTORY)/*.d)
+-include $(wildcard $(RELEASE_DIRECTORY)/*.d)
 
 # *** EOF ***`;
 }
