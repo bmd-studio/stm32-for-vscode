@@ -116,6 +116,17 @@ export function activate(context: vscode.ExtensionContext): { installTools: () =
   );
   context.subscriptions.push(flashCmd);
 
+  const flashReleaseCmd = vscode.commands.registerCommand(
+    'stm32-for-vscode.flashRelease',
+    async () => {
+      await buildSTM({
+        flash: true,
+        debug: false,
+      });
+    }
+  );
+  context.subscriptions.push(flashReleaseCmd);
+
   const cleanBuildCmd = vscode.commands.registerCommand(
     'stm32-for-vscode.cleanBuild',
     async () => {

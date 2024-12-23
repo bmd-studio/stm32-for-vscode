@@ -7,7 +7,7 @@ export interface BuildCommandDefinition {
   explanation: string;
   arguments?: string[];
 }
-
+// TODO: make a release and debug section in the menu
 const buildCommand: BuildCommandDefinition = {
   label: 'Build',
   command: 'stm32-for-vscode.build',
@@ -27,6 +27,11 @@ const flashCommand: BuildCommandDefinition = {
   label: 'Flash STM32',
   command: 'stm32-for-vscode.flash',
   explanation: 'Builds and subsequently flashes the firmware to the STM32 MCU.',
+};
+const flashReleaseCommand: BuildCommandDefinition = {
+  label: 'Flash Release STM32',
+  command: 'stm32-for-vscode.flashRelease',
+  explanation: 'Builds and subsequently flashes the release firmware to the STM32 MCU.',
 };
 const debugCommand: BuildCommandDefinition = {
   label: 'Debug STM32',
@@ -51,6 +56,7 @@ const COMMANDS: { [key: string]: BuildCommandDefinition } = {
   buildReleaseCommand,
   cleanBuildCommand,
   flashCommand,
+  flashReleaseCommand,
   debugCommand,
   changeProgrammerCommand,
   importCubeProject

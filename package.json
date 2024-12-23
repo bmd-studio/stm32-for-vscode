@@ -26,7 +26,9 @@
   ],
   "activationEvents": [
     "onCommand:stm32-for-vscode.build",
+    "onCommand:stm32-for-vscode.buildRelease",
     "onCommand:stm32-for-vscode.flash",
+    "onCommand:stm32-for-vscode.flashRelease",
     "onCommand:stm32-for-vscode.cleanBuild",
     "onCommand:stm32-for-vscode.buildTest",
     "onCommand:stm32-for-vscode.setProgrammer",
@@ -88,6 +90,10 @@
       {
         "command": "stm32-for-vscode.flash",
         "title": "STM32: Build and flash to an STM32 platform"
+      },
+      {
+        "command": "stm32-for-vscode.flashRelease",
+        "title": "STM32: Build and flash the release firmware version to a STM32 platform"
       },
       {
         "command": "stm32-for-vscode.cleanBuild",
