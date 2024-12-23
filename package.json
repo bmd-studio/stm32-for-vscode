@@ -82,6 +82,10 @@
         "title": "STM32: Build STM32 project"
       },
       {
+        "command": "stm32-for-vscode.buildRelease",
+        "title": "STM32: Build STM32 project for release with the given optimisation"
+      },
+      {
         "command": "stm32-for-vscode.flash",
         "title": "STM32: Build and flash to an STM32 platform"
       },

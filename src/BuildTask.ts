@@ -98,23 +98,20 @@ async function createSTM32EnvironmentFileWhenRequired(tools: ToolChain): Promise
   }
 }
 
-export default async function buildSTM(options?: { flash?: boolean; cleanBuild?: boolean }): Promise<void> {
-  const {
-    flash,
-    cleanBuild,
-  } = options || {};
-
-
-  let currentWorkspaceFolder;
-  let info = {} as MakeInfo;
-  // TODO: add project scanner in here so it can find the first project.
-  // Or create a way to use multiple projects and targets
+async function checkForWorkspaceFolder() {
   if (!workspace.workspaceFolders || !workspace.workspaceFolders?.[0]) {
     window.showErrorMessage('No workspace folder is open. Stopped build.');
-    return Promise.reject(Error('no workspace folder is open'));
+    throw new Error('no workspace folder is open');
   }
+  return workspace.workspaceFolders[0].uri;
+}
+
+// NOTE: throws all the errors to the upperscope
+async function checkForRequirements() {
+  const workspaceFolder = await checkForWorkspaceFolder();
+  const posixWorkspaceFolder = fsPathToPosix(workspaceFolder.fsPath);
   // check for makefiles
-  const rootFileList = await workspace.fs.readDirectory(workspace.workspaceFolders[0].uri);
+  const rootFileList = await workspace.fs.readDirectory(workspaceFolder);
   const filesInDir: string[] = rootFileList.map((entry) => {
     return entry[0];
   });
@@ -164,27 +161,20 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
       }
       await writeConfigFile(standardConfig);
     } else {
-      return;
+      throw new Error('Project not configured, stopping build');
     }
   }
+  return {posix: posixWorkspaceFolder, uri: workspaceFolder};
 
-  try {
-    currentWorkspaceFolder = fsPathToPosix(workspace.workspaceFolders[0].uri.fsPath);
+}
 
-    info = await getInfo(currentWorkspaceFolder);
-    await createSTM32EnvironmentFileWhenRequired(info.tools);
-    const makeFlags = info.makeFlags.length > 0 ? ` ${info.makeFlags.join(' ')}` : '';
-    const extensionConfiguration = workspace.getConfiguration('stm32-for-vscode');
-    const concurrentJobs = extensionConfiguration.get('makeConcurrentJobs', MAKE_DEFAULT_CONCURRENT_JOBS);
-
-    const makeArguments = `-j${concurrentJobs}${makeFlags} -f ${makefileName}`;
-    if (cleanBuild) {
+async function cleanBuildTask(makeArguments: string, makePath: string| boolean) {
       try {
         await executeTask(
           'build',
           'STM32 clean',
           [
-            `${info.tools.makePath}`,
+            `${makePath}`,
             makeArguments,
             `clean`
           ],
@@ -196,14 +186,47 @@ export default async function buildSTM(options?: { flash?: boolean; cleanBuild?:
         ERROR: ${err}`;
         window.showErrorMessage(errorMsg);
       }
+}
+
+export default async function buildSTM(options?: { flash?: boolean; cleanBuild?: boolean, debug?: boolean }): Promise<void> {
+  const {
+    flash,
+    cleanBuild,
+    debug = true,
+  } = options || {};
+
+
+  let info = {} as MakeInfo;
+  // TODO: add project scanner in here so it can find the first project.
+  // Or create a way to use multiple projects and targets
+  const currentWorkspaceFolder = await checkForRequirements();
+
+  try {
+
+    info = await getInfo(currentWorkspaceFolder.posix);
+    await createSTM32EnvironmentFileWhenRequired(info.tools);
+    let makeFlags = info.makeFlags.length > 0 ? ` ${info.makeFlags.join(' ')}` : '';
+    const extensionConfiguration = workspace.getConfiguration('stm32-for-vscode');
+    const concurrentJobs = extensionConfiguration.get('makeConcurrentJobs', MAKE_DEFAULT_CONCURRENT_JOBS);
+
+    if(!debug) {
+      makeFlags = `${makeFlags} DEBUG=0`;
+    } else {
+      makeFlags = `${makeFlags} DEBUG=1`;
     }
+
+    const makeArguments = `-j${concurrentJobs}${makeFlags} -f ${makefileName}`;
+    if (cleanBuild) {
+      await cleanBuildTask(makeArguments, info.tools.makePath);
+    }
+
 
     // update makefile info and main.cpp if required.
     info = await checkForMainCPPOrAddWhenNecessary(info);
-    await updateMakefile(currentWorkspaceFolder, info);
+    await updateMakefile(currentWorkspaceFolder.posix, info);
 
     try {
-      await updateConfiguration(workspace.workspaceFolders[0].uri, info);
+      await updateConfiguration(currentWorkspaceFolder.uri, info);
     } catch (err) {
       const errorMsg = `Something went wrong with configuring the workspace. ERROR: ${err}`;
       window.showErrorMessage(errorMsg);
