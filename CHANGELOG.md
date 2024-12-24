@@ -19,6 +19,7 @@
  - Linkerscript now uses a file for the objects it needs to link to prevent Windows based command line length issues. Fixes issues #210, #149, #95
  - Issue #217 when using a number as the target it is converted to a number in the yaml spec. Now convert it to a string to prevent this.
  - Issue #162: Powershell paths with spaces in them were not escaped properly.
+ - Isse #216. The nodejs download should now succeed again on windows.
 
 ## [3.2.8] - 2024-09-05
 ### Added
