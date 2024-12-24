@@ -234,6 +234,10 @@ export function getLatestNodeLink(): Promise<string> {
   });
 }
 
+
+
+
+const nodeBaseUrl = 'https://nodejs.org';
 /**
  * Downloads the latest compressed version of node to the extensions global storage directory in ta tmp folder.
  * @param context vscode extensions context
@@ -241,7 +245,7 @@ export function getLatestNodeLink(): Promise<string> {
  */
 export function downloadLatestNode(toolsStoragePath: vscode.Uri, fileDownloadName: string): Promise<string> {
   const pathToSaveTo = toolsStoragePath.fsPath;
-  const downloadURL = `${nodeLatestURL}${fileDownloadName}`;
+  const downloadURL = `${nodeBaseUrl}${fileDownloadName}`;
   const downloadPath = path.join(pathToSaveTo, 'tmp', fileDownloadName);
 
   return new Promise((resolve, reject) => {
