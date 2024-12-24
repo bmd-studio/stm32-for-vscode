@@ -9,4 +9,5 @@
 
         "editor.rulers": [120], // 120 chars is the default eslint max length.
     },
+    "cortex-debug.openocdPath": "C:\\USERS\\JORT_\\APPDATA\\ROAMING\\CODE - INSIDERS\\USER\\GLOBALSTORAGE\\BMD.STM32-FOR-VSCODE\\@XPACK-DEV-TOOLS\\OPENOCD\\0.12.0-4.1\\.CONTENT\\BIN\\OPENOCD.EXE",
 }

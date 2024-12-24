@@ -3,9 +3,7 @@ import * as chaiAsPromised from 'chai-as-promised';
 
 import LaunchTestFile, {
   attachFixture,
-  attachFixtureWithSVD,
   debugFixture,
-  debugFixtureWithSVD,
 } from '../../fixtures/launchTaskFixture';
 import { TaskDefinition, Uri, workspace } from 'vscode';
 import { afterEach, beforeEach, suite, test } from 'mocha';
@@ -81,11 +79,11 @@ suite('WorkspaceConfiguration', () => {
     expect(getWorkspaceConfigFake.calledOnce).to.be.true;
     expect(updateConfigFake.calledOnce).to.be.true;
     expect(updateConfigFake.getCall(0).args[1].find((task: any) => debugFixture.name === task?.name)).to.deep.equal({
-      ...debugFixtureWithSVD,
+      ...debugFixture,
       executable: "./build/othertesttarget.elf"
     });
     expect(updateConfigFake.getCall(0).args[1].find((task: any) => attachFixture.name === task?.name)).to.deep.equal({
-      ...attachFixtureWithSVD,
+      ...attachFixture,
       executable: "./build/othertesttarget.elf"
     });
   });

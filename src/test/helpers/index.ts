@@ -60,6 +60,7 @@ export async function cleanUpSTM32ForVSCodeArtifacts(): Promise<void> {
   const workspaceSettingsPath = path.join(currentWorkspaceFolderUri.uri.fsPath, ".vscode");
   const openocdConfigPath = path.join(currentWorkspaceFolderUri.uri.fsPath, "openocd.cfg");
   const buildDirectoryPath = path.join(currentWorkspaceFolderUri.uri.fsPath, "build");
+  const envPath = path.join(currentWorkspaceFolderUri.uri.fsPath, Definitions.STM32_ENVIRONMENT_FILE_NAME);
 
 
   const fileDeletePromises = [
@@ -68,6 +69,7 @@ export async function cleanUpSTM32ForVSCodeArtifacts(): Promise<void> {
     vscode.workspace.fs.delete(vscode.Uri.file(openocdConfigPath), { useTrash: false }),
     vscode.workspace.fs.delete(vscode.Uri.file(workspaceSettingsPath), { useTrash: false, recursive: true }),
     vscode.workspace.fs.delete(vscode.Uri.file(buildDirectoryPath), { useTrash: false, recursive: true }),
+    vscode.workspace.fs.delete(vscode.Uri.file(envPath), { useTrash: false}),
   ];
   try {
     await Promise.all(fileDeletePromises);

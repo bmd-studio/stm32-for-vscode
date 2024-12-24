@@ -10,7 +10,16 @@ import {
 } from '../helpers';
 import importAndSetupCubeIDEProject from '../../import';
 
+async function stopExit(time: number): Promise<void> {
+  return  new Promise<void>(
+    (resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, time);
+    }
+  );
 
+}
 suite('importer test', () => {
   afterEach(() => {
     cleanUpSTM32ForVSCodeArtifacts();
@@ -26,6 +35,7 @@ suite('importer test', () => {
   test('Import Cube example project and build', async () => {
     await importAndSetupCubeIDEProject();
     await buildSTM();
+    await stopExit(60000);
 
   }).timeout(120000);
 });

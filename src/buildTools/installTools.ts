@@ -153,26 +153,26 @@ export function installCMake(toolsStoragePath: vscode.Uri, npx: string): XpmInst
 export function installArmNonEabi(toolsStoragePath: vscode.Uri, npx: string): XpmInstallType {
   return xpmInstall(toolsStoragePath, npx, armNoneEabiDefinition);
 }
-
 const nodeRegex: { [key: string]: { [key: string]: RegExp } } = {
   win32: {
-    x32: /href="(node-v\d*.\d*.\d*-win-x86.zip)/gm,
-    x64: /href="(node-v\d*.\d*.\d*-win-x64.zip)/gm,
-    ia32: /href="(node-v\d*.\d*.\d*-win-x86.zip)/gm,
-    ia64: /href="(node-v\d*.\d*.\d*-win-x64.zip)/gm,
+    x32: /href="(\/dist\/v\d+\.\d+\.\d+\/node-v\d+\.\d+\.\d+-win-x86.zip)/gm,
+    x64: /href="(\/dist\/v\d+\.\d+\.\d+\/node-v\d+\.\d+\.\d+-win-x64.zip)/gm,
+    ia32: /href="(\/dist\/v\d+\.\d+\.\d+\/node-v\d+\.\d+\.\d+-win-x86.zip)/gm,
+    ia64: /href="(\/dist\/v\d+\.\d+\.\d+\/node-v\d+\.\d+\.\d+-win-x64.zip)/gm,
   },
   darwin: {
-    x64: /href="(node-v\d*.\d*.\d*.-darwin-x64.tar.gz)/gm,
-    arm64: /href="(node-v\d*.\d*.\d*.-darwin-arm64.tar.gz)/gm
+    x64: /href="(\/dist\/v\d+\.\d+\.\d+\/node-v\d+\.\d+\.\d+-darwin-x64.tar.gz)/gm,
+    arm64: /href="(\/dist\/v\d+\.\d+\.\d+\/node-v\d+\.\d+\.\d+-darwin-arm64.tar.gz)/gm
   },
   linux: {
-    arm: /href="(node-v\d*.\d*.\d*.-linux-armv7l.tar.gz)/gm,
-    arm64: /href="(node-v\d*.\d*.\d*.-linux-arm64.tar.gz)/gm,
-    x64: /href="(node-v\d*.\d*.\d*.-linux-x64.tar.gz)/gm,
-    ppc64: /href="(node-v\d*.\d*.\d*.-linux-ppc64le.tar.gz)/gm,
-    s390x: /href="(node-v\d*.\d*.\d*.-linux-s390x.tar.gz)/gm,
+    arm: /href="(\/dist\/v\d+\.\d+\.\d+\/node-v\d+\.\d+\.\d+-linux-armv7l.tar.gz)/gm,
+    arm64: /href="(\/dist\/v\d+\.\d+\.\d+\/node-v\d+\.\d+\.\d+-linux-arm64.tar.gz)/gm,
+    x64: /href="(\/dist\/v\d+\.\d+\.\d+\/node-v\d+\.\d+\.\d+-linux-x64.tar.gz)/gm,
+    ppc64: /href="(\/dist\/v\d+\.\d+\.\d+\/node-v\d+\.\d+\.\d+-linux-ppc64le.tar.gz)/gm,
+    s390x: /href="(\/dist\/v\d+\.\d+\.\d+\/node-v\d+\.\d+\.\d+-linux-s390x.tar.gz)/gm,
   }
 };
+
 
 /**
  * 

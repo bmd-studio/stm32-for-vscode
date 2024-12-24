@@ -98,7 +98,7 @@ async function createSTM32EnvironmentFileWhenRequired(tools: ToolChain): Promise
   }
 }
 
-async function checkForWorkspaceFolder(): Uri {
+async function checkForWorkspaceFolder(): Promise<Uri> {
   if (!workspace.workspaceFolders || !workspace.workspaceFolders?.[0]) {
     window.showErrorMessage('No workspace folder is open. Stopped build.');
     throw new Error('no workspace folder is open');
