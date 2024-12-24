@@ -1,11 +1,12 @@
 import * as Sinon from 'sinon';
-import * as shelljs from 'shelljs';
+ 
 
 import { afterEach, suite, test } from 'mocha';
 
 import { convertToolPathToAbsolutePath } from '../../Helpers';
 import { expect } from 'chai';
 import { platform } from 'process';
+import which = require('which');
 
 suite('Helper tests', () => {
   afterEach(() => {
@@ -17,7 +18,8 @@ suite('Helper tests', () => {
     const outputString = platform === 'win32' ?
       'C:/Some/fake/path' : '/Some/fake/path';
     const fakeAbsPath = Sinon.fake.returns(returnString);
-    Sinon.replace(shelljs, 'which', fakeAbsPath);
+    // converted to unkown and any because the type magic was too strong
+    Sinon.replace(which, 'sync', fakeAbsPath as unknown as any);
     const absPath = convertToolPathToAbsolutePath('arm-none-eabi', true);
     expect(absPath).to.equal(outputString);
   });
@@ -26,8 +28,10 @@ suite('Helper tests', () => {
       'C:\\Some\\fake\\path\\arm-none-eabi-gcc' : '/Some/fake/path/arm-none-eabi-gcc';
     const outputString = platform === 'win32' ?
       'C:/Some/fake/path/arm-none-eabi-gcc' : '/Some/fake/path/arm-none-eabi-gcc';
+
+    // converted to unkown and any because the type magic was too strong
     const fakeAbsPath = Sinon.fake.returns(returnString);
-    Sinon.replace(shelljs, 'which', fakeAbsPath);
+    Sinon.replace(which, 'sync', fakeAbsPath as unknown as any);
     const absPath = convertToolPathToAbsolutePath('arm-none-eabi');
     expect(absPath).to.equal(outputString);
   });

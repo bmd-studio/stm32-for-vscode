@@ -5,8 +5,7 @@ import * as vscode from 'vscode';
 import  {forEach, isEqual, set} from 'lodash';
 
 import { ToolChain } from '../types/MakeInfo';
-import { which } from 'shelljs';
-
+import {which} from '../Helpers';
 /**
  * Sets up cortex debug to work with the paths STM32 for VSCode is given in the settings.
  * @param tools object containing toolchain paths

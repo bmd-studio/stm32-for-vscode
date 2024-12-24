@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as process from 'process';
-import * as shelljs from 'shelljs';
+ 
 import * as vscode from 'vscode';
 
 import { armNoneEabiDefinition, makeDefinition, openocdDefinition } from './toolChainDefinitions';
@@ -14,6 +14,7 @@ import {forEach, get, set} from 'lodash';
 
 import { ToolChain } from '../types/MakeInfo';
 import { getExtensionSettings } from '../getInfo/getSettings';
+import { which } from '../Helpers';
 
 /*
  * The steps for validating the toolchain are as follows
@@ -101,19 +102,19 @@ export async function checkAutomaticallyInstalledBuildTools(
  */
 export function checkBuildToolsInPath(): ToolChain {
   const pathToolchain = new ToolChain();
-  const armShellPath = shelljs.which(armNoneEabiDefinition.standardCmd);
+  const armShellPath = which(armNoneEabiDefinition.standardCmd);
   if (checkSettingsPathValidity(armShellPath)) {
     // for some weird reason the shellPath gets rejected when I do not toString() it
     const armDirectory = path.dirname(armShellPath.toString());
     pathToolchain.armToolchainPath = armDirectory;
   }
   // OpenOCD
-  const openocdShellPath = shelljs.which(openocdDefinition.standardCmd);
+  const openocdShellPath = which(openocdDefinition.standardCmd);
   if (checkSettingsPathValidity(openocdShellPath)) {
     pathToolchain.openOCDPath = openocdShellPath;
   }
   // make
-  const makeShellPath = shelljs.which(makeDefinition.standardCmd);
+  const makeShellPath = which(makeDefinition.standardCmd);
   if (checkSettingsPathValidity(makeShellPath)) {
     pathToolchain.makePath = makeShellPath;
   }
@@ -138,7 +139,7 @@ export function hasRelevantBuildTools(settingsToolchain: ToolChain): boolean {
 export function hasRelevantAutomaticallyInstalledBuildTools(settingsToolchain: ToolChain): boolean {
   let hasMakeForWindows = process.platform === 'win32' ? settingsToolchain.makePath : true;
   if (!hasMakeForWindows) {
-    const systemMakepath = shelljs.which('make');
+    const systemMakepath =  which('make');
     if (systemMakepath) {
       hasMakeForWindows = true;
       settingsToolchain.makePath = systemMakepath;

@@ -1,11 +1,11 @@
 import * as path from 'path';
-import * as shelljs from 'shelljs';
+ 
 
 import { Uri, window, workspace } from 'vscode';
 import {isEqual, isString, uniq} from 'lodash';
 
 import MakeInfo from '../types/MakeInfo';
-import { writeFileInWorkspace } from '../Helpers';
+import { which, writeFileInWorkspace } from '../Helpers';
 
 export interface CCppConfig {
   name: string;
@@ -49,7 +49,13 @@ export function getAbsoluteCompilerPath(info: MakeInfo): string {
     armPath = '';
   }
   const relativeCompilerPath = path.join(armPath, compiler);
-  const compilerPath = shelljs.which(relativeCompilerPath);
+  const compilerPath = which(relativeCompilerPath);
+  if(!compilerPath) {
+    throw new Error(
+      // eslint-disable-next-line max-len
+      "Getting the absolute compiler path failed. Please create an issue on the STM32 for VSCode GitHub if you encounter this."
+    );
+  }
   return compilerPath;
 }
 

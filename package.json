@@ -185,7 +185,6 @@
     "@types/micromatch": "^4.0.1",
     "@types/mocha": "^9.1.1",
     "@types/node": "^18.0.0",
-    "@types/shelljs": "^0.8.15",
     "@types/sinon": "^10.0.2",
     "@types/strip-comments": "^2.0.0",
     "@types/unzipper": "^0.10.3",
@@ -212,14 +211,15 @@
     "webpack-bundle-analyzer": "^4.7.0"
   },
   "dependencies": {
+    "@types/which": "^3.0.4",
     "audit": "^0.0.6",
     "axios": "^1.7.9",
     "decompress": "^4.2.1",
     "lodash": "^4.17.21",
     "micromatch": "^4.0.2",
     "nearest-string": "^1.0.6",
-    "shelljs": "^0.8.4",
     "strip-comments": "^2.0.1",
+    "which": "^5.0.0",
     "xml2js": "^0.6.2",
     "yaml": "^2.1.1"
   }

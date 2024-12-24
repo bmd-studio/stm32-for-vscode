@@ -3,7 +3,7 @@ import * as Sinon from 'sinon';
 import { uniq } from 'lodash';
 import * as chaiAsPromised from 'chai-as-promised';
 import * as helpers from '../../../Helpers';
-import * as shelljs from 'shelljs';
+ 
 import * as vscode from 'vscode';
 import { Uri } from 'vscode';
 import { afterEach, beforeEach, suite, test } from 'mocha';
@@ -32,7 +32,7 @@ suite('CCCPConfig test (c_cpp_properties configuration', () => {
     Sinon.restore();
   });
   beforeEach(() => {
-    Sinon.replace(shelljs, 'which', Sinon.fake.returns('arm-none-eabi-gcc'));
+    Sinon.replace(helpers, 'which', Sinon.fake.returns('arm-none-eabi-gcc'));
     Sinon.replace(CCCPConfig, 'getAbsoluteCompilerPath', Sinon.fake.returns('arm-none-eabi-gcc'));
   });
 

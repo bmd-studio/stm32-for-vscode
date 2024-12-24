@@ -1,7 +1,7 @@
 import * as decompress from 'decompress';
 import * as path from 'path';
 import * as process from 'process';
-import * as shelljs from 'shelljs';
+ 
 import * as vscode from 'vscode';
 
 import {
@@ -29,6 +29,7 @@ import { checkBuildTools } from '.';
 import { exec } from 'child_process';
 import executeTask from '../HandleTasks';
 import { platform } from 'process';
+import { which } from '../Helpers';
 
 type XpmInstallType = Promise<void>;
 
@@ -104,7 +105,7 @@ export function installOpenOcd(toolsStoragePath: vscode.Uri, npx: string): XpmIn
  */
 export async function installMake(toolsStoragePath: vscode.Uri, npx: string): Promise<void> {
   let executeCmd = '';
-  if (shelljs.which('make')) {
+  if ( which('make')) {
     return Promise.resolve();
   }
 

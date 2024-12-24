@@ -1,6 +1,6 @@
 import * as path from 'path';
-import * as shelljs from 'shelljs';
 const { platform } = process;
+import {sync} from 'which';
 
 import { Uri, workspace, env } from 'vscode';
 
@@ -22,8 +22,29 @@ export function fsPathToPosix(fsPath: string, escapeSpaces?: boolean): string {
   return posixPath;
 }
 
+/**
+ * Which function, functions as the which shell command. 
+ * The helper function is taylored to deal with the various
+ * edge cases in the current application
+ */
+export function which(
+  command: string | undefined | boolean | null | object
+): string | false {
+  // guard against empty or non existent commands
+  if(!command || command === '' || typeof command === 'boolean' || typeof command === 'object') {
+    return false;
+  }
+  const res = sync(command, {nothrow: true});
+  return res || false;
+}
+
 export function convertToolPathToAbsolutePath(toolPath: string, dir?: boolean): string {
-  const absolutePAth = shelljs.which(toolPath);
+  const absolutePAth = which(toolPath);
+  if(!absolutePAth) {
+    throw new Error(
+      //eslint-disable-next-line max-len
+      `Non existent path converted: ${toolPath} into ${absolutePAth}. Should you encounter this error please create an issue on the Github page.`);
+  }
   let returnPath = absolutePAth;
   returnPath = fsPathToPosix(returnPath);
   if (dir) {
