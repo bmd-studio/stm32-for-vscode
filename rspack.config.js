@@ -27,6 +27,7 @@
 const path = require('path');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
+const rspack = require('@rspack/core');
 const config = {
   target: 'node', // vscode extensions run in a Node.js-context 📖 -> https://webpack.js.org/configuration/node/
 
@@ -49,7 +50,7 @@ const config = {
     rules: [
       {
         test: /\.ts$/,
-        use: 'swc-loader',
+        loader: 'builtin:swc-loader',
         exclude: /node_modules/,
         include: path.resolve(__dirname, 'src'),
       },

@@ -134,7 +134,6 @@
           "default": "",
           "description": "Path to the make executable (e.g. make or ~/usr/bin/make), will use the one in PATH as standard."
         },
-
         "stm32-for-vscode.makeConcurrentJobs": {
           "type": "number",
           "default": "16",
@@ -152,26 +151,29 @@
     "marus25.cortex-debug"
   ],
   "scripts": {
-    "compile:production": "webpack --mode production",
+    "compile:production": "rspack --mode production",
     "test": "node ./out/test/runTest.js",
     "coverage": "nyc --exclude=.vscode-test --exclude=src/test/**  npm run test",
     "test:unit": "npm run compile:test && npm run lint && TEST_ENVIRONMENT=unit node ./out/test/runTest.js",
-    "vscode:prepublish": "webpack --mode production && rm dist/extension.js.map",
-    "compile:dev": "webpack --mode development",
+    "vscode:prepublish": "rspack --mode production && rm dist/extension.js.map",
+    "compile:dev": "rspack --mode development",
     "compile:test": "tsc -p ./ ",
     "lint": "eslint src --ext ts",
+    "lint:fix": "eslint src --ext ts --fix",
     "watch": "tsc -watch -p ./",
     "precompile": "npm run lint && tsc --alwaysStrict true -p ./",
     "pretest": "rm -rf ./out/test && npm run compile:test && npm run lint && npm run compile:production",
     "watch:tests": "watch \"npm run test\" ./src --wait=10",
     "generate-docs": "typedoc --out docs src",
-    "stats": "webpack --json > stats.json",
-    "stats:production": "webpack --mode production --json > stats.json"
+    "stats": "rspack --json > stats.json",
+    "stats:production": "rspack --mode production --json > stats.json"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.0",
     "@babel/core": "^7.6.0",
     "@babel/preset-env": "^7.6.0",
+    "@rspack/cli": "^1.1.8",
+    "@rspack/core": "^1.1.8",
     "@types/axios": "^0.14.0",
     "@types/chai": "^4.2.11",
     "@types/chai-as-promised": "^7.1.2",
@@ -199,23 +201,22 @@
     "mocha": "^10.0.0",
     "nyc": "^15.1.0",
     "sinon": "^14.0.0",
-    "swc-loader": "^0.2.3",
+    "swc-loader": "^0.2.6",
     "typedoc": "^0.23.20",
     "typescript": "^4.8.4",
     "watch": "^0.13.0",
-    "webpack": "^5.74.0",
-    "webpack-bundle-analyzer": "^4.7.0",
-    "webpack-cli": "^4.10.0"
+    "webpack-bundle-analyzer": "^4.7.0"
   },
   "dependencies": {
-    "axios": "^0.27.2",
+    "audit": "^0.0.6",
+    "axios": "^1.7.9",
     "decompress": "^4.2.1",
     "lodash": "^4.17.21",
     "micromatch": "^4.0.2",
     "nearest-string": "^1.0.6",
     "shelljs": "^0.8.4",
     "strip-comments": "^2.0.1",
-    "xml2js": "^0.4.23",
+    "xml2js": "^0.6.2",
     "yaml": "^2.1.1"
   }
 }

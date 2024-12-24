@@ -98,6 +98,7 @@ export function activate(context: vscode.ExtensionContext): { installTools: () =
     }
   );
 
+  context.subscriptions.push(buildCmd);
   const buildReleaseCmd = vscode.commands.registerCommand(
     'stm32-for-vscode.buildRelease',
     async () => {

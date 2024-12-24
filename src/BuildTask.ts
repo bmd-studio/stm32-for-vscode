@@ -98,7 +98,7 @@ async function createSTM32EnvironmentFileWhenRequired(tools: ToolChain): Promise
   }
 }
 
-async function checkForWorkspaceFolder() {
+async function checkForWorkspaceFolder(): Uri {
   if (!workspace.workspaceFolders || !workspace.workspaceFolders?.[0]) {
     window.showErrorMessage('No workspace folder is open. Stopped build.');
     throw new Error('no workspace folder is open');
@@ -106,8 +106,12 @@ async function checkForWorkspaceFolder() {
   return workspace.workspaceFolders[0].uri;
 }
 
+interface BuildRequirements {
+  posix: string;
+  uri: Uri;
+}
 // NOTE: throws all the errors to the upperscope
-async function checkForRequirements() {
+async function checkForRequirements():Promise<BuildRequirements> {
   const workspaceFolder = await checkForWorkspaceFolder();
   const posixWorkspaceFolder = fsPathToPosix(workspaceFolder.fsPath);
   // check for makefiles
@@ -168,27 +172,31 @@ async function checkForRequirements() {
 
 }
 
-async function cleanBuildTask(makeArguments: string, makePath: string| boolean) {
-      try {
-        await executeTask(
-          'build',
-          'STM32 clean',
-          [
-            `${makePath}`,
-            makeArguments,
-            `clean`
-          ],
-          {},
-          "$gcc"
-        );
-      } catch (err) {
-        const errorMsg = `Something went wrong with cleaning the build. Still are going to proceed to building.
+async function cleanBuildTask(makeArguments: string, makePath: string| boolean): Promise<void> {
+  try {
+    await executeTask(
+      'build',
+      'STM32 clean',
+      [
+        `${makePath}`,
+        makeArguments,
+        `clean`
+      ],
+      {},
+      "$gcc"
+    );
+  } catch (err) {
+    const errorMsg = `Something went wrong with cleaning the build. Still are going to proceed to building.
         ERROR: ${err}`;
-        window.showErrorMessage(errorMsg);
-      }
+    window.showErrorMessage(errorMsg);
+  }
 }
 
-export default async function buildSTM(options?: { flash?: boolean; cleanBuild?: boolean, debug?: boolean }): Promise<void> {
+export default async function buildSTM(options?: { 
+  flash?: boolean,
+  cleanBuild?: boolean,
+  debug?: boolean 
+}): Promise<void> {
   const {
     flash,
     cleanBuild,
