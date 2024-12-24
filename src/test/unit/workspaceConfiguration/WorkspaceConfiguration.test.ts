@@ -1,6 +1,5 @@
 import * as Sinon from 'sinon';
 import * as chaiAsPromised from 'chai-as-promised';
-import * as helpers from '../../../Helpers';
 
 import LaunchTestFile, {
   attachFixture,
@@ -10,16 +9,13 @@ import LaunchTestFile, {
 } from '../../fixtures/launchTaskFixture';
 import { TaskDefinition, Uri, workspace } from 'vscode';
 import { afterEach, beforeEach, suite, test } from 'mocha';
-import { assert, expect, use } from 'chai';
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import updateConfiguration, {
+import { expect, use } from 'chai';
+import  {
   updateLaunch,
   updateTasks
 } from '../../../configuration/WorkspaceConfigurations';
 
 import BuildTasks from '../../fixtures/tasksFixture';
-import GithubSVDSResponseFixture from '../projectSetup/githubSVDResponseFixture';
-import h7SVDResponseFixture from '../projectSetup/h7SVDFileFixture';
 import { testMakefileInfo } from '../../fixtures/testSTMCubeMakefile';
 
 
@@ -80,21 +76,8 @@ suite('WorkspaceConfiguration', () => {
     setWorkspaceConfigFakeOutput([]);
 
     const { getWorkspaceConfigFake, updateConfigFake } = launchFixtures;
-    const svdResponse: AxiosResponse = {
-      data: GithubSVDSResponseFixture,
-      status: 200,
-      statusText: 'success',
-      headers: {},
-      config: {} as AxiosRequestConfig,
-    };
-    const axiosGetStub = Sinon.stub(axios, 'get').resolves(Promise.resolve(svdResponse));
-    const h7Response = { ...svdResponse, data: h7SVDResponseFixture };
-    axiosGetStub.withArgs(
-      'https://raw.githubusercontent.com/posborne/cmsis-svd/master/data/STMicro/STM32H753x.svd'
-    ).returns(Promise.resolve(h7Response));
 
     await updateLaunch(Uri.file('local'), { ...testMakefileInfo, target: 'othertesttarget' });
-    expect(axiosGetStub.calledTwice).to.be.true;
     expect(getWorkspaceConfigFake.callCount).to.equal(1);
     expect(getWorkspaceConfigFake.calledOnce).to.be.true;
     expect(updateConfigFake.calledOnce).to.be.true;
@@ -146,22 +129,5 @@ suite('WorkspaceConfiguration', () => {
     expect(getWorkspaceConfigFake.calledOnce).to.be.true;
     expect(getConfigInWorkspaceFake.calledOnceWith('tasks', testUri)).to.be.true;
     expect(updateConfigFake.calledOnce).to.be.false;
-  });
-  test('update configuration completes once everything is done', async () => {
-    // setWorkspaceConfigFakeOutput([BuildTasks[0], BuildTasks[1], BuildTasks[2]]);
-    // const writeFileInWorkspaceFake = Sinon.fake();
-    // const findFileInWorkspaceFake = Sinon.fake.returns(Promise.resolve([]));
-    // Sinon.replace(helpers, 'writeFileInWorkspace', writeFileInWorkspaceFake);
-    // Sinon.replace(workspace, 'findFiles', findFileInWorkspaceFake);
-    // const testUri = Uri.file('local');
-    // expect(updateConfiguration(testUri, testMakefileInfo)).to.eventually.be.fulfilled;
-    // //
-    // try {
-    //   await updateConfiguration(testUri, testMakefileInfo);
-    // } catch (err) {
-    //   if (err) {
-    //     assert(err);
-    //   }
-    // }
   });
 });

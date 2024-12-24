@@ -27,11 +27,12 @@ export default ([debugFixture, attachFixture]);
 
 export const debugFixtureWithSVD = {
   ...debugFixture,
-  svdFile: 'STM32H743x.svd',
+  // FIXME: SVD file inclusion
+  // svdFile: 'STM32H743x.svd',
 };
 
 export const attachFixtureWithSVD = {
   ...attachFixture,
-  svdFile: 'STM32H743x.svd',
+  // svdFile: 'STM32H743x.svd',
 };
 

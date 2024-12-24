@@ -73,16 +73,6 @@ export function activate(context: vscode.ExtensionContext): { installTools: () =
   context.subscriptions.push(openExtension);
   const installBuildTools = vscode.commands.registerCommand('stm32-for-vscode.installBuildTools', async () => {
     await installBuildToolsCommand(context, commandMenu);
-    // try {
-    //   await installAllTools(context);
-    //   const hasBuildTools = await checkBuildTools(context);
-    //   if (hasBuildTools && commandMenu) {
-    //     commandMenu.refresh();
-    //   }
-
-    // } catch (error) {
-    //   vscode.window.showErrorMessage(`Something went wrong with installing the build tools. Error:${error}`);
-    // }
   });
   context.subscriptions.push(installBuildTools);
 
@@ -98,6 +88,7 @@ export function activate(context: vscode.ExtensionContext): { installTools: () =
     }
   );
 
+  context.subscriptions.push(buildCmd);
   const buildReleaseCmd = vscode.commands.registerCommand(
     'stm32-for-vscode.buildRelease',
     async () => {

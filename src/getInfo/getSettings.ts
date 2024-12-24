@@ -21,8 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-
-import {isEmpty, isString} from 'lodash';
+import {isString} from '../Helpers';
 
 import { ToolChain } from '../types/MakeInfo';
 import { workspace } from 'vscode';
@@ -34,17 +33,17 @@ import { workspace } from 'vscode';
 export function getExtensionSettings(): ToolChain {
   const settings = workspace.getConfiguration('stm32-for-vscode');
   const result = new ToolChain();
-  const armToolchainPath = settings.get('armToolchainPath');
-  const openOCDPath = settings.get('openOCDPath');
-  const makePath = settings.get('makePath');
+  const armToolchainPath = settings.get('armToolchainPath') as string || false;
+  const openOCDPath = settings.get('openOCDPath') as string || false;
+  const makePath = settings.get('makePath') as string || false;
 
-  if (!isEmpty(armToolchainPath) && isString(armToolchainPath)) {
+  if (isString(armToolchainPath) && armToolchainPath !== '') {
     result.armToolchainPath = armToolchainPath;
   }
-  if (!isEmpty(openOCDPath) && isString(openOCDPath)) {
+  if (isString(openOCDPath) && openOCDPath !== '') {
     result.openOCDPath = openOCDPath;
   }
-  if (!isEmpty(makePath) && isString(makePath)) {
+  if (isString(makePath) && makePath !== '') {
     result.makePath = makePath;
   }
 

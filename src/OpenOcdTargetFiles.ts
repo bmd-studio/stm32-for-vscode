@@ -22,7 +22,6 @@
 * SOFTWARE.
 */
 
-import { trimEnd } from 'lodash';
 
 const configFiles = [
   "stm32c0x.cfg",
@@ -62,20 +61,6 @@ const configFiles = [
   "stm8s103.cfg",
   "stm8s105.cfg",
 ];
-
-export default function getTargetConfig(target: string): string | boolean {
-  const cleanTarget =
-    trimEnd(
-      trimEnd(target, 'cfg'),
-      'x',
-    ).toLowerCase();
-  const ind =
-    configFiles.findIndex((entry: string) => (entry.indexOf(cleanTarget) >= 0));
-  if (ind >= 0) {
-    return configFiles[ind];
-  }
-  return false;
-}
 
 /**
  * Finds the openocd target MCU from the full name

@@ -30,7 +30,7 @@
 import * as Micromatch from 'micromatch';
 import * as OpenOCDConfigFile from '../configuration/openOCDConfig';
 import * as STM32ProjectConfiguration from '../configuration/stm32Config';
-import { uniq, forEach, set } from 'lodash';
+import { uniq } from '../Helpers';
 import * as vscode from 'vscode';
 
 import MakeInfo, { ExtensionConfiguration } from '../types/MakeInfo';
@@ -209,9 +209,11 @@ export async function getInfo(location: string): Promise<MakeInfo> {
     ...buildTools,
   };
   // set empty string, as sometimes float-abi or FPU are not included in the STM Makefile
-  forEach(STM32MakeInfo, (entry, key) => {
+  Object.keys(STM32MakeInfo).forEach((key) => {
+    const entry = STM32MakeInfo[key as keyof MakeInfo];
     if (entry === null || entry === undefined) {
-      set(STM32MakeInfo, key, '');
+      // FIXME: ugly fix need to think about this because it does break some things when not properly typed
+      STM32MakeInfo[key as keyof MakeInfo] = '' as any;
     }
   });
   STM32MakeInfo.customMakefileRules = projectConfiguration.customMakefileRules;

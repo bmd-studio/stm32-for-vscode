@@ -33,7 +33,6 @@ import getLaunchTask, { getAttachTask, getCortexDevice } from './LaunchTasksConf
 import MakeInfo from '../types/MakeInfo';
 import buildTasks from './BuildTasksConfig';
 import { getSVDFileForChip } from '../projectSetup/svdFiles';
-import { isEmpty } from 'lodash';
 import setCortexDebugWorkspaceConfiguration from './cortexDebugConfig';
 import updateCProperties from './CCCPConfig';
 import { writeFileInWorkspace } from '../Helpers';
@@ -170,7 +169,7 @@ export function updateTasks(workspacePathUri: Uri): Promise<void> {
     hasFlashConfig: false
   };
 
-  if (tasksConfig && !isEmpty(tasksConfig)) {
+  if (tasksConfig && tasksConfig.length > 0) {
     hasTasks = checkTasksForRequiredTasks(tasksConfig);
   }
 

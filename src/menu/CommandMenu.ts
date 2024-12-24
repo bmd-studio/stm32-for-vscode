@@ -1,5 +1,4 @@
 import * as vscode from "vscode";
-import { forEach } from "lodash";
 
 export interface BuildCommandDefinition {
   label: string;
@@ -100,7 +99,8 @@ export default class CommandMenuProvider implements vscode.TreeDataProvider<Buil
     }
 
     const commands: BuildCommand[] = [];
-    forEach(COMMANDS, (command: BuildCommandDefinition) => {
+    Object.keys(COMMANDS).forEach((key) => {
+      const command = COMMANDS[key as keyof BuildCommandDefinition];
       commands.push(
         new BuildCommand(
           command.label,

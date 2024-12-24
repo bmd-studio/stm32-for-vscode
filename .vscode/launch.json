@@ -20,7 +20,7 @@
         "${workspaceFolder}/src/test/workspaces/H753ZI",
         "--extensions-dir .vscode-test/extensions",
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "--extensionTestsPath=${workspaceFolder}/out/test/integration/customMakefileRulesTest"
+        "--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
       ],
       "outFiles": [
         "${workspaceFolder}/out/test/**/*.js"

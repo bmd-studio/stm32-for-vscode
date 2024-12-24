@@ -22,7 +22,7 @@
 * SOFTWARE.
 */
 
-import { set, uniq, flattenDeep, intersection, forEach } from 'lodash';
+import {uniq} from '../Helpers';
 import * as pth from 'path';
 import * as vscode from 'vscode';
 
@@ -193,10 +193,10 @@ export function sortFiles(list: string[]): BuildFiles {
     }
   });
   // sort arrays and remove possible duplicates.
-  forEach(output, (entry, key) => {
+  Object.keys(output).forEach((key) => {
+    const entry = output[key as keyof BuildFiles];
     if (Array.isArray(entry)) {
-      set(entry, key, uniq(entry));
-      entry.sort();
+      output[key as keyof BuildFiles] = uniq(entry).sort();
     }
   });
   return output;
@@ -249,8 +249,7 @@ export async function scanForFiles(includedFilesGlob: string[]): Promise<string[
     }
   });
   const returnedFiles = await Promise.all(filePromises);
-  const combinedFiles = returnedFiles.concat(nonGlobFiles);
-  const allFiles = flattenDeep(combinedFiles);
+  const allFiles = returnedFiles.concat(nonGlobFiles).flat(Infinity) as string[];
   return allFiles;
 }
 
@@ -264,7 +263,7 @@ export async function getSourceFiles(sourceFileGlobs: string[]): Promise<string[
   const files = await scanForFiles(sourceFileGlobs);
   const sourceFiles = files.filter((file) => {
     const extension = file.split('.').pop();
-    if (intersection([extension], sourceFileExtensions).length > 0) {
+    if ( extension && sourceFileExtensions.includes(extension)) {
       return true;
     }
     return false;
@@ -300,7 +299,7 @@ export async function getHeaderFiles(headerFilesGlobs: string[]): Promise<string
 
   const headerFiles = files.filter((file) => {
     const extension = file.split('.').pop();
-    if (intersection([extension], headerFileExtensions).length > 0) {
+    if (extension && headerFileExtensions.includes(extension)) {
       return true;
     }
     return false;

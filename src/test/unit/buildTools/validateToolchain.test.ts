@@ -1,12 +1,12 @@
 import * as GetSettings from '../../../getInfo/getSettings';
 import * as Sinon from 'sinon';
 import * as path from 'path';
-import * as shelljs from 'shelljs';
 
 import { ToolChain } from '../../../types/MakeInfo';
 import { afterEach } from 'mocha';
 import { checkSettingsForBuildTools } from '../../../buildTools/validateToolchain';
 import { expect } from 'chai';
+import * as Helpers from '../../../Helpers';
 
 suite('validate Toolchain Functions', () => {
   afterEach(() => {
@@ -18,7 +18,7 @@ suite('validate Toolchain Functions', () => {
     fakeToolchainResult.makePath = 'makePath';
     const getSettingsFake = Sinon.fake.returns(fakeToolchainResult);
     Sinon.replace(GetSettings, 'getExtensionSettings', getSettingsFake);
-    const fakeShell = (toolPath: string | boolean): string | boolean => {
+    const fakeShell = (toolPath: string | boolean | undefined): string | false => {
       const validArmPath = path.join('armpath', 'arm-none-eabi-gcc');
       if (toolPath === validArmPath) {
         return validArmPath;
@@ -32,7 +32,7 @@ suite('validate Toolchain Functions', () => {
       }
       return false;
     };
-    Sinon.replace(shelljs, 'which', fakeShell);
+    Sinon.replace(Helpers, 'whichSync', fakeShell);
     const result = checkSettingsForBuildTools();
     expect(result.armToolchainPath).to.equal(fakeToolchainResult.armToolchainPath);
     expect(result.makePath).to.equal(path.join(fakeToolchainResult.makePath, 'make'));

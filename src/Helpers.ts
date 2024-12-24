@@ -1,10 +1,11 @@
 import * as path from 'path';
-import * as shelljs from 'shelljs';
+
 const { platform } = process;
 
 import { Uri, workspace, env } from 'vscode';
 
 import { TextEncoder } from 'util';
+import which = require('which');
 
 export function splitStringLines(input: string): string[] {
   return input.split(/\r\n|\r|\n/);
@@ -22,8 +23,13 @@ export function fsPathToPosix(fsPath: string, escapeSpaces?: boolean): string {
   return posixPath;
 }
 
+export function whichSync(path: string | undefined | boolean):  string  | false {
+  if(!path || typeof path  === 'boolean') {return false;}
+  return which.sync(path, {nothrow: true}) || false;
+}
+
 export function convertToolPathToAbsolutePath(toolPath: string, dir?: boolean): string {
-  const absolutePAth = shelljs.which(toolPath);
+  const absolutePAth = which.sync(toolPath);
   let returnPath = absolutePAth;
   returnPath = fsPathToPosix(returnPath);
   if (dir) {
@@ -87,4 +93,17 @@ export function getAutomationShell(): string {
     }
   }
   return automationShell;
+}
+
+export function isString(value: string | boolean | unknown): boolean {
+  if (typeof value === 'boolean') {
+    return false;
+  }
+  return typeof value === 'string' ||
+    (!Array.isArray(value) && (value !== null && typeof value === 'object'));
+}
+
+export function uniq<T>(arr: T[]): T[] {
+  const set = new Set(arr);
+  return [...set];
 }

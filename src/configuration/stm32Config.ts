@@ -4,7 +4,6 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 
 import { ExtensionConfiguration, ExtensionConfigurationInterface } from '../types/MakeInfo';
-import {forEach, get, has, set} from 'lodash';
 
 import { EXTENSION_CONFIG_NAME } from '../Definitions';
 
@@ -183,11 +182,14 @@ export function parseConfigfile(configurationFile: string): ExtensionConfigurati
   try {
     const yamlConfig: ExtensionConfigurationInterface = YAML.parse(configurationFile);
     if (!yamlConfig) { new Error('Could not parse yaml configuration');}
-    forEach(yamlConfig, (entry, key) => {
-      if (has(yamlConfig, key) && get(yamlConfig, key) !== null && get(yamlConfig, key)?.[0] !== null) {
-        set(configuration, key, entry);
-      }
-    });
+    console.log({yamlConfig});
+    Object.keys(yamlConfig).forEach(
+      (key) => {
+        const entry = yamlConfig[key as keyof ExtensionConfigurationInterface];
+        if ( entry && entry !== null ) {
+          configuration[key as keyof ExtensionConfigurationInterface] = entry as never; 
+        }
+      });
   } catch (err) {
     if (err) {
       throw err;

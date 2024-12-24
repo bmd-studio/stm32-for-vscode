@@ -1,5 +1,4 @@
 import * as path from 'path';
-import * as shelljs from 'shelljs';
 import * as vscode from 'vscode';
 
 import {
@@ -7,7 +6,7 @@ import {
   XPACKS_DEV_TOOL_PATH,
   armNoneEabiDefinition
 } from './toolChainDefinitions';
-import { forEach, isBoolean, isEmpty, isString } from 'lodash';
+import {isString, whichSync} from '../Helpers';
 
 export interface XPMToolVersion {
   toolVersion: number[];
@@ -16,7 +15,7 @@ export interface XPMToolVersion {
 }
 
 export function checkSettingsPathValidity(path: string | boolean): boolean {
-  if (path && isString(path) && !isEmpty(path)) {
+  if (path && isString(path) && path !== '') {
     return true;
   }
   return false;
@@ -126,13 +125,13 @@ export async function getNewestToolchainVersion(
 export async function validateXPMToolchainPath(tool: BuildToolDefinition, xpmPath: string): Promise<string | boolean> {
   try {
     const value = await getNewestToolchainVersion(tool, xpmPath);
-    if (!value || isBoolean(value)) {
+    if (!value || typeof value === 'boolean') {
       return false;
     }
     const versionPath = path.join(xpmPath, XPACKS_DEV_TOOL_PATH, tool.xpmName, value.fileName);
     const toolPath = path.join(versionPath, tool.xpmPath);
     const fullPath = path.join(toolPath, tool.standardCmd);
-    const shellPath = shelljs.which(fullPath);
+    const shellPath = whichSync(fullPath); 
     if (checkSettingsPathValidity(shellPath)) {
       if (tool.name === armNoneEabiDefinition.name) {
         return toolPath;
@@ -147,15 +146,15 @@ export async function validateXPMToolchainPath(tool: BuildToolDefinition, xpmPat
 
 
 export function validateArmToolchainPath(armToolChainPath: string | boolean): string | false {
-  if (!armToolChainPath || isEmpty(armToolChainPath) || !isString(armToolChainPath)) { return false; }
-  const immediatePath = shelljs.which(armToolChainPath);
+  if (!armToolChainPath || armToolChainPath === '' || !isString(armToolChainPath)) { return false; }
+  const immediatePath = whichSync(armToolChainPath);
   let armPath: string | false = false;
   if (immediatePath) {
     armPath = path.normalize(path.join(immediatePath, '..'));
   } else {
-    const appendedArmPath = path.normalize(path.join(armToolChainPath, 'arm-none-eabi-gcc'));
-    if (shelljs.which(appendedArmPath)) {
-      armPath = armToolChainPath;
+    const appendedArmPath = path.normalize(path.join(armToolChainPath as string, 'arm-none-eabi-gcc'));
+    if (whichSync(appendedArmPath)) {
+      armPath = armToolChainPath as string;
     }
   }
   return armPath;
@@ -168,21 +167,21 @@ export function checkToolchainPathForTool(
   if (!checkSettingsPathValidity(toolPath)) {
     return false;
   }
-  const regularPath = shelljs.which(toolPath);
+  const regularPath = whichSync(toolPath);
   if (checkSettingsPathValidity(regularPath)) {
     return regularPath;
   }
   // after this check the path with the standard command
   if (isString(toolPath)) {
-    const standardCommandPath = shelljs.which(path.join(toolPath, definition.standardCmd));
+    const standardCommandPath = whichSync(path.join(toolPath as string, definition.standardCmd));
     if (checkSettingsPathValidity(standardCommandPath)) {
       return standardCommandPath;
     }
     // after this check the path with the non standard commands
-    let nonStandardPath = false;
-    forEach(definition.otherCmds, (entry) => {
-      const tryPath = path.join(toolPath, entry);
-      const whichedTryPath = shelljs.which(tryPath);
+    let nonStandardPath: string | boolean = false;
+    definition.otherCmds.forEach((entry) => {
+      const tryPath = path.join(toolPath as string, entry);
+      const whichedTryPath = whichSync(tryPath);
       if (checkSettingsPathValidity(whichedTryPath)) {
         nonStandardPath = whichedTryPath;
       }

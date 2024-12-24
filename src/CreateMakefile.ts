@@ -31,10 +31,9 @@
 
 import 'process';
 
-import { isEmpty, isString, uniq } from 'lodash';
 
 import MakeInfo from './types/MakeInfo';
-import { fsPathToPosix } from './Helpers';
+import { fsPathToPosix, isString, uniq } from './Helpers';
 import { makefileName, STM32_ENVIRONMENT_FILE_NAME } from './Definitions';
 
 /**
@@ -80,8 +79,8 @@ export function createSingleLineStringList(arr: string[], prefix?: string): stri
 
 export function createGCCPathOutput(makeInfo: MakeInfo): string {
   if (makeInfo.tools.armToolchainPath && isString(makeInfo.tools.armToolchainPath)) {
-    if (makeInfo?.tools?.armToolchainPath && !isEmpty(makeInfo.tools.armToolchainPath) && makeInfo.tools.armToolchainPath !== '.') {
-      return `GCC_PATH="${fsPathToPosix(makeInfo.tools.armToolchainPath)}`;
+    if (makeInfo?.tools?.armToolchainPath && makeInfo.tools.armToolchainPath !== '' && makeInfo.tools.armToolchainPath !== '.') {
+      return `GCC_PATH="${fsPathToPosix(makeInfo.tools.armToolchainPath as string)}`;
     }
   }
   return '';

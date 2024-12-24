@@ -1,7 +1,5 @@
-import * as decompress from 'decompress';
 import * as path from 'path';
 import * as process from 'process';
-import * as shelljs from 'shelljs';
 import * as vscode from 'vscode';
 
 import {
@@ -29,6 +27,8 @@ import { checkBuildTools } from '.';
 import { exec } from 'child_process';
 import executeTask from '../HandleTasks';
 import { platform } from 'process';
+import { whichSync } from '../Helpers';
+import decompress = require('decompress');
 
 type XpmInstallType = Promise<void>;
 
@@ -104,7 +104,7 @@ export function installOpenOcd(toolsStoragePath: vscode.Uri, npx: string): XpmIn
  */
 export async function installMake(toolsStoragePath: vscode.Uri, npx: string): Promise<void> {
   let executeCmd = '';
-  if (shelljs.which('make')) {
+  if (whichSync('make')) {
     return Promise.resolve();
   }
 
@@ -156,21 +156,21 @@ export function installArmNonEabi(toolsStoragePath: vscode.Uri, npx: string): Xp
 
 const nodeRegex: { [key: string]: { [key: string]: RegExp } } = {
   win32: {
-    x32: /href="(node-v\d*.\d*.\d*-win-x86.zip)/gm,
-    x64: /href="(node-v\d*.\d*.\d*-win-x64.zip)/gm,
-    ia32: /href="(node-v\d*.\d*.\d*-win-x86.zip)/gm,
-    ia64: /href="(node-v\d*.\d*.\d*-win-x64.zip)/gm,
+    x32: /href="(\/dist\/v\d+\.\d+\.\d+\/node-v\d+\.\d+\.\d+-win-x86.zip)/gm,
+    x64: /href="(\/dist\/v\d+\.\d+\.\d+\/node-v\d+\.\d+\.\d+-win-x64.zip)/gm,
+    ia32: /href="(\/dist\/v\d+\.\d+\.\d+\/node-v\d+\.\d+\.\d+-win-x86.zip)/gm,
+    ia64: /href="(\/dist\/v\d+\.\d+\.\d+\/node-v\d+\.\d+\.\d+-win-x64.zip)/gm,
   },
   darwin: {
-    x64: /href="(node-v\d*.\d*.\d*.-darwin-x64.tar.gz)/gm,
-    arm64: /href="(node-v\d*.\d*.\d*.-darwin-arm64.tar.gz)/gm
+    x64: /href="(\/dist\/v\d+\.\d+\.\d+\/node-v\d+\.\d+\.\d+-darwin-x64.tar.gz)/gm,
+    arm64: /href="(\/dist\/v\d+\.\d+\.\d+\/node-v\d+\.\d+\.\d+-darwin-arm64.tar.gz)/gm
   },
   linux: {
-    arm: /href="(node-v\d*.\d*.\d*.-linux-armv7l.tar.gz)/gm,
-    arm64: /href="(node-v\d*.\d*.\d*.-linux-arm64.tar.gz)/gm,
-    x64: /href="(node-v\d*.\d*.\d*.-linux-x64.tar.gz)/gm,
-    ppc64: /href="(node-v\d*.\d*.\d*.-linux-ppc64le.tar.gz)/gm,
-    s390x: /href="(node-v\d*.\d*.\d*.-linux-s390x.tar.gz)/gm,
+    arm: /href="(\/dist\/v\d+\.\d+\.\d+\/node-v\d+\.\d+\.\d+-linux-armv7l.tar.gz)/gm,
+    arm64: /href="(\/dist\/v\d+\.\d+\.\d+\/node-v\d+\.\d+\.\d+-linux-arm64.tar.gz)/gm,
+    x64: /href="(\/dist\/v\d+\.\d+\.\d+\/node-v\d+\.\d+\.\d+-linux-x64.tar.gz)/gm,
+    ppc64: /href="(\/dist\/v\d+\.\d+\.\d+\/node-v\d+\.\d+\.\d+-linux-ppc64le.tar.gz)/gm,
+    s390x: /href="(\/dist\/v\d+\.\d+\.\d+\/node-v\d+\.\d+\.\d+-linux-s390x.tar.gz)/gm,
   }
 };
 
@@ -183,6 +183,7 @@ const nodeRegex: { [key: string]: { [key: string]: RegExp } } = {
 export function getPlatformSpecificNodeLink(
   latestNodeBody: string, currentPlatform: NodeJS.Platform, arch: string
 ): string | undefined {
+
   const regexPattern = nodeRegex?.[`${currentPlatform}`]?.[`${arch}`];
   if (!regexPattern) {
     throw new Error(
@@ -201,7 +202,7 @@ export function getPlatformSpecificNodeLink(
     }
   }
   if (link) {
-    link = link.replace(`href="`, '');
+    link = link.replace(`href="/`, '');
   }
   return link;
 }
@@ -234,6 +235,7 @@ export function getLatestNodeLink(): Promise<string> {
   });
 }
 
+const nodeBaseUrl = 'https://nodejs.org/';
 /**
  * Downloads the latest compressed version of node to the extensions global storage directory in ta tmp folder.
  * @param context vscode extensions context
@@ -241,7 +243,7 @@ export function getLatestNodeLink(): Promise<string> {
  */
 export function downloadLatestNode(toolsStoragePath: vscode.Uri, fileDownloadName: string): Promise<string> {
   const pathToSaveTo = toolsStoragePath.fsPath;
-  const downloadURL = `${nodeLatestURL}${fileDownloadName}`;
+  const downloadURL = `${nodeBaseUrl}${fileDownloadName}`;
   const downloadPath = path.join(pathToSaveTo, 'tmp', fileDownloadName);
 
   return new Promise((resolve, reject) => {

@@ -1,8 +1,7 @@
 import * as path from 'path';
-import * as shelljs from 'shelljs';
 
 import { Uri, window, workspace } from 'vscode';
-import {isEqual, isString, uniq} from 'lodash';
+import { isString, uniq, whichSync } from '../Helpers';
 
 import MakeInfo from '../types/MakeInfo';
 import { writeFileInWorkspace } from '../Helpers';
@@ -48,8 +47,11 @@ export function getAbsoluteCompilerPath(info: MakeInfo): string {
   if (!isString(armPath)) {
     armPath = '';
   }
-  const relativeCompilerPath = path.join(armPath, compiler);
-  const compilerPath = shelljs.which(relativeCompilerPath);
+  const relativeCompilerPath = path.join(armPath as string, compiler);
+  const compilerPath = whichSync(relativeCompilerPath) || '';
+  if(typeof compilerPath === 'boolean') {
+    return '';
+  }
   return compilerPath;
 }
 
@@ -138,9 +140,9 @@ export async function updateCProperties(workspacePathUri: Uri, info: MakeInfo): 
 
   configFile.configurations[stmConfigIndex] = stmConfiguration;
 
-  if (!isEqual(stmConfiguration.defines, oldConfig.defines) ||
-    !isEqual(stmConfiguration.includePath, oldConfig.includePath)
-    || !isEqual(stmConfiguration.compilerPath, oldConfig.compilerPath)) {
+  if (stmConfiguration.defines !== oldConfig.defines ||
+    stmConfiguration.includePath !== oldConfig.includePath
+    || stmConfiguration.compilerPath !== oldConfig.compilerPath) {
     needsUpdating = true;
   }
   if (!needsUpdating) {

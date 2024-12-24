@@ -3,7 +3,7 @@
     {
       "label": "compile extension",
       "type": "shell",
-      "command": "npm run compile:dev",
+      "command": "npm run compile",
       "options": {},
       "group": {
         "kind": "build",

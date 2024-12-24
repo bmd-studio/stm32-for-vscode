@@ -2,10 +2,9 @@ import * as path from 'path';
 import * as toolChainValidation from './validateToolchain';
 import * as vscode from 'vscode';
 
-import  {forEach, isEqual, set} from 'lodash';
-
 import { ToolChain } from '../types/MakeInfo';
-import { which } from 'shelljs';
+import { whichSync } from '../Helpers';
+
 
 /**
  * Sets up cortex debug to work with the paths STM32 for VSCode is given in the settings.
@@ -52,8 +51,10 @@ export async function checkBuildTools(context: vscode.ExtensionContext): Promise
   // these settings will be used for compilation.
   const extensionSettings = vscode.workspace.getConfiguration('stm32-for-vscode');
   const globalSettingsUpdatePromises: Thenable<void>[] = [];
-  forEach(finalBuildTools, (toolPath, key) => {
-    if (!isEqual(toolPath, extensionSettings.get(key))) {
+  Object.keys(finalBuildTools).forEach((key) => {
+    
+    const toolPath = finalBuildTools[key as keyof ToolChain];
+    if (toolPath !== extensionSettings.get(key)) {
       globalSettingsUpdatePromises.push(extensionSettings.update(key, toolPath, vscode.ConfigurationTarget.Global));
     }
   });
@@ -67,14 +68,15 @@ export async function checkBuildTools(context: vscode.ExtensionContext): Promise
 
     const localExtensionSettings =
       vscode.workspace.getConfiguration('stm32-for-vscode', vscode.Uri.file(localSettingsPath));
-    forEach(finalBuildTools, (toolPath, key) => {
+    Object.keys(finalBuildTools).forEach((key) => {
+      const toolPath = finalBuildTools[key as keyof ToolChain];
       const localPath = localExtensionSettings.get(key);
-      if (localPath === undefined) { return; }
-      let localWhichPath = which(localPath);
+      if (!localPath) { return; }
+      let localWhichPath = whichSync(localPath as string);
       if (key === 'armToolchainPath') {
-        localWhichPath = which(path.join(`${localPath}`, 'arm-none-eabi-gcc'));
+        localWhichPath = whichSync(path.join(`${localPath}`, 'arm-none-eabi-gcc'));
       }
-      if ((!isEqual(toolPath, localPath) && !localWhichPath) || !localPath) {
+      if ((toolPath !== localPath && !localWhichPath) || !localPath) {
         localUpdatePromises.push(localExtensionSettings.update(key, toolPath, vscode.ConfigurationTarget.Workspace));
       }
     });
@@ -99,8 +101,9 @@ export async function checkBuildTools(context: vscode.ExtensionContext): Promise
 export function getBuildToolsFromSettings(): ToolChain {
   const extensionSettings = vscode.workspace.getConfiguration('stm32-for-vscode');
   const toolChain = new ToolChain();
-  forEach(toolChain, (_value, key) => {
-    set(toolChain, key, extensionSettings.get(key));
+
+  Object.keys(toolChain).forEach((key) => {
+    toolChain[key as keyof ToolChain] = extensionSettings.get(key) || false;
   });
   return toolChain;
 }

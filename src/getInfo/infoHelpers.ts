@@ -1,27 +1,6 @@
-import { isEmpty, cloneDeep, set, uniq } from 'lodash';
 import * as vscode from 'vscode';
 
 import MakeInfo from '../types/MakeInfo';
-
-export function combineArraysIntoObject(arr1: string[], arr2: string[], key: string, obj: {}): {} {
-  // GUARD: against empty or null arrays.
-  if (!arr2 || !Array.isArray(arr2)) {
-    if (arr1 && Array.isArray(arr1)) {
-      set(obj, key, arr1.sort());
-      return obj;
-    }
-    set(obj, key, []);
-    return obj;
-  }
-  if (!arr1 || !Array.isArray(arr1)) {
-    set(obj, key, arr2);
-    return obj;
-  }
-  let totalArray = arr1.concat(arr2);
-  totalArray = uniq(totalArray).sort();
-  set(obj, key, totalArray);
-  return obj;
-}
 
 /**
  * @description returns the location of a specific file in an array
@@ -44,7 +23,7 @@ export function checkForFileNameInArray(name: string, array: string[], caseMatte
  * @param {object} makeInfo combined info of the makefile and file list
  */
 export function checkAndConvertCpp(makeInfo: MakeInfo): MakeInfo {
-  const newInfo = cloneDeep(makeInfo);
+  const newInfo = {...makeInfo};
   if (checkForFileNameInArray('main.cpp', newInfo.cxxSources) >= 0) {
     const indMain = checkForFileNameInArray('main.c', newInfo.cSources);
     if (indMain >= 0) {
@@ -53,7 +32,7 @@ export function checkAndConvertCpp(makeInfo: MakeInfo): MakeInfo {
     }
     return newInfo;
   }
-  if (!isEmpty(newInfo.cxxSources)) {
+  if (newInfo.cxxSources && newInfo.cxxSources.length > 0) {
     vscode.window.showWarningMessage(
       'You have several cxx/cpp/cc files, however no main.cpp file. Will ignore these files for now'
     );

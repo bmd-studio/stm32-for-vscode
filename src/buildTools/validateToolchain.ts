@@ -1,6 +1,5 @@
 import * as path from 'path';
 import * as process from 'process';
-import * as shelljs from 'shelljs';
 import * as vscode from 'vscode';
 
 import { armNoneEabiDefinition, makeDefinition, openocdDefinition } from './toolChainDefinitions';
@@ -10,10 +9,10 @@ import {
   validateArmToolchainPath,
   validateXPMToolchainPath
 } from './extensionToolchainHelpers';
-import {forEach, get, set} from 'lodash';
 
 import { ToolChain } from '../types/MakeInfo';
 import { getExtensionSettings } from '../getInfo/getSettings';
+import { whichSync } from '../Helpers';
 
 /*
  * The steps for validating the toolchain are as follows
@@ -55,10 +54,10 @@ export function checkSettingsForBuildTools(): ToolChain {
 
 export function compareAndUpdateMissingBuildTools(startSettings: ToolChain, additionalSettings: ToolChain): ToolChain {
   const newSettings = {...startSettings};
-
-  forEach(startSettings, (setting, key) => {
+  Object.keys(startSettings).forEach((key) => {
+    const setting = startSettings[key as keyof ToolChain];
     if (!setting) {
-      set(newSettings, key, get(additionalSettings, key));
+      newSettings[key as keyof ToolChain] = additionalSettings[key as keyof ToolChain];
     }
   });
   return newSettings;
@@ -101,19 +100,19 @@ export async function checkAutomaticallyInstalledBuildTools(
  */
 export function checkBuildToolsInPath(): ToolChain {
   const pathToolchain = new ToolChain();
-  const armShellPath = shelljs.which(armNoneEabiDefinition.standardCmd);
+  const armShellPath = whichSync(armNoneEabiDefinition.standardCmd);
   if (checkSettingsPathValidity(armShellPath)) {
     // for some weird reason the shellPath gets rejected when I do not toString() it
     const armDirectory = path.dirname(armShellPath.toString());
     pathToolchain.armToolchainPath = armDirectory;
   }
   // OpenOCD
-  const openocdShellPath = shelljs.which(openocdDefinition.standardCmd);
+  const openocdShellPath = whichSync(openocdDefinition.standardCmd);
   if (checkSettingsPathValidity(openocdShellPath)) {
     pathToolchain.openOCDPath = openocdShellPath;
   }
   // make
-  const makeShellPath = shelljs.which(makeDefinition.standardCmd);
+  const makeShellPath = whichSync(makeDefinition.standardCmd);
   if (checkSettingsPathValidity(makeShellPath)) {
     pathToolchain.makePath = makeShellPath;
   }
@@ -138,7 +137,7 @@ export function hasRelevantBuildTools(settingsToolchain: ToolChain): boolean {
 export function hasRelevantAutomaticallyInstalledBuildTools(settingsToolchain: ToolChain): boolean {
   let hasMakeForWindows = process.platform === 'win32' ? settingsToolchain.makePath : true;
   if (!hasMakeForWindows) {
-    const systemMakepath = shelljs.which('make');
+    const systemMakepath = whichSync('make');
     if (systemMakepath) {
       hasMakeForWindows = true;
       settingsToolchain.makePath = systemMakepath;
