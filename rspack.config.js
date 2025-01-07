@@ -58,13 +58,12 @@ const config = {
     ],
   },
   plugins: [
-    new BundleAnalyzerPlugin({
-      analyzerMode: 'disabled',
-      generateStatsFile: true,
+    process.env.RSDOCTOR && new BundleAnalyzerPlugin({
+      analyzerMode: 'server',
       // Excludes module sources from stats file so there won't be any sensitive data
     }),
     new LodashModuleReplacementPlugin,
-        process.env.RSDOCTOR &&
+    process.env.RSDOCTOR &&
       new RsdoctorRspackPlugin({
         // plugin options
         supports: {
