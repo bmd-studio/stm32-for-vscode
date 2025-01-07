@@ -7,6 +7,10 @@
 	- Full support for CubeIDE imports.
 	- Add option to select installation location for the tooling.
 
+## [3.2.10] - 2025-01-07
+### Fixed
+ - did not seem to write files correctly using the file function on OSX in make. For this reason building failed. Fixed this by using @echo
+
 ## [3.2.9] - 2024-12-24
 ### Added
  - Issue #206: Did not build anything else than elf files due to the all recipe not being correct.

@@ -401,7 +401,7 @@ $(RELEASE_DIRECTORY)/%.o: %.sx ${makefileName} | $(RELEASE_DIRECTORY)
 \t$(AS) -c $(ASFLAGS) $< -o $@
 
 $(RELEASE_DIRECTORY)/$(TARGET).elf: $(OBJECTS) ${makefileName} | $(RELEASE_DIRECTORY)
-\t$(file >$@.in,$(OBJECTS))
+\t@echo $(OBJECTS) > $@.in
 \t$(${makeInfo.language === 'C' ? 'CC' : 'CXX'}) @$@.in $(LDFLAGS) -o $@
 \t$(SZ) $@
 
