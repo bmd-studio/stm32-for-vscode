@@ -42,6 +42,8 @@ export interface SVDLocalFile {
   data: string;
 }
 
+// FIXME: multiple ways to fix this. 
+// Look at: https://marketplace.visualstudio.com/items?itemName=cortex-debug.svd-viewer
 export async function getSVDFileForChip(chip: string): Promise<SVDLocalFile> {
   const svdFileList = await getSVDFileList();
   const svdFileStringList = svdFileList.map((e) => e.name);

@@ -7,6 +7,13 @@
 	- Full support for CubeIDE imports.
 	- Add option to select installation location for the tooling.
 
+## [3.2.11] - 2025-01-07
+### Fixed
+ - Issue #220: C++ sources wre not included correctly while using vpath. Resulting in no rule to make target.
+
+### Removed
+ - SVD files could not be found. As a new mechanism needs to be introduced to get them removed this feature which just ended up throwing errors.
+
 ## [3.2.10] - 2025-01-07
 ### Fixed
  - did not seem to write files correctly using the file function on OSX in make. For this reason building failed. Fixed this by using @echo

@@ -11,7 +11,7 @@ import {
 import importAndSetupCubeIDEProject from '../../import';
 
 async function stopExit(time: number): Promise<void> {
-  return  new Promise<void>(
+  return new Promise<void>(
     (resolve) => {
       setTimeout(() => {
         resolve();
@@ -35,7 +35,5 @@ suite('importer test', () => {
   test('Import Cube example project and build', async () => {
     await importAndSetupCubeIDEProject();
     await buildSTM();
-    await stopExit(60000);
-
   }).timeout(120000);
 });
