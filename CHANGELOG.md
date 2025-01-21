@@ -7,6 +7,11 @@
 	- Full support for CubeIDE imports.
 	- Add option to select installation location for the tooling.
 
+
+## [3.2.12] - 2025-01-07
+### Fixed
+ - Launch config was not reflecting the change to release and debug builds.
+
 ## [3.2.11] - 2025-01-07
 ### Fixed
  - Issue #220: C++ sources wre not included correctly while using vpath. Resulting in no rule to make target.

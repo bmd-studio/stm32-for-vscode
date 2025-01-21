@@ -80,11 +80,11 @@ suite('WorkspaceConfiguration', () => {
     expect(updateConfigFake.calledOnce).to.be.true;
     expect(updateConfigFake.getCall(0).args[1].find((task: any) => debugFixture.name === task?.name)).to.deep.equal({
       ...debugFixture,
-      executable: "./build/othertesttarget.elf"
+      executable: "./build/debug/othertesttarget.elf"
     });
     expect(updateConfigFake.getCall(0).args[1].find((task: any) => attachFixture.name === task?.name)).to.deep.equal({
       ...attachFixture,
-      executable: "./build/othertesttarget.elf"
+      executable: "./build/debug/othertesttarget.elf"
     });
   });
 

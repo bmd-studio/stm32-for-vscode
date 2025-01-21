@@ -2,12 +2,13 @@
     "[javascript][typescript]": {
         "editor.tabSize": 2,
         "editor.insertSpaces": true,
-
         // Auto-Formatting currently disabled in this repo.
         // "editor.formatOnSave": true,
         // "editor.defaultFormatter": "esbenp.prettier-vscode",
-
-        "editor.rulers": [120], // 120 chars is the default eslint max length.
+        "editor.rulers": [
+            120
+        ], // 120 chars is the default eslint max length.
     },
-    "cortex-debug.openocdPath": "C:\\USERS\\JORT_\\APPDATA\\ROAMING\\CODE - INSIDERS\\USER\\GLOBALSTORAGE\\BMD.STM32-FOR-VSCODE\\@XPACK-DEV-TOOLS\\OPENOCD\\0.12.0-4.1\\.CONTENT\\BIN\\OPENOCD.EXE",
+    "cortex-debug.openocdPath": "/Users/jort/Library/Application Support/Code - Insiders/User/globalStorage/bmd.stm32-for-vscode/@xpack-dev-tools/openocd/0.12.0-2.1/.content/bin/openocd",
+    "cortex-debug.armToolchainPath": "/Users/jort/Library/Application Support/Code - Insiders/User/globalStorage/bmd.stm32-for-vscode/@xpack-dev-tools/arm-none-eabi-gcc/13.2.1-1.1.1/.content/bin",
 }
