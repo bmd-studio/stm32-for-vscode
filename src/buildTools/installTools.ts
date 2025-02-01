@@ -122,9 +122,14 @@ export async function installMake(toolsStoragePath: vscode.Uri, npx: string): Pr
     case "linux": {
       let cmd = makeDefinition.installation.linux;
       let linuxExecutable = [''];
-      if (cmd && !Array.isArray(cmd)) {
-        linuxExecutable = [cmd];
+      if (cmd && Array.isArray(cmd)) {
+        linuxExecutable = cmd;
       }
+      /**
+       * It is essential to run update if the extension is installed in devcontainer. Otherwise
+       * encounter the error `E: Unable to locate package build-essential`
+       */
+      await executeTask('shell', 'update package lists', ['sudo', '-S apt-get update'], {});
       await executeTask('shell', 'install make', linuxExecutable, {});
       return;
     } break;
