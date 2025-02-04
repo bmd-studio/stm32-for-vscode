@@ -50,7 +50,7 @@ export const makeDefinition: BuildToolDefinition = {
   installation: {
     windows: '@xpack-dev-tools/windows-build-tools@latest',
     darwin: 'xcode-select --install',
-    linux: ['sudo', '-S apt-get install build-essential'],
+    linux: ['sudo', '-S apt-get -y install build-essential'],
   },
   xpmPath: './.content/bin',
   xpmName: 'windows-build-tools'
