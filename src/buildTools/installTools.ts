@@ -120,11 +120,8 @@ export async function installMake(toolsStoragePath: vscode.Uri, npx: string): Pr
       return xpmInstall(toolsStoragePath, npx, win32XPMMakeDefinition);
     } break;
     case "linux": {
-      let cmd = makeDefinition.installation.linux;
-      let linuxExecutable = [''];
-      if (cmd && Array.isArray(cmd)) {
-        linuxExecutable = cmd;
-      }
+      let cmd = makeDefinition.installation.linux as string | string[];
+      let linuxExecutable = Array.isArray(cmd) ? cmd : [cmd];
       /**
        * It is essential to run update if the extension is installed in devcontainer. Otherwise
        * encounter the error `E: Unable to locate package build-essential`
