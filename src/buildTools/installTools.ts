@@ -1,7 +1,7 @@
 import * as decompress from 'decompress';
 import * as path from 'path';
 import * as process from 'process';
- 
+
 import * as vscode from 'vscode';
 
 import {
@@ -105,7 +105,7 @@ export function installOpenOcd(toolsStoragePath: vscode.Uri, npx: string): XpmIn
  */
 export async function installMake(toolsStoragePath: vscode.Uri, npx: string): Promise<void> {
   let executeCmd = '';
-  if ( which('make')) {
+  if (which('make')) {
     return Promise.resolve();
   }
 
@@ -173,6 +173,25 @@ const nodeRegex: { [key: string]: { [key: string]: RegExp } } = {
     s390x: /href="(\/dist\/v\d+\.\d+\.\d+\/node-v\d+\.\d+\.\d+-linux-s390x.tar.gz)/gm,
   }
 };
+const nodePlatformIdentifiers: { [key: string]: { [key: string]: string } } = {
+  win32: {
+    x32: 'win-x86.zip',
+    x64: 'win-x64.zip',
+    ia32: 'win-x86.zip',
+    ia64: 'win-x64.zip',
+  },
+  darwin: {
+    x64: 'darwin-x64.tar.gz',
+    arm64: 'darwin-arm64.tar.gz',
+  },
+  linux: {
+    arm: 'linux-armv7l.tar.gz',
+    arm64: 'linux-arm64.tar.gz',
+    x64: 'linux-x64.tar.gz',
+    ppc64: 'linux-ppc64le.tar.gz',
+    s390x: 'linux-s390x.tar.gz',
+  }
+};
 
 
 /**
@@ -184,27 +203,20 @@ const nodeRegex: { [key: string]: { [key: string]: RegExp } } = {
 export function getPlatformSpecificNodeLink(
   latestNodeBody: string, currentPlatform: NodeJS.Platform, arch: string
 ): string | undefined {
-  const regexPattern = nodeRegex?.[`${currentPlatform}`]?.[`${arch}`];
-  if (!regexPattern) {
+  const platformLinkId = nodePlatformIdentifiers?.[`${currentPlatform}`]?.[`${arch}`];
+  const splitRegex = /<a\s+href=\"/gm;
+  const hrefSplit = latestNodeBody.split(splitRegex);
+  const platformPreLink = hrefSplit.filter((input) => {
+    return input.includes(platformLinkId);
+  });
+  if (!platformLinkId || platformPreLink.length === 0) {
     throw new Error(
       // eslint-disable-next-line max-len
       `Could not find the NodeJS link for your specific platform: platform: ${process.platform}, arch: ${process.arch}. Please open a GitHub Issue: ${GITHUB_ISSUES_URL}`);
   }
-  const platformRegex = new RegExp(
-    regexPattern,
-    regexPattern.flags);
-  let link = undefined;
 
-  if (platformRegex) {
-    const result = platformRegex.exec(latestNodeBody);
-    if (Array.isArray(result)) {
-      link = result[0];
-    }
-  }
-  if (link) {
-    link = link.replace(`href="`, '');
-  }
-  return link;
+  const platformLink = platformPreLink[0].slice(0, platformPreLink[0].indexOf('"'));
+  return platformLink;
 }
 
 // latest gallium is the latest lts v16 version. 
@@ -304,7 +316,7 @@ export async function getNode(toolsStoragePath: vscode.Uri): Promise<string> {
   } catch (error) {
     vscode.window.showErrorMessage(
       `An error occurred during the node installation process.
-				Please try again, or create an issue at: ${GITHUB_ISSUES_URL}. Include the error: ${error}`
+        Please try again, or create an issue at: ${GITHUB_ISSUES_URL}. Include the error: ${error}`
     );
     throw error;
   }
