@@ -192,7 +192,7 @@ OPTIMIZATION ?= ${createPrefixWhenNoneExists(makeInfo.optimization, '-')}
 RELEASE_DIRECTORY = $(BUILD_DIRECTORY)/debug
 ifeq ($(DEBUG),1)
   # Sets debugging optimization -Og and the debug information output
-  OPTIMIZATION_FLAGS += -Og -g -gdwarf -ggdb
+  OPTIMIZATION_FLAGS += -Og -g -gdwarf -ggdb -DDEBUG
   $(TARGET) := $(TARGET)-debug
   RELEASE_DIRECTORY := $(BUILD_DIRECTORY)/debug
 else

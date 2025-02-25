@@ -7,6 +7,10 @@
   - Full support for CubeIDE imports.
   - Add option to select installation location for the tooling.
 
+## [3.2.14] - 2025-02-25
+### Added
+  - Passed DEBUG definition flag on debug build.
+
 ## [3.2.13] - 2025-02-04
 ### Fixed
  - Issue #218: Install build tools failed due to node platform link being incorrect. With special thanks to: 0-haha
